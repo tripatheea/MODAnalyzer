@@ -1,0 +1,297 @@
+#include <iostream>
+#include <unordered_map>
+#include <exception>
+#include <fstream>
+#include <memory>
+#include <string>
+#include <iomanip> 
+
+#include "fastjet/ClusterSequence.hh"
+#include "trigger.cc"
+#include "particle.cc"
+
+
+using namespace std;
+using namespace fastjet;
+
+class Event {
+	
+	int run_number_, event_number_;
+	vector<Particle> particles_;
+	vector<Trigger> triggers_;
+	string type_of_particles_;
+
+	public:
+		Event(int, int);
+		Event();
+
+		int size();
+		double calculate_N_tilde(double R, double pt_cut);	// R, pt_cut. R is the cone radius.
+
+		vector<PseudoJet> jets(JetDefinition jet_def, double pt_cut);	// JetDefinition, pt_cut (Fastjet)
+		vector<Particle> particles();
+
+		void add_particle(double px, double py, double pz, double energy, double mass, int pdgId);
+		void add_trigger(string name, int prescale_1, int prescale_2, bool fired);	
+		void write_to_file(string filename);	// Will append if file already exists.
+
+		Trigger assigned_trigger();
+		Trigger trigger_by_name(string name);
+
+		double hardest_pt();
+
+		void print_particles();
+
+		vector<PseudoJet> particles_four_vectors();
+
+		void assign_event_number(int event_number);
+		void assign_run_number(int run_number);
+		void assign_particles_type(string particles_type);
+
+		bool is_valid();
+
+		vector<Trigger> triggers();
+
+		string type_of_particles();
+};
+
+Event::Event(int run_number, int event_number) : run_number_(run_number), event_number_(event_number) {}
+
+Event::Event() {}
+
+string Event::type_of_particles() {
+	return this->type_of_particles_;
+}
+
+void Event::assign_run_number(int run_number) {
+	this->run_number_ = run_number;
+}
+
+void Event::assign_particles_type(string particles_type) {
+	this->type_of_particles_ = particles_type;
+}
+
+void Event::assign_event_number(int event_number) {
+	this->event_number_ = event_number;
+}
+
+void Event::print_particles() {
+	
+}
+
+int Event::size() {
+	return this->particles().size();
+}
+
+vector<PseudoJet> Event::particles_four_vectors() {
+	vector<PseudoJet> four_vectors;
+	vector<Particle> all_particles = this->particles();
+
+	for (unsigned int i = 0; i < all_particles.size(); i++) {
+		Particle current_particle = all_particles[i];
+		vector<double> current_particle_four_vector = current_particle.four_vector();
+		four_vectors.push_back(PseudoJet(current_particle_four_vector[0], current_particle_four_vector[1], current_particle_four_vector[2], current_particle_four_vector[3]));
+	}
+
+	return four_vectors;
+}
+
+double Event::calculate_N_tilde(double R, double pt_cut) {
+	vector<PseudoJet> particles = this->particles_four_vectors();
+
+	double N_tilde_current_event = 0.00;
+
+	for(int i = 0; i < particles.size(); i++) {
+		double pt_i = particles[i].pt();
+		double pt_iR = 0.00;
+		
+		for(int j = 0; j < particles.size(); j++) {
+			double pt_j = particles[j].pt();
+			double squared_distance = particles[i].squared_distance(particles[j]);			// squared_distance instead of delta_R to speed things up.
+
+			if (R*R > squared_distance)					// heavisideStep
+				pt_iR += pt_j;
+		}
+
+		if (pt_iR > pt_cut)	{							// heavisideStep
+			N_tilde_current_event += pt_i / pt_iR;
+		}
+	}
+
+	return N_tilde_current_event;
+}
+
+vector<PseudoJet> Event::jets(JetDefinition jet_def, double pt_cut) {
+	vector<PseudoJet> particles = this->particles_four_vectors();
+
+	// Run the clustering, extract the jets using fastjet.
+	ClusterSequence cs(particles, jet_def);
+	vector<PseudoJet> clustered_jets = cs.inclusive_jets(pt_cut);
+
+	return clustered_jets;
+}
+
+vector<Particle> Event::particles() {
+	return this->particles_;
+}
+
+void Event::add_particle(double px, double py, double pz, double energy, double mass, int pdgId) {
+	Particle particle_to_add = Particle(px, py, pz, energy, mass, pdgId);
+	this->particles_.push_back(particle_to_add);
+}
+
+void Event::add_trigger(string name, int prescale_1, int prescale_2, bool fired) {
+	pair <int, int> prescales;
+
+	prescales = make_pair(prescale_1, prescale_2);
+
+	Trigger trigger_to_add = Trigger(name, prescales, fired);
+	this->triggers_.push_back(trigger_to_add);
+}
+
+Trigger Event::trigger_by_name(string name) {
+	vector<Trigger> triggers = this->triggers();
+
+	for(int i = 0; i < triggers.size(); i++) {
+		Trigger current_trigger = triggers[i];
+
+		if (current_trigger.name() == name) {
+			return current_trigger;
+		}
+	}
+
+	Trigger * empty_trigger = new Trigger();
+	return * empty_trigger;
+}
+
+vector<Trigger> Event::triggers() {
+	return this->triggers_;
+}
+
+void Event::write_to_file(string filename) {
+	ofstream file_to_write (filename, ofstream::out | ofstream::trunc);
+
+	
+
+	int event_number = this->event_number_;
+	int run_number = this->run_number_;
+
+	vector<Particle> particles = this->particles();
+
+	file_to_write << "BeginEvent Run " << this->run_number_ << " Event " << this->event_number_ << endl;
+	
+	// First, write out all particles.
+
+	file_to_write << "#" << this->type_of_particles() << "    px             py             pz           energy           mass           pdgId" << endl;
+	for (int i = 0; i < particles.size(); i++) {
+		Particle current_particle = particles[i];
+
+		vector<double> four_vector = current_particle.four_vector();
+
+		file_to_write << this->type_of_particles() << " " << setprecision(8) << showpos << four_vector[0] << "     " << setprecision(8) << showpos << four_vector[1] << "     " << setprecision(8) << showpos << four_vector[2] << "     " << setprecision(8) << showpos << four_vector[3] << "     " << setprecision(8) << showpos << current_particle.mass() << "          " << noshowpos << current_particle.pdgId() << endl;
+	}
+
+	// Next, write out all triggers.
+
+	file_to_write << "#Trig     Name        Prescale 1   Prescale 2   Fired?" << endl;
+
+	vector<Trigger> triggers = this->triggers();
+	for(int i = 0; i < triggers.size(); i++) {
+		Trigger current_trigger = triggers[i];
+
+		pair<int, int> prescales = current_trigger.prescales();
+		file_to_write << "trig   " << current_trigger.name() << "         " << setw(3) << setfill('0') << noshowpos << prescales.first << setw(3) << setfill('0') << "          " << setw(3) << setfill('0') << noshowpos << prescales.second << noshowpos << "          " << current_trigger.fired() << endl;
+	}
+
+	file_to_write << "EndEvent" << endl;
+}
+
+double Event::hardest_pt() {
+	vector<PseudoJet> particles = this->particles_four_vectors();
+
+	// Run the clustering, extract the jets using fastjet.
+	JetDefinition jet_def(antikt_algorithm, 0.5);
+	ClusterSequence cs(particles, jet_def);
+	vector<PseudoJet> clustered_jets = cs.inclusive_jets(0.0);
+	
+	double hardest_pt = 0.0;
+	for (unsigned int i = 0; i < clustered_jets.size(); i++) {
+		if (hardest_pt < clustered_jets[i].pt())
+			hardest_pt = clustered_jets[i].pt();
+	}
+
+	return hardest_pt;
+}
+
+Trigger Event::assigned_trigger() {
+
+	// Find the hardest jet first.
+	
+
+
+
+	JetDefinition jet_def(antikt_algorithm, 0.5);
+	ClusterSequence cs(Event::particles_four_vectors(), jet_def);
+	vector<PseudoJet> clustered_jets = cs.inclusive_jets(0.0);;
+
+
+	
+	double hardest_pt = 0.0;
+	for (unsigned int i = 0; i < clustered_jets.size(); i++) {
+		if (hardest_pt < clustered_jets[i].pt())
+			hardest_pt = clustered_jets[i].pt();
+	}
+
+
+
+	
+	// Next, lookup which trigger to use based on the pt value of the hardest jet.
+	
+	/*
+	37-56 GeV => 6U
+	56-84 GeV => 15U
+	84-114 GeV => 30U
+	114-153 GeV => 50U
+	>153 GeV => 70U
+	*/
+
+	string trigger_to_use;
+	if (hardest_pt > 153) {
+		trigger_to_use = "HLT_Jet70U";
+	}
+	else if (hardest_pt > 114) {
+		trigger_to_use = "HLT_Jet50U";
+	}
+	else if (hardest_pt > 84) {
+		trigger_to_use = "HLT_Jet30U";
+	}
+	else if (hardest_pt > 56) {
+		trigger_to_use = "HLT_Jet15U";
+	}
+	else if (hardest_pt > 37) {
+		trigger_to_use = "HLT_L1Jet6U";
+	}
+	else {
+		trigger_to_use = "HLT_MinBiasPixel_SingleTrack";
+	}
+
+
+
+	vector<string> triggersThatMatter {"HLT_L1Jet6U", "HLT_L1Jet10U", "HLT_Jet15U", "HLT_Jet30U", "HLT_Jet50U", "HLT_Jet70U", "HLT_Jet100U"};
+
+	// Next, just see if the trigger_to_use fired or not.
+
+
+
+	if (trigger_to_use.length() != 0) {
+
+		Trigger selected_trigger = this->trigger_by_name(trigger_to_use);
+
+		if (selected_trigger.fired())
+			return selected_trigger;
+	}
+
+	// No trigger was fired for this event.
+	Trigger * empty_trigger = new Trigger();
+	return * empty_trigger;
+}
