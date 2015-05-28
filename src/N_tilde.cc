@@ -6,6 +6,7 @@
 #include <string>
 #include <stdexcept>
 #include <iterator>
+#include <iomanip>
 
 #include "fastjet/ClusterSequence.hh"
 #include "event.cc"
@@ -18,13 +19,13 @@ using namespace std;
 vector<string> split(string const &input);
 
 int main() {
-	ifstream data_file("pfcandidates");
+	ifstream data_file("pfcandidates.dat");
 
 	ofstream multiplicities_output_file("antikt_multiplicities.dat", ios::out);
 	
 	double px, py, pz, energy;	
-	double R = 0.5;
-	double pt_cut = 50.00;
+	vector<double> cone_radii = {0.3, 0.5, 0.7};
+	vector<double> pt_cuts = {50, 80, 110};
 
 	int run_number, event_number;
 
@@ -32,15 +33,17 @@ int main() {
 	
 	int event_serial_number = 1;
 
+	multiplicities_output_file << "# Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale_1     Prescale_2     Cone_Radius     pT_Cut" << endl;
 	string line;
 	while(getline(data_file, line)) {
 		istringstream iss(line);
 
-		cout << "Processing event number: " << event_serial_number << endl;
-
 		vector<string> components = split(line);
 
 		if (components[0] == "BeginEvent") {
+
+			cout << "Processing event number: " << event_serial_number << endl;	
+			
 			run_number = stoi(components[2]);
 			event_number = stoi(components[4]);
 
@@ -50,8 +53,6 @@ int main() {
 		}
 		else if (components[0] == "PFC") {
 			try {
-				// cout << components[1] << endl;
-				cout.precision(8);
 				event_being_read->add_particle(stod(components[1]), stod(components[2]), stod(components[3]), stod(components[4]), stod(components[5]), stod(components[6]));
 			}
 			catch (exception& e) {
@@ -63,33 +64,49 @@ int main() {
 			// Current event has ended. We can process it now.
 			// event_being_read->write_to_file("Test.dat");
 
-			// Now retrieve the assigned trigger and use that to determine:
-			// a) whether to record the current event or not.
-			// b) what prescale to use.
+			// Now retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
 
-			Trigger assigned_trigger = event_being_read->assigned_trigger();
+			// Also calculate everything and record those along with the trigger information.
 
-			if (assigned_trigger.is_valid()) {
+			string assigned_trigger_name = event_being_read->assigned_trigger_name();
+			Trigger assigned_trigger = event_being_read->trigger_by_name(assigned_trigger_name);
 
-				// Record things only if at least one trigger was fired.
-				
-				pair<int, int> prescales = assigned_trigger.prescales();
+			
+			pair<int, int> prescales = assigned_trigger.prescales();
+			bool fired = (assigned_trigger.is_valid()) ? assigned_trigger.fired() : 0;
 
-				int prescale_1 = prescales.first;
-				int prescale_2 = prescales.second;
+			int prescale_1 = prescales.first;
+			int prescale_2 = prescales.second;
 
-				// Calculate N_tilde.
-				double N_tilde = event_being_read->calculate_N_tilde(R, pt_cut);
-				// cout << N_tilde << endl;
-				
-				// Calculate jet size (fastjet)
-				JetDefinition jet_def(antikt_algorithm, R);
-				vector<PseudoJet> jets = event_being_read->jets(jet_def, pt_cut);
+			// Calculate everything for each value of R and pt_cut.
+
+			for(unsigned int r = 0; r < cone_radii.size(); r++) {
+				for (unsigned int p = 0; p < pt_cuts.size(); p++) {
+
+					// Calculate N_tilde.
+					double N_tilde = event_being_read->calculate_N_tilde(cone_radii[r], pt_cuts[p]);
+					
+					// Calculate jet size (fastjet)
+					JetDefinition jet_def(antikt_algorithm, cone_radii[r]);
+					vector<PseudoJet> jets = event_being_read->jets(jet_def, pt_cuts[p]);
 
 
-				multiplicities_output_file << N_tilde << " " << jets.size() << " " << prescale_1 << " " << prescale_2 << " " << assigned_trigger.name() << endl;
-				// cout << N_tilde << " " << jets.size() << " " << prescale_1 << " " << prescale_2 << " " << assigned_trigger.name() << endl;
+					multiplicities_output_file  << setw(12) << event_being_read->event_number()
+												<< setw(15) << event_being_read->run_number()
+												<< setw(14) << showpoint << setprecision(6) << N_tilde
+												<< setw(9) << jets.size()
+												<< setw(35) << assigned_trigger_name
+												<< setw(5) << fired
+												<< setw(12) << prescale_1
+												<< setw(15) << prescale_2
+												<< setw(18) << setprecision(2) << cone_radii[r]
+												<< setw(12) << noshowpoint << setprecision(3) << pt_cuts[p]
+												<< endl;					
+				}
 			}
+			
+			
+			
 
 			// We've calculated all we need. Now remove the old pointer (for the previous instance of event) and create a new one.
 
@@ -123,156 +140,3 @@ vector<string> split(string const &input) {
     vector<string> ret((istream_iterator<string>(buffer)), istream_iterator<string>());
     return ret;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// int main() {
-// 	// ifstream pfCandidatesFile("../pfcandidates");
-// 	ifstream pfCandidatesFile("../minBias");
-
-// 	ofstream fmatch("antikt_multiplicities.csv", ios::out);
-// 	CSVRow row;
-
-// 	double px, py, pz, energy;	
-// 	double R = 0.5;
-// 	double pt_cut = 50.00;
-
-// 	int run_number, event_number_of_next_event;
-// 	int event_count = 1;
-	
-// 	int first_event_number = 138867139;
-// 	int first_run_number = 146511;
-
-// 	int event_number_of_event_being_processed = first_event_number;
-// 	Event * current_event = new Event(first_run_number, first_event_number);
-// 	int no_of_triggers = 1; 	// Depends on the analysis we're doing.
-
-
-
-// 	while(pfCandidatesFile >> row) {
-
-// 		run_number = stoi(row[0]);
-// 		event_number_of_next_event = stoi(row[1]);
-// 		px = stod(row[2]);
-// 		py = stod(row[3]);
-// 		pz = stod(row[4]);
-// 		energy = stod(row[5]);
-
-// 		PseudoJet current_particle = PseudoJet(px, py, pz, energy);
-
-// 		if (event_number_of_event_being_processed != event_number_of_next_event) {
-
-// 			cout << "Processing event number: " << event_number_of_event_being_processed << " which is # " << event_count << endl;
-
-			
-// 			// We've moved on to a different event.
-// 			// That means, the class current_event contains all the particles that it's supposed to.
-			
-// 			// Add all the trigger info for this event.
-			
-// 			int line_start = (event_count - 1) * no_of_triggers + 1;
-
-// 			vector<Trigger> current_triggers = get_trigger_info(event_number_of_event_being_processed, line_start, line_start + no_of_triggers - 1);
-// 			current_event->add_triggers(current_triggers);
-
-
-
-
-// 			// All triggers stored.
-
-// 			// Now retrieve the assigned trigger and use that to determine:
-// 			// a) whether to record the current event or not.
-// 			// b) what prescale to use.		
-
-// 			Trigger assigned_trigger = current_event->get_assigned_trigger();
-// 			// cout << assigned_trigger.get_name() << endl;
-
-// 			if (assigned_trigger.is_valid()) {
-
-// 				// Record things only if at least one trigger was fired.
-				
-// 				pair<int, int> prescales = assigned_trigger.get_prescales();
-
-// 				int prescale_1 = get<0>(prescales);
-// 				int prescale_2 = get<1>(prescales);
-
-// 				// Calculate N_tilde.
-// 				double N_tilde = current_event->calculate_N_tilde(event_number_of_event_being_processed, R, pt_cut);
-// 				// cout << N_tilde << endl;
-				
-// 				// Calculate jet size (fastjet)
-// 				JetDefinition jet_def(antikt_algorithm, R);
-// 				vector<PseudoJet> jets = current_event->get_jets(event_number_of_event_being_processed, jet_def, pt_cut);
-
-
-// 				// fmatch << N_tilde << " " << jets.size() << " " << prescale_1 << " " << prescale_2 << " " << assigned_trigger.get_name() << endl;
-// 				fmatch << current_event->get_hardest_pt() << "," << prescale_1 << "," << prescale_2 << " " << assigned_trigger.get_name() << endl;
-// 			}
-
-// 			// We've calculated all we need. Now delete the old pointer (for the previous instance of event) and create a new one.
-// 			delete current_event;
-
-// 			Event * current_event = new Event(run_number, event_number_of_next_event);
-
-// 			event_number_of_event_being_processed = event_number_of_next_event;
-
-// 			event_count++;
-// 		}
-
-// 		current_event->add_particle(px, py, pz, energy);
-// 	}
-
-// 	// Need to do all these stuff one last time for the final event.
-
-// 	cout << "Processing event number: " << event_number_of_event_being_processed << " which is # " << event_count << ", the last event." << endl;
-
-// 	// Add all the trigger info for this event.
-			
-// 	int line_start = (event_count - 1) * no_of_triggers + 1;
-
-// 	current_event->add_triggers(get_trigger_info(event_number_of_event_being_processed, line_start, line_start + no_of_triggers - 1));
-
-// 	// All triggers stored.
-
-// 	// Now retrieve the assigned trigger and use that to determine:
-// 	// a) whether to record the current event or not.
-// 	// b) what prescale to use.
-
-// 	Trigger assigned_trigger = current_event->get_assigned_trigger();
-
-// 	if (assigned_trigger.is_valid()) {
-
-// 		// Record things only if at least one trigger was fired.
-
-// 		string name = assigned_trigger.get_name();
-
-// 		pair<int, int> prescales = assigned_trigger.get_prescales();
-
-// 		int prescale_1 = get<0>(prescales);
-// 		int prescale_2 = get<1>(prescales);
-
-
-// 		// Calculate N_tilde.
-// 		double N_tilde = current_event->calculate_N_tilde(event_number_of_event_being_processed, R, pt_cut);
-
-// 		// Calculate jet size (fastjet)
-// 		JetDefinition jet_def(antikt_algorithm, R);
-// 		vector<PseudoJet> jets = current_event->get_jets(event_number_of_event_being_processed, jet_def, pt_cut);
-		
-// 		// fmatch <<  N_tilde << "," << jets.size() << "," << prescale_1 << "," << prescale_2 << " " << assigned_trigger.get_name() << endl;
-// 		fmatch << current_event->get_hardest_pt() << "," << prescale_1 << "," << prescale_2 << " " << assigned_trigger.get_name() << endl;
-// 	}
-
-// }

@@ -26,6 +26,10 @@ class Event {
 		Event();
 
 		int size();
+		
+		int event_number();
+		int run_number();
+
 		double calculate_N_tilde(double R, double pt_cut);	// R, pt_cut. R is the cone radius.
 
 		vector<PseudoJet> jets(JetDefinition jet_def, double pt_cut);	// JetDefinition, pt_cut (Fastjet)
@@ -35,7 +39,7 @@ class Event {
 		void add_trigger(string name, int prescale_1, int prescale_2, bool fired);	
 		void write_to_file(string filename);	// Will append if file already exists.
 
-		Trigger assigned_trigger();
+		string assigned_trigger_name();
 		Trigger trigger_by_name(string name);
 
 		double hardest_pt();
@@ -58,6 +62,15 @@ class Event {
 Event::Event(int run_number, int event_number) : run_number_(run_number), event_number_(event_number) {}
 
 Event::Event() {}
+
+int Event::event_number() {
+	return event_number_;
+}
+
+int Event::run_number() {
+	return run_number_;
+}
+
 
 string Event::type_of_particles() {
 	return this->type_of_particles_;
@@ -223,7 +236,7 @@ double Event::hardest_pt() {
 	return hardest_pt;
 }
 
-Trigger Event::assigned_trigger() {
+string Event::assigned_trigger_name() {
 
 	// Find the hardest jet first.
 	
@@ -275,23 +288,32 @@ Trigger Event::assigned_trigger() {
 		trigger_to_use = "HLT_MinBiasPixel_SingleTrack";
 	}
 
+	cout << trigger_to_use << endl;
+	
+
+	// Here, we just return the trigger that was supposed to fire, not caring whether it actually did or not.
+	// A check on whether it actually fired or not will be done in the N_tilde.cc file itself.
+
+	// vector<string> triggersThatMatter {"HLT_L1Jet6U", "HLT_L1Jet10U", "HLT_Jet15U", "HLT_Jet30U", "HLT_Jet50U", "HLT_Jet70U", "HLT_Jet100U"};
+
+	return trigger_to_use;
 
 
-	vector<string> triggersThatMatter {"HLT_L1Jet6U", "HLT_L1Jet10U", "HLT_Jet15U", "HLT_Jet30U", "HLT_Jet50U", "HLT_Jet70U", "HLT_Jet100U"};
+	
 
-	// Next, just see if the trigger_to_use fired or not.
+	// // Next, just see if the trigger_to_use fired or not.
 
 
 
-	if (trigger_to_use.length() != 0) {
+	// if (trigger_to_use.length() != 0) {
 
-		Trigger selected_trigger = this->trigger_by_name(trigger_to_use);
+	// 	Trigger selected_trigger = this->trigger_by_name(trigger_to_use);
 
-		if (selected_trigger.fired())
-			return selected_trigger;
-	}
+	// 	if (selected_trigger.fired())
+	// 		return selected_trigger;
+	// }
 
-	// No trigger was fired for this event.
-	Trigger * empty_trigger = new Trigger();
-	return * empty_trigger;
+	// // No trigger was fired for this event.
+	// Trigger * empty_trigger = new Trigger();
+	// return * empty_trigger;
 }

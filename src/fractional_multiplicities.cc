@@ -24,6 +24,15 @@
 #include "THStack.h"
 
 
+#include <sstream>
+#include <vector>
+
+
+using namespace std;
+
+vector<string> split_string_to_components(string const &input);
+
+
 // void fractional_multiplicities() {
 //   std::ifstream infile("antikt_multiplicities.csv");
 
@@ -168,59 +177,59 @@
 
 
 
-void fractional_multiplicities() {
-  std::ifstream infile("antikt_multiplicities.csv");
+// void fractional_multiplicities() {
+//   std::ifstream infile("antikt_multiplicities.csv");
 
-  TFile * rootFile_;
-  TTree * multiplicityTree_;
+//   TFile * rootFile_;
+//   TTree * multiplicityTree_;
 
 
-  THStack *hs = new THStack("Fractional Jet Multiplicity", "Fractional Jet Multiplicity (pt_cut = 50.0 GeV, R = 0.5)");
+//   THStack *hs = new THStack("Fractional Jet Multiplicity", "Fractional Jet Multiplicity (pt_cut = 50.0 GeV, R = 0.5)");
 
-  vector<TH1F * > N_tildes = vector<TH1F *>();
-  EColor colors[7] = {kRed, kBlue, kGreen, kYellow, kMagenta, kOrange, kCyan};
-  const char * antikT_labels[7] = {"antikT Jet Size = 0", "antikT Jet Size = 1", "antikT Jet Size = 2", "antikT Jet Size = 3", "antikT Jet Size = 4", "antikT Jet Size = 5", "antikT Jet Size = 6"};
+//   vector<TH1F * > N_tildes = vector<TH1F *>();
+//   EColor colors[7] = {kRed, kBlue, kGreen, kYellow, kMagenta, kOrange, kCyan};
+//   const char * antikT_labels[7] = {"antikT Jet Size = 0", "antikT Jet Size = 1", "antikT Jet Size = 2", "antikT Jet Size = 3", "antikT Jet Size = 4", "antikT Jet Size = 5", "antikT Jet Size = 6"};
   
-  gStyle->SetOptStat(false);
+//   gStyle->SetOptStat(false);
 
-  for (int i = 0; i < 7; i++) {
-    TH1F * N_tilde_temp = new TH1F("", "", 50, -0.5, 6.0);
-    N_tildes.push_back(N_tilde_temp);
-  }
+//   for (int i = 0; i < 7; i++) {
+//     TH1F * N_tilde_temp = new TH1F("", "", 50, -0.5, 6.0);
+//     N_tildes.push_back(N_tilde_temp);
+//   }
   
-  double N_tilde;
-  double antikt;
+//   double N_tilde;
+//   double antikt;
 
-  double prescale_1, prescale_2;
-  string name;
+//   double prescale_1, prescale_2;
+//   string name;
 
-  while(infile >> N_tilde >> antikt >> prescale_1 >> prescale_2 >> name) {
-    cout << N_tilde << endl;
-    N_tildes[antikt]->Fill(N_tilde);
-  }
+//   while(infile >> N_tilde >> antikt >> prescale_1 >> prescale_2 >> name) {
+//     cout << N_tilde << endl;
+//     N_tildes[antikt]->Fill(N_tilde);
+//   }
 
-  TLegend * legend = new TLegend(0.6, 0.7, 0.85, 0.9);
+//   TLegend * legend = new TLegend(0.6, 0.7, 0.85, 0.9);
 
-  for(int i = 0; i < 6; i++) {
-    N_tildes[i]->SetFillColorAlpha(colors[i], 0.5);
-    N_tildes[i]->SetMarkerStyle(21);
-    N_tildes[i]->SetMarkerColor(colors[i]);
-    hs->Add(N_tildes[i]);
-    legend->AddEntry(N_tildes[i], antikT_labels[i]);
-  }
+//   for(int i = 0; i < 6; i++) {
+//     N_tildes[i]->SetFillColorAlpha(colors[i], 0.5);
+//     N_tildes[i]->SetMarkerStyle(21);
+//     N_tildes[i]->SetMarkerColor(colors[i]);
+//     hs->Add(N_tildes[i]);
+//     legend->AddEntry(N_tildes[i], antikT_labels[i]);
+//   }
   
-  TCanvas *c2e = new TCanvas("c2e", "c2e", 600, 400);
+//   TCanvas *c2e = new TCanvas("c2e", "c2e", 600, 400);
 
-  c2e->BuildLegend();
+//   c2e->BuildLegend();
 
-  gPad->SetLogy();
+//   gPad->SetLogy();
 
-  hs->Draw();
-  hs->GetHistogram()->GetXaxis()->SetTitle("Fractional Jet Multiplicity (Jets Without Jets)");
-  hs->GetHistogram()->GetXaxis()->CenterTitle();
+//   hs->Draw();
+//   hs->GetHistogram()->GetXaxis()->SetTitle("Fractional Jet Multiplicity (Jets Without Jets)");
+//   hs->GetHistogram()->GetXaxis()->CenterTitle();
   
-  legend->Draw();
-}
+//   legend->Draw();
+// }
 
 
 
@@ -280,3 +289,76 @@ void fractional_multiplicities() {
   
 //   legend->Draw();
 // }
+
+
+
+
+void fractional_multiplicities() {
+
+  // Fix R, sweep across N_tilde.
+  
+  ifstream infile("antikt_multiplicities.dat");
+
+  TFile * rootFile_;
+  TTree * multiplicityTree_;
+
+
+  THStack *hs = new THStack("Fractional Jet Multiplicity", "Fractional Jet Multiplicity (pt_cut = 50.0 GeV, R = 0.5)");
+
+  vector<TH1F * > N_tildes = vector<TH1F *>();
+  EColor colors[7] = {kRed, kBlue, kGreen, kYellow, kMagenta, kOrange, kCyan};
+  const char * antikT_labels[7] = {"antikT Jet Size = 0", "antikT Jet Size = 1", "antikT Jet Size = 2", "antikT Jet Size = 3", "antikT Jet Size = 4", "antikT Jet Size = 5", "antikT Jet Size = 6"};
+  
+  gStyle->SetOptStat(false);
+
+  for (int i = 0; i < 7; i++) {
+    TH1F * N_tilde_temp = new TH1F("", "", 50, -0.5, 6.0);
+    N_tildes.push_back(N_tilde_temp);
+  }
+  
+  double N_tilde;
+  double jet_size;
+  double prescale;
+
+  string name;
+
+  string line;
+  while(getline(infile, line)) {
+    istringstream iss(line);
+    vector<string> components = split_string_to_components(line);
+    if (components[0] != "#") {
+      double N_tilde = stod(components[2]);
+      double jet_size = stod(components[3]);
+      int prescale = stoi(components[6]) * stoi(components[7]);
+    }
+  }
+
+  // TLegend * legend = new TLegend(0.6, 0.7, 0.85, 0.9);
+
+  // for(int i = 0; i < 6; i++) {
+  //   N_tildes[i]->SetFillColorAlpha(colors[i], 0.5);
+  //   N_tildes[i]->SetMarkerStyle(21);
+  //   N_tildes[i]->SetMarkerColor(colors[i]);
+  //   hs->Add(N_tildes[i]);
+  //   legend->AddEntry(N_tildes[i], antikT_labels[i]);
+  // }
+  
+  // TCanvas *c2e = new TCanvas("c2e", "c2e", 600, 400);
+
+  // c2e->BuildLegend();
+
+  // gPad->SetLogy();
+
+  // hs->Draw();
+  // hs->GetHistogram()->GetXaxis()->SetTitle("Fractional Jet Multiplicity (Jets Without Jets)");
+  // hs->GetHistogram()->GetXaxis()->CenterTitle();
+  
+  // legend->Draw();
+}
+
+
+vector<string> split_string_to_components(string const &input) { 
+    istringstream buffer(input);
+    vector<string> ret((istream_iterator<string>(buffer)), istream_iterator<string>());
+    return ret;
+}
