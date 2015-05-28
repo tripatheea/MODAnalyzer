@@ -33,7 +33,7 @@ int main() {
 	
 	int event_serial_number = 1;
 
-	multiplicities_output_file << "# Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale_1     Prescale_2     Cone_Radius     pT_Cut" << endl;
+	multiplicities_output_file << "# Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale_1     Prescale_2     Cone_Radius     pT_Cut     Hardest_pT" << endl;
 	string line;
 	while(getline(data_file, line)) {
 		istringstream iss(line);
@@ -78,6 +78,8 @@ int main() {
 			int prescale_1 = prescales.first;
 			int prescale_2 = prescales.second;
 
+			double hardest_pt = event_being_read->hardest_pt();
+
 			// Calculate everything for each value of R and pt_cut.
 
 			for(unsigned int r = 0; r < cone_radii.size(); r++) {
@@ -101,6 +103,7 @@ int main() {
 												<< setw(15) << prescale_2
 												<< setw(18) << setprecision(2) << cone_radii[r]
 												<< setw(12) << noshowpoint << setprecision(3) << pt_cuts[p]
+												<< setw(16) << showpoint << setprecision(8) << hardest_pt
 												<< endl;					
 				}
 			}
