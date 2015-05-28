@@ -287,8 +287,6 @@ string Event::assigned_trigger_name() {
 	else {
 		trigger_to_use = "HLT_MinBiasPixel_SingleTrack";
 	}
-
-	cout << trigger_to_use << endl;
 	
 
 	// Here, we just return the trigger that was supposed to fire, not caring whether it actually did or not.
