@@ -42,7 +42,7 @@ int main() {
 
 		if (components[0] == "BeginEvent") {
 
-			cout << "Processing event number: " << event_serial_number << endl;	
+			// cout << "Processing event number: " << event_serial_number << endl;	
 			
 			run_number = stoi(components[2]);
 			event_number = stoi(components[4]);
@@ -62,12 +62,16 @@ int main() {
 		}
 		else if (components[0] == "EndEvent") {
 			// Current event has ended. We can process it now.
-			// event_being_read->write_to_file("Test.dat");
+			
+			
+
+			event_being_read->write_to_file("Test.dat");
 
 			// Now retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
 
 			// Also calculate everything and record those along with the trigger information.
 
+			/*
 			string assigned_trigger_name = event_being_read->assigned_trigger_name();
 			Trigger assigned_trigger = event_being_read->trigger_by_name(assigned_trigger_name);
 
@@ -107,7 +111,7 @@ int main() {
 												<< endl;					
 				}
 			}
-			
+			*/
 			
 			
 

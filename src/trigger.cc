@@ -4,10 +4,6 @@
 using namespace std;
 
 class Trigger {
-	
-	string name_;
-	bool fired_;
-	pair<int, int> prescales_;
 
 	public:
 		Trigger(string name, pair<int, int> prescales, bool fired);
@@ -18,7 +14,10 @@ class Trigger {
 		bool fired();
 		bool is_valid();
 
-		
+	private:
+		string name_;
+		bool fired_;
+		pair<int, int> prescales_;		
 };
 
 Trigger::Trigger(string name, pair<int, int> prescales, bool fired) : name_(name), prescales_(prescales), fired_(fired) {}

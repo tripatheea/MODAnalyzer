@@ -15,11 +15,6 @@ using namespace std;
 using namespace fastjet;
 
 class Event {
-	
-	int run_number_, event_number_;
-	vector<Particle> particles_;
-	vector<Trigger> triggers_;
-	string type_of_particles_;
 
 	public:
 		Event(int, int);
@@ -57,6 +52,12 @@ class Event {
 		vector<Trigger> triggers();
 
 		string type_of_particles();
+
+	private:
+		int run_number_, event_number_;
+		vector<Particle> particles_;
+		vector<Trigger> triggers_;
+		string type_of_particles_;
 };
 
 Event::Event(int run_number, int event_number) : run_number_(run_number), event_number_(event_number) {}
@@ -182,9 +183,11 @@ vector<Trigger> Event::triggers() {
 }
 
 void Event::write_to_file(string filename) {
-	ofstream file_to_write (filename, ofstream::out | ofstream::trunc);
+	ofstream file_to_write;
 
-	
+	file_to_write.open( filename, ios::out | ios::app ); 
+
+	cout << "Writing things done!" << endl;
 
 	int event_number = this->event_number_;
 	int run_number = this->run_number_;
@@ -195,25 +198,39 @@ void Event::write_to_file(string filename) {
 	
 	// First, write out all particles.
 
-	file_to_write << "#" << this->type_of_particles() << "    px             py             pz           energy           mass           pdgId" << endl;
+	file_to_write << "#" << this->type_of_particles() << "               px               py               pz               energy               mass               pdgId" << endl;
+
+
 	for (int i = 0; i < particles.size(); i++) {
 		Particle current_particle = particles[i];
 
 		vector<double> four_vector = current_particle.four_vector();
 
-		file_to_write << this->type_of_particles() << " " << setprecision(8) << showpos << four_vector[0] << "     " << setprecision(8) << showpos << four_vector[1] << "     " << setprecision(8) << showpos << four_vector[2] << "     " << setprecision(8) << showpos << four_vector[3] << "     " << setprecision(8) << showpos << current_particle.mass() << "          " << noshowpos << current_particle.pdgId() << endl;
+		file_to_write << this->type_of_particles() 
+					  << setw(21) << setprecision(8) << four_vector[0] 
+					  << setw(17) << setprecision(8) << four_vector[1] 
+					  << setw(18) << setprecision(8) << four_vector[2] 
+					  << setw(18) << setprecision(8) << four_vector[3] 
+					  << setw(19) << setprecision(5) << current_particle.mass() 
+					  << setw(18) << noshowpos << current_particle.pdgId() 
+					  << endl;
 	}
 
 	// Next, write out all triggers.
 
-	file_to_write << "#Trig     Name        Prescale 1   Prescale 2   Fired?" << endl;
+	file_to_write << "#Trig          Name          Prescale_1          Prescale_2          Fired?" << endl;
 
 	vector<Trigger> triggers = this->triggers();
 	for(int i = 0; i < triggers.size(); i++) {
 		Trigger current_trigger = triggers[i];
 
 		pair<int, int> prescales = current_trigger.prescales();
-		file_to_write << "trig   " << current_trigger.name() << "         " << setw(3) << setfill('0') << noshowpos << prescales.first << setw(3) << setfill('0') << "          " << setw(3) << setfill('0') << noshowpos << prescales.second << noshowpos << "          " << current_trigger.fired() << endl;
+		file_to_write << "trig" 
+					  << setw(16) << current_trigger.name() 
+					  << setw(15) << prescales.first 
+					  << setw(20) << prescales.second 
+					  << setw(17) << current_trigger.fired() 
+					  << endl;
 	}
 
 	file_to_write << "EndEvent" << endl;
