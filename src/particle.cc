@@ -5,11 +5,7 @@
 using namespace std;
 
 class Particle {
-	
-	vector<double> four_vector_;
-	double mass_;
-	int pdgId_;
-	
+
 	public:
 		Particle(double px, double py, double pz, double energy, double mass, int pdgId);
 		Particle();
@@ -17,7 +13,11 @@ class Particle {
 		vector<double> four_vector();
 		int pdgId();
 		double mass();
-		
+
+	private:
+		vector<double> four_vector_;
+		double mass_;
+		int pdgId_;	
 };
 
 Particle::Particle(double px, double py, double pz, double energy, double mass, int pdgId) : mass_(mass), pdgId_(pdgId) {
@@ -40,4 +40,3 @@ int Particle::pdgId() {
 double Particle::mass() {
 	return Particle::mass_;
 }
-
