@@ -52,7 +52,7 @@ class Event {
 		vector<Trigger> triggers();
 
 		string type_of_particles();
-
+		
 	private:
 		int run_number_, event_number_;
 		vector<Particle> particles_;

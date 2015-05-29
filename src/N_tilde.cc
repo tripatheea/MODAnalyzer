@@ -7,14 +7,17 @@
 #include <stdexcept>
 #include <iterator>
 #include <iomanip>
+#include <chrono>
+
 #include "fastjet/ClusterSequence.hh"
 #include "event.cc"
 
 using namespace std;
 
-vector<string> split(string const &input);
+
 bool read_event(ifstream & data_file, Event & event);
-bool analyze_event(Event& event_being_read, ofstream& output_file, vector<double> cone_radii, vector<int> pt_cuts);
+bool analyze_event(Event & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<int> pt_cuts);
+vector<string> split(string const &input);
 
 int main() {
 	ifstream data_file("pfcandidates.dat");
@@ -24,19 +27,22 @@ int main() {
 	vector<double> cone_radii = {0.3, 0.5, 0.7};
 	vector<int> pt_cuts = {50, 80, 110};
 
-	Event event_being_read = Event();
+	Event * event_being_read = new Event();
 
 	output_file << "# Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale_1     Prescale_2     Cone_Radius     pT_Cut     Hardest_pT" << endl;
 	
 	int event_serial_number = 1;
-	while(read_event(data_file, event_being_read)) {
+	while(read_event(data_file, * event_being_read)) {
 		// event_being_read.write_to_file("Test.dat");
-		analyze_event(event_being_read, output_file, cone_radii, pt_cuts);
+		analyze_event( * event_being_read, output_file, cone_radii, pt_cuts);
 		
 		cout << "Processing event number " << event_serial_number << endl;
+		
+		delete event_being_read;
+		Event * event_being_read = new Event();
+
 		event_serial_number++;
 	}
-	cout << "I'm done here. I'm just going to leave now." << endl;
 }
 
 
@@ -46,7 +52,7 @@ vector<string> split(string const &input) {
     return ret;
 }
 
-bool read_event(ifstream& data_file, Event& event_being_read) {
+bool read_event(ifstream & data_file, Event & event_being_read) {
 
 	string line;
 	while(getline(data_file, line)) {
@@ -55,8 +61,6 @@ bool read_event(ifstream& data_file, Event& event_being_read) {
 		vector<string> components = split(line);
 
 		if (components[0] == "BeginEvent") {
-
-			// cout << "Processing event number: " << event_serial_number << endl;	
 
 			int run_number = stoi(components[2]);
 			int event_number = stoi(components[4]);
@@ -76,14 +80,14 @@ bool read_event(ifstream& data_file, Event& event_being_read) {
 		}
 		else if (components[0] == "EndEvent") {
 			return true;
-			break;
 		}
 	}
+
 	return true;
 }
 
 bool analyze_event(Event & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<int> pt_cuts) {
-	
+
 	// Retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
 
 	// Also calculate everything and record those along with the trigger information.
