@@ -14,6 +14,8 @@ class MODTrigger {
 		int prescale();
 		bool fired();
 		bool is_valid();
+		string make_string();
+		string header();
 
 	private:
 		string _name;
@@ -42,4 +44,22 @@ bool MODTrigger::fired() {
 
 bool MODTrigger::is_valid() {
 	return ( ! _name.empty());
+}
+
+string MODTrigger::make_string() {
+	stringstream ss;
+	ss << "trig" 
+		  << setw(16) << _name 
+		  << setw(15) << _prescales.first 
+		  << setw(20) << _prescales.second 
+		  << setw(17) << _fired
+		  << endl;
+		  
+	return ss.str();
+}
+
+string MODTrigger::header() {
+	stringstream ss;
+	ss << "#Trig          Name          Prescale_1          Prescale_2          Fired?" << endl;
+	return ss.str();
 }

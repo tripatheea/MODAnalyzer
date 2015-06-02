@@ -30,7 +30,7 @@ class MODEvent {
 		vector<PseudoJet> jets(JetDefinition jet_def, double pt_cut);	// JetDefinition, pt_cut (Fastjet)
 		vector<MODParticle> particles();
 
-		void add_particle(double px, double py, double pz, double energy, double mass, int pdgId);
+		void add_particle(double px, double py, double pz, double energy, double mass, int pdgId, string trigger_type);
 		void add_trigger(string name, int prescale_1, int prescale_2, bool fired);	
 		void write_to_file(string filename);	// Will append if file already exists.
 
@@ -46,6 +46,7 @@ class MODEvent {
 		void assign_event_number(int MODEvent_number);
 		void assign_run_number(int run_number);
 		void assign_particles_type(string particles_type);
+		string particles_type();
 
 		bool is_valid();
 
@@ -87,6 +88,10 @@ void MODEvent::assign_particles_type(string particles_type) {
 
 void MODEvent::assign_event_number(int event_number) {
 	_event_number = event_number;
+}
+
+string MODEvent::particles_type() {
+	return this->_type_of_particles;
 }
 
 void MODEvent::print_particles() {
@@ -149,8 +154,8 @@ vector<MODParticle> MODEvent::particles() {
 	return _particles;
 }
 
-void MODEvent::add_particle(double px, double py, double pz, double energy, double mass, int pdgId) {
-	MODParticle particle_to_add = MODParticle(px, py, pz, energy, mass, pdgId);
+void MODEvent::add_particle(double px, double py, double pz, double energy, double mass, int pdgId, string trigger_type) {
+	MODParticle particle_to_add = MODParticle(px, py, pz, energy, mass, pdgId, trigger_type);
 	_particles.push_back(particle_to_add);
 }
 
@@ -184,53 +189,22 @@ vector<MODTrigger> MODEvent::triggers() {
 
 void MODEvent::write_to_file(string filename) {
 	ofstream file_to_write;
-
 	file_to_write.open( filename, ios::out | ios::app ); 
 
-	cout << "Writing things done!" << endl;
-
-	int MODEvent_number = this->_event_number;
-	int run_number = this->_run_number;
-
-	vector<MODParticle> particles = this->particles();
-
-	file_to_write << "BeginEvent Run " << this->_run_number << " Event " << this->_event_number << endl;
+	file_to_write << "BeginEvent Run " << _run_number << " Event " << _event_number << endl;
 	
 	// First, write out all particles.
 
-	file_to_write << "#" << this->type_of_particles() << "               px               py               pz               energy               mass               pdgId" << endl;
-
-
-	for (int i = 0; i < particles.size(); i++) {
-		MODParticle current_particle = particles[i];
-
-		vector<double> four_vector = current_particle.four_vector();
-
-		file_to_write << type_of_particles() 
-					  << setw(21) << setprecision(8) << four_vector[0] 
-					  << setw(17) << setprecision(8) << four_vector[1] 
-					  << setw(18) << setprecision(8) << four_vector[2] 
-					  << setw(18) << setprecision(8) << four_vector[3] 
-					  << setw(19) << setprecision(5) << current_particle.mass() 
-					  << setw(18) << noshowpos << current_particle.pdgId() 
-					  << endl;
+	file_to_write << _particles[0].header();
+	for (int i = 0; i < _particles.size(); i++) {
+		file_to_write << _particles[i].make_string();
 	}
 
 	// Next, write out all triggers.
 
-	file_to_write << "#Trig          Name          Prescale_1          Prescale_2          Fired?" << endl;
-
-	vector<MODTrigger> triggers = this->triggers();
-	for(int i = 0; i < triggers.size(); i++) {
-		MODTrigger current_trigger = triggers[i];
-
-		pair<int, int> prescales = current_trigger.prescale_pair();
-		file_to_write << "trig" 
-					  << setw(16) << current_trigger.name() 
-					  << setw(15) << prescales.first 
-					  << setw(20) << prescales.second 
-					  << setw(17) << current_trigger.fired() 
-					  << endl;
+	file_to_write << _triggers[0].header();
+	for(int i = 0; i < _triggers.size(); i++) {
+		file_to_write << _triggers[i].make_string();
 	}
 
 	file_to_write << "EndEvent" << endl;
@@ -255,26 +229,8 @@ double MODEvent::hardest_pt() {
 
 string MODEvent::assigned_trigger_name() {
 
-	// Find the hardest jet first.
-	
+	double hardest_pt = this->hardest_pt();
 
-
-
-	JetDefinition jet_def(antikt_algorithm, 0.5);
-	ClusterSequence cs(particles_four_vectors(), jet_def);
-	vector<PseudoJet> clustered_jets = cs.inclusive_jets(0.0);;
-
-
-	
-	double hardest_pt = 0.0;
-	for (unsigned int i = 0; i < clustered_jets.size(); i++) {
-		if (hardest_pt < clustered_jets[i].pt())
-			hardest_pt = clustered_jets[i].pt();
-	}
-
-
-
-	
 	// Next, lookup which trigger to use based on the pt value of the hardest jet.
 	
 	/*
@@ -305,30 +261,8 @@ string MODEvent::assigned_trigger_name() {
 		trigger_to_use = "HLT_MinBiasPixel_SingleTrack";
 	}
 	
-
 	// Here, we just return the trigger that was supposed to fire, not caring whether it actually did or not.
 	// A check on whether it actually fired or not will be done in the N_tilde.cc file itself.
 
-	// vector<string> triggersThatMatter {"HLT_L1Jet6U", "HLT_L1Jet10U", "HLT_Jet15U", "HLT_Jet30U", "HLT_Jet50U", "HLT_Jet70U", "HLT_Jet100U"};
-
 	return trigger_to_use;
-
-
-	
-
-	// // Next, just see if the trigger_to_use fired or not.
-
-
-
-	// if (trigger_to_use.length() != 0) {
-
-	// 	Trigger selected_trigger = this->trigger_by_name(trigger_to_use);
-
-	// 	if (selected_trigger.fired())
-	// 		return selected_trigger;
-	// }
-
-	// // No trigger was fired for this MODEvent.
-	// Trigger * empty_trigger = new Trigger();
-	// return * empty_trigger;
 }
