@@ -10,7 +10,9 @@
 #include <chrono>
 
 #include "fastjet/ClusterSequence.hh"
+
 #include "event.cc"
+#include "ntilde.cc"
 
 using namespace std;
 
@@ -33,8 +35,8 @@ int main() {
 	
 	int event_serial_number = 1;
 	while(read_event(data_file, * event_being_read)) {
-		event_being_read->write_to_file("Test.dat");
-		// analyze_event( * event_being_read, output_file, cone_radii, pt_cuts);
+		// event_being_read->write_to_file("Test.dat");
+		analyze_event( * event_being_read, output_file, cone_radii, pt_cuts);
 		
 		// cout << "Processing event number " << event_serial_number << endl;
 		
@@ -116,7 +118,8 @@ bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<d
 		for (unsigned int p = 0; p < pt_cuts.size(); p++) {
 
 			// Calculate N_tilde.
-			double N_tilde = event_being_read.calculate_N_tilde(cone_radii[r], pt_cuts[p]);
+			MODNTilde n_tilde_1 = MODNTilde(cone_radii[r], pt_cuts[p]);
+			double N_tilde = n_tilde_1.calculate_n_tilde( & event_being_read);
 			
 			// Calculate jet size (fastjet)
 			JetDefinition jet_def(antikt_algorithm, cone_radii[r]);

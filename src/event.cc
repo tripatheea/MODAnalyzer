@@ -21,44 +21,40 @@ class MODEvent {
 		MODEvent();
 
 		int size();
-		
 		int event_number();
 		int run_number();
 
-		double calculate_N_tilde(double R, double pt_cut);	// R, pt_cut. R is the cone radius.
-
 		vector<PseudoJet> jets(JetDefinition jet_def, double pt_cut);	// JetDefinition, pt_cut (Fastjet)
 		vector<MODParticle> particles();
+		vector<PseudoJet> particles_four_vectors();
+		vector<MODTrigger> triggers();
 
 		void add_particle(string input_string);
 		void add_trigger(string input_string);	
 		void write_to_file(string filename);	// Will append if file already exists.
-
-		string assigned_trigger_name();
-		MODTrigger trigger_by_name(string name);
-
-		double hardest_pt();
-
 		void print_particles();
-
-		vector<PseudoJet> particles_four_vectors();
-
 		void assign_event_number(int MODEvent_number);
 		void assign_run_number(int run_number);
 		void assign_particles_type(string particles_type);
+
+		double hardest_pt();
+
 		string particles_type();
+		string type_of_particles();
+		string assigned_trigger_name();
 
 		bool is_valid();
 
-		vector<MODTrigger> triggers();
+		MODTrigger trigger_by_name(string name);		
 
-		string type_of_particles();
-		
 	private:
 		int _run_number, _event_number;
+				
+		string _type_of_particles;
+
 		vector<MODParticle> _particles;
 		vector<MODTrigger> _triggers;
-		string _type_of_particles;
+
 };
 
 MODEvent::MODEvent(int run_number, int MODEvent_number) : _run_number(run_number), _event_number(MODEvent_number) {}
@@ -109,31 +105,6 @@ vector<PseudoJet> MODEvent::particles_four_vectors() {
 	}
 
 	return four_vectors;
-}
-
-double MODEvent::calculate_N_tilde(double R, double pt_cut) {
-	vector<PseudoJet> particles = particles_four_vectors();
-
-	double N_tilde_current_MODEvent = 0.00;
-
-	for(int i = 0; i < particles.size(); i++) {
-		double pt_i = particles[i].pt();
-		double pt_iR = 0.00;
-		
-		for(int j = 0; j < particles.size(); j++) {
-			double pt_j = particles[j].pt();
-			double squared_distance = particles[i].squared_distance(particles[j]);			// squared_distance instead of delta_R to speed things up.
-
-			if (R*R > squared_distance)					// heavisideStep
-				pt_iR += pt_j;
-		}
-
-		if (pt_iR > pt_cut)	{							// heavisideStep
-			N_tilde_current_MODEvent += pt_i / pt_iR;
-		}
-	}
-
-	return N_tilde_current_MODEvent;
 }
 
 vector<PseudoJet> MODEvent::jets(JetDefinition jet_def, double pt_cut) {
