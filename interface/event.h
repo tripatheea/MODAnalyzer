@@ -8,8 +8,8 @@
 #include <iomanip> 
 
 #include "fastjet/ClusterSequence.hh"
-#include "trigger.cc"
-#include "particle.cc"
+#include "../src/trigger.cc"
+#include "../src/particle.cc"
 
 
 class MODEvent {

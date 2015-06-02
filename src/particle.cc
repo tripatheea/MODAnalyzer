@@ -1,4 +1,4 @@
-#include "particle.h"
+#include "../interface/particle.h"
 
 using namespace std;
 using namespace fastjet;

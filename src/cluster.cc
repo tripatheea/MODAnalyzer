@@ -1,4 +1,4 @@
-#include "cluster.h"
+#include "../interface/cluster.h"
 
 using namespace std;
 using namespace fastjet;

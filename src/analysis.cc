@@ -11,7 +11,6 @@
 
 #include "fastjet/ClusterSequence.hh"
 
-
 #include "event.cc"
 #include "cluster.cc"
 #include "ntilde.cc"
@@ -24,9 +23,9 @@ bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<d
 vector<string> split(string const &input);
 
 int main() {
-	ifstream data_file("pfcandidates.dat");
+	ifstream data_file("../data/pfcandidates.dat");
 
-	ofstream output_file("antikt_multiplicities.dat", ios::out);
+	ofstream output_file("../data/antikt_multiplicities.dat", ios::out);
 	
 	vector<double> cone_radii = {0.3, 0.5, 0.7};
 	vector<int> pt_cuts = {50, 80, 110};
@@ -38,7 +37,7 @@ int main() {
 	int event_serial_number = 1;
 	while(read_event(data_file, * event_being_read)) {
 
-		// event_being_read->write_to_file("Test.dat");
+		// event_being_read->write_to_file("../data/Test.dat");
 		analyze_event( * event_being_read, output_file, cone_radii, pt_cuts);
 		
 		cout << "Processing event number " << event_serial_number << endl;

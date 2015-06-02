@@ -1,2 +1,4 @@
 *.dat
 *.png
+./bin
+./data
