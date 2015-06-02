@@ -392,7 +392,7 @@ vector<string> split_string_to_components(string const &input);
 
 
 
-void fractional_multiplicities() {
+void fix_pt_cut_sweep_cone_radius() {
 
   // Fix pt_cut, sweep across R.
   int fixed_pt_cut = 80;
@@ -404,8 +404,6 @@ void fractional_multiplicities() {
 
 
   THStack *hs = new THStack("Fractional Jet Multiplicity", "Fractional Jet Multiplicity (pt_cut = 80 GeV)");
-
-
 
   unordered_map<double, TH1F * > cone_radii_map;
   vector<double> cone_radii = {0.3, 0.5, 0.7};
@@ -471,9 +469,12 @@ void fractional_multiplicities() {
 
 }
 
-
 vector<string> split_string_to_components(string const &input) { 
     istringstream buffer(input);
     vector<string> ret((istream_iterator<string>(buffer)), istream_iterator<string>());
     return ret;
+}
+
+void plots() {
+  fix_pt_cut_sweep_cone_radius();
 }

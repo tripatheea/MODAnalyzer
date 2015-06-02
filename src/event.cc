@@ -20,37 +20,31 @@ class MODEvent {
 		MODEvent(int, int);
 		MODEvent();
 
-		int size();
 		int event_number();
 		int run_number();
 
-		vector<PseudoJet> jets(JetDefinition jet_def, double pt_cut);	// JetDefinition, pt_cut (Fastjet)
 		vector<MODParticle> particles();
-		vector<PseudoJet> particles_four_vectors();
 		vector<MODTrigger> triggers();
+		vector<PseudoJet> particles_four_vectors();
 
 		void add_particle(string input_string);
 		void add_trigger(string input_string);	
-		void write_to_file(string filename);	// Will append if file already exists.
-		void print_particles();
-		void assign_event_number(int MODEvent_number);
-		void assign_run_number(int run_number);
-		void assign_particles_type(string particles_type);
+		void write_to_file(string filename);
+
+		void set_event_number(int MODEvent_number);
+		void set_run_number(int run_number);
+		void set_particles_trigger_type(string trigger_type);
 
 		double hardest_pt();
 
-		string particles_type();
-		string type_of_particles();
 		string assigned_trigger_name();
-
-		bool is_valid();
 
 		MODTrigger trigger_by_name(string name);		
 
 	private:
 		int _run_number, _event_number;
 				
-		string _type_of_particles;
+		string _trigger_type;
 
 		vector<MODParticle> _particles;
 		vector<MODTrigger> _triggers;
@@ -70,33 +64,20 @@ int MODEvent::run_number() {
 }
 
 
-string MODEvent::type_of_particles() {
-	return _type_of_particles;
-}
-
-void MODEvent::assign_run_number(int run_number) {
+void MODEvent::set_run_number(int run_number) {
 	_run_number = run_number;
 }
 
-void MODEvent::assign_particles_type(string particles_type) {
-	_type_of_particles = particles_type;
+void MODEvent::set_particles_trigger_type(string trigger_type) {
+	_trigger_type = trigger_type;
 }
 
-void MODEvent::assign_event_number(int event_number) {
+void MODEvent::set_event_number(int event_number) {
 	_event_number = event_number;
 }
 
-string MODEvent::particles_type() {
-	return this->_type_of_particles;
-}
 
-void MODEvent::print_particles() {
-	
-}
 
-int MODEvent::size() {
-	return particles().size();
-}
 
 vector<PseudoJet> MODEvent::particles_four_vectors() {
 	vector<PseudoJet> four_vectors;
@@ -105,16 +86,6 @@ vector<PseudoJet> MODEvent::particles_four_vectors() {
 	}
 
 	return four_vectors;
-}
-
-vector<PseudoJet> MODEvent::jets(JetDefinition jet_def, double pt_cut) {
-	vector<PseudoJet> particles = particles_four_vectors();
-
-	// Run the clustering, extract the jets using fastjet.
-	ClusterSequence cs(particles, jet_def);
-	vector<PseudoJet> clustered_jets = cs.inclusive_jets(pt_cut);
-
-	return clustered_jets;
 }
 
 vector<MODParticle> MODEvent::particles() {
@@ -178,11 +149,12 @@ double MODEvent::hardest_pt() {
 	JetDefinition jet_def(antikt_algorithm, 0.5);
 	ClusterSequence cs(particles, jet_def);
 	vector<PseudoJet> clustered_jets = cs.inclusive_jets(0.0);
-	
+
 	double hardest_pt = 0.0;
 	for (unsigned int i = 0; i < clustered_jets.size(); i++) {
-		if (hardest_pt < clustered_jets[i].pt())
+		if (hardest_pt < clustered_jets[i].pt()) {
 			hardest_pt = clustered_jets[i].pt();
+		}
 	}
 
 	return hardest_pt;
@@ -193,14 +165,6 @@ string MODEvent::assigned_trigger_name() {
 	double hardest_pt = this->hardest_pt();
 
 	// Next, lookup which trigger to use based on the pt value of the hardest jet.
-	
-	/*
-	37-56 GeV => 6U
-	56-84 GeV => 15U
-	84-114 GeV => 30U
-	114-153 GeV => 50U
-	>153 GeV => 70U
-	*/
 
 	string trigger_to_use;
 	if (hardest_pt > 153) {
@@ -223,7 +187,7 @@ string MODEvent::assigned_trigger_name() {
 	}
 	
 	// Here, we just return the trigger that was supposed to fire, not caring whether it actually did or not.
-	// A check on whether it actually fired or not will be done in the N_tilde.cc file itself.
+	// A check on whether it actually fired or not will be done in the analysis.cc file itself.
 
 	return trigger_to_use;
 }
