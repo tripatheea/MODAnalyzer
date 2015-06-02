@@ -1,4 +1,8 @@
 #include <vector>
+#include <iostream>
+#include <string>
+#include <iomanip> 
+#include <sstream>
 
 class MODCluster {
 

@@ -1,10 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <iomanip> 
-#include <sstream>
-
-#include "../interface/ntilde.h"
+#include "ntilde.h"
 
 using namespace std;
 using namespace fastjet;
