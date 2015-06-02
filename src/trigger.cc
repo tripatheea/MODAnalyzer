@@ -10,7 +10,8 @@ class MODTrigger {
 		MODTrigger();
 
 		string name();
-		pair<int, int> prescales();
+		pair<int, int> prescale_pair();
+		int prescale();
 		bool fired();
 		bool is_valid();
 
@@ -27,8 +28,12 @@ string MODTrigger::name() {
 	return MODTrigger::_name;
 }
 
-pair<int, int> MODTrigger::prescales() {
+pair<int, int> MODTrigger::prescale_pair() {
 	return MODTrigger::_prescales;
+}
+
+int MODTrigger::prescale() {
+	return _prescales.first * _prescales.second;
 }
 
 bool MODTrigger::fired() {
