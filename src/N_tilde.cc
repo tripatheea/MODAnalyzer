@@ -33,8 +33,8 @@ int main() {
 	
 	int event_serial_number = 1;
 	while(read_event(data_file, * event_being_read)) {
-		// event_being_read.write_to_file("Test.dat");
-		analyze_event( * event_being_read, output_file, cone_radii, pt_cuts);
+		event_being_read->write_to_file("Test.dat");
+		// analyze_event( * event_being_read, output_file, cone_radii, pt_cuts);
 		
 		// cout << "Processing event number " << event_serial_number << endl;
 		
@@ -71,7 +71,7 @@ bool read_event(ifstream & data_file, MODEvent & event_being_read) {
 		}
 		else if (components[0] == "PFC") {
 			try {
-				event_being_read.add_particle(stod(components[1]), stod(components[2]), stod(components[3]), stod(components[4]), stod(components[5]), stoi(components[6]));
+				event_being_read.add_particle(stod(components[1]), stod(components[2]), stod(components[3]), stod(components[4]), stod(components[5]), stoi(components[6]), event_being_read.particles_type());
 			}
 			catch (exception& e) {
 				throw runtime_error("Invalid file format!");
