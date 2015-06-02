@@ -17,10 +17,9 @@ This repository has code to analyze CMS Open Data data produced using [https://g
  - To make the plots, move to the directory `./root`.
  - Run root and compile/execute the file `plots.cc`
 
-  ```root 
-.x plots.cc+``` 
-
-  
+  ``root 
+  .x plots.cc+
+  `` 
 
 [1]: https://github.com/tripatheea/CMSOpenDataProducer
   [2]: http://www.fastjet.fr/
