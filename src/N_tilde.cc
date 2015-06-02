@@ -61,17 +61,13 @@ bool read_event(ifstream & data_file, MODEvent & event_being_read) {
 		vector<string> components = split(line);
 
 		if (components[0] == "BeginEvent") {
-
-			int run_number = stoi(components[2]);
-			int event_number = stoi(components[4]);
-
-			event_being_read.assign_event_number(event_number);
-			event_being_read.assign_run_number(run_number);
+			event_being_read.assign_event_number(stoi(components[4]));
+			event_being_read.assign_run_number(stoi(components[2]));
 			event_being_read.assign_particles_type("PFC");
 		}
 		else if (components[0] == "PFC") {
 			try {
-				event_being_read.add_particle(stod(components[1]), stod(components[2]), stod(components[3]), stod(components[4]), stod(components[5]), stoi(components[6]), event_being_read.particles_type());
+				event_being_read.add_particle(line);
 			}
 			catch (exception& e) {
 				throw runtime_error("Invalid file format!");
@@ -80,7 +76,7 @@ bool read_event(ifstream & data_file, MODEvent & event_being_read) {
 		}
 		else if (components[0] == "trig") {
 			try {
-				event_being_read.add_trigger(components[1], stoi(components[2]), stoi(components[3]), stoi(components[4]) == 1);
+				event_being_read.add_trigger(line);
 			}
 			catch (exception& e) {
 				throw runtime_error("Invalid file format!");
@@ -104,15 +100,9 @@ bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<d
 	string assigned_trigger_name = event_being_read.assigned_trigger_name();
 	MODTrigger assigned_trigger = event_being_read.trigger_by_name(assigned_trigger_name);
 
-
 	pair<int, int> prescales = assigned_trigger.prescale_pair();
-	// bool fired = (assigned_trigger.is_valid()) ? assigned_trigger.fired() : 0;
 	
 	bool fired = assigned_trigger.fired();
-	// if (assigned_trigger.fired()) {
-	// 	fired = true;
-	// 	cout << "Gotchha! " << fired << endl;
-	// }
 	
 
 	int prescale_1 = prescales.first;

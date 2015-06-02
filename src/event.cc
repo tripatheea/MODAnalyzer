@@ -30,8 +30,8 @@ class MODEvent {
 		vector<PseudoJet> jets(JetDefinition jet_def, double pt_cut);	// JetDefinition, pt_cut (Fastjet)
 		vector<MODParticle> particles();
 
-		void add_particle(double px, double py, double pz, double energy, double mass, int pdgId, string trigger_type);
-		void add_trigger(string name, int prescale_1, int prescale_2, bool fired);	
+		void add_particle(string input_string);
+		void add_trigger(string input_string);	
 		void write_to_file(string filename);	// Will append if file already exists.
 
 		string assigned_trigger_name();
@@ -104,12 +104,8 @@ int MODEvent::size() {
 
 vector<PseudoJet> MODEvent::particles_four_vectors() {
 	vector<PseudoJet> four_vectors;
-	vector<MODParticle> all_particles = particles();
-
-	for (unsigned int i = 0; i < all_particles.size(); i++) {
-		MODParticle current_particle = all_particles[i];
-		vector<double> current_particle_four_vector = current_particle.four_vector();
-		four_vectors.push_back(PseudoJet(current_particle_four_vector[0], current_particle_four_vector[1], current_particle_four_vector[2], current_particle_four_vector[3]));
+	for (unsigned int i = 0; i < _particles.size(); i++) {
+		four_vectors.push_back(_particles[i].four_vector());
 	}
 
 	return four_vectors;
@@ -154,18 +150,12 @@ vector<MODParticle> MODEvent::particles() {
 	return _particles;
 }
 
-void MODEvent::add_particle(double px, double py, double pz, double energy, double mass, int pdgId, string trigger_type) {
-	MODParticle particle_to_add = MODParticle(px, py, pz, energy, mass, pdgId, trigger_type);
-	_particles.push_back(particle_to_add);
+void MODEvent::add_particle(string input_string) {
+	_particles.push_back(MODParticle(input_string));
 }
 
-void MODEvent::add_trigger(string name, int prescale_1, int prescale_2, bool fired) {
-	pair <int, int> prescales;
-
-	prescales = make_pair(prescale_1, prescale_2);
-
-	MODTrigger trigger_to_add = MODTrigger(name, prescales, fired);
-	_triggers.push_back(trigger_to_add);
+void MODEvent::add_trigger(string input_string) {
+	_triggers.push_back(MODTrigger(input_string));
 }
 
 MODTrigger MODEvent::trigger_by_name(string name) {

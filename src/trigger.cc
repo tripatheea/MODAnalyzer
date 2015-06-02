@@ -7,6 +7,7 @@ class MODTrigger {
 
 	public:
 		MODTrigger(string name, pair<int, int> prescales, bool fired);
+		MODTrigger(string input_string);
 		MODTrigger();
 
 		string name();
@@ -20,10 +21,21 @@ class MODTrigger {
 	private:
 		string _name;
 		bool _fired = false;
-		pair<int, int> _prescales;		
+		pair<int, int> _prescales;
+
+		vector<string> split(string const &input);
 };
 
 MODTrigger::MODTrigger(string name, pair<int, int> prescales, bool fired) : _name(name), _prescales(prescales), _fired(fired) {}
+
+MODTrigger::MODTrigger(string input_string) {
+	vector<string> components = this->split(input_string);
+
+	_name = components[1];
+	_prescales = make_pair( stoi(components[2]), stoi(components[3]) );
+	_fired = (stoi(components[4]) == 1);
+}
+
 MODTrigger::MODTrigger() {}
 
 string MODTrigger::name() {
@@ -54,7 +66,7 @@ string MODTrigger::make_string() {
 		  << setw(20) << _prescales.second 
 		  << setw(17) << _fired
 		  << endl;
-		  
+
 	return ss.str();
 }
 
@@ -62,4 +74,10 @@ string MODTrigger::header() {
 	stringstream ss;
 	ss << "#Trig          Name          Prescale_1          Prescale_2          Fired?" << endl;
 	return ss.str();
+}
+
+vector<string> MODTrigger::split(string const &input) { 
+	istringstream buffer(input);
+	vector<string> ret((istream_iterator<string>(buffer)), istream_iterator<string>());
+	return ret;
 }
