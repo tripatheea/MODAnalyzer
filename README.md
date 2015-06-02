@@ -10,6 +10,7 @@ This repository has code to analyze CMS Open Data data produced using [https://g
  - Move to the 'bin' directory and run the analyzer.
 
   ``cd bin``
+   
    ``./analysis``
 
  - The code will output a `DAT` file `./data/antikt_multiplicities.dat`.
@@ -17,6 +18,7 @@ This repository has code to analyze CMS Open Data data produced using [https://g
  - Run root and compile/execute the file `plots.cc`
 
   ``root ``
+
   ``.x plots.cc+`` 
 
 [1]: https://github.com/tripatheea/CMSOpenDataProducer
