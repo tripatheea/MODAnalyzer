@@ -105,7 +105,7 @@ bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<d
 	MODTrigger assigned_trigger = event_being_read.trigger_by_name(assigned_trigger_name);
 
 
-	pair<int, int> prescales = assigned_trigger.prescales();
+	pair<int, int> prescales = assigned_trigger.prescale_pair();
 	// bool fired = (assigned_trigger.is_valid()) ? assigned_trigger.fired() : 0;
 	
 	bool fired = assigned_trigger.fired();

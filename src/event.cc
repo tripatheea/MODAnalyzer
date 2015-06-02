@@ -224,7 +224,7 @@ void MODEvent::write_to_file(string filename) {
 	for(int i = 0; i < triggers.size(); i++) {
 		MODTrigger current_trigger = triggers[i];
 
-		pair<int, int> prescales = current_trigger.prescales();
+		pair<int, int> prescales = current_trigger.prescale_pair();
 		file_to_write << "trig" 
 					  << setw(16) << current_trigger.name() 
 					  << setw(15) << prescales.first 
