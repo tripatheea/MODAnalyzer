@@ -10,6 +10,7 @@ This repository has code to analyze CMS Open Data data produced using [https://g
  - Move to the 'bin' directory and run the analyzer.
 
   ``cd bin
+  
    ./analysis
   ``
 
@@ -18,6 +19,7 @@ This repository has code to analyze CMS Open Data data produced using [https://g
  - Run root and compile/execute the file `plots.cc`
 
   ``root 
+
   .x plots.cc+
   `` 
 
