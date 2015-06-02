@@ -1,12 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <iomanip> 
-#include <sstream>
-
-#include "fastjet/ClusterSequence.hh"
-
-#include "../interface/particle.h"
+#include "particle.h"
 
 using namespace std;
 using namespace fastjet;

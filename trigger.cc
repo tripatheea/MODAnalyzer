@@ -1,5 +1,4 @@
-#include <iostream>
-#include "../interface/trigger.h"
+#include "trigger.h"
 
 using namespace std;
 

@@ -1,8 +1,15 @@
+#include <iostream>
 #include <vector>
+#include <unordered_map>
+#include <exception>
+#include <fstream>
+#include <memory>
+#include <string>
+#include <iomanip> 
 
 #include "fastjet/ClusterSequence.hh"
-#include "trigger.h"
-#include "particle.h"
+#include "trigger.cc"
+#include "particle.cc"
 
 
 class MODEvent {

@@ -1,4 +1,11 @@
+#include <iostream>
 #include <vector>
+#include <string>
+#include <iomanip> 
+#include <sstream>
+
+#include "fastjet/ClusterSequence.hh"
+
 
 class MODParticle {
 

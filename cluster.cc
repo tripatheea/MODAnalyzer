@@ -1,9 +1,4 @@
-#include <iostream>
-#include <string>
-#include <iomanip> 
-#include <sstream>
-
-#include "../interface/cluster.h"
+#include "cluster.h"
 
 using namespace std;
 using namespace fastjet;
