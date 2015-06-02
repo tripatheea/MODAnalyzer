@@ -12,6 +12,7 @@
 #include "fastjet/ClusterSequence.hh"
 
 #include "event.cc"
+#include "cluster.cc"
 #include "ntilde.cc"
 
 using namespace std;
@@ -35,10 +36,11 @@ int main() {
 	
 	int event_serial_number = 1;
 	while(read_event(data_file, * event_being_read)) {
+
 		// event_being_read->write_to_file("Test.dat");
 		analyze_event( * event_being_read, output_file, cone_radii, pt_cuts);
 		
-		// cout << "Processing event number " << event_serial_number << endl;
+		cout << "Processing event number " << event_serial_number << endl;
 		
 		delete event_being_read;
 		MODEvent * event_being_read = new MODEvent();
@@ -63,9 +65,9 @@ bool read_event(ifstream & data_file, MODEvent & event_being_read) {
 		vector<string> components = split(line);
 
 		if (components[0] == "BeginEvent") {
-			event_being_read.assign_event_number(stoi(components[4]));
-			event_being_read.assign_run_number(stoi(components[2]));
-			event_being_read.assign_particles_type("PFC");
+			event_being_read.set_event_number(stoi(components[4]));
+			event_being_read.set_run_number(stoi(components[2]));
+			event_being_read.set_particles_trigger_type("PFC");
 		}
 		else if (components[0] == "PFC") {
 			try {
@@ -123,8 +125,8 @@ bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<d
 			
 			// Calculate jet size (fastjet)
 			JetDefinition jet_def(antikt_algorithm, cone_radii[r]);
-			vector<PseudoJet> jets = event_being_read.jets(jet_def, pt_cuts[p]);
-
+			MODCluster antikt_jets = MODCluster(jet_def, pt_cuts[p]);
+			vector<PseudoJet> jets = antikt_jets.calculate_jets( & event_being_read);
 
 			output_file << setw(12) << event_being_read.event_number()
 						<< setw(15) << event_being_read.run_number()
