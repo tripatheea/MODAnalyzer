@@ -1,4 +1,4 @@
-#include "ntilde.h"
+#include "../interface/ntilde.h"
 
 using namespace std;
 using namespace fastjet;

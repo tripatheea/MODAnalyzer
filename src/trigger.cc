@@ -1,4 +1,4 @@
-#include "trigger.h"
+#include "../interface/trigger.h"
 
 using namespace std;
 

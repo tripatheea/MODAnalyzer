@@ -43,7 +43,7 @@ void plots() {
 
 
 void n_tilde_against_jet_multiplicity() {
-  ifstream infile("antikt_multiplicities.dat");
+  ifstream infile("../data/antikt_multiplicities.dat");
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
