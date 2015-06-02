@@ -4,39 +4,39 @@
 
 using namespace std;
 
-class Particle {
+class MODParticle {
 
 	public:
-		Particle(double px, double py, double pz, double energy, double mass, int pdgId);
-		Particle();
+		MODParticle(double px, double py, double pz, double energy, double mass, int pdgId);
+		MODParticle();
 
 		vector<double> four_vector();
 		int pdgId();
 		double mass();
 
 	private:
-		vector<double> four_vector_;
-		double mass_;
-		int pdgId_;	
+		vector<double> _four_vector;
+		double _mass;
+		int _pdgId;	
 };
 
-Particle::Particle(double px, double py, double pz, double energy, double mass, int pdgId) : mass_(mass), pdgId_(pdgId) {
-	four_vector_.push_back(px);
-	four_vector_.push_back(py);
-	four_vector_.push_back(pz);
-	four_vector_.push_back(energy);
+MODParticle::MODParticle(double px, double py, double pz, double energy, double mass, int pdgId) : _mass(mass), _pdgId(pdgId) {
+	_four_vector.push_back(px);
+	_four_vector.push_back(py);
+	_four_vector.push_back(pz);
+	_four_vector.push_back(energy);
 }
 
-Particle::Particle() {}
+MODParticle::MODParticle() {}
 
-vector<double> Particle::four_vector() {
-	return four_vector_;
+vector<double> MODParticle::four_vector() {
+	return _four_vector;
 }
 
-int Particle::pdgId() {
-	return Particle::pdgId_;
+int MODParticle::pdgId() {
+	return _pdgId;
 }
 
-double Particle::mass() {
-	return Particle::mass_;
+double MODParticle::mass() {
+	return _mass;
 }
