@@ -15,8 +15,8 @@
 using namespace std;
 
 
-bool read_event(ifstream & data_file, Event & event);
-bool analyze_event(Event & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<int> pt_cuts);
+bool read_event(ifstream & data_file, MODEvent & event);
+bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<int> pt_cuts);
 vector<string> split(string const &input);
 
 int main() {
@@ -27,7 +27,7 @@ int main() {
 	vector<double> cone_radii = {0.3, 0.5, 0.7};
 	vector<int> pt_cuts = {50, 80, 110};
 
-	Event * event_being_read = new Event();
+	MODEvent * event_being_read = new MODEvent();
 
 	output_file << "# Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale_1     Prescale_2     Cone_Radius     pT_Cut     Hardest_pT" << endl;
 	
@@ -39,7 +39,7 @@ int main() {
 		// cout << "Processing event number " << event_serial_number << endl;
 		
 		delete event_being_read;
-		Event * event_being_read = new Event();
+		MODEvent * event_being_read = new MODEvent();
 
 		event_serial_number++;
 	}
@@ -52,7 +52,7 @@ vector<string> split(string const &input) {
     return ret;
 }
 
-bool read_event(ifstream & data_file, Event & event_being_read) {
+bool read_event(ifstream & data_file, MODEvent & event_being_read) {
 
 	string line;
 	while(getline(data_file, line)) {
@@ -95,14 +95,14 @@ bool read_event(ifstream & data_file, Event & event_being_read) {
 	return false;
 }
 
-bool analyze_event(Event & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<int> pt_cuts) {
+bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<int> pt_cuts) {
 
 	// Retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
 
 	// Also calculate everything and record those along with the trigger information.
 
 	string assigned_trigger_name = event_being_read.assigned_trigger_name();
-	Trigger assigned_trigger = event_being_read.trigger_by_name(assigned_trigger_name);
+	MODTrigger assigned_trigger = event_being_read.trigger_by_name(assigned_trigger_name);
 
 
 	pair<int, int> prescales = assigned_trigger.prescales();

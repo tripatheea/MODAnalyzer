@@ -3,11 +3,11 @@
 
 using namespace std;
 
-class Trigger {
+class MODTrigger {
 
 	public:
-		Trigger(string name, pair<int, int> prescales, bool fired);
-		Trigger();
+		MODTrigger(string name, pair<int, int> prescales, bool fired);
+		MODTrigger();
 
 		string name();
 		pair<int, int> prescales();
@@ -15,26 +15,26 @@ class Trigger {
 		bool is_valid();
 
 	private:
-		string name_;
-		bool fired_ = false;
-		pair<int, int> prescales_;		
+		string _name;
+		bool _fired = false;
+		pair<int, int> _prescales;		
 };
 
-Trigger::Trigger(string name, pair<int, int> prescales, bool fired) : name_(name), prescales_(prescales), fired_(fired) {}
-Trigger::Trigger() {}
+MODTrigger::MODTrigger(string name, pair<int, int> prescales, bool fired) : _name(name), _prescales(prescales), _fired(fired) {}
+MODTrigger::MODTrigger() {}
 
-string Trigger::name() {
-	return Trigger::name_;
+string MODTrigger::name() {
+	return MODTrigger::_name;
 }
 
-pair<int, int> Trigger::prescales() {
-	return Trigger::prescales_;
+pair<int, int> MODTrigger::prescales() {
+	return MODTrigger::_prescales;
 }
 
-bool Trigger::fired() {
-	return Trigger::fired_;
+bool MODTrigger::fired() {
+	return MODTrigger::_fired;
 }
 
-bool Trigger::is_valid() {
-	return ( ! name_.empty());
+bool MODTrigger::is_valid() {
+	return ( ! _name.empty());
 }
