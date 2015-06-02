@@ -6,30 +6,11 @@
 
 #include "fastjet/ClusterSequence.hh"
 
+#include "../interface/particle.h"
+
 using namespace std;
 using namespace fastjet;
 
-class MODParticle {
-
-	public:
-		MODParticle(double px, double py, double pz, double energy, double mass, int pdgId, string trigger_type);
-		MODParticle(string input_string);
-		MODParticle();
-
-		PseudoJet four_vector();
-		int pdgId();
-		double mass();
-		string make_string();
-		string header();
-
-	private:
-		string _trigger_type;
-		PseudoJet _four_vector;
-		double _mass;
-		int _pdgId;	
-
-		vector<string> split(string const &input);
-};
 
 MODParticle::MODParticle(double px, double py, double pz, double energy, double mass, int pdgId, string trigger_type) : _four_vector(PseudoJet(px, py, pz, energy)), _mass(mass), _pdgId(pdgId), _trigger_type(trigger_type) {
 }

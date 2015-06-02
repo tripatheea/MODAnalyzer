@@ -4,20 +4,11 @@
 #include <iomanip> 
 #include <sstream>
 
+#include "../interface/ntilde.h"
+
 using namespace std;
 using namespace fastjet;
 
-
-class MODNTilde {
-
-	public:
-		MODNTilde(double cone_radius, int pt_cut);
-		double calculate_n_tilde(MODEvent * event);
-
-	private:
-		double _cone_radius;
-		int _pt_cut;
-};
 
 MODNTilde::MODNTilde(double cone_radius, int pt_cut) : _cone_radius(cone_radius), _pt_cut(pt_cut) {
 
