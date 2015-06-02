@@ -1,30 +1,7 @@
 #include <iostream>
-
+#include "../interface/trigger.h"
 
 using namespace std;
-
-class MODTrigger {
-
-	public:
-		MODTrigger(string name, pair<int, int> prescales, bool fired);
-		MODTrigger(string input_string);
-		MODTrigger();
-
-		string name();
-		pair<int, int> prescale_pair();
-		int prescale();
-		bool fired();
-		bool is_valid();
-		string make_string();
-		string header();
-
-	private:
-		string _name;
-		bool _fired = false;
-		pair<int, int> _prescales;
-
-		vector<string> split(string const &input);
-};
 
 MODTrigger::MODTrigger(string name, pair<int, int> prescales, bool fired) : _name(name), _prescales(prescales), _fired(fired) {}
 

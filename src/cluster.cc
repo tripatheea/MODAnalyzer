@@ -1,22 +1,13 @@
 #include <iostream>
-#include <vector>
 #include <string>
 #include <iomanip> 
 #include <sstream>
 
+#include "../interface/cluster.h"
+
 using namespace std;
 using namespace fastjet;
 
-class MODCluster {
-
-	public:
-		MODCluster(JetDefinition jet_definition, int pt_cut);
-		vector<PseudoJet> calculate_jets(MODEvent * event);
-
-	private:
-		JetDefinition _jet_definition;
-		int _pt_cut;
-};
 
 MODCluster::MODCluster(JetDefinition jet_definition, int pt_cut) : _jet_definition(jet_definition), _pt_cut(pt_cut) {
 

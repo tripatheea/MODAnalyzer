@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include <unordered_map>
 #include <exception>
 #include <fstream>
@@ -6,50 +7,11 @@
 #include <string>
 #include <iomanip> 
 
-#include "fastjet/ClusterSequence.hh"
-#include "trigger.cc"
-#include "particle.cc"
-
+#include "../interface/event.h"
 
 using namespace std;
 using namespace fastjet;
 
-class MODEvent {
-
-	public:
-		MODEvent(int, int);
-		MODEvent();
-
-		int event_number();
-		int run_number();
-
-		vector<MODParticle> particles();
-		vector<MODTrigger> triggers();
-		vector<PseudoJet> particles_four_vectors();
-
-		void add_particle(string input_string);
-		void add_trigger(string input_string);	
-		void write_to_file(string filename);
-
-		void set_event_number(int MODEvent_number);
-		void set_run_number(int run_number);
-		void set_particles_trigger_type(string trigger_type);
-
-		double hardest_pt();
-
-		string assigned_trigger_name();
-
-		MODTrigger trigger_by_name(string name);		
-
-	private:
-		int _run_number, _event_number;
-				
-		string _trigger_type;
-
-		vector<MODParticle> _particles;
-		vector<MODTrigger> _triggers;
-
-};
 
 MODEvent::MODEvent(int run_number, int MODEvent_number) : _run_number(run_number), _event_number(MODEvent_number) {}
 
