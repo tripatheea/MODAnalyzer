@@ -134,3 +134,47 @@ string MODEvent::assigned_trigger_name() const {
 
 	return trigger_to_use;
 }
+
+bool MODEvent::read_event(ifstream & data_file) {
+	string line;
+	while(getline(data_file, line)) {
+		istringstream iss(line);
+
+		vector<string> components = split(line);
+
+		if (components[0] == "BeginEvent") {
+			set_event_number(stoi(components[4]));
+			set_run_number(stoi(components[2]));
+			set_particles_trigger_type("PFC");
+		}
+		else if (components[0] == "PFC") {
+			try {
+				add_particle(line);
+			}
+			catch (exception& e) {
+				throw runtime_error("Invalid file format!");
+				cout << "Something went wrong!" << endl;
+			}
+		}
+		else if (components[0] == "trig") {
+			try {
+				add_trigger(line);
+			}
+			catch (exception& e) {
+				throw runtime_error("Invalid file format!");
+				cout << "Something went wrong!" << endl;
+			}
+		}
+		else if (components[0] == "EndEvent") {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+vector<string> MODEvent::split(string const &input) { 
+	istringstream buffer(input);
+	vector<string> ret((istream_iterator<string>(buffer)), istream_iterator<string>());
+	return ret;
+}
