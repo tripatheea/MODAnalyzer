@@ -32,13 +32,14 @@
 using namespace std;
 
 vector<string> split_string_to_components(string const &input);
+
 void n_tilde_against_jet_multiplicity();
 void hardest_pt_corresponding_triggers();
 void fix_cone_radius_sweep_pt_cut();
 void fix_pt_cut_sweep_cone_radius();
 
 void plots() {
-  n_tilde_against_jet_multiplicity();
+  fix_pt_cut_sweep_cone_radius();
 }
 
 
@@ -115,7 +116,7 @@ void n_tilde_against_jet_multiplicity() {
 
 
 void hardest_pt_corresponding_triggers() {
-  ifstream infile("antikt_multiplicities.dat");
+  ifstream infile("../data/antikt_multiplicities.dat");
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
@@ -191,7 +192,7 @@ void fix_cone_radius_sweep_pt_cut() {
 
   double fixed_cone_radius = 0.5;
 
-  ifstream infile("antikt_multiplicities.dat");
+  ifstream infile("../data/antikt_multiplicities.dat");
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
@@ -226,7 +227,7 @@ void fix_cone_radius_sweep_pt_cut() {
       
       double cone_radius = stod(components[8]);
       int pt_cut = stoi(components[9]);
-      
+
       if ((fired) && (cone_radius == fixed_cone_radius)) {
         pt_cuts_map[pt_cut]->Fill(N_tilde, prescale);
       }
@@ -270,7 +271,7 @@ void fix_pt_cut_sweep_cone_radius() {
   // Fix pt_cut, sweep across R.
   int fixed_pt_cut = 80;
 
-  ifstream infile("antikt_multiplicities.dat");
+  ifstream infile("../data/antikt_multiplicities.dat");
 
   TFile * rootFile_;
   TTree * multiplicityTree_;

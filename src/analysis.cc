@@ -36,8 +36,8 @@ int main() {
 	int event_serial_number = 1;
 	while(read_event(data_file, * event_being_read)) {
 
-		cout << event_being_read->make_string();
-		// analyze_event( * event_being_read, output_file, cone_radii, pt_cuts);
+		// cout << event_being_read->make_string();
+		analyze_event( * event_being_read, output_file, cone_radii, pt_cuts);
 		
 		cout << "Processing event number " << event_serial_number << endl;
 		
