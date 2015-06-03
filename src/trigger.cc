@@ -5,7 +5,7 @@ using namespace std;
 MODTrigger::MODTrigger(string name, pair<int, int> prescales, bool fired) : _name(name), _prescales(prescales), _fired(fired) {}
 
 MODTrigger::MODTrigger(string input_string) {
-	vector<string> components = this->split(input_string);
+	vector<string> components = split(input_string);
 
 	_name = components[1];
 	_prescales = make_pair( stoi(components[2]), stoi(components[3]) );

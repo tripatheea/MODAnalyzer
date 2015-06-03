@@ -23,11 +23,11 @@ class MODEvent {
 
 		std::vector<MODParticle> particles();
 		std::vector<MODTrigger> triggers();
-		std::vector<fastjet::PseudoJet> particles_four_vectors();
+		std::vector<fastjet::PseudoJet> pseudojets();
 
 		void add_particle(std::string input_string);
 		void add_trigger(std::string input_string);	
-		void write_to_file(std::string filename);
+		std::string make_string();
 
 		void set_event_number(int MODEvent_number);
 		void set_run_number(int run_number);
