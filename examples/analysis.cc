@@ -7,19 +7,15 @@
 #include <stdexcept>
 #include <iterator>
 #include <iomanip>
-#include <chrono>
 
 #include "fastjet/ClusterSequence.hh"
 
-#include "event.cc"
-#include "fractional_jet_multiplicity.cc"
+#include "../src/event.cc"
+#include "../src/fractional_jet_multiplicity.cc"
 
 using namespace std;
 
-
-bool read_event(ifstream & data_file, MODEvent & event);
 bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts);
-vector<string> split(string const &input);
 
 int main(int argc, char * argv[]) {
 	
@@ -39,7 +35,7 @@ int main(int argc, char * argv[]) {
 	output_file << "# Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale_1     Prescale_2     Cone_Radius     pT_Cut     Hardest_pT" << endl;
 
 	int event_serial_number = 1;
-	while(read_event(data_file, * event_being_read)) {
+	while(event_being_read->read_event(data_file)) {
 
 		// cout << event_being_read->make_string();
 		analyze_event( * event_being_read, output_file, cone_radii, pt_cuts);
@@ -53,51 +49,6 @@ int main(int argc, char * argv[]) {
 	}
 }
 
-
-vector<string> split(string const &input) { 
-    istringstream buffer(input);
-    vector<string> ret((istream_iterator<string>(buffer)), istream_iterator<string>());
-    return ret;
-}
-
-bool read_event(ifstream & data_file, MODEvent & event_being_read) {
-
-	string line;
-	while(getline(data_file, line)) {
-		istringstream iss(line);
-
-		vector<string> components = split(line);
-
-		if (components[0] == "BeginEvent") {
-			event_being_read.set_event_number(stoi(components[4]));
-			event_being_read.set_run_number(stoi(components[2]));
-			event_being_read.set_particles_trigger_type("PFC");
-		}
-		else if (components[0] == "PFC") {
-			try {
-				event_being_read.add_particle(line);
-			}
-			catch (exception& e) {
-				throw runtime_error("Invalid file format!");
-				cout << "Something went wrong!" << endl;
-			}
-		}
-		else if (components[0] == "trig") {
-			try {
-				event_being_read.add_trigger(line);
-			}
-			catch (exception& e) {
-				throw runtime_error("Invalid file format!");
-				cout << "Something went wrong!" << endl;
-			}
-		}
-		else if (components[0] == "EndEvent") {
-			return true;
-		}
-	}
-
-	return false;
-}
 
 bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts) {
 

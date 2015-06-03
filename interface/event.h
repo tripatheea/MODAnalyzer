@@ -37,6 +37,8 @@ class MODEvent {
 		void set_event_number(int MODEvent_number);
 		void set_run_number(int run_number);
 		void set_particles_trigger_type(std::string trigger_type);
+
+		bool read_event(ifstream & data_file);
 		
 	private:
 		int _run_number, _event_number;
@@ -47,4 +49,5 @@ class MODEvent {
 		std::vector<MODTrigger> _triggers;
 		std::vector<PseudoJet> _pseudojets;
 
+		std::vector<std::string> split(std::string const &input);
 };
