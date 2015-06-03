@@ -8,13 +8,13 @@ class MODTrigger {
 		MODTrigger(std::string input_string);
 		MODTrigger();
 
-		std::string name();
-		std::pair<int, int> prescale_pair();
-		int prescale();
-		bool fired();
-		bool is_valid();
-		std::string make_string();
-		std::string header();
+		const std::string name() const;
+		const std::pair<int, int> prescale_pair() const;
+		const int prescale() const;
+		const bool fired() const;
+		const bool is_valid() const;
+		const std::string make_string();
+		const std::string header() const;
 
 	private:
 		std::string _name;

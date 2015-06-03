@@ -14,27 +14,27 @@ MODTrigger::MODTrigger(string input_string) {
 
 MODTrigger::MODTrigger() {}
 
-string MODTrigger::name() {
+const string MODTrigger::name() const {
 	return MODTrigger::_name;
 }
 
-pair<int, int> MODTrigger::prescale_pair() {
+const pair<int, int> MODTrigger::prescale_pair() const {
 	return MODTrigger::_prescales;
 }
 
-int MODTrigger::prescale() {
+const int MODTrigger::prescale() const {
 	return _prescales.first * _prescales.second;
 }
 
-bool MODTrigger::fired() {
+const bool MODTrigger::fired() const {
 	return MODTrigger::_fired;
 }
 
-bool MODTrigger::is_valid() {
+const bool MODTrigger::is_valid() const {
 	return ( ! _name.empty());
 }
 
-string MODTrigger::make_string() {
+const string MODTrigger::make_string() {
 	stringstream ss;
 	ss << "trig" 
 		  << setw(16) << _name 
@@ -46,7 +46,7 @@ string MODTrigger::make_string() {
 	return ss.str();
 }
 
-string MODTrigger::header() {
+const string MODTrigger::header() const {
 	stringstream ss;
 	ss << "#Trig          Name          Prescale_1          Prescale_2          Fired?" << endl;
 	return ss.str();

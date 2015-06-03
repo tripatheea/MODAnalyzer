@@ -101,7 +101,7 @@ bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<d
 	// Also calculate everything and record those along with the trigger information.
 
 	string assigned_trigger_name = event_being_read.assigned_trigger_name();
-	MODTrigger assigned_trigger = event_being_read.trigger_by_name(assigned_trigger_name);
+	const MODTrigger assigned_trigger = event_being_read.trigger_by_name(assigned_trigger_name);
 
 	pair<int, int> prescales = assigned_trigger.prescale_pair();
 	

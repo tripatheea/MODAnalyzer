@@ -18,27 +18,26 @@ class MODEvent {
 		MODEvent(int, int);
 		MODEvent();
 
-		int event_number();
-		int run_number();
+		const int event_number() const;
+		const int run_number() const;
 
-		std::vector<MODParticle> particles();
-		std::vector<MODTrigger> triggers();
-		std::vector<fastjet::PseudoJet> pseudojets();
+		const double hardest_pt() const;
+
+		const std::vector<MODParticle> & particles() const;
+		const std::vector<MODTrigger> & triggers() const;
+		const std::vector<fastjet::PseudoJet> & pseudojets() const;
+
+		const std::string make_string();
+		const std::string assigned_trigger_name() const;
+
+		const MODTrigger & trigger_by_name(std::string name) const;		
 
 		void add_particle(std::string input_string);
 		void add_trigger(std::string input_string);	
-		std::string make_string();
-
 		void set_event_number(int MODEvent_number);
 		void set_run_number(int run_number);
 		void set_particles_trigger_type(std::string trigger_type);
-
-		double hardest_pt();
-
-		std::string assigned_trigger_name();
-
-		MODTrigger trigger_by_name(std::string name);		
-
+		
 	private:
 		int _run_number, _event_number;
 				
@@ -46,5 +45,6 @@ class MODEvent {
 
 		std::vector<MODParticle> _particles;
 		std::vector<MODTrigger> _triggers;
+		std::vector<PseudoJet> _pseudojets;
 
 };

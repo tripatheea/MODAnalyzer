@@ -14,11 +14,11 @@ class MODParticle {
 		MODParticle(std::string input_string);
 		MODParticle();
 
-		fastjet::PseudoJet pseudojet();
-		int pdgId();
-		double mass();
-		std::string make_string();
-		std::string header();
+		const fastjet::PseudoJet pseudojet() const;
+		const int pdgId() const;
+		const double mass() const;
+		const std::string make_string() const;
+		const std::string header() const;
 
 	private:
 		std::string _trigger_type;
