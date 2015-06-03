@@ -14,7 +14,7 @@ class MODParticle {
 		MODParticle(std::string input_string);
 		MODParticle();
 
-		fastjet::PseudoJet four_vector();
+		fastjet::PseudoJet pseudojet();
 		int pdgId();
 		double mass();
 		std::string make_string();
@@ -22,7 +22,7 @@ class MODParticle {
 
 	private:
 		std::string _trigger_type;
-		fastjet::PseudoJet _four_vector;
+		fastjet::PseudoJet _pseudojet;
 		double _mass;
 		int _pdgId;	
 

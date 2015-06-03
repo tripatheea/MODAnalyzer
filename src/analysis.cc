@@ -12,14 +12,13 @@
 #include "fastjet/ClusterSequence.hh"
 
 #include "event.cc"
-#include "cluster.cc"
-#include "ntilde.cc"
+#include "fractional_jet_multiplicity.cc"
 
 using namespace std;
 
 
 bool read_event(ifstream & data_file, MODEvent & event);
-bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<int> pt_cuts);
+bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts);
 vector<string> split(string const &input);
 
 int main() {
@@ -28,7 +27,7 @@ int main() {
 	ofstream output_file("../data/antikt_multiplicities.dat", ios::out);
 	
 	vector<double> cone_radii = {0.3, 0.5, 0.7};
-	vector<int> pt_cuts = {50, 80, 110};
+	vector<double> pt_cuts = {50.0, 80.0, 110.0};
 
 	MODEvent * event_being_read = new MODEvent();
 
@@ -37,8 +36,8 @@ int main() {
 	int event_serial_number = 1;
 	while(read_event(data_file, * event_being_read)) {
 
-		// event_being_read->write_to_file("../data/Test.dat");
-		analyze_event( * event_being_read, output_file, cone_radii, pt_cuts);
+		cout << event_being_read->make_string();
+		// analyze_event( * event_being_read, output_file, cone_radii, pt_cuts);
 		
 		cout << "Processing event number " << event_serial_number << endl;
 		
@@ -95,7 +94,7 @@ bool read_event(ifstream & data_file, MODEvent & event_being_read) {
 	return false;
 }
 
-bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<int> pt_cuts) {
+bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts) {
 
 	// Retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
 
@@ -120,13 +119,13 @@ bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<d
 		for (unsigned int p = 0; p < pt_cuts.size(); p++) {
 
 			// Calculate N_tilde.
-			MODNTilde n_tilde_1 = MODNTilde(cone_radii[r], pt_cuts[p]);
-			double N_tilde = n_tilde_1.calculate_n_tilde( & event_being_read);
+			FractionalJetMultiplicity n_tilde_1 = FractionalJetMultiplicity(cone_radii[r], pt_cuts[p]);
+			double N_tilde = n_tilde_1.calculate_n_tilde(event_being_read.pseudojets());
 			
 			// Calculate jet size (fastjet)
 			JetDefinition jet_def(antikt_algorithm, cone_radii[r]);
-			MODCluster antikt_jets = MODCluster(jet_def, pt_cuts[p]);
-			vector<PseudoJet> jets = antikt_jets.calculate_jets( & event_being_read);
+			ClusterSequence cs(event_being_read.pseudojets(), jet_def);
+			vector<PseudoJet> jets = cs.inclusive_jets(pt_cuts[p]);
 
 			output_file << setw(12) << event_being_read.event_number()
 						<< setw(15) << event_being_read.run_number()
