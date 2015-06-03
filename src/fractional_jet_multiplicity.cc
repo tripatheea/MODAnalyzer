@@ -8,7 +8,7 @@ FractionalJetMultiplicity::FractionalJetMultiplicity(double cone_radius, double 
 
 }
 
-double FractionalJetMultiplicity::calculate_n_tilde(vector<PseudoJet> pseudojets) {
+const double FractionalJetMultiplicity::calculate_n_tilde(vector<PseudoJet> pseudojets) const {
 
 	double N_tilde_current = 0.00;
 

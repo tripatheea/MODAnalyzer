@@ -18,19 +18,19 @@ MODParticle::MODParticle(string input_string) {
 
 MODParticle::MODParticle() {}
 
-PseudoJet MODParticle::pseudojet() {
+const PseudoJet MODParticle::pseudojet() const {
 	return _pseudojet;
 }
 
-int MODParticle::pdgId() {
+const int MODParticle::pdgId() const {
 	return _pdgId;
 }
 
-double MODParticle::mass() {
+const double MODParticle::mass() const {
 	return _mass;
 }
 
-string MODParticle::make_string() {
+const string MODParticle::make_string() const {
 	stringstream ss;
 
 	ss << _trigger_type
@@ -45,7 +45,7 @@ string MODParticle::make_string() {
 	return ss.str();
 }
 
-string MODParticle::header() {
+const string MODParticle::header() const {
 	stringstream ss;
 	ss << "#" << _trigger_type << "               px               py               pz               energy               mass               pdgId" << endl;
 	return ss.str();

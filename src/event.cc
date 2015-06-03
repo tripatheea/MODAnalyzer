@@ -1,24 +1,19 @@
 #include "../interface/event.h"
 
-
 using namespace std;
 using namespace fastjet;
-
-
-
 
 MODEvent::MODEvent(int run_number, int MODEvent_number) : _run_number(run_number), _event_number(MODEvent_number) {}
 
 MODEvent::MODEvent() {}
 
-int MODEvent::event_number() {
+const int MODEvent::event_number() const {
 	return _event_number;
 }
 
-int MODEvent::run_number() {
+const int MODEvent::run_number() const {
 	return _run_number;
 }
-
 
 void MODEvent::set_run_number(int run_number) {
 	_run_number = run_number;
@@ -32,33 +27,27 @@ void MODEvent::set_event_number(int event_number) {
 	_event_number = event_number;
 }
 
-
-
-
-vector<PseudoJet> MODEvent::pseudojets() {
-	vector<PseudoJet> four_vectors;
-	for (unsigned int i = 0; i < _particles.size(); i++) {
-		four_vectors.push_back(_particles[i].pseudojet());
-	}
-
-	return four_vectors;
+const vector<PseudoJet> & MODEvent::pseudojets() const {
+	return _pseudojets;
 }
 
-vector<MODParticle> MODEvent::particles() {
+const vector<MODParticle> & MODEvent::particles() const {
 	return _particles;
 }
 
 void MODEvent::add_particle(string input_string) {
-	_particles.push_back(MODParticle(input_string));
+	MODParticle new_particle = MODParticle(input_string);
+	_particles.push_back(new_particle);
+	_pseudojets.push_back(PseudoJet(new_particle.pseudojet()));
 }
 
 void MODEvent::add_trigger(string input_string) {
 	_triggers.push_back(MODTrigger(input_string));
 }
 
-MODTrigger MODEvent::trigger_by_name(string name) {
+const MODTrigger & MODEvent::trigger_by_name(string name) const {
 	for(int i = 0; i < triggers().size(); i++) {
-		MODTrigger current_trigger = triggers()[i];
+		const MODTrigger& current_trigger = triggers().at(i);
 
 		if (current_trigger.name() == name) {
 			return current_trigger;
@@ -66,14 +55,14 @@ MODTrigger MODEvent::trigger_by_name(string name) {
 	}
 
 	MODTrigger * empty_trigger = new MODTrigger();
-	return * empty_trigger;
+	return *empty_trigger;
 }
 
-vector<MODTrigger> MODEvent::triggers() {
+const vector<MODTrigger> & MODEvent::triggers() const {
 	return _triggers;
 }
 
-string MODEvent::make_string() {
+const string MODEvent::make_string() {
 	stringstream file_to_write;
 	
 	file_to_write << "BeginEvent Run " << _run_number << " Event " << _event_number << endl;
@@ -97,7 +86,7 @@ string MODEvent::make_string() {
 	return file_to_write.str();
 }
 
-double MODEvent::hardest_pt() {
+const double MODEvent::hardest_pt() const {
 
 	// Run the clustering, extract the jets using fastjet.
 	JetDefinition jet_def(antikt_algorithm, 0.5);
@@ -114,7 +103,7 @@ double MODEvent::hardest_pt() {
 	return hardest_pt;
 }
 
-string MODEvent::assigned_trigger_name() {
+const string MODEvent::assigned_trigger_name() const {
 
 	double hardest_pt_value = hardest_pt();
 
