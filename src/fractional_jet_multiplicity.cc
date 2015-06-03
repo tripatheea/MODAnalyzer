@@ -31,3 +31,7 @@ const double FractionalJetMultiplicity::calculate_n_tilde(vector<PseudoJet> pseu
 
 	return N_tilde_current;
 }
+
+double FractionalJetMultiplicity::operator()(vector<PseudoJet> pseudojets) const {
+	return calculate_n_tilde(pseudojets);
+}

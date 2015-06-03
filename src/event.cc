@@ -7,11 +7,11 @@ MODEvent::MODEvent(int run_number, int MODEvent_number) : _run_number(run_number
 
 MODEvent::MODEvent() {}
 
-const int MODEvent::event_number() const {
+int MODEvent::event_number() const {
 	return _event_number;
 }
 
-const int MODEvent::run_number() const {
+int MODEvent::run_number() const {
 	return _run_number;
 }
 
@@ -62,23 +62,23 @@ const vector<MODTrigger> & MODEvent::triggers() const {
 	return _triggers;
 }
 
-const string MODEvent::make_string() {
+string MODEvent::make_string() {
 	stringstream file_to_write;
 	
 	file_to_write << "BeginEvent Run " << _run_number << " Event " << _event_number << endl;
 	
 	// First, write out all particles.
 
-	file_to_write << _particles[0].header();
+	file_to_write << _particles[0].make_header_string();
 	for (int i = 0; i < _particles.size(); i++) {
-		file_to_write << _particles[i].make_string();
+		file_to_write << _particles[i];
 	}
 
 	// Next, write out all triggers.
 
-	file_to_write << _triggers[0].header();
+	file_to_write << _triggers[0].make_header_string();
 	for(int i = 0; i < _triggers.size(); i++) {
-		file_to_write << _triggers[i].make_string();
+		file_to_write << _triggers[i];
 	}
 
 	file_to_write << "EndEvent" << endl;
@@ -86,7 +86,7 @@ const string MODEvent::make_string() {
 	return file_to_write.str();
 }
 
-const double MODEvent::hardest_pt() const {
+double MODEvent::hardest_pt() const {
 
 	// Run the clustering, extract the jets using fastjet.
 	JetDefinition jet_def(antikt_algorithm, 0.5);
@@ -103,7 +103,7 @@ const double MODEvent::hardest_pt() const {
 	return hardest_pt;
 }
 
-const string MODEvent::assigned_trigger_name() const {
+string MODEvent::assigned_trigger_name() const {
 
 	double hardest_pt_value = hardest_pt();
 

@@ -18,17 +18,17 @@ class MODEvent {
 		MODEvent(int, int);
 		MODEvent();
 
-		const int event_number() const;
-		const int run_number() const;
+		int event_number() const;
+		int run_number() const;
 
-		const double hardest_pt() const;
+		double hardest_pt() const;
 
 		const std::vector<MODParticle> & particles() const;
 		const std::vector<MODTrigger> & triggers() const;
 		const std::vector<fastjet::PseudoJet> & pseudojets() const;
 
-		const std::string make_string();
-		const std::string assigned_trigger_name() const;
+		std::string make_string();
+		std::string assigned_trigger_name() const;
 
 		const MODTrigger & trigger_by_name(std::string name) const;		
 

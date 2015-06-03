@@ -3,6 +3,7 @@
 #include <string>
 #include <iomanip> 
 #include <sstream>
+#include <ostream>
 
 #include "fastjet/ClusterSequence.hh"
 
@@ -14,11 +15,13 @@ class MODParticle {
 		MODParticle(std::string input_string);
 		MODParticle();
 
-		const fastjet::PseudoJet pseudojet() const;
-		const int pdgId() const;
-		const double mass() const;
-		const std::string make_string() const;
-		const std::string header() const;
+		fastjet::PseudoJet pseudojet() const;
+		int pdgId() const;
+		double mass() const;
+		std::string make_string() const;
+		std::string make_header_string() const;
+
+		friend std::ostream& operator<< (std::ostream&, const MODParticle&);
 
 	private:
 		std::string _trigger_type;

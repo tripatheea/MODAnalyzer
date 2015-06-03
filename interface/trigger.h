@@ -1,5 +1,10 @@
 #include <iostream>
 #include <vector>
+#include <string>
+#include <iomanip> 
+#include <sstream>
+#include <ostream>
+
 
 class MODTrigger {
 
@@ -8,17 +13,19 @@ class MODTrigger {
 		MODTrigger(std::string input_string);
 		MODTrigger();
 
-		const std::string name() const;
-		const std::pair<int, int> prescale_pair() const;
-		const int prescale() const;
-		const bool fired() const;
-		const bool is_valid() const;
-		const std::string make_string();
-		const std::string header() const;
+		std::string name() const;
+		std::pair<int, int> prescale_pair() const;
+		int prescale() const;
+		bool fired() const;
+		bool is_valid() const;
+		std::string make_string() const;
+		std::string make_header_string() const;
+
+		friend std::ostream& operator<< (std::ostream&, const MODTrigger&);
 
 	private:
 		std::string _name;
-		bool _fired = false;
+		bool _fired;
 		std::pair<int, int> _prescales;
 
 		std::vector<std::string> split(std::string const &input);
