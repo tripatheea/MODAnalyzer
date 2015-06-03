@@ -12,29 +12,29 @@ MODTrigger::MODTrigger(string input_string) {
 	_fired = (stoi(components[4]) == 1);
 }
 
-MODTrigger::MODTrigger() {}
+MODTrigger::MODTrigger() : _fired(false) {}
 
-const string MODTrigger::name() const {
+string MODTrigger::name() const {
 	return MODTrigger::_name;
 }
 
-const pair<int, int> MODTrigger::prescale_pair() const {
+pair<int, int> MODTrigger::prescale_pair() const {
 	return MODTrigger::_prescales;
 }
 
-const int MODTrigger::prescale() const {
+int MODTrigger::prescale() const {
 	return _prescales.first * _prescales.second;
 }
 
-const bool MODTrigger::fired() const {
+bool MODTrigger::fired() const {
 	return MODTrigger::_fired;
 }
 
-const bool MODTrigger::is_valid() const {
+bool MODTrigger::is_valid() const {
 	return ( ! _name.empty());
 }
 
-const string MODTrigger::make_string() {
+string MODTrigger::make_string() const {
 	stringstream ss;
 	ss << "trig" 
 		  << setw(16) << _name 
@@ -46,10 +46,15 @@ const string MODTrigger::make_string() {
 	return ss.str();
 }
 
-const string MODTrigger::header() const {
+string MODTrigger::make_header_string() const {
 	stringstream ss;
 	ss << "#Trig          Name          Prescale_1          Prescale_2          Fired?" << endl;
 	return ss.str();
+}
+
+ostream& operator<< (ostream& os, const MODTrigger& trigger) {
+	os << trigger.make_string();
+	return os;
 }
 
 vector<string> MODTrigger::split(string const &input) { 

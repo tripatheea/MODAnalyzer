@@ -21,10 +21,15 @@ bool read_event(ifstream & data_file, MODEvent & event);
 bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts);
 vector<string> split(string const &input);
 
-int main() {
-	ifstream data_file("../data/pfcandidates.dat");
+int main(int argc, char * argv[]) {
+	
+	if (argc != 2) {
+        std::cerr << "ERROR: You need to supply path to the input data. The path has to be either absolute or relative to the bin directory." << std::endl;
+        return 1;
+    }
 
-	ofstream output_file("../data/antikt_multiplicities.dat", ios::out);
+	ifstream data_file(argv[1]);
+	ofstream output_file("../data/fractional_jet_multiplicity.dat", ios::out);
 	
 	vector<double> cone_radii = {0.3, 0.5, 0.7};
 	vector<double> pt_cuts = {50.0, 80.0, 110.0};
@@ -32,7 +37,7 @@ int main() {
 	MODEvent * event_being_read = new MODEvent();
 
 	output_file << "# Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale_1     Prescale_2     Cone_Radius     pT_Cut     Hardest_pT" << endl;
-	
+
 	int event_serial_number = 1;
 	while(read_event(data_file, * event_being_read)) {
 
@@ -119,8 +124,8 @@ bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<d
 		for (unsigned int p = 0; p < pt_cuts.size(); p++) {
 
 			// Calculate N_tilde.
-			FractionalJetMultiplicity n_tilde_1 = FractionalJetMultiplicity(cone_radii[r], pt_cuts[p]);
-			double N_tilde = n_tilde_1.calculate_n_tilde(event_being_read.pseudojets());
+			FractionalJetMultiplicity ntilde = FractionalJetMultiplicity(cone_radii[r], pt_cuts[p]);
+			double N_tilde = ntilde(event_being_read.pseudojets());
 			
 			// Calculate jet size (fastjet)
 			JetDefinition jet_def(antikt_algorithm, cone_radii[r]);
