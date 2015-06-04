@@ -29,7 +29,7 @@ MOD::PFCandidate::PFCandidate(istringstream & input_stream) {
    }
 
    _trigger_type = tag;
-   _pseudojet = PseudoJet(px, py, pz, energy);
+   _pseudojet = PseudoJet(px, py, pz, recalc_energy);
    _pdgId = pdgId;
 }
 
