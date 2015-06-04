@@ -16,7 +16,7 @@
 
 using namespace std;
 
-bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts);
+bool analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts);
 
 int main(int argc, char * argv[]) {
    
@@ -41,7 +41,7 @@ int main(int argc, char * argv[]) {
    vector<double> cone_radii = {0.3, 0.5, 0.7};
    vector<double> pt_cuts = {50.0, 80.0, 110.0};
 
-   MODEvent event_being_read;
+   MOD::Event event_being_read;
 
    output_file << "# Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale     Cone_Radius     pT_Cut     Hardest_pT" << endl;
 
@@ -51,7 +51,7 @@ int main(int argc, char * argv[]) {
       cout << "Processing event number " << event_serial_number << endl;
 
       analyze_event(event_being_read, output_file, cone_radii, pt_cuts);
-      event_being_read = MODEvent();
+      event_being_read = MOD::Event();
       event_serial_number++;
    }
 
@@ -59,7 +59,7 @@ int main(int argc, char * argv[]) {
 }
 
 
-bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts) {
+bool analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts) {
 
    // Retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
    // Also calculate everything and record those along with the trigger information.
@@ -75,7 +75,7 @@ bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<d
       for (unsigned int p = 0; p < pt_cuts.size(); p++) {
 
          // Calculate N_tilde.
-         FractionalJetMultiplicity ntilde = FractionalJetMultiplicity(cone_radii[r], pt_cuts[p]);
+         MOD::FractionalJetMultiplicity ntilde = MOD::FractionalJetMultiplicity(cone_radii[r], pt_cuts[p]);
          double N_tilde = ntilde(event_being_read.pseudojets());
          
          // Calculate jet size (fastjet)

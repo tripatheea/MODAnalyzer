@@ -9,56 +9,59 @@
 
 #include "fastjet/ClusterSequence.hh"
 #include "../src/trigger.cc"
-#include "../src/particle.cc"
+#include "../src/pfcandidate.cc"
 
+namespace MOD {
 
-class MODEvent {
+      class Event {
 
-   public:
-      MODEvent(int, int);
-      MODEvent();
+         public:
+            Event(int, int);
+            Event();
 
-      int event_number() const;
-      int run_number() const;
+            int event_number() const;
+            int run_number() const;
 
-      double trigger_hardest_pt() const;
+            double trigger_hardest_pt() const;
 
-      const std::vector<MODParticle> & particles() const;
-      const std::vector<MODTrigger> & triggers() const;
-      const std::vector<fastjet::PseudoJet> & pseudojets() const;
+            const std::vector<PFCandidate> & particles() const;
+            const std::vector<Trigger> & triggers() const;
+            const std::vector<fastjet::PseudoJet> & pseudojets() const;
 
-      std::string make_string() const;
-      std::string assigned_trigger_name() const;
+            std::string make_string() const;
+            std::string assigned_trigger_name() const;
 
-      const MODTrigger & trigger_by_name(std::string name) const;    
+            const Trigger & trigger_by_name(std::string name) const;    
 
-      void add_particle(std::istringstream & input_stream);
-      void add_trigger(std::istringstream & input_stream);  
-      void set_event_number(int MODEvent_number);
-      void set_run_number(int run_number);
-      void set_particles_trigger_type(std::string trigger_type);
+            void add_particle(std::istringstream & input_stream);
+            void add_trigger(std::istringstream & input_stream);  
+            void set_event_number(int event_number);
+            void set_run_number(int run_number);
+            void set_particles_trigger_type(std::string trigger_type);
 
-      bool read_event(ifstream & data_file);
+            bool read_event(ifstream & data_file);
 
-      const MODTrigger & assigned_trigger() const;
-      bool assigned_trigger_fired() const;
-      int assigned_trigger_prescale() const;
+            const Trigger & assigned_trigger() const;
+            bool assigned_trigger_fired() const;
+            int assigned_trigger_prescale() const;
 
-      friend std::ostream& operator<< (std::ostream&, const MODEvent&);
-      
-   private:
-      int _run_number, _event_number;
-
-      double _trigger_hardest_pt;
-      MODTrigger _assigned_trigger;
+            friend std::ostream& operator<< (std::ostream&, const Event&);
             
-      std::string _trigger_type;
+         private:
+            int _run_number, _event_number;
 
-      std::vector<MODParticle> _particles;
-      std::vector<MODTrigger> _triggers;
-      std::vector<PseudoJet> _pseudojets;
+            double _trigger_hardest_pt;
+            Trigger _assigned_trigger;
+                  
+            std::string _trigger_type;
 
-      void set_assigned_trigger();
-      void set_trigger_hardest_pt();
-      void establish_properties();
-};
+            std::vector<PFCandidate> _particles;
+            std::vector<Trigger> _triggers;
+            std::vector<PseudoJet> _pseudojets;
+
+            void set_assigned_trigger();
+            void set_trigger_hardest_pt();
+            void establish_properties();
+      };
+
+}

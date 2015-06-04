@@ -1,10 +1,10 @@
-#include "../interface/particle.h"
+#include "../interface/pfcandidate.h"
 
 using namespace std;
 using namespace fastjet;
 
 
-MODParticle::MODParticle(double px, double py, double pz, double energy, double mass, int pdgId, string trigger_type) : _pdgId(pdgId), _trigger_type(trigger_type) {
+MOD::PFCandidate::PFCandidate(double px, double py, double pz, double energy, double mass, int pdgId, string trigger_type) : _pdgId(pdgId), _trigger_type(trigger_type) {
    double recalc_energy = sqrt(px*px + py*py + pz*pz + mass*mass);
 
    if ( abs(recalc_energy - energy) > pow(10, -4)) {
@@ -14,7 +14,7 @@ MODParticle::MODParticle(double px, double py, double pz, double energy, double 
    _pseudojet = PseudoJet(px, py, pz, recalc_energy);
 }
 
-MODParticle::MODParticle(istringstream & input_stream) {
+MOD::PFCandidate::PFCandidate(istringstream & input_stream) {
 
    string tag;
    double px, py, pz, energy, mass;
@@ -33,21 +33,21 @@ MODParticle::MODParticle(istringstream & input_stream) {
    _pdgId = pdgId;
 }
 
-MODParticle::MODParticle() {}
+MOD::PFCandidate::PFCandidate() {}
 
-PseudoJet MODParticle::pseudojet() const {
+PseudoJet MOD::PFCandidate::pseudojet() const {
    return _pseudojet;
 }
 
-int MODParticle::pdgId() const {
+int MOD::PFCandidate::pdgId() const {
    return _pdgId;
 }
 
-double MODParticle::mass() const {
+double MOD::PFCandidate::mass() const {
    return _pseudojet.m();
 }
 
-string MODParticle::make_string() const {
+string MOD::PFCandidate::make_string() const {
    stringstream ss;
    ss << _trigger_type
         << setw(21) << setprecision(5) << _pseudojet.px()
@@ -61,13 +61,15 @@ string MODParticle::make_string() const {
    return ss.str();
 }
 
-string MODParticle::make_header_string() const {
+string MOD::PFCandidate::make_header_string() const {
    stringstream ss;
    ss << "#" << _trigger_type << "               px               py               pz               energy               mass               pdgId" << endl;
    return ss.str();
 }
 
-ostream& operator<< (ostream& os, const MODParticle& particle) {
-   os << particle.make_string();
-   return os;
+namespace MOD {
+   ostream& operator<< (ostream& os, const PFCandidate& particle) {
+      os << particle.make_string();
+      return os;
+   }
 }
