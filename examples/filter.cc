@@ -38,11 +38,12 @@ int main(int argc, char * argv[]) {
    MODEvent event_being_read;
 
    int event_serial_number = 1;
-   while(event_being_read.read_event(data_file, event_being_read)) {
+   while(event_being_read.read_event(data_file)) {
 
       cout << "Filtering event number " << event_serial_number << endl;
 
       filter_events(event_being_read, output_file);
+      event_being_read = MODEvent();
       event_serial_number++;
    }
 }
