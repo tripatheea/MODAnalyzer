@@ -13,7 +13,7 @@
 
 using namespace std;
 
-bool filter_events(MODEvent & event_being_read, ofstream & output_file);
+bool duplicate_events(MODEvent & event_being_read, ofstream & output_file);
 
 int main(int argc, char * argv[]) {
    
@@ -40,15 +40,15 @@ int main(int argc, char * argv[]) {
    int event_serial_number = 1;
    while(event_being_read.read_event(data_file, event_being_read)) {
 
-      cout << "Filtering event number " << event_serial_number << endl;
+      cout << "Duplicating event number " << event_serial_number << endl;
 
-      filter_events(event_being_read, output_file);
+      duplicate_events(event_being_read, output_file);
       event_serial_number++;
    }
 }
 
 
-bool filter_events(MODEvent & event_being_read, ofstream & output_file) {
+bool duplicate_events(MODEvent & event_being_read, ofstream & output_file) {
 
    // Retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
 
@@ -57,8 +57,6 @@ bool filter_events(MODEvent & event_being_read, ofstream & output_file) {
    string assigned_trigger_name = event_being_read.assigned_trigger_name();
    const MODTrigger assigned_trigger = event_being_read.trigger_by_name(assigned_trigger_name);
    
-   if(assigned_trigger.fired()) {
-      output_file << event_being_read.make_string();
-   }
+   output_file << event_being_read;
    
 }

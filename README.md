@@ -21,6 +21,12 @@ This repository has code to analyze CMS Open Data data produced using [https://g
 
   ``.x plots.cc+`` 
 
+## TODO
+- Add jet energy correction factors to AK5/AK7
+- Write a simple analysis that double checks that PFCandidates yield the same AK5/7 jets as CMS finds.
+- Get Pythia 8 up and running and generate simulated data (with simulated triggers)
+- Figure out if there is any way to get luminosity information.
+
 [1]: https://github.com/tripatheea/CMSOpenDataProducer
   [2]: http://www.fastjet.fr/
   [3]: https://github.com/tripatheea/CMSOpenDataProducer

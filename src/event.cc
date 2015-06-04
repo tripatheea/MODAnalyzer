@@ -62,7 +62,7 @@ const vector<MODTrigger> & MODEvent::triggers() const {
    return _triggers;
 }
 
-string MODEvent::make_string() {
+string MODEvent::make_string() const {
    stringstream file_to_write;
    
    file_to_write << "BeginEvent Run " << _run_number << " Event " << _event_number << endl;
@@ -86,7 +86,7 @@ string MODEvent::make_string() {
    return file_to_write.str();
 }
 
-double MODEvent::hardest_pt() const {
+double MODEvent::trigger_hardest_pt() const {
 
    // Run the clustering, extract the jets using fastjet.
    JetDefinition jet_def(antikt_algorithm, 0.5);
@@ -105,7 +105,7 @@ double MODEvent::hardest_pt() const {
 
 string MODEvent::assigned_trigger_name() const {
 
-   double hardest_pt_value = hardest_pt();
+   double hardest_pt_value = trigger_hardest_pt();
 
    // Next, lookup which trigger to use based on the pt value of the hardest jet.
 
@@ -135,8 +135,8 @@ string MODEvent::assigned_trigger_name() const {
    return trigger_to_use;
 }
 
-bool MODEvent::read_event(ifstream & data_file, MODEvent & event_being_read) {
-   event_being_read = MODEvent();
+bool MODEvent::read_event(ifstream & data_file) {
+   // event_being_read = MODEvent();
 
    string line;
    while(getline(data_file, line)) {
@@ -179,3 +179,7 @@ bool MODEvent::read_event(ifstream & data_file, MODEvent & event_being_read) {
    return false;
 }
 
+ostream& operator<< (ostream& os, const MODEvent& event) {
+   os << event.make_string();
+   return os;
+}
