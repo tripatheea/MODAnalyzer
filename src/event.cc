@@ -87,20 +87,7 @@ string MODEvent::make_string() const {
 }
 
 double MODEvent::trigger_hardest_pt() const {
-
-   // Run the clustering, extract the jets using fastjet.
-   JetDefinition jet_def(antikt_algorithm, 0.5);
-   ClusterSequence cs(pseudojets(), jet_def);
-   vector<PseudoJet> clustered_jets = cs.inclusive_jets(0.0);
-
-   double hardest_pt = 0.0;
-   for (unsigned int i = 0; i < clustered_jets.size(); i++) {
-      if (hardest_pt < clustered_jets[i].pt()) {
-         hardest_pt = clustered_jets[i].pt();
-      }
-   }
-
-   return hardest_pt;
+   return _trigger_hardest_pt;
 }
 
 string MODEvent::assigned_trigger_name() const {
@@ -156,7 +143,7 @@ bool MODEvent::read_event(ifstream & data_file) {
             add_particle(stream);
          }
          catch (exception& e) {
-            throw runtime_error("Invalid file format!");
+            throw runtime_error("Invalid file format PFC!");
          }
       }
       else if (tag == "trig") {
@@ -164,10 +151,11 @@ bool MODEvent::read_event(ifstream & data_file) {
             add_trigger(stream);
          }
          catch (exception& e) {
-            throw runtime_error("Invalid file format!");
+            throw runtime_error("Invalid file format TRIG!");
          }
       }
       else if (tag == "EndEvent") {
+         establish_properties();
          return true;
       }
    }
@@ -176,15 +164,40 @@ bool MODEvent::read_event(ifstream & data_file) {
 }
 
 const MODTrigger & MODEvent::assigned_trigger() const {
-   return trigger_by_name(assigned_trigger_name());
+   return _assigned_trigger;
 }
 
 bool MODEvent::assigned_trigger_fired() const {
-   return assigned_trigger().fired();
+   return _assigned_trigger.fired();
 }
 
 int MODEvent::assigned_trigger_prescale() const {
-   return assigned_trigger().prescale();
+   return _assigned_trigger.prescale();
+}
+
+void MODEvent::set_assigned_trigger() {
+   _assigned_trigger = trigger_by_name(assigned_trigger_name());
+}
+
+void MODEvent::set_trigger_hardest_pt() {
+   // Run the clustering, extract the jets using fastjet.
+   JetDefinition jet_def(antikt_algorithm, 0.5);
+   ClusterSequence cs(pseudojets(), jet_def);
+   vector<PseudoJet> clustered_jets = cs.inclusive_jets(0.0);
+
+   double hardest_pt = 0.0;
+   for (unsigned int i = 0; i < clustered_jets.size(); i++) {
+      if (hardest_pt < clustered_jets[i].pt()) {
+         hardest_pt = clustered_jets[i].pt();
+      }
+   }
+
+   _trigger_hardest_pt = hardest_pt;
+}
+
+void MODEvent::establish_properties() {
+   set_assigned_trigger();
+   set_trigger_hardest_pt();
 }
 
 ostream& operator<< (ostream& os, const MODEvent& event) {

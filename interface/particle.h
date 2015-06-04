@@ -4,6 +4,8 @@
 #include <iomanip> 
 #include <sstream>
 #include <ostream>
+#include <stdexcept>
+#include <cmath>
 
 #include "fastjet/ClusterSequence.hh"
 
@@ -26,6 +28,5 @@ class MODParticle {
    private:
       std::string _trigger_type;
       fastjet::PseudoJet _pseudojet;
-      double _mass;
       int _pdgId; 
 };

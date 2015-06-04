@@ -48,10 +48,17 @@ class MODEvent {
       
    private:
       int _run_number, _event_number;
+
+      double _trigger_hardest_pt;
+      MODTrigger _assigned_trigger;
             
       std::string _trigger_type;
 
       std::vector<MODParticle> _particles;
       std::vector<MODTrigger> _triggers;
       std::vector<PseudoJet> _pseudojets;
+
+      void set_assigned_trigger();
+      void set_trigger_hardest_pt();
+      void establish_properties();
 };
