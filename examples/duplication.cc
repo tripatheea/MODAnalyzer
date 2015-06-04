@@ -42,22 +42,9 @@ int main(int argc, char * argv[]) {
 
       cout << "Duplicating event number " << event_serial_number << endl;
 
-      duplicate_events(event_being_read, output_file);
+      output_file << event_being_read;
+      
       event_being_read = MODEvent();
       event_serial_number++;
    }
-}
-
-
-bool duplicate_events(MODEvent & event_being_read, ofstream & output_file) {
-
-   // Retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
-
-   // Also calculate everything and record those along with the trigger information.
-
-   string assigned_trigger_name = event_being_read.assigned_trigger_name();
-   const MODTrigger assigned_trigger = event_being_read.trigger_by_name(assigned_trigger_name);
-   
-   output_file << event_being_read;
-   
 }

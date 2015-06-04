@@ -50,16 +50,7 @@ int main(int argc, char * argv[]) {
 
 
 bool filter_events(MODEvent & event_being_read, ofstream & output_file) {
-
-   // Retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
-
-   // Also calculate everything and record those along with the trigger information.
-
-   string assigned_trigger_name = event_being_read.assigned_trigger_name();
-   const MODTrigger assigned_trigger = event_being_read.trigger_by_name(assigned_trigger_name);
-   
-   if(assigned_trigger.fired()) {
+   if(event_being_read.assigned_trigger_fired()) {
       output_file << event_being_read.make_string();
    }
-   
 }
