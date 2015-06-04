@@ -1,6 +1,7 @@
 *.dat
 *.png
-bin
+bin/*
+!bin/*.txt
 ./data
 *.d
 *.pcm
