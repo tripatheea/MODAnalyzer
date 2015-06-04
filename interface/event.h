@@ -21,13 +21,13 @@ class MODEvent {
       int event_number() const;
       int run_number() const;
 
-      double hardest_pt() const;
+      double trigger_hardest_pt() const;
 
       const std::vector<MODParticle> & particles() const;
       const std::vector<MODTrigger> & triggers() const;
       const std::vector<fastjet::PseudoJet> & pseudojets() const;
 
-      std::string make_string();
+      std::string make_string() const;
       std::string assigned_trigger_name() const;
 
       const MODTrigger & trigger_by_name(std::string name) const;    
@@ -38,7 +38,9 @@ class MODEvent {
       void set_run_number(int run_number);
       void set_particles_trigger_type(std::string trigger_type);
 
-      bool read_event(ifstream & data_file, MODEvent & event_being_read);
+      bool read_event(ifstream & data_file);
+
+      friend std::ostream& operator<< (std::ostream&, const MODEvent&);
       
    private:
       int _run_number, _event_number;

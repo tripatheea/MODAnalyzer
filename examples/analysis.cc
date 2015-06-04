@@ -37,8 +37,6 @@ int main(int argc, char * argv[]) {
 
    ifstream data_file(argv[1]);
    ofstream output_file(argv[2], ios::out);
-
-   cout << "Number of outputs to process: " << number_of_events_to_process << endl;
    
    vector<double> cone_radii = {0.3, 0.5, 0.7};
    vector<double> pt_cuts = {50.0, 80.0, 110.0};
@@ -48,11 +46,12 @@ int main(int argc, char * argv[]) {
    output_file << "# Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale_1     Prescale_2     Cone_Radius     pT_Cut     Hardest_pT" << endl;
 
    int event_serial_number = 1;
-   while( ( event_being_read.read_event(data_file, event_being_read) ) && ( event_serial_number <= number_of_events_to_process ) ) {
+   while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
       
       cout << "Processing event number " << event_serial_number << endl;
 
       analyze_event(event_being_read, output_file, cone_radii, pt_cuts);
+      event_being_read = MODEvent();
       event_serial_number++;
    }
 
@@ -76,7 +75,7 @@ bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<d
    int prescale_1 = prescales.first;
    int prescale_2 = prescales.second;
 
-   double hardest_pt = event_being_read.hardest_pt();
+   double hardest_pt = event_being_read.trigger_hardest_pt();
 
    // Calculate everything for each value of R and pt_cut.
 
