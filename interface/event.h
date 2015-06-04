@@ -38,7 +38,7 @@ class MODEvent {
 		void set_run_number(int run_number);
 		void set_particles_trigger_type(std::string trigger_type);
 
-		bool read_event(ifstream & data_file);
+		bool read_event(ifstream & data_file, MODEvent & event_being_read);
 		
 	private:
 		int _run_number, _event_number;

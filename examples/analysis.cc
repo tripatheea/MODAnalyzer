@@ -30,21 +30,16 @@ int main(int argc, char * argv[]) {
 	vector<double> cone_radii = {0.3, 0.5, 0.7};
 	vector<double> pt_cuts = {50.0, 80.0, 110.0};
 
-	MODEvent * event_being_read = new MODEvent();
+	MODEvent event_being_read;
 
 	output_file << "# Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale_1     Prescale_2     Cone_Radius     pT_Cut     Hardest_pT" << endl;
 
 	int event_serial_number = 1;
-	while(event_being_read->read_event(data_file)) {
-
-		// cout << event_being_read->make_string();
-		analyze_event( * event_being_read, output_file, cone_radii, pt_cuts);
+	while(event_being_read.read_event(data_file, event_being_read)) {
 		
 		cout << "Processing event number " << event_serial_number << endl;
-		
-		delete event_being_read;
-		MODEvent * event_being_read = new MODEvent();
 
+		analyze_event(event_being_read, output_file, cone_radii, pt_cuts);
 		event_serial_number++;
 	}
 }
