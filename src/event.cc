@@ -31,6 +31,14 @@ const vector<PseudoJet> & MOD::Event::pseudojets() const {
    return _pseudojets;
 }
 
+const vector<PseudoJet> & MOD::Event::calibrated_jets_pseudojets() const {
+   return _calibrated_jets_pseudojets;
+}
+
+const vector<MOD::CalibratedJet> & MOD::Event::calibrated_jets() const {
+   return _calibrated_jets;
+}
+
 const vector<MOD::PFCandidate> & MOD::Event::particles() const {
    return _particles;
 }
@@ -39,6 +47,12 @@ void MOD::Event::add_particle(istringstream & input_stream) {
    MOD::PFCandidate new_particle = MOD::PFCandidate(input_stream);
    _particles.push_back(new_particle);
    _pseudojets.push_back(PseudoJet(new_particle.pseudojet()));
+}
+
+void MOD::Event::add_calibrated_jet(istringstream & input_stream) {
+   MOD::CalibratedJet new_jet = MOD::CalibratedJet(input_stream);
+   _calibrated_jets.push_back(new_jet);
+   _calibrated_jets_pseudojets.push_back(PseudoJet(new_jet.pseudojet()));
 }
 
 void MOD::Event::add_trigger(istringstream & input_stream) {
@@ -144,6 +158,14 @@ bool MOD::Event::read_event(ifstream & data_file) {
          }
          catch (exception& e) {
             throw runtime_error("Invalid file format PFC!");
+         }
+      }
+      else if ( (tag == "AK5") || (tag == "AK7") ) {
+         try {
+            add_calibrated_jet(stream);
+         }
+         catch (exception& e) {
+            throw runtime_error("Invalid file format AK!");
          }
       }
       else if (tag == "trig") {
