@@ -4,7 +4,14 @@ using namespace std;
 using namespace fastjet;
 
 
-MODParticle::MODParticle(double px, double py, double pz, double energy, double mass, int pdgId, string trigger_type) : _pseudojet(PseudoJet(px, py, pz, energy)), _mass(mass), _pdgId(pdgId), _trigger_type(trigger_type) {
+MODParticle::MODParticle(double px, double py, double pz, double energy, double mass, int pdgId, string trigger_type) : _pdgId(pdgId), _trigger_type(trigger_type) {
+   double recalc_energy = sqrt(px*px + py*py + pz*pz + mass*mass);
+
+   if ( abs(recalc_energy - energy) > pow(10, -4)) {
+      throw runtime_error("Recalculated energy (using 3-momentum nad mass) does not match give energy value.");
+   }
+
+   _pseudojet = PseudoJet(px, py, pz, recalc_energy);
 }
 
 MODParticle::MODParticle(istringstream & input_stream) {
@@ -14,11 +21,16 @@ MODParticle::MODParticle(istringstream & input_stream) {
    int pdgId;
 
    input_stream >> tag >> px >> py >> pz >> energy >> mass >> pdgId;
+   
+   double recalc_energy = sqrt(px*px + py*py + pz*pz + mass*mass);
+
+   if ( abs(recalc_energy - energy) > pow(10, -4)) {
+      throw runtime_error("Recalculated energy (using 3-momentum nad mass) does not match give energy value.");
+   }
 
    _trigger_type = tag;
    _pseudojet = PseudoJet(px, py, pz, energy);
-   _mass = mass;
-   _pdgId =pdgId;
+   _pdgId = pdgId;
 }
 
 MODParticle::MODParticle() {}
@@ -32,7 +44,7 @@ int MODParticle::pdgId() const {
 }
 
 double MODParticle::mass() const {
-   return _mass;
+   return _pseudojet.m();
 }
 
 string MODParticle::make_string() const {
@@ -42,7 +54,7 @@ string MODParticle::make_string() const {
         << setw(17) << setprecision(5) << _pseudojet.py()
         << setw(18) << setprecision(5) << _pseudojet.pz()
         << setw(18) << setprecision(5) << _pseudojet.E()
-        << setw(19) << setprecision(5) << _mass
+        << setw(19) << setprecision(5) << mass()
         << setw(18) << noshowpos << _pdgId
         << endl;
 
