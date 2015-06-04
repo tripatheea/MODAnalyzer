@@ -141,6 +141,10 @@ bool MODEvent::read_event(ifstream & data_file) {
 		istringstream iss(line);
 
 		vector<string> components = split(line);
+		
+		int event_number, run_number, pdgId;
+		double px, py, pz, energy, mass;
+		string tag;
 
 		if (components[0] == "BeginEvent") {
 			set_event_number(stoi(components[4]));
