@@ -33,10 +33,10 @@ double MODParticle::mass() const {
 string MODParticle::make_string() const {
 	stringstream ss;
 	ss << _trigger_type
-		  << setw(21) << setprecision(8) << _pseudojet.px()
-		  << setw(17) << setprecision(8) << _pseudojet.py()
-		  << setw(18) << setprecision(8) << _pseudojet.pz()
-		  << setw(18) << setprecision(8) << _pseudojet.E()
+		  << setw(21) << setprecision(5) << _pseudojet.px()
+		  << setw(17) << setprecision(5) << _pseudojet.py()
+		  << setw(18) << setprecision(5) << _pseudojet.pz()
+		  << setw(18) << setprecision(5) << _pseudojet.E()
 		  << setw(19) << setprecision(5) << _mass
 		  << setw(18) << noshowpos << _pdgId
 		  << endl;
