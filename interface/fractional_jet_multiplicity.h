@@ -14,5 +14,5 @@ class FractionalJetMultiplicity {
       const double _cone_radius;
       const double _pt_cut;
 
-      const double calculate_n_tilde(vector<PseudoJet> pseudojets) const;
+      double calculate_n_tilde(vector<PseudoJet> pseudojets) const;
 };

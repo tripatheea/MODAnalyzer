@@ -40,6 +40,10 @@ class MODEvent {
 
       bool read_event(ifstream & data_file);
 
+      const MODTrigger & assigned_trigger() const;
+      bool assigned_trigger_fired() const;
+      int assigned_trigger_prescale() const;
+
       friend std::ostream& operator<< (std::ostream&, const MODEvent&);
       
    private:

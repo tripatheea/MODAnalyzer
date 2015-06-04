@@ -157,7 +157,6 @@ bool MODEvent::read_event(ifstream & data_file) {
          }
          catch (exception& e) {
             throw runtime_error("Invalid file format!");
-            cout << "Something went wrong!" << endl;
          }
       }
       else if (tag == "trig") {
@@ -166,7 +165,6 @@ bool MODEvent::read_event(ifstream & data_file) {
          }
          catch (exception& e) {
             throw runtime_error("Invalid file format!");
-            cout << "Something went wrong!" << endl;
          }
       }
       else if (tag == "EndEvent") {
@@ -175,6 +173,18 @@ bool MODEvent::read_event(ifstream & data_file) {
    }
 
    return false;
+}
+
+const MODTrigger & MODEvent::assigned_trigger() const {
+   return trigger_by_name(assigned_trigger_name());
+}
+
+bool MODEvent::assigned_trigger_fired() const {
+   return assigned_trigger().fired();
+}
+
+int MODEvent::assigned_trigger_prescale() const {
+   return assigned_trigger().prescale();
 }
 
 ostream& operator<< (ostream& os, const MODEvent& event) {

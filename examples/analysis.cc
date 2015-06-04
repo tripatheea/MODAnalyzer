@@ -43,7 +43,7 @@ int main(int argc, char * argv[]) {
 
    MODEvent event_being_read;
 
-   output_file << "# Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale_1     Prescale_2     Cone_Radius     pT_Cut     Hardest_pT" << endl;
+   output_file << "# Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale     Cone_Radius     pT_Cut     Hardest_pT" << endl;
 
    int event_serial_number = 1;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
@@ -63,18 +63,10 @@ bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<d
 
    // Retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
    // Also calculate everything and record those along with the trigger information.
-
+   
    string assigned_trigger_name = event_being_read.assigned_trigger_name();
-   const MODTrigger assigned_trigger = event_being_read.trigger_by_name(assigned_trigger_name);
-
-   pair<int, int> prescales = assigned_trigger.prescale_pair();
-   
-   bool fired = assigned_trigger.fired();
-   
-
-   int prescale_1 = prescales.first;
-   int prescale_2 = prescales.second;
-
+   bool fired = event_being_read.assigned_trigger_fired();
+   int prescale = event_being_read.assigned_trigger_prescale();
    double hardest_pt = event_being_read.trigger_hardest_pt();
 
    // Calculate everything for each value of R and pt_cut.
@@ -97,8 +89,7 @@ bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<d
                   << setw(9) << jets.size()
                   << setw(35) << assigned_trigger_name
                   << setw(5) << fired
-                  << setw(12) << prescale_1
-                  << setw(15) << prescale_2
+                  << setw(12) << prescale
                   << setw(18) << setprecision(2) << cone_radii[r]
                   << setw(12) << noshowpoint << setprecision(3) << pt_cuts[p]
                   << setw(16) << showpoint << setprecision(8) << hardest_pt
