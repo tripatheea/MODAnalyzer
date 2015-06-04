@@ -14,7 +14,7 @@ namespace MOD {
    class PFCandidate {
 
       public:
-         PFCandidate(double px, double py, double pz, double energy, double mass, int pdgId, std::string trigger_type);
+         PFCandidate(double px, double py, double pz, double energy, double mass, int pdgId);
          PFCandidate(std::istringstream & input_stream);
          PFCandidate();
 
@@ -27,7 +27,6 @@ namespace MOD {
          friend std::ostream& operator<< (std::ostream&, const PFCandidate&);
 
       private:
-         std::string _trigger_type;
          fastjet::PseudoJet _pseudojet;
          int _pdgId; 
    };

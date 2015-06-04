@@ -4,7 +4,7 @@ using namespace std;
 using namespace fastjet;
 
 
-MOD::PFCandidate::PFCandidate(double px, double py, double pz, double energy, double mass, int pdgId, string trigger_type) : _pdgId(pdgId), _trigger_type(trigger_type) {
+MOD::PFCandidate::PFCandidate(double px, double py, double pz, double energy, double mass, int pdgId) : _pdgId(pdgId) {
    double recalc_energy = sqrt(px*px + py*py + pz*pz + mass*mass);
 
    if ( abs(recalc_energy - energy) > pow(10, -4)) {
@@ -28,7 +28,6 @@ MOD::PFCandidate::PFCandidate(istringstream & input_stream) {
       throw runtime_error("Recalculated energy (using 3-momentum nad mass) does not match give energy value.");
    }
 
-   _trigger_type = tag;
    _pseudojet = PseudoJet(px, py, pz, recalc_energy);
    _pdgId = pdgId;
 }
@@ -49,13 +48,13 @@ double MOD::PFCandidate::mass() const {
 
 string MOD::PFCandidate::make_string() const {
    stringstream ss;
-   ss << _trigger_type
-        << setw(21) << setprecision(5) << _pseudojet.px()
-        << setw(17) << setprecision(5) << _pseudojet.py()
-        << setw(18) << setprecision(5) << _pseudojet.pz()
-        << setw(18) << setprecision(5) << _pseudojet.E()
-        << setw(19) << setprecision(5) << mass()
-        << setw(18) << noshowpos << _pdgId
+   ss << " PFC"
+        << setw(12) << fixed << setprecision(5) << _pseudojet.px()
+        << setw(12) << fixed << setprecision(5) << _pseudojet.py()
+        << setw(12) << fixed << setprecision(5) << _pseudojet.pz()
+        << setw(11) << fixed << setprecision(5) << _pseudojet.E()
+        << setw(11) << fixed << setprecision(5) << mass()
+        << setw(8) << noshowpos << _pdgId
         << endl;
 
    return ss.str();
@@ -63,7 +62,7 @@ string MOD::PFCandidate::make_string() const {
 
 string MOD::PFCandidate::make_header_string() const {
    stringstream ss;
-   ss << "#" << _trigger_type << "               px               py               pz               energy               mass               pdgId" << endl;
+   ss << "#PFC" << "          px          py          pz     energy       mass   pdgId" << endl;
    return ss.str();
 }
 
