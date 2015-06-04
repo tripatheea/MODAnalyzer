@@ -35,14 +35,14 @@ const vector<MODParticle> & MODEvent::particles() const {
 	return _particles;
 }
 
-void MODEvent::add_particle(string input_string) {
-	MODParticle new_particle = MODParticle(input_string);
+void MODEvent::add_particle(istringstream & input_stream) {
+	MODParticle new_particle = MODParticle(input_stream);
 	_particles.push_back(new_particle);
 	_pseudojets.push_back(PseudoJet(new_particle.pseudojet()));
 }
 
-void MODEvent::add_trigger(string input_string) {
-	_triggers.push_back(MODTrigger(input_string));
+void MODEvent::add_trigger(istringstream & input_stream) {
+	_triggers.push_back(MODTrigger(input_stream));
 }
 
 const MODTrigger & MODEvent::trigger_by_name(string name) const {
@@ -137,41 +137,41 @@ string MODEvent::assigned_trigger_name() const {
 
 bool MODEvent::read_event(ifstream & data_file, MODEvent & event_being_read) {
 	event_being_read = MODEvent();
-	
+
 	string line;
 	while(getline(data_file, line)) {
 		istringstream iss(line);
-
-		vector<string> components = split(line);
 		
-		int event_number, run_number, pdgId;
-		double px, py, pz, energy, mass;
-		string tag;
+		int event_number, run_number;
+		string tag, run_keyword, event_keyword;
 
-		if (components[0] == "BeginEvent") {
-			set_event_number(stoi(components[4]));
-			set_run_number(stoi(components[2]));
+		iss >> tag;
+		istringstream stream(line);
+		if (tag == "BeginEvent") {
+			stream >> tag >> run_keyword >> run_number >> event_keyword >> event_number;
+			set_event_number(event_number);
+			set_run_number(run_number);
 			set_particles_trigger_type("PFC");
 		}
-		else if (components[0] == "PFC") {
+		else if (tag == "PFC") {
 			try {
-				add_particle(line);
+				add_particle(stream);
 			}
 			catch (exception& e) {
 				throw runtime_error("Invalid file format!");
 				cout << "Something went wrong!" << endl;
 			}
 		}
-		else if (components[0] == "trig") {
+		else if (tag == "trig") {
 			try {
-				add_trigger(line);
+				add_trigger(stream);
 			}
 			catch (exception& e) {
 				throw runtime_error("Invalid file format!");
 				cout << "Something went wrong!" << endl;
 			}
 		}
-		else if (components[0] == "EndEvent") {
+		else if (tag == "EndEvent") {
 			return true;
 		}
 	}
@@ -179,8 +179,3 @@ bool MODEvent::read_event(ifstream & data_file, MODEvent & event_being_read) {
 	return false;
 }
 
-vector<string> MODEvent::split(string const &input) { 
-	istringstream buffer(input);
-	vector<string> ret((istream_iterator<string>(buffer)), istream_iterator<string>());
-	return ret;
-}

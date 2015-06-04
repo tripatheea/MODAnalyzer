@@ -4,12 +4,16 @@ using namespace std;
 
 MODTrigger::MODTrigger(string name, pair<int, int> prescales, bool fired) : _name(name), _prescales(prescales), _fired(fired) {}
 
-MODTrigger::MODTrigger(string input_string) {
-	vector<string> components = split(input_string);
+MODTrigger::MODTrigger(istringstream & input_stream) {
+	string tag, name;
+	bool fired;
+	int prescale_1, prescale_2;
 
-	_name = components[1];
-	_prescales = make_pair( stoi(components[2]), stoi(components[3]) );
-	_fired = (stoi(components[4]) == 1);
+	input_stream >> tag >> name >> prescale_1 >> prescale_2 >> fired;
+
+	_name = name;
+	_prescales = make_pair( prescale_1, prescale_2 );
+	_fired = fired;
 }
 
 MODTrigger::MODTrigger() : _fired(false) {}
@@ -55,10 +59,4 @@ string MODTrigger::make_header_string() const {
 ostream& operator<< (ostream& os, const MODTrigger& trigger) {
 	os << trigger.make_string();
 	return os;
-}
-
-vector<string> MODTrigger::split(string const &input) { 
-	istringstream buffer(input);
-	vector<string> ret((istream_iterator<string>(buffer)), istream_iterator<string>());
-	return ret;
 }

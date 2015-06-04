@@ -10,7 +10,7 @@ class MODTrigger {
 
 	public:
 		MODTrigger(std::string name, std::pair<int, int> prescales, bool fired);
-		MODTrigger(std::string input_string);
+		MODTrigger(std::istringstream & input_stream);
 		MODTrigger();
 
 		std::string name() const;
@@ -27,6 +27,4 @@ class MODTrigger {
 		std::string _name;
 		bool _fired;
 		std::pair<int, int> _prescales;
-
-		std::vector<std::string> split(std::string const &input);
 };
