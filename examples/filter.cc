@@ -25,18 +25,14 @@ int main(int argc, char * argv[]) {
 	ifstream data_file(argv[1]);
 	ofstream output_file("../data/filtered_events.dat", ios::out);
 	
-	MODEvent * event_being_read = new MODEvent();
+	MODEvent event_being_read;
 
 	int event_serial_number = 1;
-	while(event_being_read->read_event(data_file)) {
+	while(event_being_read.read_event(data_file, event_being_read)) {
 
-		filter_events( * event_being_read, output_file);
-		
 		cout << "Filtering event number " << event_serial_number << endl;
-		
-		delete event_being_read;
-		MODEvent * event_being_read = new MODEvent();
 
+		filter_events(event_being_read, output_file);
 		event_serial_number++;
 	}
 }

@@ -25,7 +25,7 @@ int main(int argc, char * argv[]) {
     }
 
 	ifstream data_file(argv[1]);
-	ofstream output_file("../data/fractional_jet_multiplicity.dat", ios::out);
+	ofstream output_file("../data/output.dat", ios::out);
 	
 	vector<double> cone_radii = {0.3, 0.5, 0.7};
 	vector<double> pt_cuts = {50.0, 80.0, 110.0};
@@ -48,7 +48,6 @@ int main(int argc, char * argv[]) {
 bool analyze_event(MODEvent & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts) {
 
 	// Retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
-
 	// Also calculate everything and record those along with the trigger information.
 
 	string assigned_trigger_name = event_being_read.assigned_trigger_name();

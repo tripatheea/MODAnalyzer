@@ -2,3 +2,6 @@
 *.png
 bin
 ./data
+*.d
+*.pcm
+*.so

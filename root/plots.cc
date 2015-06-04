@@ -44,7 +44,7 @@ void plots() {
 
 
 void n_tilde_against_jet_multiplicity() {
-  ifstream infile("../data/antikt_multiplicities.dat");
+  ifstream infile("../data/output.dat");
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
@@ -116,7 +116,7 @@ void n_tilde_against_jet_multiplicity() {
 
 
 void hardest_pt_corresponding_triggers() {
-  ifstream infile("../data/antikt_multiplicities.dat");
+  ifstream infile("../data/output.dat");
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
@@ -192,7 +192,7 @@ void fix_cone_radius_sweep_pt_cut() {
 
   double fixed_cone_radius = 0.5;
 
-  ifstream infile("../data/antikt_multiplicities.dat");
+  ifstream infile("../data/output.dat");
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
@@ -271,7 +271,7 @@ void fix_pt_cut_sweep_cone_radius() {
   // Fix pt_cut, sweep across R.
   int fixed_pt_cut = 80;
 
-  ifstream infile("../data/antikt_multiplicities.dat");
+  ifstream infile("../data/output.dat");
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
