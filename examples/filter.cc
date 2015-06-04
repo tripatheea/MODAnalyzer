@@ -38,7 +38,7 @@ int main(int argc, char * argv[]) {
    MOD::Event event_being_read;
 
    int event_serial_number = 1;
-   while(event_being_read.read_event(data_file)) {
+   while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
 
       cout << "Filtering event number " << event_serial_number << endl;
 

@@ -40,8 +40,8 @@ bool MOD::Trigger::is_valid() const {
 
 string MOD::Trigger::make_string() const {
    stringstream ss;
-   ss << "trig" 
-        << setw(16) << _name 
+   ss << " trig" 
+        << setw(16) <<  _name 
         << setw(15) << _prescales.first 
         << setw(20) << _prescales.second 
         << setw(17) << _fired
@@ -52,7 +52,7 @@ string MOD::Trigger::make_string() const {
 
 string MOD::Trigger::make_header_string() const {
    stringstream ss;
-   ss << "#Trig          Name          Prescale_1          Prescale_2          Fired?" << endl;
+   ss << "#Trig            Name     Prescale_1          Prescale_2           Fired?" << endl;
    return ss.str();
 }
 
