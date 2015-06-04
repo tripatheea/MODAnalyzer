@@ -135,7 +135,9 @@ string MODEvent::assigned_trigger_name() const {
 	return trigger_to_use;
 }
 
-bool MODEvent::read_event(ifstream & data_file) {
+bool MODEvent::read_event(ifstream & data_file, MODEvent & event_being_read) {
+	event_being_read = MODEvent();
+	
 	string line;
 	while(getline(data_file, line)) {
 		istringstream iss(line);
