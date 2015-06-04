@@ -12,7 +12,7 @@ class MODParticle {
 
 	public:
 		MODParticle(double px, double py, double pz, double energy, double mass, int pdgId, std::string trigger_type);
-		MODParticle(std::string input_string);
+		MODParticle(std::istringstream & input_stream);
 		MODParticle();
 
 		fastjet::PseudoJet pseudojet() const;
@@ -28,6 +28,4 @@ class MODParticle {
 		fastjet::PseudoJet _pseudojet;
 		double _mass;
 		int _pdgId;	
-
-		std::vector<std::string> split(std::string const &input);
 };

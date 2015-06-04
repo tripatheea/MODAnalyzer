@@ -7,13 +7,18 @@ using namespace fastjet;
 MODParticle::MODParticle(double px, double py, double pz, double energy, double mass, int pdgId, string trigger_type) : _pseudojet(PseudoJet(px, py, pz, energy)), _mass(mass), _pdgId(pdgId), _trigger_type(trigger_type) {
 }
 
-MODParticle::MODParticle(string input_string) {
-	vector<string> components = split(input_string);
+MODParticle::MODParticle(istringstream & input_stream) {
 
-	_trigger_type = components[0];
-	_pseudojet = PseudoJet(stod(components[1]), stod(components[2]), stod(components[3]), stod(components[4]));
-	_mass = stod(components[5]);
-	_pdgId = stoi(components[6]);
+	string tag;
+	double px, py, pz, energy, mass;
+	int pdgId;
+
+	input_stream >> tag >> px >> py >> pz >> energy >> mass >> pdgId;
+
+	_trigger_type = tag;
+	_pseudojet = PseudoJet(px, py, pz, energy);
+	_mass = mass;
+	_pdgId =pdgId;
 }
 
 MODParticle::MODParticle() {}
@@ -53,10 +58,4 @@ string MODParticle::make_header_string() const {
 ostream& operator<< (ostream& os, const MODParticle& particle) {
 	os << particle.make_string();
 	return os;
-}
-
-vector<string> MODParticle::split(string const &input) { 
-	istringstream buffer(input);
-	vector<string> ret((istream_iterator<string>(buffer)), istream_iterator<string>());
-	return ret;
 }

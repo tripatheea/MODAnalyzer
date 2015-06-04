@@ -32,8 +32,8 @@ class MODEvent {
 
 		const MODTrigger & trigger_by_name(std::string name) const;		
 
-		void add_particle(std::string input_string);
-		void add_trigger(std::string input_string);	
+		void add_particle(std::istringstream & input_stream);
+		void add_trigger(std::istringstream & input_stream);	
 		void set_event_number(int MODEvent_number);
 		void set_run_number(int run_number);
 		void set_particles_trigger_type(std::string trigger_type);
@@ -48,6 +48,4 @@ class MODEvent {
 		std::vector<MODParticle> _particles;
 		std::vector<MODTrigger> _triggers;
 		std::vector<PseudoJet> _pseudojets;
-
-		std::vector<std::string> split(std::string const &input);
 };
