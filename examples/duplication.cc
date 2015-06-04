@@ -13,7 +13,7 @@
 
 using namespace std;
 
-bool duplicate_events(MODEvent & event_being_read, ofstream & output_file);
+bool duplicate_events(MOD::Event & event_being_read, ofstream & output_file);
 
 int main(int argc, char * argv[]) {
    
@@ -35,7 +35,7 @@ int main(int argc, char * argv[]) {
    ifstream data_file(argv[1]);
    ofstream output_file(argv[2], ios::out);
    
-   MODEvent event_being_read;
+   MOD::Event event_being_read;
 
    int event_serial_number = 1;
    while(event_being_read.read_event(data_file)) {
@@ -44,7 +44,7 @@ int main(int argc, char * argv[]) {
 
       output_file << event_being_read;
       
-      event_being_read = MODEvent();
+      event_being_read = MOD::Event();
       event_serial_number++;
    }
 }

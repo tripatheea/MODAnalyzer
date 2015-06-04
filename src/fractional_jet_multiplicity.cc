@@ -4,11 +4,11 @@ using namespace std;
 using namespace fastjet;
 
 
-FractionalJetMultiplicity::FractionalJetMultiplicity(double cone_radius, double pt_cut) : _cone_radius(cone_radius), _pt_cut(pt_cut) {
+MOD::FractionalJetMultiplicity::FractionalJetMultiplicity(double cone_radius, double pt_cut) : _cone_radius(cone_radius), _pt_cut(pt_cut) {
 
 }
 
-double FractionalJetMultiplicity::calculate_n_tilde(vector<PseudoJet> pseudojets) const {
+double MOD::FractionalJetMultiplicity::calculate_n_tilde(vector<PseudoJet> pseudojets) const {
 
    double N_tilde_current = 0.00;
 
@@ -32,6 +32,6 @@ double FractionalJetMultiplicity::calculate_n_tilde(vector<PseudoJet> pseudojets
    return N_tilde_current;
 }
 
-double FractionalJetMultiplicity::operator()(vector<PseudoJet> pseudojets) const {
+double MOD::FractionalJetMultiplicity::operator()(vector<PseudoJet> pseudojets) const {
    return calculate_n_tilde(pseudojets);
 }

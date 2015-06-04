@@ -2,9 +2,9 @@
 
 using namespace std;
 
-MODTrigger::MODTrigger(string name, pair<int, int> prescales, bool fired) : _name(name), _prescales(prescales), _fired(fired) {}
+MOD::Trigger::Trigger(string name, pair<int, int> prescales, bool fired) : _name(name), _prescales(prescales), _fired(fired) {}
 
-MODTrigger::MODTrigger(istringstream & input_stream) {
+MOD::Trigger::Trigger(istringstream & input_stream) {
    string tag, name;
    bool fired;
    int prescale_1, prescale_2;
@@ -16,29 +16,29 @@ MODTrigger::MODTrigger(istringstream & input_stream) {
    _fired = fired;
 }
 
-MODTrigger::MODTrigger() : _fired(false) {}
+MOD::Trigger::Trigger() : _fired(false) {}
 
-string MODTrigger::name() const {
-   return MODTrigger::_name;
+string MOD::Trigger::name() const {
+   return MOD::Trigger::_name;
 }
 
-pair<int, int> MODTrigger::prescale_pair() const {
-   return MODTrigger::_prescales;
+pair<int, int> MOD::Trigger::prescale_pair() const {
+   return MOD::Trigger::_prescales;
 }
 
-int MODTrigger::prescale() const {
+int MOD::Trigger::prescale() const {
    return _prescales.first * _prescales.second;
 }
 
-bool MODTrigger::fired() const {
-   return MODTrigger::_fired;
+bool MOD::Trigger::fired() const {
+   return MOD::Trigger::_fired;
 }
 
-bool MODTrigger::is_valid() const {
+bool MOD::Trigger::is_valid() const {
    return ( ! _name.empty());
 }
 
-string MODTrigger::make_string() const {
+string MOD::Trigger::make_string() const {
    stringstream ss;
    ss << "trig" 
         << setw(16) << _name 
@@ -50,13 +50,15 @@ string MODTrigger::make_string() const {
    return ss.str();
 }
 
-string MODTrigger::make_header_string() const {
+string MOD::Trigger::make_header_string() const {
    stringstream ss;
    ss << "#Trig          Name          Prescale_1          Prescale_2          Fired?" << endl;
    return ss.str();
 }
 
-ostream& operator<< (ostream& os, const MODTrigger& trigger) {
-   os << trigger.make_string();
-   return os;
+namespace MOD {
+  ostream& operator<< (ostream& os, const Trigger& trigger) {
+     os << trigger.make_string();
+     return os;
+  }
 }

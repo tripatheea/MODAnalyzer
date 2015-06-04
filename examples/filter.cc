@@ -13,7 +13,7 @@
 
 using namespace std;
 
-bool filter_events(MODEvent & event_being_read, ofstream & output_file);
+bool filter_events(MOD::Event & event_being_read, ofstream & output_file);
 
 int main(int argc, char * argv[]) {
    
@@ -35,7 +35,7 @@ int main(int argc, char * argv[]) {
    ifstream data_file(argv[1]);
    ofstream output_file(argv[2], ios::out);
    
-   MODEvent event_being_read;
+   MOD::Event event_being_read;
 
    int event_serial_number = 1;
    while(event_being_read.read_event(data_file)) {
@@ -43,13 +43,13 @@ int main(int argc, char * argv[]) {
       cout << "Filtering event number " << event_serial_number << endl;
 
       filter_events(event_being_read, output_file);
-      event_being_read = MODEvent();
+      event_being_read = Event();
       event_serial_number++;
    }
 }
 
 
-bool filter_events(MODEvent & event_being_read, ofstream & output_file) {
+bool filter_events(MOD::Event & event_being_read, ofstream & output_file) {
    if(event_being_read.assigned_trigger_fired()) {
       output_file << event_being_read.make_string();
    }
