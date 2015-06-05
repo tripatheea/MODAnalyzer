@@ -1,5 +1,12 @@
 OBJS = examples/analysis.cc
-PATH_TO_FASTJET = ../fastjet-install/bin/fastjet-config
+
+ifeq ($(USER),jthaler)
+	-include config_jthaler.mk
+	PATH_TO_FASTJET = $(FASTJETLOCATION)/fastjet-config
+else 
+	PATH_TO_FASTJET = ../fastjet-install/bin/fastjet-config
+endif
+
 CC = g++
 DEBUG = -g
 STANDARD = -std=c++11

@@ -1,0 +1,1 @@
+FASTJETLOCATION = /usr/local/bin/
