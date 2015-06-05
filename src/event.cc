@@ -82,14 +82,17 @@ string MOD::Event::make_string() const {
    file_to_write << "BeginEvent Run " << _run_number << " Event " << _event_number << endl;
    
    // First, write out all particles.
-
    file_to_write << _particles[0].make_header_string();
    for (int i = 0; i < _particles.size(); i++) {
       file_to_write << _particles[i];
    }
 
-   // Next, write out all triggers.
+   // Next write out calibrated jets.
+   for(int i = 0; i < _calibrated_jets.size(); i++) {
+      file_to_write << _calibrated_jets[i];
+   }
 
+   // Next, write out all triggers.
    file_to_write << _triggers[0].make_header_string();
    for(int i = 0; i < _triggers.size(); i++) {
       file_to_write << _triggers[i];

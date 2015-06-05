@@ -27,11 +27,11 @@ PseudoJet MOD::CalibratedJet::pseudojet() const {
 
 string MOD::CalibratedJet::make_string() const {
    stringstream ss;
-   ss << _algorithm
-        << setw(21) << setprecision(5) << _pseudojet.px()
-        << setw(17) << setprecision(5) << _pseudojet.py()
-        << setw(18) << setprecision(5) << _pseudojet.pz()
-        << setw(18) << setprecision(5) << _pseudojet.E()
+   ss << " " << _algorithm
+        << setw(12) << fixed << setprecision(5) << _pseudojet.px()
+        << setw(12) << fixed << setprecision(5) << _pseudojet.py()
+        << setw(12) << fixed << setprecision(5) << _pseudojet.pz()
+        << setw(11) << fixed << setprecision(5) << _pseudojet.E()
         << endl;
 
    return ss.str();
