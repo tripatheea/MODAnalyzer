@@ -13,14 +13,14 @@
 
 using namespace std;
 
-bool duplicate_events(MOD::Event & event_being_read, ofstream & output_file);
+void validate_events(MOD::Event & event_being_read, ofstream & output_file);
 
 int main(int argc, char * argv[]) {
    
    int number_of_events_to_process;
 
    if (argc <= 2) {
-        std::cerr << "ERROR: You need to supply three arguments- first, path to the input data; second, path to the output file; third, number of events to process. The path has to be either absolute or relative to the bin directory." << std::endl;
+        std::cerr << "ERROR: You need to supply three arguments- first, path to the input data; second, path to the output file; third, number of events to process. The path has to be either absolute or relative to the bin directory:" << std::endl << std::endl << "./duplication (input_file.dat) (output_file.dat) [optional Nev]" << std::endl;
         return 1;
    }
    else if (argc == 3) {
