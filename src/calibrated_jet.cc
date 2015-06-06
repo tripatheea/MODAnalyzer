@@ -27,7 +27,7 @@ PseudoJet MOD::CalibratedJet::pseudojet() const {
 
 string MOD::CalibratedJet::make_string() const {
    stringstream ss;
-   ss << " " << _algorithm
+   ss << "  " << _algorithm
         << setw(12) << fixed << setprecision(5) << _pseudojet.px()
         << setw(12) << fixed << setprecision(5) << _pseudojet.py()
         << setw(12) << fixed << setprecision(5) << _pseudojet.pz()
@@ -39,8 +39,12 @@ string MOD::CalibratedJet::make_string() const {
 
 string MOD::CalibratedJet::make_header_string() const {
    stringstream ss;
-   ss << "#" << _algorithm << "               px               py               pz               energy" << endl;
+   ss << "# " << _algorithm << "               px               py               pz               energy" << endl;
    return ss.str();
+}
+
+string MOD::CalibratedJet::algorithm() const {
+  return _algorithm;
 }
 
 namespace MOD {

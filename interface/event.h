@@ -29,8 +29,10 @@ namespace MOD {
             const std::vector<Trigger> & triggers() const;
             const std::vector<fastjet::PseudoJet> & pseudojets() const;
             
-            const std::vector<fastjet::PseudoJet> & calibrated_jets_pseudojets() const;
-            const std::vector<CalibratedJet> & calibrated_jets() const;
+            const std::vector<fastjet::PseudoJet> & calibrated_jets_pseudojets_ak5() const;
+            const std::vector<CalibratedJet> & calibrated_jets_ak5() const;
+            const std::vector<fastjet::PseudoJet> & calibrated_jets_pseudojets_ak7() const;
+            const std::vector<CalibratedJet> & calibrated_jets_ak7() const;
 
             std::string make_string() const;
             std::string assigned_trigger_name() const;
@@ -43,7 +45,6 @@ namespace MOD {
 
             void set_event_number(int event_number);
             void set_run_number(int run_number);
-            void set_particles_trigger_type(std::string trigger_type);
 
             bool read_event(ifstream & data_file);
 
@@ -58,14 +59,16 @@ namespace MOD {
 
             double _trigger_hardest_pt;
             Trigger _assigned_trigger;
-                  
-            std::string _trigger_type;
 
             std::vector<Trigger> _triggers;
             std::vector<PFCandidate> _particles;
-            std::vector<CalibratedJet> _calibrated_jets;
             std::vector<PseudoJet> _pseudojets;
-            std::vector<PseudoJet> _calibrated_jets_pseudojets;
+
+            std::vector<CalibratedJet> _calibrated_jets_ak5;
+            std::vector<PseudoJet> _calibrated_jets_pseudojets_ak5;
+
+            std::vector<CalibratedJet> _calibrated_jets_ak7;
+            std::vector<PseudoJet> _calibrated_jets_pseudojets_ak7;
 
             void set_assigned_trigger();
             void set_trigger_hardest_pt();

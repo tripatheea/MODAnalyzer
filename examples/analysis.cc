@@ -8,6 +8,7 @@
 #include <iterator>
 #include <iomanip>
 #include <limits>
+#include <chrono>
 
 #include "fastjet/ClusterSequence.hh"
 
@@ -16,14 +17,17 @@
 
 using namespace std;
 
-bool analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts);
+void analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts);
 
 int main(int argc, char * argv[]) {
+
+   auto start = std::chrono::steady_clock::now();
+
    
    int number_of_events_to_process;
 
    if (argc <= 2) {
-        std::cerr << "ERROR: You need to supply three arguments- first, path to the input data; second, path to the output file; third, number of events to process. The path has to be either absolute or relative to the bin directory." << std::endl;
+        std::cerr << "ERROR: You need to supply three arguments- first, path to the input data; second, path to the output file; third, number of events to process. The path has to be either absolute or relative to the bin directory:" << std::endl << std::endl << "./analysis (input_file.dat) (output_file.dat) [optional Nev]" << std::endl;
         return 1;
    }
    else if (argc == 3) {
@@ -55,11 +59,15 @@ int main(int argc, char * argv[]) {
       event_serial_number++;
    }
 
+   auto finish = std::chrono::steady_clock::now();
+   double elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double> >(finish - start).count();
+   cout << "Finished all process in " << elapsed_seconds << " seconds!" << endl;
+
    return 0;
 }
 
 
-bool analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts) {
+void analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts) {
 
    // Retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
    // Also calculate everything and record those along with the trigger information.

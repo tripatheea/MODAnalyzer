@@ -19,8 +19,11 @@ namespace MOD {
          CalibratedJet();
 
          fastjet::PseudoJet pseudojet() const;
+         
+         std::string algorithm() const;
          std::string make_string() const;
          std::string make_header_string() const;
+
 
          friend std::ostream& operator<< (std::ostream&, const CalibratedJet&);
 
