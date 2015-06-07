@@ -8,10 +8,11 @@
 #include <stdexcept>
 #include <limits>
 
-#include "fastjet/ClusterSequence.hh"
-#include "../src/trigger.cc"
-#include "../src/pfcandidate.cc"
-#include "../src/calibrated_jet.cc"
+
+
+#include "../interface/trigger.h"
+#include "../interface/pfcandidate.h"
+#include "../interface/calibrated_jet.h"
 
 namespace MOD {
 
@@ -46,7 +47,7 @@ namespace MOD {
             void set_event_number(int event_number);
             void set_run_number(int run_number);
 
-            bool read_event(istream & data_stream);
+            bool read_event(std::istream & data_stream);
             bool assigned_trigger_fired() const;
 
             int assigned_trigger_prescale() const;
@@ -56,20 +57,20 @@ namespace MOD {
          private:
             int _run_number, _event_number;
 
-            string _assigned_trigger_name;
+            std::string _assigned_trigger_name;
 
             double _trigger_hardest_pt;
             Trigger _assigned_trigger;
 
             std::vector<Trigger> _triggers;
             std::vector<PFCandidate> _particles;
-            std::vector<PseudoJet> _pseudojets;
+            std::vector<fastjet::PseudoJet> _pseudojets;
 
             std::vector<CalibratedJet> _calibrated_jets_ak5;
-            std::vector<PseudoJet> _calibrated_pseudojets_ak5;
+            std::vector<fastjet::PseudoJet> _calibrated_pseudojets_ak5;
 
             std::vector<CalibratedJet> _calibrated_jets_ak7;
-            std::vector<PseudoJet> _calibrated_pseudojets_ak7;
+            std::vector<fastjet::PseudoJet> _calibrated_pseudojets_ak7;
 
             void set_assigned_trigger();
             void set_trigger_hardest_pt();

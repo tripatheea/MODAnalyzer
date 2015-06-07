@@ -15,9 +15,9 @@ MOD::CalibratedJet::CalibratedJet(istringstream & input_stream) {
 
    input_stream >> tag >> px >> py >> pz >> energy >> mass;
 
-   _algorithm = tag;
    _pseudojet = PseudoJet(px, py, pz, energy);
    _mass = mass;
+   _algorithm = tag;
 }
 
 MOD::CalibratedJet::CalibratedJet() {}

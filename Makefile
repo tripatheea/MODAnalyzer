@@ -20,7 +20,7 @@ INC= -I$(INCDIR)
 _OBJ =calibrated_jet event fractional_jet_multiplicity pfcandidate trigger
 OBJ  =$(patsubst %,$(OBJDIR)/%,$(_OBJ:=.o))
 
-_EXEC=filter analysis duplication
+_EXEC=filter analysis validate
 EXEC=$(patsubst %,$(EXECDIR)/%,$(_EXEC:=.o))
 BIN=$(patsubst %,$(BINDIR)/%,$(_EXEC))
 

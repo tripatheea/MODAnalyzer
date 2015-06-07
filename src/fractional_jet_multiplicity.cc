@@ -12,11 +12,11 @@ double MOD::FractionalJetMultiplicity::calculate_n_tilde(vector<PseudoJet> pseud
 
    double N_tilde_current = 0.00;
 
-   for(int i = 0; i < pseudojets.size(); i++) {
+   for(unsigned int i = 0; i < pseudojets.size(); i++) {
       double pt_i = pseudojets[i].pt();
       double pt_iR = 0.00;
       
-      for(int j = 0; j < pseudojets.size(); j++) {
+      for(unsigned int j = 0; j < pseudojets.size(); j++) {
          double pt_j = pseudojets[j].pt();
          double squared_distance = pseudojets[i].squared_distance(pseudojets[j]);   // squared_distance instead of delta_R to speed things up.
 

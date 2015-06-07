@@ -12,10 +12,11 @@
 
 #include "fastjet/ClusterSequence.hh"
 
-#include "../src/event.cc"
-#include "../src/fractional_jet_multiplicity.cc"
+#include "../interface/event.h"
+#include "../interface/fractional_jet_multiplicity.h"
 
 using namespace std;
+using namespace fastjet;
 
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts);
 
