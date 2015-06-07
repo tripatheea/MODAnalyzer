@@ -3,9 +3,9 @@
 using namespace std;
 using namespace fastjet;
 
-MOD::Event::Event(int run_number, int Event_number) : _run_number(run_number), _event_number(Event_number) {}
+MOD::Event::Event(int run_number, int Event_number) : _run_number(run_number), _event_number(Event_number), _trigger_hardest_pt(std::numeric_limits<double>::max()) {}
 
-MOD::Event::Event() {}
+MOD::Event::Event() : _trigger_hardest_pt(std::numeric_limits<double>::max()) {}
 
 int MOD::Event::event_number() const {
    return _event_number;
@@ -27,16 +27,16 @@ const vector<PseudoJet> & MOD::Event::pseudojets() const {
    return _pseudojets;
 }
 
-const vector<PseudoJet> & MOD::Event::calibrated_jets_pseudojets_ak5() const {
-   return _calibrated_jets_pseudojets_ak5;
+const vector<PseudoJet> & MOD::Event::calibrated_pseudojets_ak5() const {
+   return _calibrated_pseudojets_ak5;
 }
 
 const vector<MOD::CalibratedJet> & MOD::Event::calibrated_jets_ak5() const {
    return _calibrated_jets_ak5;
 }
 
-const vector<PseudoJet> & MOD::Event::calibrated_jets_pseudojets_ak7() const {
-   return _calibrated_jets_pseudojets_ak7;
+const vector<PseudoJet> & MOD::Event::calibrated_pseudojets_ak7() const {
+   return _calibrated_pseudojets_ak7;
 }
 
 const vector<MOD::CalibratedJet> & MOD::Event::calibrated_jets_ak7() const {
@@ -48,21 +48,21 @@ const vector<MOD::PFCandidate> & MOD::Event::particles() const {
 }
 
 void MOD::Event::add_particle(istringstream & input_stream) {
-   MOD::PFCandidate new_particle = MOD::PFCandidate(input_stream);
+   MOD::PFCandidate new_particle(input_stream);
    _particles.push_back(new_particle);
    _pseudojets.push_back(PseudoJet(new_particle.pseudojet()));
 }
 
 void MOD::Event::add_calibrated_jet(istringstream & input_stream) {
-   MOD::CalibratedJet new_jet = MOD::CalibratedJet(input_stream);
+   MOD::CalibratedJet new_jet(input_stream);
    
    if (new_jet.algorithm() == "AK5") {
       _calibrated_jets_ak5.push_back(new_jet);
-      _calibrated_jets_pseudojets_ak5.push_back(PseudoJet(new_jet.pseudojet()));   
+      _calibrated_pseudojets_ak5.push_back(PseudoJet(new_jet.pseudojet()));   
    }
    else if (new_jet.algorithm() == "AK7") {
       _calibrated_jets_ak7.push_back(new_jet);
-      _calibrated_jets_pseudojets_ak7.push_back(PseudoJet(new_jet.pseudojet()));   
+      _calibrated_pseudojets_ak7.push_back(PseudoJet(new_jet.pseudojet()));   
    }
    
 }
@@ -94,26 +94,31 @@ string MOD::Event::make_string() const {
    file_to_write << "BeginEvent Run " << _run_number << " Event " << _event_number << endl;
    
    // First, write out all triggers.
-   file_to_write << _triggers[0].make_header_string();
+   
    for(int i = 0; i < _triggers.size(); i++) {
+      if (i == 0)
+         file_to_write << _triggers[i].make_header_string();
       file_to_write << _triggers[i];
    }
 
    // Next, write out AK5 calibrated jets.
-   file_to_write << _calibrated_jets_ak5[0].make_header_string();
    for(int i = 0; i < _calibrated_jets_ak5.size(); i++) {
+      if (i == 0)
+         file_to_write << _calibrated_jets_ak5[i].make_header_string();
       file_to_write << _calibrated_jets_ak5[i];
    }
 
    // AK7 calibrated jets.
-   file_to_write << _calibrated_jets_ak7[0].make_header_string();
    for(int i = 0; i < _calibrated_jets_ak7.size(); i++) {
+      if (i == 0)
+         file_to_write << _calibrated_jets_ak7[i].make_header_string();
       file_to_write << _calibrated_jets_ak7[i];
    }
    
    // Finally, write out all particles.
-   file_to_write << _particles[0].make_header_string();
    for (int i = 0; i < _particles.size(); i++) {
+      if (i == 0)
+         file_to_write << _particles[i].make_header_string();
       file_to_write << _particles[i];
    }
 
@@ -126,47 +131,15 @@ double MOD::Event::trigger_hardest_pt() const {
    return _trigger_hardest_pt;
 }
 
-string MOD::Event::assigned_trigger_name() const {
-
-   double hardest_pt_value = trigger_hardest_pt();
-
-   // Next, lookup which trigger to use based on the pt value of the hardest jet.
-
-   string trigger_to_use;
-   if (hardest_pt_value > 153) {
-      trigger_to_use = "HLT_Jet70U";
-   }
-   else if (hardest_pt_value > 114) {
-      trigger_to_use = "HLT_Jet50U";
-   }
-   else if (hardest_pt_value > 84) {
-      trigger_to_use = "HLT_Jet30U";
-   }
-   else if (hardest_pt_value > 56) {
-      trigger_to_use = "HLT_Jet15U";
-   }
-   else if (hardest_pt_value > 37) {
-      trigger_to_use = "HLT_L1Jet6U";
-   }
-   else {
-      trigger_to_use = "HLT_MinBiasPixel_SingleTrack";
-   }
-   
-   // Here, we just return the trigger that was supposed to fire, not caring whether it actually did or not.
-   // A check on whether it actually fired or not will be done in the analysis.cc file itself.
-
-   return trigger_to_use;
-}
-
-bool MOD::Event::read_event(ifstream & data_file) {
+bool MOD::Event::read_event(istream & data_stream) {
    string line;
-   while(getline(data_file, line)) {
+   while(getline(data_stream, line)) {
       istringstream iss(line);
       
       int event_number, run_number;
       string tag, run_keyword, event_keyword;
 
-      iss >> tag;
+      iss >> tag;      
       istringstream stream(line);
       if (tag == "BeginEvent") {
          stream >> tag >> run_keyword >> run_number >> event_keyword >> event_number;
@@ -189,7 +162,7 @@ bool MOD::Event::read_event(ifstream & data_file) {
             throw runtime_error("Invalid file format AK! Something's wrong with the way jets have been written.");
          }
       }
-      else if (tag == "trig") {
+      else if (tag == "Trig") {
          try {
             add_trigger(stream);
          }
@@ -212,6 +185,10 @@ bool MOD::Event::read_event(ifstream & data_file) {
    return false;
 }
 
+string MOD::Event::assigned_trigger_name() const {
+   return _assigned_trigger_name;
+}
+
 const MOD::Trigger & MOD::Event::assigned_trigger() const {
    return _assigned_trigger;
 }
@@ -225,26 +202,44 @@ int MOD::Event::assigned_trigger_prescale() const {
 }
 
 void MOD::Event::set_assigned_trigger() {
-   _assigned_trigger = trigger_by_name(assigned_trigger_name());
+   double hardest_pt_value = trigger_hardest_pt();
+
+   if (hardest_pt_value == std::numeric_limits<double>::max()) {
+      throw runtime_error("You need to set _trigger_hardest_pt before trying to retrieve assigned_trigger_name.");
+   }
+
+   // Next, lookup which trigger to use based on the pt value of the hardest jet.
+
+   string trigger_to_use;
+   if (hardest_pt_value > 153) {
+      trigger_to_use = "HLT_Jet70U";
+   }
+   else if (hardest_pt_value > 114) {
+      trigger_to_use = "HLT_Jet50U";
+   }
+   else if (hardest_pt_value > 84) {
+      trigger_to_use = "HLT_Jet30U";
+   }
+   else if (hardest_pt_value > 56) {
+      trigger_to_use = "HLT_Jet15U";
+   }
+   else if (hardest_pt_value > 37) {
+      trigger_to_use = "HLT_L1Jet6U";
+   }
+   else {
+      trigger_to_use = "HLT_MinBiasPixel_SingleTrack";
+   }
+
+   _assigned_trigger_name = trigger_to_use;
+   _assigned_trigger = trigger_by_name(trigger_to_use);
 }
 
 void MOD::Event::set_trigger_hardest_pt() {
    // Get the hardest pt of the AK5 jets.
 
-   // If we already have AK5 jets, use that, else run clustering first using FastJet.
-
-   vector<PseudoJet> clustered_jets;
-   if (_calibrated_jets_ak5.size() != 0) {
-      // Just use the jets we read from the data file.
-      clustered_jets = _calibrated_jets_pseudojets_ak5;
-   }
-   else {
-      // Run the clustering, extract the jets using fastjet.
-      JetDefinition jet_def(antikt_algorithm, 0.5);
-      ClusterSequence cs(pseudojets(), jet_def);
-      clustered_jets = cs.inclusive_jets(0.0);   
-   }
-
+   // Just use the jets we read from the data file.
+   vector<PseudoJet> clustered_jets = _calibrated_pseudojets_ak5;
+   
    double hardest_pt = 0.0;
    for (unsigned int i = 0; i < clustered_jets.size(); i++) {
       if (hardest_pt < clustered_jets[i].pt()) {
@@ -256,8 +251,8 @@ void MOD::Event::set_trigger_hardest_pt() {
 }
 
 void MOD::Event::establish_properties() {
-   set_assigned_trigger();
    set_trigger_hardest_pt();
+   set_assigned_trigger();
 }
 
 

@@ -23,7 +23,6 @@ int main(int argc, char * argv[]) {
 
    auto start = std::chrono::steady_clock::now();
 
-   
    int number_of_events_to_process;
 
    if (argc <= 2) {
@@ -42,6 +41,15 @@ int main(int argc, char * argv[]) {
    ifstream data_file(argv[1]);
    ofstream output_file(argv[2], ios::out);
    
+   cout << endl << endl << "Starting analysis with the following given arguments: " << endl;
+   cout << "Input file: " << argv[1] << endl;
+   cout << "Output file: " << argv[2] << endl;
+   cout << "Number of events: ";
+   if(argc == 3)
+      cout << "ALL" << endl << endl;
+   else
+      cout << number_of_events_to_process << endl << endl;
+
    vector<double> cone_radii = {0.3, 0.5, 0.7};
    vector<double> pt_cuts = {50.0, 80.0, 110.0};
 
@@ -52,7 +60,7 @@ int main(int argc, char * argv[]) {
    int event_serial_number = 1;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
       
-      cout << "Processing event number " << event_serial_number << endl;
+      // cout << "Processing event number " << event_serial_number << endl;
 
       analyze_event(event_being_read, output_file, cone_radii, pt_cuts);
       event_being_read = MOD::Event();
