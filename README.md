@@ -7,11 +7,11 @@ This repository has code to analyze CMS Open Data data produced using [https://g
  - Open `./Makefile` and paste the path to FastJet config to the **PATH\_TO\_FASTJET** variable.
  - Run [CMSOpenDataProducer][3]. It will output a `.dat` file. Copy it to the `./data/` directory.
  - Compile everything with `make`.
- - Move to the 'bin' directory and run the analyzer. The analyzer takes two mandatory and one optional arguments- path to the input file, path to the output file and the number of events to process, respectively. If the third argument is absent, all events found in the input file will be processed.
+ - The analyzer takes two mandatory and one optional arguments- path to the input file, path to the output file and the number of events to process, respectively. If the third argument is absent, all events found in the input file will be processed.
 
-  ``cd bin``
-   
-   ``./analysis ../data/pfcandidates.dat ../data/output.dat 57``
+   ``./bin/duplication data/CMS_JetSample.dat data/CMS_JetSample_duplicated.dat (57)``
+   ``./bin/filter data/CMS_JetSample.dat data/CMS_JetSample_filtered.dat (29)``
+   ``./bin/analysis data/CMS_JetSample.dat data/CMS_JetSample_analyzed.dat (33)``
 
  - The code will output a `DAT` file `./data/output.dat`.
  - To make the plots, move to the directory `./root`.

@@ -8,10 +8,12 @@
 #include <iterator>
 #include <iomanip>
 
-#include "../src/event.cc"
-#include "../src/fractional_jet_multiplicity.cc"
+#include "fastjet/ClusterSequence.hh"
+#include "../interface/event.h"
+#include "../interface/fractional_jet_multiplicity.h"
 
 using namespace std;
+using namespace fastjet;
 
 void validate_events(MOD::Event & event_being_read, ofstream & output_file);
 

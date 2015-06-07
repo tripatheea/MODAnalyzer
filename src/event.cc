@@ -72,7 +72,7 @@ void MOD::Event::add_trigger(istringstream & input_stream) {
 }
 
 const MOD::Trigger & MOD::Event::trigger_by_name(string name) const {
-   for(int i = 0; i < triggers().size(); i++) {
+   for(unsigned int i = 0; i < triggers().size(); i++) {
       const MOD::Trigger& current_trigger = triggers().at(i);
 
       if (current_trigger.name() == name) {
@@ -95,28 +95,28 @@ string MOD::Event::make_string() const {
    
    // First, write out all triggers.
    
-   for(int i = 0; i < _triggers.size(); i++) {
+   for(unsigned int i = 0; i < _triggers.size(); i++) {
       if (i == 0)
          file_to_write << _triggers[i].make_header_string();
       file_to_write << _triggers[i];
    }
 
    // Next, write out AK5 calibrated jets.
-   for(int i = 0; i < _calibrated_jets_ak5.size(); i++) {
+   for(unsigned int i = 0; i < _calibrated_jets_ak5.size(); i++) {
       if (i == 0)
          file_to_write << _calibrated_jets_ak5[i].make_header_string();
       file_to_write << _calibrated_jets_ak5[i];
    }
 
    // AK7 calibrated jets.
-   for(int i = 0; i < _calibrated_jets_ak7.size(); i++) {
+   for(unsigned int i = 0; i < _calibrated_jets_ak7.size(); i++) {
       if (i == 0)
          file_to_write << _calibrated_jets_ak7[i].make_header_string();
       file_to_write << _calibrated_jets_ak7[i];
    }
    
    // Finally, write out all particles.
-   for (int i = 0; i < _particles.size(); i++) {
+   for (unsigned int i = 0; i < _particles.size(); i++) {
       if (i == 0)
          file_to_write << _particles[i].make_header_string();
       file_to_write << _particles[i];

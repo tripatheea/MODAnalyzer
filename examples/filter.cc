@@ -8,10 +8,12 @@
 #include <iterator>
 #include <iomanip>
 
-#include "../src/event.cc"
-#include "../src/fractional_jet_multiplicity.cc"
+#include "fastjet/ClusterSequence.hh"
+#include "../interface/event.h"
+#include "../interface/fractional_jet_multiplicity.h"
 
 using namespace std;
+using namespace fastjet;
 
 void filter_events(MOD::Event & event_being_read, ofstream & output_file);
 
@@ -52,7 +54,7 @@ int main(int argc, char * argv[]) {
       cout << "Filtering event number " << event_serial_number << endl;
 
       filter_events(event_being_read, output_file);
-      event_being_read = Event();
+      event_being_read = MOD::Event();
       event_serial_number++;
    }
 }

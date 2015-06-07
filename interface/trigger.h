@@ -26,7 +26,7 @@ namespace MOD {
 
       private:
          std::string _name;
-         bool _fired;
          std::pair<int, int> _prescales;
+         bool _fired;
    };
 }
