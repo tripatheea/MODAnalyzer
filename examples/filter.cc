@@ -35,6 +35,15 @@ int main(int argc, char * argv[]) {
    ifstream data_file(argv[1]);
    ofstream output_file(argv[2], ios::out);
    
+   cout << endl << endl << "Starting filtration with the following given arguments: " << endl;
+   cout << "Input file: " << argv[1] << endl;
+   cout << "Output file: " << argv[2] << endl;
+   cout << "Number of events: ";
+   if(argc == 3)
+      cout << "ALL" << endl << endl;
+   else
+      cout << number_of_events_to_process << endl << endl;
+
    MOD::Event event_being_read;
 
    int event_serial_number = 1;

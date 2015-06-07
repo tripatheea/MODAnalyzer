@@ -4,19 +4,20 @@ using namespace std;
 using namespace fastjet;
 
 
-MOD::CalibratedJet::CalibratedJet(double px, double py, double pz, double energy, string algorithm) : _pseudojet(PseudoJet(px, py, pz, energy)), _algorithm(algorithm) {
+MOD::CalibratedJet::CalibratedJet(double px, double py, double pz, double energy, double mass, string algorithm) : _pseudojet(PseudoJet(px, py, pz, energy)), _mass(mass), _algorithm(algorithm) {
 }
 
 
 MOD::CalibratedJet::CalibratedJet(istringstream & input_stream) {
 
    string tag;
-   double px, py, pz, energy;
+   double px, py, pz, energy, mass;
 
-   input_stream >> tag >> px >> py >> pz >> energy;
+   input_stream >> tag >> px >> py >> pz >> energy >> mass;
 
    _algorithm = tag;
    _pseudojet = PseudoJet(px, py, pz, energy);
+   _mass = mass;
 }
 
 MOD::CalibratedJet::CalibratedJet() {}
@@ -31,7 +32,8 @@ string MOD::CalibratedJet::make_string() const {
         << setw(12) << fixed << setprecision(5) << _pseudojet.px()
         << setw(12) << fixed << setprecision(5) << _pseudojet.py()
         << setw(12) << fixed << setprecision(5) << _pseudojet.pz()
-        << setw(11) << fixed << setprecision(5) << _pseudojet.E()
+        << setw(12) << fixed << setprecision(5) << _pseudojet.E()
+        << setw(12) << fixed << setprecision(5) << _mass
         << endl;
 
    return ss.str();
@@ -39,7 +41,7 @@ string MOD::CalibratedJet::make_string() const {
 
 string MOD::CalibratedJet::make_header_string() const {
    stringstream ss;
-   ss << "# " << _algorithm << "               px               py               pz               energy" << endl;
+   ss << "# " << _algorithm << "          px          py          pz      energy        mass" << endl;
    return ss.str();
 }
 

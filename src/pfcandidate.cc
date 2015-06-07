@@ -52,8 +52,8 @@ string MOD::PFCandidate::make_string() const {
         << setw(12) << fixed << setprecision(5) << _pseudojet.px()
         << setw(12) << fixed << setprecision(5) << _pseudojet.py()
         << setw(12) << fixed << setprecision(5) << _pseudojet.pz()
-        << setw(11) << fixed << setprecision(5) << _pseudojet.E()
-        << setw(11) << fixed << setprecision(5) << mass()
+        << setw(12) << fixed << setprecision(5) << _pseudojet.E()
+        << setw(12) << fixed << setprecision(5) << mass()
         << setw(8) << noshowpos << _pdgId
         << endl;
 
@@ -62,7 +62,7 @@ string MOD::PFCandidate::make_string() const {
 
 string MOD::PFCandidate::make_header_string() const {
    stringstream ss;
-   ss << "# PFC" << "          px          py          pz     energy       mass   pdgId" << endl;
+   ss << "# PFC" << "          px          py          pz      energy        mass   pdgId" << endl;
    return ss.str();
 }
 
