@@ -1,6 +1,6 @@
 # CMSOpenDataAnalyzer
 
-This repository has code to analyze CMS Open Data data produced using [https://github.com/tripatheea/CMSOpenDataProducer][1].
+This repository has code to analyze CMS Open Data data produced using [https://github.com/tripatheea/MODProducer][1].
 
 ### How to Install/Use
  - Install [FastJet][2]. Note the path to FastJet config. 
@@ -28,6 +28,6 @@ This repository has code to analyze CMS Open Data data produced using [https://g
 - Figure out if there is any way to get luminosity information.
 - Find out the full list of triggers associated with the Jet primary dataset.  The list might be here:  https://fwyzard.web.cern.ch/fwyzard/hlt/2010/dataset 
 
-[1]: https://github.com/tripatheea/CMSOpenDataProducer
+[1]: https://github.com/tripatheea/MODProducer
 [2]: http://www.fastjet.fr/
-[3]: https://github.com/tripatheea/CMSOpenDataProducer
+[3]: https://github.com/tripatheea/MODProducer
