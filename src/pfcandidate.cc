@@ -24,7 +24,10 @@ MOD::PFCandidate::PFCandidate(istringstream & input_stream) {
    
    double recalc_energy = sqrt(px*px + py*py + pz*pz + mass*mass);
 
-   if ( abs(recalc_energy - energy) > pow(10, -4)) {
+   if ( abs(recalc_energy - energy) > pow(10, -5)) {
+      cout << "ERROR: Difference between energy and recalculated_energy is > 10e-5!" << endl << endl;
+      cout << "Recalculated Energy: " << recalc_energy << endl;
+      cout << "Energy:              " << energy << endl << endl;
       throw runtime_error("Recalculated energy (using 3-momentum nad mass) does not match give energy value.");
    }
 
