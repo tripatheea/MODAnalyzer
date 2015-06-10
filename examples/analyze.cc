@@ -56,7 +56,7 @@ int main(int argc, char * argv[]) {
 
    MOD::Event event_being_read;
 
-   output_file << "# Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale     Cone_Radius     pT_Cut     Hardest_pT" << endl;
+   output_file << "# Entries Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale     Cone_Radius     pT_Cut     Hardest_pT_AK5     Hardest_pT_AK7" << endl;
 
    int event_serial_number = 1;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
@@ -85,7 +85,8 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector
    string assigned_trigger_name = event_being_read.assigned_trigger_name();
    bool fired = event_being_read.assigned_trigger_fired();
    int prescale = event_being_read.assigned_trigger_prescale();
-   double hardest_pt = event_being_read.hardest_pt("ak5");
+   double hardest_pt_ak5 = event_being_read.hardest_pt("ak5");
+   double hardest_pt_ak7 = event_being_read.hardest_pt("ak7");
 
    // Calculate everything for each value of R and pt_cut.
 
@@ -101,7 +102,8 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector
          ClusterSequence cs(event_being_read.pseudojets(), jet_def);
          vector<PseudoJet> jets = cs.inclusive_jets(pt_cuts[p]);
 
-         output_file << setw(12) << event_being_read.event_number()
+         output_file << "   ENTRY"
+                  << setw(12) << event_being_read.event_number()
                   << setw(15) << event_being_read.run_number()
                   << setw(14) << showpoint << setprecision(6) << N_tilde
                   << setw(9) << jets.size()
@@ -110,7 +112,8 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector
                   << setw(12) << prescale
                   << setw(18) << setprecision(2) << cone_radii[r]
                   << setw(12) << noshowpoint << setprecision(3) << pt_cuts[p]
-                  << setw(16) << showpoint << setprecision(8) << hardest_pt
+                  << setw(16) << showpoint << setprecision(8) << hardest_pt_ak5
+                  << setw(19) << showpoint << setprecision(8) << hardest_pt_ak7
                   << endl;             
       }
    }

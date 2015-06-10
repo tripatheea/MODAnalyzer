@@ -31,24 +31,27 @@
 
 using namespace std;
 
-vector<string> split_string_to_components(string const &input);
 
 void n_tilde_against_jet_multiplicity();
-void hardest_pt_corresponding_triggers();
+void hardest_pt_corresponding_triggers(string algorithm);
 void fix_cone_radius_sweep_pt_cut();
 void fix_pt_cut_sweep_cone_radius();
 
 void plots() {
-  fix_pt_cut_sweep_cone_radius();
+  hardest_pt_corresponding_triggers("ak7");
 }
 
 
 void n_tilde_against_jet_multiplicity() {
-  ifstream infile("../data/output.dat");
+  ifstream infile("../data/CMS_JetSample_analyzed.dat");
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
 
+  string tag, trigger_name;
+  int event_number, run_number, antikt_jets_size, prescale;
+  double n_tilde, cone_radius, pt_cut, hardest_pt_ak5, hardest_pt_ak7;
+  bool fired;
 
   THStack *hs = new THStack("Fractional Jet Multiplicity", "Fractional Jet Multiplicity (pt_cut = 50.0 GeV, R = 0.5)");
 
@@ -62,29 +65,16 @@ void n_tilde_against_jet_multiplicity() {
     TH1F * N_tilde_temp = new TH1F("", "", 50, -0.5, 6.0);
     N_tildes.push_back(N_tilde_temp);
   }
-  
-  double N_tilde;
-  double antikt;
-
-  double prescale_1, prescale_2;
-  string name;
 
   string line;
   while(getline(infile, line)) {
     istringstream iss(line);
-    vector<string> components = split_string_to_components(line);
-    if (components[0] != "#") {
-      double N_tilde = stod(components[2]);
-      double jet_size = stod(components[3]);
+    
+    iss >> tag >> event_number >> run_number >> n_tilde >> antikt_jets_size >> trigger_name >> fired >> prescale >> cone_radius >> pt_cut >> hardest_pt_ak5 >> hardest_pt_ak7;
 
-      int prescale = stoi(components[6]) * stoi(components[7]);
-      bool fired = (stoi(components[5]) == 1);
-      
-      double cone_radius = stod(components[8]);
-      int pt_cut = stoi(components[9]);
-
+    if (tag != "#") {
       if ((fired) && (pt_cut == 50) && (cone_radius = 0.50)) {
-        N_tildes[jet_size]->Fill(N_tilde, prescale);
+        N_tildes[antikt_jets_size]->Fill(n_tilde, prescale);
       }
     }
   }    
@@ -115,14 +105,24 @@ void n_tilde_against_jet_multiplicity() {
 
 
 
-void hardest_pt_corresponding_triggers() {
-  ifstream infile("../data/output.dat");
+void hardest_pt_corresponding_triggers(string algorithm) {
+  ifstream infile("../data/CMS_JetSample_analyzed.dat");
+
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
 
+  string tag, trigger_name;
+  int event_number, run_number, antikt_jets_size, prescale;
+  double n_tilde, cone_radius, pt_cut, hardest_pt_ak5, hardest_pt_ak7;
+  bool fired;
 
-  THStack *hs = new THStack("Hardest pt and corresponding trigger of jets", "Hardest pt and corresponding trigger of jets (pt_cut = 50.0 GeV, R = 0.5)");
+  THStack * hs;
+
+  if (algorithm == "ak5") 
+    hs = new THStack("Hardest pt and corresponding trigger of jets", "Hardest pt and corresponding trigger of jets (pt_cut = 50.0 GeV, R = 0.5)");
+  else
+    hs = new THStack("Hardest pt and corresponding trigger of jets", "Hardest pt and corresponding trigger of jets (pt_cut = 50.0 GeV, R = 0.7)");
 
   vector<TH1F * > hardest_pts = vector<TH1F *>();
   EColor colors[6] = {kRed, kBlue, kGreen, kYellow, kMagenta, kOrange};
@@ -138,21 +138,16 @@ void hardest_pt_corresponding_triggers() {
   string line;
   while(getline(infile, line)) {
     istringstream iss(line);
-    vector<string> components = split_string_to_components(line);
-    if (components[0] != "#") {
-      
-      string trigger_name = components[4];
-
-      int prescale = stoi(components[6]) * stoi(components[7]);
-      bool fired = (stoi(components[5]) == 1);
-      
-      double cone_radius = stod(components[8]);
-      int pt_cut = stoi(components[9]);
-      double hardest_pt = stod(components[10]);
-
+    
+    iss >> tag >> event_number >> run_number >> n_tilde >> antikt_jets_size >> trigger_name >> fired >> prescale >> cone_radius >> pt_cut >> hardest_pt_ak5 >> hardest_pt_ak7;
+    
+    if (tag != "#") {
       if ((fired) && (pt_cut == 50) && (cone_radius = 0.50)) {
         int trigger_index = std::distance(trigger_labels, std::find(trigger_labels, trigger_labels + 6, trigger_name));
-        hardest_pts[trigger_index]->Fill(hardest_pt, prescale);      
+        if (algorithm == "ak5")
+          hardest_pts[trigger_index]->Fill(hardest_pt_ak5, prescale);
+        else
+          hardest_pts[trigger_index]->Fill(hardest_pt_ak7, prescale);
       }
     }
   }
@@ -192,11 +187,15 @@ void fix_cone_radius_sweep_pt_cut() {
 
   double fixed_cone_radius = 0.5;
 
-  ifstream infile("../data/output.dat");
+  ifstream infile("../data/CMS_JetSample_analyzed.dat");
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
-
+  
+  string tag, trigger_name;
+  int event_number, run_number, antikt_jets_size, prescale;
+  double n_tilde, cone_radius, pt_cut, hardest_pt_ak5, hardest_pt_ak7;
+  bool fired;
 
   THStack *hs = new THStack("Fractional Jet Multiplicity", "Fractional Jet Multiplicity (R = 0.5)");
 
@@ -217,19 +216,12 @@ void fix_cone_radius_sweep_pt_cut() {
   string line;
   while(getline(infile, line)) {
     istringstream iss(line);
-    vector<string> components = split_string_to_components(line);
-    if (components[0] != "#") {
-      
-      double N_tilde = stod(components[2]);
-      double jet_size = stod(components[3]);
-      int prescale = stoi(components[6]) * stoi(components[7]);
-      bool fired = (stoi(components[5]) == 1);
-      
-      double cone_radius = stod(components[8]);
-      int pt_cut = stoi(components[9]);
+    
+    iss >> tag >> event_number >> run_number >> n_tilde >> antikt_jets_size >> trigger_name >> fired >> prescale >> cone_radius >> pt_cut >> hardest_pt_ak5 >> hardest_pt_ak7;
 
+    if (tag != "#") {
       if ((fired) && (cone_radius == fixed_cone_radius)) {
-        pt_cuts_map[pt_cut]->Fill(N_tilde, prescale);
+        pt_cuts_map[pt_cut]->Fill(n_tilde, prescale);
       }
     }
   }
@@ -271,11 +263,15 @@ void fix_pt_cut_sweep_cone_radius() {
   // Fix pt_cut, sweep across R.
   int fixed_pt_cut = 80;
 
-  ifstream infile("../data/output.dat");
+  ifstream infile("../data/CMS_JetSample_analyzed.dat");
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
-
+  
+  string tag, trigger_name;
+  int event_number, run_number, antikt_jets_size, prescale;
+  double n_tilde, cone_radius, pt_cut, hardest_pt_ak5, hardest_pt_ak7;
+  bool fired;
 
   THStack *hs = new THStack("Fractional Jet Multiplicity", "Fractional Jet Multiplicity (pt_cut = 80 GeV)");
 
@@ -296,19 +292,10 @@ void fix_pt_cut_sweep_cone_radius() {
   string line;
   while(getline(infile, line)) {
     istringstream iss(line);
-    vector<string> components = split_string_to_components(line);
-    if (components[0] != "#") {
-      
-      double N_tilde = stod(components[2]);
-      double jet_size = stod(components[3]);
-      int prescale = stoi(components[6]) * stoi(components[7]);
-      bool fired = (stoi(components[5]) == 1);
-      
-      double cone_radius = stod(components[8]);
-      int pt_cut = stoi(components[9]);
-      
+    iss >> tag >> event_number >> run_number >> n_tilde >> antikt_jets_size >> trigger_name >> fired >> prescale >> cone_radius >> pt_cut >> hardest_pt_ak5 >> hardest_pt_ak7;
+    if (tag != "#") {
       if ((fired) && (pt_cut == fixed_pt_cut)) {
-        cone_radii_map[cone_radius]->Fill(N_tilde, prescale);
+        cone_radii_map[cone_radius]->Fill(n_tilde, prescale);
       }
     }
   }
@@ -340,10 +327,3 @@ void fix_pt_cut_sweep_cone_radius() {
   legend->Draw();
 
 }
-
-vector<string> split_string_to_components(string const &input) { 
-    istringstream buffer(input);
-    vector<string> ret((istream_iterator<string>(buffer)), istream_iterator<string>());
-    return ret;
-}
-
