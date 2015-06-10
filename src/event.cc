@@ -126,10 +126,12 @@ string MOD::Event::make_string() const {
    return file_to_write.str();
 }
 
-double MOD::Event::hardest_pt(string algorithm) const {
-   if (algorithm == "ak5")
+double MOD::Event::hardest_pt(string which_jets) const {
+   transform(which_jets.begin(), which_jets.end(), which_jets.begin(), ::tolower);
+
+   if (which_jets == "ak5")
       return _hardest_pt_ak5;
-   else if (algorithm == "ak7")
+   else if (which_jets == "ak7")
       return _hardest_pt_ak7;
    else
       throw new runtime_error("ERROR: Invalid algorithm name supplied for hardest_pt. Only AK5 and AK7 are valid algorithms.");
