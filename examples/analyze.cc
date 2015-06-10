@@ -85,7 +85,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector
    string assigned_trigger_name = event_being_read.assigned_trigger_name();
    bool fired = event_being_read.assigned_trigger_fired();
    int prescale = event_being_read.assigned_trigger_prescale();
-   double hardest_pt = event_being_read.trigger_hardest_pt();
+   double hardest_pt = event_being_read.hardest_pt("ak5");
 
    // Calculate everything for each value of R and pt_cut.
 
