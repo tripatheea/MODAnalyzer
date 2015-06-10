@@ -1,4 +1,4 @@
-#include "../interface/calibrated_jet.h"
+#include "calibrated_jet.h"
 
 using namespace std;
 using namespace fastjet;

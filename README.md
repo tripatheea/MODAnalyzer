@@ -1,4 +1,4 @@
-# CMSOpenDataAnalyzer
+# MIT Open Data Analyzer
 
 This repository has code to analyze CMS Open Data data produced using [https://github.com/tripatheea/MODProducer][1].
 
@@ -9,9 +9,9 @@ This repository has code to analyze CMS Open Data data produced using [https://g
  - Compile everything with `make`.
  - The analyzer takes two mandatory and one optional arguments- path to the input file, path to the output file and the number of events to process, respectively. If the third argument is absent, all events found in the input file will be processed.
 
-   ``./bin/duplication data/CMS_JetSample.dat data/CMS_JetSample_duplicated.dat (57)``
+   ``./bin/validate data/CMS_JetSample.dat data/CMS_JetSample_ validated.dat (57)``
    ``./bin/filter data/CMS_JetSample.dat data/CMS_JetSample_filtered.dat (29)``
-   ``./bin/analysis data/CMS_JetSample.dat data/CMS_JetSample_analyzed.dat (33)``
+   ``./bin/analyze data/CMS_JetSample.dat data/CMS_JetSample_analyzed.dat (33)``
 
  - The code will output a `DAT` file `./data/output.dat`.
  - To make the plots, move to the directory `./root`.
@@ -27,6 +27,14 @@ This repository has code to analyze CMS Open Data data produced using [https://g
 - Get Pythia 8 up and running and generate simulated data (with simulated triggers)
 - Figure out if there is any way to get luminosity information.
 - Find out the full list of triggers associated with the Jet primary dataset.  The list might be here:  https://fwyzard.web.cern.ch/fwyzard/hlt/2010/dataset 
+
+## TODO (Plots)
+- Create an AK5 hardest pT spectrum, color coded by which trigger is being used.
+- Create an AK7 hardest pT spectrum, again color coded by trigger.
+- Create a corrected AK5 spectrum, and compared to the published CMS data.
+- Create an Ntilde distribution.
+- Create a quasi-corrected Ntilde distribution (I need to teach you how to do this.)
+
 
 [1]: https://github.com/tripatheea/MODProducer
 [2]: http://www.fastjet.fr/

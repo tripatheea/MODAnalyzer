@@ -1,4 +1,4 @@
-#include "../interface/event.h"
+#include "event.h"
 
 using namespace std;
 using namespace fastjet;
@@ -71,7 +71,7 @@ void MOD::Event::add_trigger(istringstream & input_stream) {
    _triggers.push_back(MOD::Trigger(input_stream));
 }
 
-const MOD::Trigger & MOD::Event::trigger_by_name(string name) const {
+const MOD::Trigger MOD::Event::trigger_by_name(string name) const {
    for(unsigned int i = 0; i < triggers().size(); i++) {
       const MOD::Trigger& current_trigger = triggers().at(i);
 
@@ -80,8 +80,7 @@ const MOD::Trigger & MOD::Event::trigger_by_name(string name) const {
       }
    }
 
-   MOD::Trigger * empty_trigger = new Trigger();
-   return *empty_trigger;
+   return Trigger();
 }
 
 const vector<MOD::Trigger> & MOD::Event::triggers() const {
@@ -189,7 +188,7 @@ string MOD::Event::assigned_trigger_name() const {
    return _assigned_trigger_name;
 }
 
-const MOD::Trigger & MOD::Event::assigned_trigger() const {
+const MOD::Trigger MOD::Event::assigned_trigger() const {
    return _assigned_trigger;
 }
 
