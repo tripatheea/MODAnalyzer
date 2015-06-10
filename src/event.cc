@@ -3,9 +3,9 @@
 using namespace std;
 using namespace fastjet;
 
-MOD::Event::Event(int run_number, int Event_number) : _run_number(run_number), _event_number(Event_number), _trigger_hardest_pt(std::numeric_limits<double>::max()) {}
+MOD::Event::Event(int run_number, int Event_number) : _run_number(run_number), _event_number(Event_number), _hardest_pt_ak5(std::numeric_limits<double>::max()), _hardest_pt_ak7(std::numeric_limits<double>::max()) {}
 
-MOD::Event::Event() : _trigger_hardest_pt(std::numeric_limits<double>::max()) {}
+MOD::Event::Event() :  _hardest_pt_ak5(std::numeric_limits<double>::max()), _hardest_pt_ak7(std::numeric_limits<double>::max()) {}
 
 int MOD::Event::event_number() const {
    return _event_number;
@@ -126,8 +126,13 @@ string MOD::Event::make_string() const {
    return file_to_write.str();
 }
 
-double MOD::Event::trigger_hardest_pt() const {
-   return _trigger_hardest_pt;
+double MOD::Event::hardest_pt(string algorithm) const {
+   if (algorithm == "ak5")
+      return _hardest_pt_ak5;
+   else if (algorithm == "ak7")
+      return _hardest_pt_ak7;
+   else
+      throw new runtime_error("ERROR: Invalid algorithm name supplied for hardest_pt. Only AK5 and AK7 are valid algorithms.");
 }
 
 bool MOD::Event::read_event(istream & data_stream) {
@@ -201,7 +206,7 @@ int MOD::Event::assigned_trigger_prescale() const {
 }
 
 void MOD::Event::set_assigned_trigger() {
-   double hardest_pt_value = trigger_hardest_pt();
+   double hardest_pt_value = hardest_pt("ak5");
 
    if (hardest_pt_value == std::numeric_limits<double>::max()) {
       throw runtime_error("You need to set _trigger_hardest_pt before trying to retrieve assigned_trigger_name.");
@@ -233,24 +238,38 @@ void MOD::Event::set_assigned_trigger() {
    _assigned_trigger = trigger_by_name(trigger_to_use);
 }
 
-void MOD::Event::set_trigger_hardest_pt() {
-   // Get the hardest pt of the AK5 jets.
+void MOD::Event::set_hardest_pt() {
+   // Set the hardest pt of the AK5 and AK7 jets.
 
    // Just use the jets we read from the data file.
-   vector<PseudoJet> clustered_jets = _calibrated_pseudojets_ak5;
+
+   // AK5
+   vector<PseudoJet> clustered_jets_ak5 = _calibrated_pseudojets_ak5;
    
-   double hardest_pt = 0.0;
-   for (unsigned int i = 0; i < clustered_jets.size(); i++) {
-      if (hardest_pt < clustered_jets[i].pt()) {
-         hardest_pt = clustered_jets[i].pt();
+   double hardest_pt_ak5 = 0.0;
+   for (unsigned int i = 0; i < clustered_jets_ak5.size(); i++) {
+      if (hardest_pt_ak5 < clustered_jets_ak5[i].pt()) {
+         hardest_pt_ak5 = clustered_jets_ak5[i].pt();
       }
    }
 
-   _trigger_hardest_pt = hardest_pt;
+   _hardest_pt_ak5 = hardest_pt_ak5;
+
+   // AK7
+   vector<PseudoJet> clustered_jets_ak7 = _calibrated_pseudojets_ak7;
+   
+   double hardest_pt_ak7 = 0.0;
+   for (unsigned int i = 0; i < clustered_jets_ak7.size(); i++) {
+      if (hardest_pt_ak7 < clustered_jets_ak7[i].pt()) {
+         hardest_pt_ak7 = clustered_jets_ak7[i].pt();
+      }
+   }
+
+   _hardest_pt_ak7 = hardest_pt_ak7;
 }
 
 void MOD::Event::establish_properties() {
-   set_trigger_hardest_pt();
+   set_hardest_pt();
    set_assigned_trigger();
 }
 

@@ -25,7 +25,7 @@ namespace MOD {
             int event_number() const;
             int run_number() const;
 
-            double trigger_hardest_pt() const;
+            double hardest_pt(std::string algorithm) const;
 
             const std::vector<PFCandidate> & particles() const;
             const std::vector<Trigger> & triggers() const;
@@ -59,7 +59,9 @@ namespace MOD {
 
             std::string _assigned_trigger_name;
 
-            double _trigger_hardest_pt;
+            double _hardest_pt_ak5;
+            double _hardest_pt_ak7;
+
             Trigger _assigned_trigger;
 
             std::vector<Trigger> _triggers;
@@ -73,7 +75,7 @@ namespace MOD {
             std::vector<fastjet::PseudoJet> _calibrated_pseudojets_ak7;
 
             void set_assigned_trigger();
-            void set_trigger_hardest_pt();
+            void set_hardest_pt();
             void establish_properties();
       };
 
