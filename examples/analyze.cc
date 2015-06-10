@@ -61,7 +61,8 @@ int main(int argc, char * argv[]) {
    int event_serial_number = 1;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
       
-      // cout << "Processing event number " << event_serial_number << endl;
+      if( (event_serial_number % 100) == 0 )
+         cout << "Processing event number " << event_serial_number << endl;
 
       analyze_event(event_being_read, output_file, cone_radii, pt_cuts);
       event_being_read = MOD::Event();
@@ -70,7 +71,7 @@ int main(int argc, char * argv[]) {
 
    auto finish = std::chrono::steady_clock::now();
    double elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double> >(finish - start).count();
-   cout << "Finished all process in " << elapsed_seconds << " seconds!" << endl;
+   cout << "Finished all processes in " << elapsed_seconds << " seconds!" << endl;
 
    return 0;
 }

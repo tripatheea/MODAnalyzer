@@ -10,9 +10,9 @@
 
 
 
-#include "../interface/trigger.h"
-#include "../interface/pfcandidate.h"
-#include "../interface/calibrated_jet.h"
+#include "trigger.h"
+#include "pfcandidate.h"
+#include "calibrated_jet.h"
 
 namespace MOD {
 
@@ -38,8 +38,8 @@ namespace MOD {
             std::string make_string() const;
             std::string assigned_trigger_name() const;
 
-            const Trigger & trigger_by_name(std::string name) const;    
-            const Trigger & assigned_trigger() const;
+            const Trigger trigger_by_name(std::string name) const;    
+            const Trigger assigned_trigger() const;
 
             void add_particle(std::istringstream & input_stream);
             void add_calibrated_jet(std::istringstream & input_stream);

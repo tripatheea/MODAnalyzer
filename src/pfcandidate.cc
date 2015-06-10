@@ -1,4 +1,4 @@
-#include "../interface/pfcandidate.h"
+#include "pfcandidate.h"
 
 using namespace std;
 using namespace fastjet;
@@ -8,7 +8,7 @@ MOD::PFCandidate::PFCandidate(double px, double py, double pz, double energy, do
    double recalc_energy = sqrt(px*px + py*py + pz*pz + mass*mass);
 
    if ( abs(recalc_energy - energy) > pow(10, -4)) {
-      throw runtime_error("Recalculated energy (using 3-momentum nad mass) does not match give energy value.");
+      cout << "ERROR: Recalculated energy (using 3-momentum and mass) does not match give energy value (within a tolerance of 10e-4)." << endl << endl;
    }
 
    _pseudojet = PseudoJet(px, py, pz, recalc_energy);
@@ -24,11 +24,8 @@ MOD::PFCandidate::PFCandidate(istringstream & input_stream) {
    
    double recalc_energy = sqrt(px*px + py*py + pz*pz + mass*mass);
 
-   if ( abs(recalc_energy - energy) > pow(10, -5)) {
-      cout << "ERROR: Difference between energy and recalculated_energy is > 10e-5!" << endl << endl;
-      cout << "Recalculated Energy: " << recalc_energy << endl;
-      cout << "Energy:              " << energy << endl << endl;
-      throw runtime_error("Recalculated energy (using 3-momentum nad mass) does not match give energy value.");
+   if ( abs(recalc_energy - energy) > pow(10, -4)) {
+      cout << "ERROR: Recalculated energy (using 3-momentum and mass) does not match give energy value (within a tolerance of 10e-4)." << endl << endl;
    }
 
    _pseudojet = PseudoJet(px, py, pz, recalc_energy);
