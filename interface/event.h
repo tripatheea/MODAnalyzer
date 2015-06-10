@@ -7,7 +7,7 @@
 #include <iomanip>
 #include <stdexcept>
 #include <limits>
-
+#include <algorithm>
 
 
 #include "trigger.h"
@@ -25,7 +25,7 @@ namespace MOD {
             int event_number() const;
             int run_number() const;
 
-            double hardest_pt(std::string algorithm) const;
+            double hardest_pt(std::string which_jets) const;
 
             const std::vector<PFCandidate> & particles() const;
             const std::vector<Trigger> & triggers() const;
