@@ -56,7 +56,7 @@ int main(int argc, char * argv[]) {
 
    MOD::Event event_being_read;
 
-   output_file << "# Entries Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale     Cone_Radius     pT_Cut     Hardest_pT_AK5     Hardest_pT_AK7" << endl;
+   output_file << "# Entries Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale     Cone_Radius     pT_Cut     Hardest_pT_AK5     Hardest_pT_AK7     Corrected_Jet_Size     Corrected_N_tilde" << endl;
 
    int event_serial_number = 1;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
