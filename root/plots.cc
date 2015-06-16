@@ -38,7 +38,11 @@ void fix_cone_radius_sweep_pt_cut();
 void fix_pt_cut_sweep_cone_radius();
 
 void plots() {
-  hardest_pt_corresponding_triggers("ak7");
+  // n_tilde_against_jet_multiplicity();
+  // hardest_pt_corresponding_triggers("ak5");
+  // hardest_pt_corresponding_triggers("ak7");
+  // fix_cone_radius_sweep_pt_cut();
+  fix_pt_cut_sweep_cone_radius();
 }
 
 
@@ -95,6 +99,9 @@ void n_tilde_against_jet_multiplicity() {
   c2e->BuildLegend();
 
   gPad->SetLogy();
+  
+  hs->SetMaximum(10e6);
+  hs->SetMinimum(10e-3);
 
   hs->Draw();
   hs->GetHistogram()->GetXaxis()->SetTitle("Fractional Jet Multiplicity (Jets Without Jets)");
@@ -170,6 +177,9 @@ void hardest_pt_corresponding_triggers(string algorithm) {
   c2e->BuildLegend();
 
   gPad->SetLogy();
+  
+  hs->SetMaximum(10e6);
+  hs->SetMinimum(10e-3);
 
   hs->Draw();
   hs->GetHistogram()->GetXaxis()->SetTitle("pt_hardest");
@@ -229,8 +239,6 @@ void fix_cone_radius_sweep_pt_cut() {
 
   TCanvas *cst = new TCanvas("cst","N_tilde and AntikT", 1000, 600);
 
-  gPad->SetLogy();
-
   TLegend * legend = new TLegend(0.6, 0.7, 0.85, 0.9);
 
   for(unsigned int i = 0; i < pt_cuts.size(); i++) {
@@ -244,6 +252,11 @@ void fix_cone_radius_sweep_pt_cut() {
   }
   
   cst->BuildLegend();
+
+  gPad->SetLogy();
+  
+  hs->SetMaximum(10e6);
+  hs->SetMinimum(10e-3);
 
   hs->Draw();
 
@@ -292,7 +305,9 @@ void fix_pt_cut_sweep_cone_radius() {
   string line;
   while(getline(infile, line)) {
     istringstream iss(line);
+    
     iss >> tag >> event_number >> run_number >> n_tilde >> antikt_jets_size >> trigger_name >> fired >> prescale >> cone_radius >> pt_cut >> hardest_pt_ak5 >> hardest_pt_ak7;
+    
     if (tag != "#") {
       if ((fired) && (pt_cut == fixed_pt_cut)) {
         cone_radii_map[cone_radius]->Fill(n_tilde, prescale);
@@ -302,8 +317,6 @@ void fix_pt_cut_sweep_cone_radius() {
 
 
   TCanvas *cst = new TCanvas("cst","N_tilde and AntikT", 1000, 600);
-
-  gPad->SetLogy();
 
   TLegend * legend = new TLegend(0.6, 0.7, 0.85, 0.9);
 
@@ -318,9 +331,14 @@ void fix_pt_cut_sweep_cone_radius() {
   }
 
   cst->BuildLegend();
+  
+  gPad->SetLogy();
+  
+  hs->SetMaximum(10e6);
+  hs->SetMinimum(10e-3);
 
   hs->Draw();
-
+  
   hs->GetHistogram()->GetXaxis()->SetTitle("N_tilde");
   hs->GetHistogram()->GetXaxis()->CenterTitle();
 

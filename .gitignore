@@ -7,3 +7,4 @@ bin/*
 *.pcm
 *.so
 *.o
+*.pdf
