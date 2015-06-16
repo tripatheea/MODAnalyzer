@@ -61,10 +61,10 @@ int main(int argc, char * argv[]) {
 
       output_file << event_being_read;
 
-      if( ! jets_match(event_being_read, 0.5)) {
-         events_with_mismatched_ak5_jets++;
-         cout << "AK5 Jets don't match for event: " << event_being_read.event_number() << endl << endl;
-      }
+      // if( ! jets_match(event_being_read, 0.5)) {
+      //    events_with_mismatched_ak5_jets++;
+      //    cout << "AK5 Jets don't match for event: " << event_being_read.event_number() << endl << endl;
+      // }
 
       if( ! jets_match(event_being_read, 0.7)) {
          events_with_mismatched_ak7_jets++;
@@ -84,7 +84,9 @@ int main(int argc, char * argv[]) {
 
 bool jets_match(MOD::Event & event_being_read, double cone_radius) {
    
-   // cout << "EVENT: " << event_being_read.event_number() << endl << endl;
+   double pt_cut = 3.00;
+   if (cone_radius == 0.7)
+      pt_cut = 3.30;
 
    
    vector<PseudoJet> cms_jets = event_being_read.calibrated_pseudojets_ak5();
@@ -93,11 +95,11 @@ bool jets_match(MOD::Event & event_being_read, double cone_radius) {
    // Cluster the pfcandidates using Fastjet.
    JetDefinition jet_def(antikt_algorithm, cone_radius);
    ClusterSequence cs(pfcandidates, jet_def);
-   vector<PseudoJet> fastjet_jets = cs.inclusive_jets(3.00);
+   vector<PseudoJet> fastjet_jets = cs.inclusive_jets(pt_cut);
 
    // Compare the number of jets first.
    if (cms_jets.size() != fastjet_jets.size()) {
-      cout << "Different jet size for CMS vs. FastJet!" << endl;
+      cout << "Different jet size for CMS vs. FastJet; " << cms_jets.size() << " vs " << fastjet_jets.size() << "." << endl;
       return false;
    }
 
