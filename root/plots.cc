@@ -36,13 +36,15 @@ void n_tilde_against_jet_multiplicity();
 void hardest_pt_corresponding_triggers(string algorithm);
 void fix_cone_radius_sweep_pt_cut();
 void fix_pt_cut_sweep_cone_radius();
+void corrected_ak5_spectrum();
 
 void plots() {
   // n_tilde_against_jet_multiplicity();
   // hardest_pt_corresponding_triggers("ak5");
   // hardest_pt_corresponding_triggers("ak7");
   // fix_cone_radius_sweep_pt_cut();
-  fix_pt_cut_sweep_cone_radius();
+  // fix_pt_cut_sweep_cone_radius();
+  corrected_ak5_spectrum();
 }
 
 
@@ -340,6 +342,82 @@ void fix_pt_cut_sweep_cone_radius() {
   hs->Draw();
   
   hs->GetHistogram()->GetXaxis()->SetTitle("N_tilde");
+  hs->GetHistogram()->GetXaxis()->CenterTitle();
+
+  legend->Draw();
+
+}
+
+
+
+void corrected_ak5_spectrum() {
+
+
+  ifstream infile("../data/CMS_JetSample_corrected_ak5_spectrum.dat");
+
+  TFile * rootFile_;
+  TTree * multiplicityTree_;
+  
+  string tag;
+  double uncorrected_pt, corrected_pt;
+  int prescale;
+  bool fired;
+
+  THStack *hs = new THStack("Corrected AK5 Spectrum", "Corrected AK5 Spectrum");
+
+  unordered_map<std::string, TH1F * > cone_radii_map;
+  
+  EColor colors[2] = {kRed, kGreen};
+  
+  gStyle->SetOptStat(false);
+
+  cone_radii_map["Corrected"] = new TH1F("", "", 50, -0.5, 6.0);
+  cone_radii_map["Uncorrected"] = new TH1F("", "", 50, -0.5, 6.0);
+
+
+  string line;
+  while(getline(infile, line)) {
+    istringstream iss(line);
+    
+    iss >> tag >> uncorrected_pt >> corrected_pt >> fired >> prescale;
+    
+    if (tag != "#") {
+      if (true) {
+        cone_radii_map["Corrected"]->Fill(corrected_pt, prescale);
+        cone_radii_map["Uncorrected"]->Fill(uncorrected_pt, prescale);
+      }
+    }
+  }
+
+  TCanvas *cst = new TCanvas("cst","Corrected AK5 Spectrum", 1000, 600);
+
+  TLegend * legend = new TLegend(0.1, 0.9, 0.3, 0.8);
+
+  cone_radii_map["Corrected"]->SetFillColorAlpha(kRed, 0.5);
+  cone_radii_map["Corrected"]->SetMarkerStyle(21);
+  cone_radii_map["Corrected"]->SetMarkerColor(kRed);
+
+  cone_radii_map["Uncorrected"]->SetFillColorAlpha(kGreen, 0.5);
+  cone_radii_map["Uncorrected"]->SetMarkerStyle(21);
+  cone_radii_map["Uncorrected"]->SetMarkerColor(kGreen);
+  
+  hs->Add(cone_radii_map["Corrected"]);
+  hs->Add(cone_radii_map["Uncorrected"]);
+
+  legend->AddEntry(cone_radii_map["Corrected"], "Corrected");
+  legend->AddEntry(cone_radii_map["Uncorrected"], "Uncorrected");
+
+
+  cst->BuildLegend();
+  
+  gPad->SetLogy();
+  
+  hs->SetMaximum(10e6);
+  hs->SetMinimum(10e-3);
+
+  hs->Draw();
+  
+  hs->GetHistogram()->GetXaxis()->SetTitle("pT");
   hs->GetHistogram()->GetXaxis()->CenterTitle();
 
   legend->Draw();

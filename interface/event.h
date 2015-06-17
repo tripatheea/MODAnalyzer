@@ -30,10 +30,16 @@ namespace MOD {
             const std::vector<PFCandidate> & particles() const;
             const std::vector<Trigger> & triggers() const;
             const std::vector<fastjet::PseudoJet> & pseudojets() const;
+
             const std::vector<CalibratedJet> & calibrated_jets_ak5() const;          
             const std::vector<fastjet::PseudoJet> & calibrated_pseudojets_ak5() const;
             const std::vector<CalibratedJet> & calibrated_jets_ak7() const;
             const std::vector<fastjet::PseudoJet> & calibrated_pseudojets_ak7() const;
+
+            const std::vector<CalibratedJet> corrected_calibrated_jets_ak5() const;          
+            const std::vector<fastjet::PseudoJet> corrected_calibrated_pseudojets_ak5() const;
+            const std::vector<CalibratedJet> corrected_calibrated_jets_ak7() const;
+            const std::vector<fastjet::PseudoJet> corrected_calibrated_pseudojets_ak7() const;
 
             std::string make_string() const;
             std::string assigned_trigger_name() const;

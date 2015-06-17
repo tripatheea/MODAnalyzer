@@ -18,7 +18,7 @@
 using namespace std;
 using namespace fastjet;
 
-void analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts);
+void corrected_ak5_spectrum(MOD::Event & event_being_read, ofstream & output_file);
 
 int main(int argc, char * argv[]) {
 
@@ -56,7 +56,7 @@ int main(int argc, char * argv[]) {
 
    MOD::Event event_being_read;
 
-   output_file << "# Entries Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale     Cone_Radius     pT_Cut     Hardest_pT_AK5     Hardest_pT_AK7     Corrected_Jet_Size     Corrected_N_tilde" << endl;
+   output_file << "# Entries  uncorrected_pt  corrected_pt  fired  prescale" << endl;
 
    int event_serial_number = 1;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
@@ -64,7 +64,7 @@ int main(int argc, char * argv[]) {
       if( (event_serial_number % 100) == 0 )
          cout << "Processing event number " << event_serial_number << endl;
 
-      analyze_event(event_being_read, output_file, cone_radii, pt_cuts);
+      corrected_ak5_spectrum(event_being_read, output_file);
       event_being_read = MOD::Event();
       event_serial_number++;
    }
@@ -77,7 +77,7 @@ int main(int argc, char * argv[]) {
 }
 
 
-void analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts) {
+void corrected_ak5_spectrum(MOD::Event & event_being_read, ofstream & output_file) {
 
    // Retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
    // Also calculate everything and record those along with the trigger information.
@@ -85,36 +85,18 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector
    string assigned_trigger_name = event_being_read.assigned_trigger_name();
    bool fired = event_being_read.assigned_trigger_fired();
    int prescale = event_being_read.assigned_trigger_prescale();
-   double hardest_pt_ak5 = event_being_read.hardest_pt("ak5");
-   double hardest_pt_ak7 = event_being_read.hardest_pt("ak7");
+   
 
-   // Calculate everything for each value of R and pt_cut.
+   vector<fastjet::PseudoJet> corrected_jets = event_being_read.corrected_calibrated_pseudojets_ak5();
+   vector<fastjet::PseudoJet> jets = event_being_read.calibrated_pseudojets_ak5();
 
-   for(unsigned int r = 0; r < cone_radii.size(); r++) {
-      for (unsigned int p = 0; p < pt_cuts.size(); p++) {
-
-         // Calculate N_tilde.
-         MOD::FractionalJetMultiplicity ntilde = MOD::FractionalJetMultiplicity(cone_radii[r], pt_cuts[p]);
-         double N_tilde = ntilde(event_being_read.pseudojets());
-         
-         // Calculate jet size (fastjet)
-         JetDefinition jet_def(antikt_algorithm, cone_radii[r]);
-         ClusterSequence cs(event_being_read.pseudojets(), jet_def);
-         vector<PseudoJet> jets = cs.inclusive_jets(pt_cuts[p]);
-
-         output_file << "   ENTRY"
-                  << setw(12) << event_being_read.event_number()
-                  << setw(15) << event_being_read.run_number()
-                  << setw(14) << showpoint << setprecision(6) << N_tilde
-                  << setw(9) << jets.size()
-                  << setw(35) << assigned_trigger_name
-                  << setw(5) << fired
-                  << setw(12) << prescale
-                  << setw(18) << setprecision(2) << cone_radii[r]
-                  << setw(12) << noshowpoint << setprecision(3) << pt_cuts[p]
-                  << setw(16) << showpoint << setprecision(8) << hardest_pt_ak5
-                  << setw(19) << showpoint << setprecision(8) << hardest_pt_ak7
+   for (unsigned i = 0; i < corrected_jets.size(); i++) {
+      output_file << "   ENTRY"
+                  << setw(17) << jets[i].pt()
+                  << setw(14) << corrected_jets[i].pt()
+                  << setw(7) << fired
+                  << setw(10) << prescale
                   << endl;             
-      }
    }
+   
 }

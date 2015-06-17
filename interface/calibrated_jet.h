@@ -15,6 +15,7 @@ namespace MOD {
 
       public:
          CalibratedJet(double px, double py, double pz, double energy, double mass, std::string algorithm, double JEC);
+         CalibratedJet(fastjet::PseudoJet pseudojet, std::string algorithm, double JEC);
          CalibratedJet(std::istringstream & input_stream);
          CalibratedJet();
 
@@ -27,6 +28,8 @@ namespace MOD {
 
          double mass() const;
          double JEC() const;
+
+         MOD::CalibratedJet corrected_jet();
 
          friend std::ostream& operator<< (std::ostream&, const CalibratedJet&);
 
