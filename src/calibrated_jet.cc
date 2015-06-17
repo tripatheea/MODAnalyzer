@@ -7,6 +7,9 @@ using namespace fastjet;
 MOD::CalibratedJet::CalibratedJet(double px, double py, double pz, double energy, double mass, string algorithm, double JEC) : _pseudojet(PseudoJet(px, py, pz, energy)), _mass(mass), _algorithm(algorithm), _JEC(JEC) {
 }
 
+MOD::CalibratedJet::CalibratedJet(PseudoJet pseudojet, string algorithm, double JEC) : _pseudojet(pseudojet), _mass(pseudojet.m()), _algorithm(algorithm), _JEC(JEC) {
+
+}
 
 MOD::CalibratedJet::CalibratedJet(istringstream & input_stream) {
 
@@ -58,6 +61,14 @@ string MOD::CalibratedJet::make_header_string() const {
 string MOD::CalibratedJet::algorithm() const {
   return _algorithm;
 }
+
+MOD::CalibratedJet MOD::CalibratedJet::corrected_jet() {
+  PseudoJet new_pseudojet = _pseudojet * _JEC;
+
+  MOD::CalibratedJet corrected_jet = MOD::CalibratedJet(new_pseudojet, _algorithm, 1.00);
+  return corrected_jet;
+}
+
 
 namespace MOD {
    ostream& operator<< (ostream& os, const CalibratedJet& jet) {

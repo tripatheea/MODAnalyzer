@@ -86,7 +86,7 @@ bool jets_match(MOD::Event & event_being_read, double cone_radius) {
    
    double pt_cut = 3.00;
    if (cone_radius == 0.7)
-      pt_cut = 3.30;
+      pt_cut = 0.00;
 
    
    vector<PseudoJet> cms_jets = event_being_read.calibrated_pseudojets_ak5();
@@ -112,7 +112,7 @@ bool jets_match(MOD::Event & event_being_read, double cone_radius) {
    sort(fastjet_jets.begin(), fastjet_jets.end(), pseudojets_compare);
    sort(cms_jets.begin(), cms_jets.end(), pseudojets_compare);
 
-   double tolerance = pow(10, -4);
+   double tolerance = pow(10, -3);
    for (unsigned i = 0; i < max_number_of_jets; i++) {
       
       

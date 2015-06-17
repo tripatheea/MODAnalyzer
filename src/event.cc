@@ -47,6 +47,52 @@ const vector<MOD::PFCandidate> & MOD::Event::particles() const {
    return _particles;
 }
 
+const vector<MOD::CalibratedJet> MOD::Event::corrected_calibrated_jets_ak5() const {
+   
+   vector<MOD::CalibratedJet> corrected_jets;
+   vector<MOD::CalibratedJet> jets = calibrated_jets_ak5();
+
+   for (unsigned i = 0; i < jets.size(); i++) {
+      corrected_jets.push_back(jets[i].corrected_jet());
+   }
+
+   return corrected_jets;
+}
+
+
+const vector<fastjet::PseudoJet> MOD::Event::corrected_calibrated_pseudojets_ak5() const {
+   vector<fastjet::PseudoJet> corrected_psuedojets;
+   vector<MOD::CalibratedJet> jets = calibrated_jets_ak5();
+
+   for (unsigned i = 0; i < jets.size(); i++) {
+      corrected_psuedojets.push_back(jets[i].corrected_jet().pseudojet());
+   }
+
+   return corrected_psuedojets;
+}
+
+const vector<MOD::CalibratedJet> MOD::Event::corrected_calibrated_jets_ak7() const {
+   vector<MOD::CalibratedJet> corrected_jets;
+   vector<MOD::CalibratedJet> jets = calibrated_jets_ak7();
+
+   for (unsigned i = 0; i < jets.size(); i++) {
+      corrected_jets.push_back(jets[i].corrected_jet());
+   }
+
+   return corrected_jets;
+}
+
+const vector<fastjet::PseudoJet> MOD::Event::corrected_calibrated_pseudojets_ak7() const {
+   vector<fastjet::PseudoJet> corrected_psuedojets;
+   vector<MOD::CalibratedJet> jets = calibrated_jets_ak7();
+
+   for (unsigned i = 0; i < jets.size(); i++) {
+      corrected_psuedojets.push_back(jets[i].corrected_jet().pseudojet());
+   }
+
+   return corrected_psuedojets;
+}
+
 void MOD::Event::add_particle(istringstream & input_stream) {
    MOD::PFCandidate new_particle(input_stream);
    _particles.push_back(new_particle);
