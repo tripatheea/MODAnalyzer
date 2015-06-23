@@ -58,8 +58,11 @@ namespace MOD {
 
             int assigned_trigger_prescale() const;
 
+<<<<<<< HEAD
             double hardest_jet_JEC();
 
+=======
+>>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
             friend std::ostream& operator<< (std::ostream&, const Event&);
             
          private:
@@ -85,7 +88,10 @@ namespace MOD {
             void set_assigned_trigger();
             void set_hardest_pt();
             void establish_properties();
+<<<<<<< HEAD
 
+=======
+>>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
       };
 
 }

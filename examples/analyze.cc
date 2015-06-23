@@ -40,7 +40,11 @@ int main(int argc, char * argv[]) {
    }
 
    ifstream data_file(argv[1]);
+<<<<<<< HEAD
    ofstream output_file(argv[2], ios::out | ios::app);
+=======
+   ofstream output_file(argv[2], ios::out);
+>>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
    
    cout << endl << endl << "Starting analysis with the following given arguments: " << endl;
    cout << "Input file: " << argv[1] << endl;
@@ -56,7 +60,11 @@ int main(int argc, char * argv[]) {
 
    MOD::Event event_being_read;
 
+<<<<<<< HEAD
    output_file << "# Entries Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale     Cone_Radius     pT_Cut     Hardest_pT_AK5     Hardest_pT_AK7" << endl;
+=======
+   output_file << "# Entries Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale     Cone_Radius     pT_Cut     Hardest_pT_AK5     Hardest_pT_AK7     Corrected_Jet_Size     Corrected_N_tilde" << endl;
+>>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
 
    int event_serial_number = 1;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
@@ -90,6 +98,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector
 
    // Calculate everything for each value of R and pt_cut.
 
+<<<<<<< HEAD
    if (fired) {
       for(unsigned int r = 0; r < cone_radii.size(); r++) {
          for (unsigned int p = 0; p < pt_cuts.size(); p++) {
@@ -117,6 +126,33 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector
                      << setw(19) << showpoint << setprecision(8) << hardest_pt_ak7
                      << endl;             
          }
+=======
+   for(unsigned int r = 0; r < cone_radii.size(); r++) {
+      for (unsigned int p = 0; p < pt_cuts.size(); p++) {
+
+         // Calculate N_tilde.
+         MOD::FractionalJetMultiplicity ntilde = MOD::FractionalJetMultiplicity(cone_radii[r], pt_cuts[p]);
+         double N_tilde = ntilde(event_being_read.pseudojets());
+         
+         // Calculate jet size (fastjet)
+         JetDefinition jet_def(antikt_algorithm, cone_radii[r]);
+         ClusterSequence cs(event_being_read.pseudojets(), jet_def);
+         vector<PseudoJet> jets = cs.inclusive_jets(pt_cuts[p]);
+
+         output_file << "   ENTRY"
+                  << setw(12) << event_being_read.event_number()
+                  << setw(15) << event_being_read.run_number()
+                  << setw(14) << showpoint << setprecision(6) << N_tilde
+                  << setw(9) << jets.size()
+                  << setw(35) << assigned_trigger_name
+                  << setw(5) << fired
+                  << setw(12) << prescale
+                  << setw(18) << setprecision(2) << cone_radii[r]
+                  << setw(12) << noshowpoint << setprecision(3) << pt_cuts[p]
+                  << setw(16) << showpoint << setprecision(8) << hardest_pt_ak5
+                  << setw(19) << showpoint << setprecision(8) << hardest_pt_ak7
+                  << endl;             
+>>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
       }
    }
 }
