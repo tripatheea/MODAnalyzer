@@ -69,10 +69,20 @@ MOD::CalibratedJet MOD::CalibratedJet::corrected_jet() {
   return corrected_jet;
 }
 
+bool MOD::CalibratedJet::operator < (const MOD::CalibratedJet& j1) const {
+  if (pseudojet().pt() > j1.pseudojet().pt())
+    return true;
+  return false;
+}
+
 
 namespace MOD {
    ostream& operator<< (ostream& os, const CalibratedJet& jet) {
       os << jet.make_string();
       return os;
    }
+
+
+
+   
 }

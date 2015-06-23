@@ -18,6 +18,7 @@ using namespace fastjet;
 void validate_events(MOD::Event & event_being_read, ofstream & output_file);
 bool jets_match(MOD::Event & event_being_read, double cone_radius);
 bool pseudojets_compare(PseudoJet a, PseudoJet b);
+bool write_jets(MOD::Event & event_being_read, double cone_radius, ofstream cms_output_file, ofstream fastjet_output_file);
 
 int main(int argc, char * argv[]) {
    
@@ -38,6 +39,9 @@ int main(int argc, char * argv[]) {
 
    ifstream data_file(argv[1]);
    ofstream output_file(argv[2], ios::out);
+
+   ofstream cms_output_file("data/cms.dat", ios::out);
+   ofstream fastjet_output_file("data/fastjet.dat", ios::out);
 
    cout << endl << endl << "Starting validation with the following given arguments: " << endl;
    cout << "Input file: " << argv[1] << endl;
@@ -70,6 +74,9 @@ int main(int argc, char * argv[]) {
          events_with_mismatched_ak7_jets++;
          cout << "AK7 Jets don't match for event: " << event_being_read.event_number() << endl << endl;
       }
+
+      // write_jets(event_being_read, 0.5, cms_output_file, fastjet_output_file);
+
       
       event_being_read = MOD::Event();
       event_serial_number++;
@@ -130,7 +137,52 @@ bool jets_match(MOD::Event & event_being_read, double cone_radius) {
 }
 
 bool pseudojets_compare(PseudoJet a, PseudoJet b) {
-   if (a.px() > b.px())
+   if (a.pt() > b.pt())
       return true;
    return false;
+}
+
+bool write_jets(MOD::Event & event_being_read, double cone_radius, ofstream cms_output_file, ofstream fastjet_output_file) {
+
+   double pt_cut = 3.00;
+    
+   vector<PseudoJet> cms_jets = event_being_read.calibrated_pseudojets_ak5();
+   
+   // First sort the jets by px so that we can compare them one by one.
+   sort(cms_jets.begin(), cms_jets.end(), pseudojets_compare);
+
+   // Write out CMS jets.
+   cms_output_file << "            px            py            pz        energy" << endl;
+   for (unsigned i = 0; i < cms_jets.size(); i++) {
+      cms_output_file 
+                     << setw(14) << fixed << setprecision(8) << cms_jets[i].px()
+                     << setw(14) << fixed << setprecision(8) << cms_jets[i].py()
+                     << setw(14) << fixed << setprecision(8) << cms_jets[i].pz()
+                     << setw(14) << fixed << setprecision(8) << cms_jets[i].E()
+                     << endl;
+   }
+
+   vector<PseudoJet> pfcandidates = event_being_read.pseudojets();
+
+   // Cluster the pfcandidates using Fastjet.
+   JetDefinition jet_def(antikt_algorithm, cone_radius);
+   ClusterSequence cs(pfcandidates, jet_def);
+   vector<PseudoJet> fastjet_jets = cs.inclusive_jets(pt_cut);
+
+   // First sort the jets by px so that we can compare them one by one.
+   sort(fastjet_jets.begin(), fastjet_jets.end(), pseudojets_compare);
+
+   // Write out FastJet jets.
+   fastjet_output_file << "            px            py            pz        energy       pt" << endl;
+   for (unsigned i = 0; i < fastjet_jets.size(); i++) {
+      fastjet_output_file 
+                     << setw(14) << fixed << setprecision(8) << fastjet_jets[i].px()
+                     << setw(14) << fixed << setprecision(8) << fastjet_jets[i].py()
+                     << setw(14) << fixed << setprecision(8) << fastjet_jets[i].pz()
+                     << setw(14) << fixed << setprecision(8) << fastjet_jets[i].E()
+                     << setw(14) << fixed << setprecision(8) << fastjet_jets[i].pt()
+                     << endl;
+   }
+
+   return true;  
 }

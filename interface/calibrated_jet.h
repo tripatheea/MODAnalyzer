@@ -33,6 +33,8 @@ namespace MOD {
 
          friend std::ostream& operator<< (std::ostream&, const CalibratedJet&);
 
+         bool operator<(const CalibratedJet& rhs) const;
+
       private:
          fastjet::PseudoJet _pseudojet;
          double _mass;

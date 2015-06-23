@@ -33,18 +33,19 @@ using namespace std;
 
 
 void n_tilde_against_jet_multiplicity();
-void hardest_pt_corresponding_triggers(string algorithm);
+void hardest_pt_corresponding_triggers();
 void fix_cone_radius_sweep_pt_cut();
 void fix_pt_cut_sweep_cone_radius();
 void corrected_ak5_spectrum();
+void zg_plots();
 
 void plots() {
   // n_tilde_against_jet_multiplicity();
-  // hardest_pt_corresponding_triggers("ak5");
-  // hardest_pt_corresponding_triggers("ak7");
+  hardest_pt_corresponding_triggers();
   // fix_cone_radius_sweep_pt_cut();
   // fix_pt_cut_sweep_cone_radius();
-  corrected_ak5_spectrum();
+  // corrected_ak5_spectrum();
+  // zg_plots();
 }
 
 
@@ -114,9 +115,8 @@ void n_tilde_against_jet_multiplicity() {
 
 
 
-void hardest_pt_corresponding_triggers(string algorithm) {
+void hardest_pt_corresponding_triggers() {
   ifstream infile("../data/CMS_JetSample_analyzed.dat");
-
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
@@ -125,69 +125,57 @@ void hardest_pt_corresponding_triggers(string algorithm) {
   int event_number, run_number, antikt_jets_size, prescale;
   double n_tilde, cone_radius, pt_cut, hardest_pt_ak5, hardest_pt_ak7;
   bool fired;
+  
+  unordered_map<double, TH1F * > hardest_pts;
 
-  THStack * hs;
-
-  if (algorithm == "ak5") 
-    hs = new THStack("Hardest pt and corresponding trigger of jets", "Hardest pt and corresponding trigger of jets (pt_cut = 50.0 GeV, R = 0.5)");
-  else
-    hs = new THStack("Hardest pt and corresponding trigger of jets", "Hardest pt and corresponding trigger of jets (pt_cut = 50.0 GeV, R = 0.7)");
-
-  vector<TH1F * > hardest_pts = vector<TH1F *>();
-  EColor colors[6] = {kRed, kBlue, kGreen, kYellow, kMagenta, kOrange};
-  const char * trigger_labels[6] = {"HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U", "HLT_Jet15U", "HLT_L1Jet6U", "HLT_MinBiasPixel_SingleTrack"};
+  EColor colors[5] = {kRed, kBlue, kGreen, kYellow, kMagenta};
+  const char * trigger_labels[5] = {"HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U", "HLT_Jet15U", "HLT_L1Jet6U"};
   
   gStyle->SetOptStat(false);
 
-  for (int i = 0; i < 6; i++) {
-    TH1F * pt_temp = new TH1F("a", "", 50, -0.5, 400);
-    hardest_pts.push_back(pt_temp);
+  for (unsigned int i = 0; i < 5; i++) {
+    TH1F * pt_temp = new TH1F("a", "", 50, 0, 500);
+    hardest_pts[i] = pt_temp;
   }
   
   string line;
   while(getline(infile, line)) {
     istringstream iss(line);
-    
+
     iss >> tag >> event_number >> run_number >> n_tilde >> antikt_jets_size >> trigger_name >> fired >> prescale >> cone_radius >> pt_cut >> hardest_pt_ak5 >> hardest_pt_ak7;
     
     if (tag != "#") {
-      if ((fired) && (pt_cut == 50) && (cone_radius = 0.50)) {
+      if ((pt_cut == 50) && (cone_radius = 0.50)) {
         int trigger_index = std::distance(trigger_labels, std::find(trigger_labels, trigger_labels + 6, trigger_name));
-        if (algorithm == "ak5")
-          hardest_pts[trigger_index]->Fill(hardest_pt_ak5, prescale);
-        else
-          hardest_pts[trigger_index]->Fill(hardest_pt_ak7, prescale);
+        hardest_pts[trigger_index]->Fill(hardest_pt_ak5); // , prescale
       }
     }
   }
 
-  
-
-  
   TLegend * legend = new TLegend(0.6, 0.7, 0.85, 0.9);
 
-  for(int i = 0; i < 6; i++) {
+  for(unsigned int i = 0; i < 5; i++) {
     hardest_pts[i]->SetFillColorAlpha(colors[i], 0.5);
     hardest_pts[i]->SetMarkerStyle(21);
     hardest_pts[i]->SetMarkerColor(colors[i]);
-    hs->Add(hardest_pts[i]);
+    
     legend->AddEntry(hardest_pts[i], trigger_labels[i]);
-  }
-  
-  TCanvas *c2e = new TCanvas("c2e", "c2e", 600, 400);
 
-  c2e->BuildLegend();
+    if (i == 0) {
+        hardest_pts[i]->Draw("E");
+        hardest_pts[i]->GetXaxis()->SetTitle("Hardest Jet pT");
+        hardest_pts[i]->GetXaxis()->CenterTitle();
+    }
+    else {
+      hardest_pts[i]->Draw("same E");            
+    }
+  }
 
   gPad->SetLogy();
   
-  hs->SetMaximum(10e6);
-  hs->SetMinimum(10e-3);
-
-  hs->Draw();
-  hs->GetHistogram()->GetXaxis()->SetTitle("pt_hardest");
-  hs->GetHistogram()->GetXaxis()->CenterTitle();
-  
   legend->Draw();
+
+  gPad->Print("hardest_pt_corresponding_triggers.pdf");
 }
 
 
@@ -352,18 +340,17 @@ void fix_pt_cut_sweep_cone_radius() {
 
 void corrected_ak5_spectrum() {
 
+  double pt_cut = 50.00;
 
   ifstream infile("../data/CMS_JetSample_corrected_ak5_spectrum.dat");
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
+  // TCanvas *my_canvas = new TCanvas("my_canvas","Plotting Canvas", 1000, 600);
   
   string tag;
   double uncorrected_pt, corrected_pt;
   int prescale;
-  bool fired;
-
-  THStack *hs = new THStack("Corrected AK5 Spectrum", "Corrected AK5 Spectrum");
 
   unordered_map<std::string, TH1F * > cone_radii_map;
   
@@ -371,55 +358,124 @@ void corrected_ak5_spectrum() {
   
   gStyle->SetOptStat(false);
 
-  cone_radii_map["Corrected"] = new TH1F("", "", 50, -0.5, 6.0);
-  cone_radii_map["Uncorrected"] = new TH1F("", "", 50, -0.5, 6.0);
+  // my_canvas->cd();
+
+  cone_radii_map["Corrected"] = new TH1F("", "", 50, -20.0, 2900.0);
+  cone_radii_map["Uncorrected"] = new TH1F("", "", 50, -20.0, 2900.0);
 
 
   string line;
   while(getline(infile, line)) {
     istringstream iss(line);
     
-    iss >> tag >> uncorrected_pt >> corrected_pt >> fired >> prescale;
+    iss >> tag >> uncorrected_pt >> corrected_pt >> prescale;
     
     if (tag != "#") {
-      if (true) {
-        cone_radii_map["Corrected"]->Fill(corrected_pt, prescale);
+      if (uncorrected_pt > pt_cut)
         cone_radii_map["Uncorrected"]->Fill(uncorrected_pt, prescale);
-      }
+      if (corrected_pt > pt_cut)
+        cone_radii_map["Corrected"]->Fill(corrected_pt, prescale);
     }
   }
 
   TCanvas *cst = new TCanvas("cst","Corrected AK5 Spectrum", 1000, 600);
 
-  TLegend * legend = new TLegend(0.1, 0.9, 0.3, 0.8);
+  TLegend * legend = new TLegend(0.7, 0.9, 0.9, 0.8);
 
   cone_radii_map["Corrected"]->SetFillColorAlpha(kRed, 0.5);
   cone_radii_map["Corrected"]->SetMarkerStyle(21);
   cone_radii_map["Corrected"]->SetMarkerColor(kRed);
+  
 
   cone_radii_map["Uncorrected"]->SetFillColorAlpha(kGreen, 0.5);
   cone_radii_map["Uncorrected"]->SetMarkerStyle(21);
   cone_radii_map["Uncorrected"]->SetMarkerColor(kGreen);
   
-  hs->Add(cone_radii_map["Corrected"]);
-  hs->Add(cone_radii_map["Uncorrected"]);
+  cone_radii_map["Corrected"]->Draw("E");
+  cone_radii_map["Uncorrected"]->Draw("same E");  
+
+  cone_radii_map["Corrected"]->GetXaxis()->SetTitle("pT");
+  cone_radii_map["Uncorrected"]->GetXaxis()->CenterTitle();
+
+  cone_radii_map["Corrected"]->GetYaxis()->SetRangeUser(10e-2, 10e7);
+  cone_radii_map["Uncorrected"]->GetYaxis()->SetRangeUser(10e-2, 10e7);
 
   legend->AddEntry(cone_radii_map["Corrected"], "Corrected");
   legend->AddEntry(cone_radii_map["Uncorrected"], "Uncorrected");
 
-
-  cst->BuildLegend();
   
-  gPad->SetLogy();
-  
-  hs->SetMaximum(10e6);
-  hs->SetMinimum(10e-3);
-
-  hs->Draw();
-  
-  hs->GetHistogram()->GetXaxis()->SetTitle("pT");
-  hs->GetHistogram()->GetXaxis()->CenterTitle();
+  gPad->SetLogy();  
 
   legend->Draw();
 
+  gPad->Print("ak5_distribution.pdf");
+
 }
+
+void zg_plots() {
+
+  double pt_cut = 159;
+
+
+  ifstream infile("../data/zg_CMS_JetSample.dat");
+
+  TFile * rootFile_;
+  TTree * multiplicityTree_;
+  
+  string tag;
+  int prescale;
+  double zg, z_cut, hardest_jet_pt;
+
+  unordered_map<double, TH1F * > z_cuts_map;
+  vector<double> z_cuts = {0.05, 0.1, 0.2};
+
+  EColor colors[3] = {kRed, kBlue, kGreen};
+  const char * z_cuts_labels[3] = {"z_cut = 0.05", "z_cut = 0.1", "z_cut = 0.2"};
+  
+  gStyle->SetOptStat(false);
+
+  for (unsigned int i = 0; i < z_cuts.size(); i++) {
+      TH1F * cone_radius_temp = new TH1F("", "", 40, 0.0, 1.0);
+      z_cuts_map[z_cuts[i]] = cone_radius_temp;
+  }
+
+  string line;
+  while(getline(infile, line)) {
+    istringstream iss(line);
+    
+    iss >> tag >> z_cut >> hardest_jet_pt >> zg >> prescale;
+    
+    if (tag != "#") {
+      if (hardest_jet_pt >= pt_cut) {
+          z_cuts_map[z_cut]->Fill(zg, prescale);
+      }
+    }
+  }
+
+  TLegend * legend = new TLegend(0.6, 0.7, 0.85, 0.9);
+
+  for(unsigned int i = 0; i < z_cuts.size(); i++) {
+      z_cuts_map[z_cuts[i]]->SetFillColorAlpha(colors[i], 0.5);
+      z_cuts_map[z_cuts[i]]->SetMarkerStyle(21);
+      z_cuts_map[z_cuts[i]]->SetMarkerColor(colors[i]);
+
+      legend->AddEntry(z_cuts_map[z_cuts[i]], z_cuts_labels[i]);
+
+      if (i == 0) {
+        z_cuts_map[z_cuts[i]]->Draw("E");
+        z_cuts_map[z_cuts[i]]->GetXaxis()->SetTitle("zg");
+        z_cuts_map[z_cuts[i]]->GetXaxis()->CenterTitle();
+        z_cuts_map[z_cuts[i]]->GetXaxis()->SetRangeUser(0., 1.);
+      }
+      else {
+        z_cuts_map[z_cuts[i]]->Draw("same E");            
+      }
+  }
+
+  legend->Draw();
+
+  gPad->Print("zg_distribution.pdf");
+}
+
+
+

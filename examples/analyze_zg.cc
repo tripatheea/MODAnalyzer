@@ -9,16 +9,19 @@
 #include <iomanip>
 #include <limits>
 #include <chrono>
+#include <cmath>
 
 #include "fastjet/ClusterSequence.hh"
 
+#include "fastjet/contrib/SoftDrop.hh"
+
 #include "../interface/event.h"
-#include "../interface/fractional_jet_multiplicity.h"
 
 using namespace std;
 using namespace fastjet;
+using namespace contrib;
 
-void corrected_ak5_spectrum(MOD::Event & event_being_read, ofstream & output_file);
+void analyze_zg(MOD::Event & event_being_read, ofstream & output_file, vector<double> z_cuts);
 bool pseudojets_compare(PseudoJet a, PseudoJet b);
 
 int main(int argc, char * argv[]) {
@@ -52,12 +55,11 @@ int main(int argc, char * argv[]) {
    else
       cout << number_of_events_to_process << endl << endl;
 
-   vector<double> cone_radii = {0.3, 0.5, 0.7};
-   vector<double> pt_cuts = {50.0, 80.0, 110.0};
+   vector<double> z_cuts = {0.05, 0.1, 0.2};
 
    MOD::Event event_being_read;
 
-   output_file << "# Entries  uncorrected_pt  corrected_pt  prescale" << endl;
+   output_file << "# Entries         z_cut    hardest_jet_pt                 zg    prescale " << endl;
 
    int event_serial_number = 1;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
@@ -65,7 +67,7 @@ int main(int argc, char * argv[]) {
       if( (event_serial_number % 100) == 0 )
          cout << "Processing event number " << event_serial_number << endl;
 
-      corrected_ak5_spectrum(event_being_read, output_file);
+      analyze_zg(event_being_read, output_file, z_cuts);
       event_being_read = MOD::Event();
       event_serial_number++;
    }
@@ -78,7 +80,7 @@ int main(int argc, char * argv[]) {
 }
 
 
-void corrected_ak5_spectrum(MOD::Event & event_being_read, ofstream & output_file) {
+void analyze_zg(MOD::Event & event_being_read, ofstream & output_file, vector<double> z_cuts) {
 
    // Retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
    // Also calculate everything and record those along with the trigger information.
@@ -87,25 +89,33 @@ void corrected_ak5_spectrum(MOD::Event & event_being_read, ofstream & output_fil
    bool fired = event_being_read.assigned_trigger_fired();
    int prescale = event_being_read.assigned_trigger_prescale();
    
-   vector<fastjet::PseudoJet> corrected_jets = event_being_read.corrected_calibrated_pseudojets_ak5();
-   vector<fastjet::PseudoJet> jets = event_being_read.calibrated_pseudojets_ak5();
+   // Calculate everything for each value of z_cut and pt_cut.
 
-   if ((fired) && (jets.size() > 0)) {
-      // Sort both jets.
-      sort(corrected_jets.begin(), corrected_jets.end(), pseudojets_compare);
-      sort(jets.begin(), jets.end(), pseudojets_compare);
+   if (fired) {
+      for(unsigned int z = 0; z < z_cuts.size(); z++) {
+            
+         // Run AK5 clustering with FastJet.
+         JetDefinition jet_def(antikt_algorithm, 0.5);
+         ClusterSequence cs(event_being_read.pseudojets(), jet_def);
+         vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets());
 
-      
-      output_file << "   ENTRY"
-                  << setw(17) << jets[0].pt()
-                  << setw(14) << corrected_jets[0].pt()
-                  << setw(10) << prescale
-                  << endl;
+         if (ak5_jets.size() > 0) {
+            PseudoJet hardest_jet = ak5_jets[0];
+            // hardest_jet *= event_being_read.hardest_jet_JEC();
+
+            double beta = 0;
+
+            SoftDrop soft_drop(beta, z_cuts[z]);
+            PseudoJet soft_drop_jet = soft_drop(hardest_jet);
+            double zg = soft_drop_jet.structure_of<SoftDrop>().symmetry();
+
+            output_file << "   ENTRY"
+                     << setw(15) << z_cuts[z]
+                     << setw(18) << hardest_jet.pt()
+                     << setw(19) << showpoint << setprecision(8) << zg
+                     << setw(12) << prescale
+                     << endl;      
+         }       
+      }
    }
-}
-
-bool pseudojets_compare(PseudoJet a, PseudoJet b) {
-   if (a.pt() > b.pt())
-      return true;
-   return false;
 }

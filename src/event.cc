@@ -187,14 +187,17 @@ bool MOD::Event::read_event(istream & data_stream) {
    string line;
    while(getline(data_stream, line)) {
       istringstream iss(line);
+
+      // LumiSection 284 AvgInstLumi 15.00735950 EventSerialNumber 12956
       
-      int event_number, run_number;
-      string tag, run_keyword, event_keyword;
+      int event_number, run_number, lumi_section, event_serial_number;
+      string tag, run_keyword, event_keyword, lumi_section_keyword, inst_lumi_keyword, event_serial_number_keyword;
+      double inst_lumi;
 
       iss >> tag;      
       istringstream stream(line);
       if (tag == "BeginEvent") {
-         stream >> tag >> run_keyword >> run_number >> event_keyword >> event_number;
+         stream >> tag >> run_keyword >> run_number >> event_keyword >> event_number >> lumi_section_keyword >> lumi_section >> inst_lumi_keyword >> inst_lumi >> event_serial_number_keyword >> event_serial_number;
          set_event_number(event_number);
          set_run_number(run_number);
       }
@@ -230,7 +233,7 @@ bool MOD::Event::read_event(istream & data_stream) {
          // This line in the data file represents a comment. Just ignore it.
       }
       else {
-         throw runtime_error("Invalid file format! Unrecognized tag!");
+         throw runtime_error("Invalid file format! Unrecognized tag: " + tag + "!");
       }
    }
 
@@ -321,6 +324,20 @@ void MOD::Event::establish_properties() {
    set_assigned_trigger();
 }
 
+double MOD::Event::hardest_jet_JEC() {
+   // Get CMS Jets.
+   vector<MOD::CalibratedJet> cms_jets = _calibrated_jets_ak5;
+   
+   if (cms_jets.size() > 0) {
+      // Sort by pt.
+      sort(cms_jets.begin(), cms_jets.end());
+
+      // Return JEC of the first element.
+      return cms_jets[0].JEC();
+   }
+
+   return cms_jets[0].JEC();
+}
 
 namespace MOD {
    ostream& operator<< (ostream& os, const Event& event) {
