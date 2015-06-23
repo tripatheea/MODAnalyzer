@@ -37,14 +37,17 @@ void hardest_pt_corresponding_triggers();
 void fix_cone_radius_sweep_pt_cut();
 void fix_pt_cut_sweep_cone_radius();
 void corrected_ak5_spectrum();
+void invariant_mass();
 void zg_plots();
+
 
 void plots() {
   // n_tilde_against_jet_multiplicity();
-  hardest_pt_corresponding_triggers();
+  // hardest_pt_corresponding_triggers();
   // fix_cone_radius_sweep_pt_cut();
   // fix_pt_cut_sweep_cone_radius();
   // corrected_ak5_spectrum();
+  invariant_mass();
   // zg_plots();
 }
 
@@ -147,7 +150,7 @@ void hardest_pt_corresponding_triggers() {
     if (tag != "#") {
       if ((pt_cut == 50) && (cone_radius = 0.50)) {
         int trigger_index = std::distance(trigger_labels, std::find(trigger_labels, trigger_labels + 6, trigger_name));
-        hardest_pts[trigger_index]->Fill(hardest_pt_ak5); // , prescale
+        hardest_pts[trigger_index]->Fill(hardest_pt_ak5, prescale);
       }
     }
   }
@@ -165,6 +168,7 @@ void hardest_pt_corresponding_triggers() {
         hardest_pts[i]->Draw("E");
         hardest_pts[i]->GetXaxis()->SetTitle("Hardest Jet pT");
         hardest_pts[i]->GetXaxis()->CenterTitle();
+        hardest_pts[i]->GetYaxis()->SetRangeUser(10e-2, 10e7);
     }
     else {
       hardest_pts[i]->Draw("same E");            
@@ -411,6 +415,80 @@ void corrected_ak5_spectrum() {
   gPad->Print("ak5_distribution.pdf");
 
 }
+
+void invariant_mass() {
+
+  double m_cut = 0.00;
+
+
+  ifstream infile("../data/CMS_JetSample_invariant_mass.dat");
+
+  TFile * rootFile_;
+  
+  string tag;
+  int prescale;
+  double uncorrected_invariant_mass, corrected_invariant_mass;
+
+  unordered_map<std::string, TH1F * > invariant_mass;
+  
+  EColor colors[2] = {kRed, kGreen};
+  
+  gStyle->SetOptStat(false);
+
+
+  invariant_mass["Corrected"] = new TH1F("", "", 50, 0.0, 50.0);
+  invariant_mass["Uncorrected"] = new TH1F("", "", 50, 0.0, 50.0);
+
+
+  string line;
+  while(getline(infile, line)) {
+    istringstream iss(line);
+    
+    iss >> tag >> uncorrected_invariant_mass >> corrected_invariant_mass >> prescale;
+    
+    if (tag != "#") {
+      
+      if (uncorrected_invariant_mass > m_cut)
+        invariant_mass["Uncorrected"]->Fill(uncorrected_invariant_mass, prescale);
+
+      if (corrected_invariant_mass > m_cut)
+        invariant_mass["Corrected"]->Fill(corrected_invariant_mass, prescale);
+    }
+  }
+
+  TCanvas *cst = new TCanvas("cst","Invariant Mass Spectrum", 1000, 600);
+
+  TLegend * legend = new TLegend(0.7, 0.9, 0.9, 0.8);
+
+  invariant_mass["Corrected"]->SetFillColorAlpha(kRed, 0.5);
+  invariant_mass["Corrected"]->SetMarkerStyle(21);
+  invariant_mass["Corrected"]->SetMarkerColor(kRed);
+  
+
+  invariant_mass["Uncorrected"]->SetFillColorAlpha(kGreen, 0.5);
+  invariant_mass["Uncorrected"]->SetMarkerStyle(21);
+  invariant_mass["Uncorrected"]->SetMarkerColor(kGreen);
+  
+  invariant_mass["Corrected"]->Draw("E");
+  invariant_mass["Uncorrected"]->Draw("same E");  
+
+  invariant_mass["Corrected"]->GetXaxis()->SetTitle("pT");
+  invariant_mass["Uncorrected"]->GetXaxis()->CenterTitle();
+
+  invariant_mass["Corrected"]->GetYaxis()->SetRangeUser(10e-2, 10e7);
+  invariant_mass["Uncorrected"]->GetYaxis()->SetRangeUser(10e-2, 10e7);
+
+  legend->AddEntry(invariant_mass["Corrected"], "Corrected");
+  legend->AddEntry(invariant_mass["Uncorrected"], "Uncorrected");
+
+  
+  gPad->SetLogy();  
+
+  legend->Draw();
+
+  gPad->Print("invariant_mass_distribution.pdf");
+}
+
 
 void zg_plots() {
 
