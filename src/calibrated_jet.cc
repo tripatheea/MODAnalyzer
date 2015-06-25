@@ -4,22 +4,21 @@ using namespace std;
 using namespace fastjet;
 
 
-MOD::CalibratedJet::CalibratedJet(double px, double py, double pz, double energy, double mass, string algorithm, double JEC) : _pseudojet(PseudoJet(px, py, pz, energy)), _mass(mass), _algorithm(algorithm), _JEC(JEC) {
+MOD::CalibratedJet::CalibratedJet(double px, double py, double pz, double energy, string algorithm, double JEC) : _pseudojet(PseudoJet(px, py, pz, energy)), _algorithm(algorithm), _JEC(JEC) {
 }
 
-MOD::CalibratedJet::CalibratedJet(PseudoJet pseudojet, string algorithm, double JEC) : _pseudojet(pseudojet), _mass(pseudojet.m()), _algorithm(algorithm), _JEC(JEC) {
+MOD::CalibratedJet::CalibratedJet(PseudoJet pseudojet, string algorithm, double JEC) : _pseudojet(pseudojet), _algorithm(algorithm), _JEC(JEC) {
 
 }
 
 MOD::CalibratedJet::CalibratedJet(istringstream & input_stream) {
 
    string tag;
-   double px, py, pz, energy, mass, JEC;
+   double px, py, pz, energy, JEC;
 
-   input_stream >> tag >> px >> py >> pz >> energy >> mass >> JEC;
+   input_stream >> tag >> px >> py >> pz >> energy >> JEC;
 
    _pseudojet = PseudoJet(px, py, pz, energy);
-   _mass = mass;
    _algorithm = tag;
    _JEC = JEC;
 }
@@ -37,7 +36,6 @@ string MOD::CalibratedJet::make_string() const {
         << setw(14) << fixed << setprecision(8) << _pseudojet.py()
         << setw(14) << fixed << setprecision(8) << _pseudojet.pz()
         << setw(14) << fixed << setprecision(8) << _pseudojet.E()
-        << setw(14) << fixed << setprecision(8) << _mass
         << setw(14) << fixed << setprecision(8) << _JEC
         << endl;
 
@@ -48,13 +46,10 @@ double MOD::CalibratedJet::JEC() const {
   return _JEC;
 }
 
-double MOD::CalibratedJet::mass() const {
-  return _mass;
-}
 
 string MOD::CalibratedJet::make_header_string() const {
    stringstream ss;
-   ss << "# " << _algorithm << "            px            py            pz        energy          mass           jec" << endl;
+   ss << "# " << _algorithm << "            px            py            pz        energy           jec" << endl;
    return ss.str();
 }
 
@@ -69,26 +64,17 @@ MOD::CalibratedJet MOD::CalibratedJet::corrected_jet() {
   return corrected_jet;
 }
 
-<<<<<<< HEAD
+
 bool MOD::CalibratedJet::operator < (const MOD::CalibratedJet& j1) const {
   if (pseudojet().pt() > j1.pseudojet().pt())
     return true;
   return false;
 }
 
-=======
->>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
-
 namespace MOD {
    ostream& operator<< (ostream& os, const CalibratedJet& jet) {
       os << jet.make_string();
       return os;
    }
-<<<<<<< HEAD
 
-
-
-   
-=======
->>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
 }

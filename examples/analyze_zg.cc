@@ -22,7 +22,6 @@ using namespace fastjet;
 using namespace contrib;
 
 void analyze_zg(MOD::Event & event_being_read, ofstream & output_file, vector<double> z_cuts);
-bool pseudojets_compare(PseudoJet a, PseudoJet b);
 
 int main(int argc, char * argv[]) {
 
@@ -84,11 +83,10 @@ void analyze_zg(MOD::Event & event_being_read, ofstream & output_file, vector<do
 
    // Retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
    // Also calculate everything and record those along with the trigger information.
-   
-   string assigned_trigger_name = event_being_read.assigned_trigger_name();
+
    bool fired = event_being_read.assigned_trigger_fired();
    int prescale = event_being_read.assigned_trigger_prescale();
-   
+
    // Calculate everything for each value of z_cut and pt_cut.
 
    if (fired) {
@@ -101,6 +99,7 @@ void analyze_zg(MOD::Event & event_being_read, ofstream & output_file, vector<do
 
          if (ak5_jets.size() > 0) {
             PseudoJet hardest_jet = ak5_jets[0];
+            
             // hardest_jet *= event_being_read.hardest_jet_JEC();
 
             double beta = 0;

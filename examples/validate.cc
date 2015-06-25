@@ -16,12 +16,10 @@ using namespace std;
 using namespace fastjet;
 
 void validate_events(MOD::Event & event_being_read, ofstream & output_file);
-bool jets_match(MOD::Event & event_being_read, double cone_radius);
+bool jets_match(MOD::Event & event_being_read);
 bool pseudojets_compare(PseudoJet a, PseudoJet b);
-<<<<<<< HEAD
-bool write_jets(MOD::Event & event_being_read, double cone_radius, ofstream cms_output_file, ofstream fastjet_output_file);
-=======
->>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
+bool write_jets(MOD::Event & event_being_read, ofstream cms_output_file, ofstream fastjet_output_file);
+
 
 int main(int argc, char * argv[]) {
    
@@ -43,12 +41,9 @@ int main(int argc, char * argv[]) {
    ifstream data_file(argv[1]);
    ofstream output_file(argv[2], ios::out);
 
-<<<<<<< HEAD
    ofstream cms_output_file("data/cms.dat", ios::out);
    ofstream fastjet_output_file("data/fastjet.dat", ios::out);
 
-=======
->>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
    cout << endl << endl << "Starting validation with the following given arguments: " << endl;
    cout << "Input file: " << argv[1] << endl;
    cout << "Output file: " << argv[2] << endl;
@@ -58,8 +53,7 @@ int main(int argc, char * argv[]) {
    else
       cout << number_of_events_to_process << endl << endl;
    
-   int events_with_mismatched_ak5_jets = 0;
-   int events_with_mismatched_ak7_jets = 0;
+   int events_with_mismatched_jets = 0;
 
    MOD::Event event_being_read;
 
@@ -71,41 +65,31 @@ int main(int argc, char * argv[]) {
 
       output_file << event_being_read;
 
-      // if( ! jets_match(event_being_read, 0.5)) {
-      //    events_with_mismatched_ak5_jets++;
-      //    cout << "AK5 Jets don't match for event: " << event_being_read.event_number() << endl << endl;
-      // }
-
-      if( ! jets_match(event_being_read, 0.7)) {
-         events_with_mismatched_ak7_jets++;
-         cout << "AK7 Jets don't match for event: " << event_being_read.event_number() << endl << endl;
+      if( ! jets_match(event_being_read)) {
+         events_with_mismatched_jets++;
+         cout << "AK5 Jets don't match for event: " << event_being_read.event_number() << endl << endl;
       }
-<<<<<<< HEAD
+
 
       // write_jets(event_being_read, 0.5, cms_output_file, fastjet_output_file);
 
-=======
->>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
       
       event_being_read = MOD::Event();
       event_serial_number++;
    }
    
    cout << "Validation complete!" << endl << endl;
-   cout << events_with_mismatched_ak5_jets << " events have mismatched AK5 jets!" << endl;
-   cout << events_with_mismatched_ak7_jets << " events have mismatched AK7 jets!" << endl;
+   cout << events_with_mismatched_jets << " events have mismatched AK5 jets!" << endl;
    
 
 }
 
-bool jets_match(MOD::Event & event_being_read, double cone_radius) {
+bool jets_match(MOD::Event & event_being_read) {
    
    double pt_cut = 3.00;
-   if (cone_radius == 0.7)
-      pt_cut = 0.00;
-
+   double cone_radius = 0.5;
    
-   vector<PseudoJet> cms_jets = event_being_read.calibrated_pseudojets_ak5();
+   vector<PseudoJet> cms_jets = event_being_read.calibrated_pseudojets();
    vector<PseudoJet> pfcandidates = event_being_read.pseudojets();
 
    // Cluster the pfcandidates using Fastjet.
@@ -146,17 +130,17 @@ bool jets_match(MOD::Event & event_being_read, double cone_radius) {
 }
 
 bool pseudojets_compare(PseudoJet a, PseudoJet b) {
-<<<<<<< HEAD
    if (a.pt() > b.pt())
       return true;
    return false;
 }
 
-bool write_jets(MOD::Event & event_being_read, double cone_radius, ofstream cms_output_file, ofstream fastjet_output_file) {
+bool write_jets(MOD::Event & event_being_read, ofstream cms_output_file, ofstream fastjet_output_file) {
 
    double pt_cut = 3.00;
+   double cone_radius = 0.5;
     
-   vector<PseudoJet> cms_jets = event_being_read.calibrated_pseudojets_ak5();
+   vector<PseudoJet> cms_jets = event_being_read.calibrated_pseudojets();
    
    // First sort the jets by px so that we can compare them one by one.
    sort(cms_jets.begin(), cms_jets.end(), pseudojets_compare);
@@ -195,9 +179,4 @@ bool write_jets(MOD::Event & event_being_read, double cone_radius, ofstream cms_
    }
 
    return true;  
-=======
-   if (a.px() > b.px())
-      return true;
-   return false;
->>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
 }

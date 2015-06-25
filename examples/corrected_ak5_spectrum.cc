@@ -19,10 +19,9 @@ using namespace std;
 using namespace fastjet;
 
 void corrected_ak5_spectrum(MOD::Event & event_being_read, ofstream & output_file);
-<<<<<<< HEAD
+
 bool pseudojets_compare(PseudoJet a, PseudoJet b);
-=======
->>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
+
 
 int main(int argc, char * argv[]) {
 
@@ -44,11 +43,8 @@ int main(int argc, char * argv[]) {
    }
 
    ifstream data_file(argv[1]);
-<<<<<<< HEAD
    ofstream output_file(argv[2], ios::out | ios::app);
-=======
-   ofstream output_file(argv[2], ios::out);
->>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
+
    
    cout << endl << endl << "Starting analysis with the following given arguments: " << endl;
    cout << "Input file: " << argv[1] << endl;
@@ -64,11 +60,9 @@ int main(int argc, char * argv[]) {
 
    MOD::Event event_being_read;
 
-<<<<<<< HEAD
+
    output_file << "# Entries  uncorrected_pt  corrected_pt  prescale" << endl;
-=======
-   output_file << "# Entries  uncorrected_pt  corrected_pt  fired  prescale" << endl;
->>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
+
 
    int event_serial_number = 1;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
@@ -97,10 +91,9 @@ void corrected_ak5_spectrum(MOD::Event & event_being_read, ofstream & output_fil
    string assigned_trigger_name = event_being_read.assigned_trigger_name();
    bool fired = event_being_read.assigned_trigger_fired();
    int prescale = event_being_read.assigned_trigger_prescale();
-   
-<<<<<<< HEAD
-   vector<fastjet::PseudoJet> corrected_jets = event_being_read.corrected_calibrated_pseudojets_ak5();
-   vector<fastjet::PseudoJet> jets = event_being_read.calibrated_pseudojets_ak5();
+
+   vector<fastjet::PseudoJet> corrected_jets = event_being_read.corrected_calibrated_pseudojets();
+   vector<fastjet::PseudoJet> jets = event_being_read.calibrated_pseudojets();
 
    if ((fired) && (jets.size() > 0)) {
       // Sort both jets.
@@ -120,19 +113,4 @@ bool pseudojets_compare(PseudoJet a, PseudoJet b) {
    if (a.pt() > b.pt())
       return true;
    return false;
-=======
-
-   vector<fastjet::PseudoJet> corrected_jets = event_being_read.corrected_calibrated_pseudojets_ak5();
-   vector<fastjet::PseudoJet> jets = event_being_read.calibrated_pseudojets_ak5();
-
-   for (unsigned i = 0; i < corrected_jets.size(); i++) {
-      output_file << "   ENTRY"
-                  << setw(17) << jets[i].pt()
-                  << setw(14) << corrected_jets[i].pt()
-                  << setw(7) << fired
-                  << setw(10) << prescale
-                  << endl;             
-   }
-   
->>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
 }

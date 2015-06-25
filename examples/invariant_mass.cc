@@ -87,8 +87,8 @@ void invariant_mass(MOD::Event & event_being_read, ofstream & output_file) {
    bool fired = event_being_read.assigned_trigger_fired();
    int prescale = event_being_read.assigned_trigger_prescale();
    
-   vector<fastjet::PseudoJet> corrected_jets = event_being_read.corrected_calibrated_pseudojets_ak5();
-   vector<fastjet::PseudoJet> jets = event_being_read.calibrated_pseudojets_ak5();
+   vector<fastjet::PseudoJet> corrected_jets = event_being_read.corrected_calibrated_pseudojets();
+   vector<fastjet::PseudoJet> jets = event_being_read.calibrated_pseudojets();
 
    if ((fired) && (jets.size() > 0)) {
       // Sort both jets.

@@ -9,11 +9,8 @@ CXX = g++
 CXXFLAGS= -O3 -Wall -Woverloaded-virtual -g -std=c++11
 
 FASTINC = `$(PATH_TO_FASTJET) --cxxflags`
-<<<<<<< HEAD
 FASTLIB = `$(PATH_TO_FASTJET) --libs --plugins` -lRecursiveTools
-=======
-FASTLIB = `$(PATH_TO_FASTJET) --libs --plugins`
->>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
+
 
 OBJDIR=src
 EXECDIR=examples
@@ -24,11 +21,8 @@ INC= -I$(INCDIR)
 _OBJ =calibrated_jet event fractional_jet_multiplicity pfcandidate trigger
 OBJ  =$(patsubst %,$(OBJDIR)/%,$(_OBJ:=.o))
 
-<<<<<<< HEAD
-_EXEC=filter analyze validate corrected_ak5_spectrum corrected_n_tilde analyze_zg invariant_mass
-=======
-_EXEC=filter analyze validate corrected_ak5_spectrum corrected_n_tilde
->>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4
+
+_EXEC=skim analyze validate corrected_ak5_spectrum analyze_zg invariant_mass
 EXEC=$(patsubst %,$(EXECDIR)/%,$(_EXEC:=.o))
 BIN=$(patsubst %,$(BINDIR)/%,$(_EXEC))
 
