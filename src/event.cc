@@ -3,7 +3,7 @@
 using namespace std;
 using namespace fastjet;
 
-MOD::Event::Event(int run_number, int Event_number) : _run_number(run_number), _event_number(Event_number), _hardest_pt(std::numeric_limits<double>::max()) {}
+MOD::Event::Event(int run_number, int Event_number, int lumi_block, double inst_lumi) : _run_number(run_number), _event_number(Event_number), _hardest_pt(std::numeric_limits<double>::max()), _lumi_block(lumi_block), _inst_lumi(inst_lumi) {}
 
 MOD::Event::Event() :  _hardest_pt(std::numeric_limits<double>::max()) {}
 
@@ -15,12 +15,28 @@ int MOD::Event::run_number() const {
    return _run_number;
 }
 
+int MOD::Event::lumi_block() const {
+   return _lumi_block;
+}
+
+double MOD::Event::inst_lumi() const {
+   return _inst_lumi;
+}
+
 void MOD::Event::set_run_number(int run_number) {
    _run_number = run_number;
 }
 
 void MOD::Event::set_event_number(int event_number) {
    _event_number = event_number;
+}
+
+void MOD::Event::set_lumi_block(int lumi_block) {
+   _lumi_block = lumi_block;
+}
+
+void MOD::Event::set_inst_lumi(double inst_lumi) {
+   _inst_lumi = inst_lumi;
 }
 
 const vector<PseudoJet> & MOD::Event::pseudojets() const {
@@ -104,7 +120,7 @@ const vector<MOD::Trigger> & MOD::Event::triggers() const {
 string MOD::Event::make_string() const {
    stringstream file_to_write;
    
-   file_to_write << "BeginEvent Run " << _run_number << " Event " << _event_number << endl;
+   file_to_write << "BeginEvent Run " << _run_number << " Event " << _event_number << " LumiSection " << _lumi_block << " AvgInstLumi " << _inst_lumi << endl;
    
    // First, write out all triggers.
    
@@ -152,6 +168,8 @@ bool MOD::Event::read_event(istream & data_stream) {
          stream >> tag >> run_keyword >> run_number >> event_keyword >> event_number >> lumi_section_keyword >> lumi_section >> inst_lumi_keyword >> inst_lumi >> event_serial_number_keyword >> event_serial_number;
          set_event_number(event_number);
          set_run_number(run_number);
+         set_lumi_block(lumi_section);
+         set_inst_lumi(inst_lumi);
       }
       else if (tag == "PFC") {
          try {

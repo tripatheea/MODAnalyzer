@@ -19,11 +19,14 @@ namespace MOD {
       class Event {
 
          public:
-            Event(int, int);
+            Event(int, int, int, double);
             Event();
 
             int event_number() const;
             int run_number() const;
+
+            int lumi_block() const;
+            double inst_lumi() const;
 
             double hardest_pt() const;
 
@@ -48,6 +51,9 @@ namespace MOD {
             void add_trigger(std::istringstream & input_stream);
             void set_event_number(int event_number);
             void set_run_number(int run_number);
+            
+            void set_lumi_block(int lumi_block);
+            void set_inst_lumi(double inst_lumi);
 
             bool read_event(std::istream & data_stream);
             bool assigned_trigger_fired() const;
@@ -63,10 +69,15 @@ namespace MOD {
          private:
             int _run_number, _event_number;
 
-            std::string _assigned_trigger_name;
+            
 
             double _hardest_pt;
 
+            int _lumi_block;
+            double _inst_lumi;
+
+            std::string _assigned_trigger_name;
+            
             Trigger _assigned_trigger;
 
             std::vector<Trigger> _triggers;

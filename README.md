@@ -22,18 +22,12 @@ This repository has code to analyze CMS Open Data data produced using [https://g
   ``.x plots.cc+`` 
 
 ## TODO
-- Add jet energy correction factors to AK5/AK7
-- Write a simple analysis that double checks that PFCandidates yield the same AK5/7 jets as CMS finds.
-- Get Pythia 8 up and running and generate simulated data (with simulated triggers)
-- Figure out if there is any way to get luminosity information.
-- Find out the full list of triggers associated with the Jet primary dataset.  The list might be here:  https://fwyzard.web.cern.ch/fwyzard/hlt/2010/dataset 
+- Look into gzip thingy for size issues.
+- Talk to Sal about the jet areas being 0.
 
-## TODO (Plots)
-- Create an AK5 hardest pT spectrum, color coded by which trigger is being used.
-- Create an AK7 hardest pT spectrum, again color coded by trigger.
-- Create a corrected AK5 spectrum, and compared to the published CMS data.
-- Create an Ntilde distribution.
-- Create a quasi-corrected Ntilde distribution (I need to teach you how to do this.)
+## TODO
+- Get Pythia 8 up and running and generate simulated data (with simulated triggers)
+
 
 
 [1]: https://github.com/tripatheea/MODProducer
