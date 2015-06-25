@@ -18,11 +18,11 @@ BINDIR=bin
 INCDIR=interface
 INC= -I$(INCDIR)
 
-_OBJ =calibrated_jet event fractional_jet_multiplicity pfcandidate trigger
+_OBJ =calibrated_jet event fractional_jet_multiplicity pfcandidate trigger property
 OBJ  =$(patsubst %,$(OBJDIR)/%,$(_OBJ:=.o))
 
 
-_EXEC=skim analyze validate corrected_ak5_spectrum analyze_zg invariant_mass
+_EXEC=skim analyze validate
 EXEC=$(patsubst %,$(EXECDIR)/%,$(_EXEC:=.o))
 BIN=$(patsubst %,$(BINDIR)/%,$(_EXEC))
 

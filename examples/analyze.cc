@@ -12,13 +12,18 @@
 
 #include "fastjet/ClusterSequence.hh"
 
+#include "fastjet/contrib/SoftDrop.hh"
+
+
 #include "../interface/event.h"
 #include "../interface/fractional_jet_multiplicity.h"
+#include "../interface/property.h"
 
 using namespace std;
 using namespace fastjet;
+using namespace contrib;
 
-void analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts);
+void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number,  vector<double> cone_radii, vector<double> pt_cuts);
 
 int main(int argc, char * argv[]) {
 
@@ -57,15 +62,14 @@ int main(int argc, char * argv[]) {
 
    MOD::Event event_being_read;
 
-   output_file << "# Entries Event_Number     Run_Number     N_tilde     Jet_Size          Trigger_Name          Fired?     Prescale     Cone_Radius     pT_Cut     Hardest_pT_AK5" << endl;
-
    int event_serial_number = 1;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
       
       if( (event_serial_number % 100) == 0 )
          cout << "Processing event number " << event_serial_number << endl;
 
-      analyze_event(event_being_read, output_file, cone_radii, pt_cuts);
+      analyze_event(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
+      
       event_being_read = MOD::Event();
       event_serial_number++;
    }
@@ -78,46 +82,81 @@ int main(int argc, char * argv[]) {
 }
 
 
-void analyze_event(MOD::Event & event_being_read, ofstream & output_file, vector<double> cone_radii, vector<double> pt_cuts) {
+void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
 
-   // Retrieve the assigned trigger and store information about that trigger (prescales, fired or not).
-   // Also calculate everything and record those along with the trigger information.
    
-   string assigned_trigger_name = event_being_read.assigned_trigger_name();
-   bool fired = event_being_read.assigned_trigger_fired();
-   int prescale = event_being_read.assigned_trigger_prescale();
-   double hardest_pt_ak5 = event_being_read.hardest_pt();
+   
+   vector<MOD::Property> properties;
 
-   // Calculate everything for each value of R and pt_cut.
+   properties.push_back(MOD::Property("# Entry", "  Entry"));
+
+   properties.push_back(MOD::Property("Event_Number", event_being_read.event_number()));
+   properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
+   
+   properties.push_back(MOD::Property("Hardest_pT", event_being_read.hardest_pt()));
+   properties.push_back(MOD::Property("Prescale", event_being_read.assigned_trigger_prescale()));
+   properties.push_back(MOD::Property("Trigger_Name", event_being_read.assigned_trigger_name()));
 
 
-   if (fired) {
-      for(unsigned int r = 0; r < cone_radii.size(); r++) {
-         for (unsigned int p = 0; p < pt_cuts.size(); p++) {
+   // Run AK5 clustering with FastJet to get zg value.
 
-            // Calculate N_tilde.
-            MOD::FractionalJetMultiplicity ntilde = MOD::FractionalJetMultiplicity(cone_radii[r], pt_cuts[p]);
-            double N_tilde = ntilde(event_being_read.pseudojets());
-            
-            // Calculate jet size (fastjet)
-            JetDefinition jet_def(antikt_algorithm, cone_radii[r]);
-            ClusterSequence cs(event_being_read.pseudojets(), jet_def);
-            vector<PseudoJet> jets = cs.inclusive_jets(pt_cuts[p]);
+   JetDefinition jet_def(antikt_algorithm, 0.5);
+   ClusterSequence cs(event_being_read.pseudojets(), jet_def);
+   vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets());
 
-            output_file << "   ENTRY"
-                     << setw(12) << event_being_read.event_number()
-                     << setw(15) << event_being_read.run_number()
-                     << setw(14) << showpoint << setprecision(6) << N_tilde
-                     << setw(9) << jets.size()
-                     << setw(35) << assigned_trigger_name
-                     << setw(5) << fired
-                     << setw(12) << prescale
-                     << setw(18) << setprecision(2) << cone_radii[r]
-                     << setw(12) << noshowpoint << setprecision(3) << pt_cuts[p]
-                     << setw(16) << showpoint << setprecision(8) << hardest_pt_ak5
-                     << endl;             
-         }
+   if (ak5_jets.size() > 0) {
+      PseudoJet hardest_jet = ak5_jets[0];
+      // hardest_jet *= event_being_read.hardest_jet_JEC();
 
-      }
+      double beta = 0;
+
+      SoftDrop soft_drop(beta, 0.05);
+      PseudoJet soft_drop_jet = soft_drop(hardest_jet);
+      double zg_05 = soft_drop_jet.structure_of<SoftDrop>().symmetry();
+      properties.push_back(MOD::Property("zg_05", zg_05));
+
+      SoftDrop soft_drop_1(beta, 0.1);
+      PseudoJet soft_drop_jet_1 = soft_drop_1(hardest_jet);
+      double zg_1 = soft_drop_jet_1.structure_of<SoftDrop>().symmetry();
+      properties.push_back(MOD::Property("zg_1", zg_1));  
+
+      SoftDrop soft_drop_2(beta, 0.2);
+      PseudoJet soft_drop_jet_2 = soft_drop_2(hardest_jet);
+      double zg_2 = soft_drop_jet_2.structure_of<SoftDrop>().symmetry();
+      properties.push_back(MOD::Property("zg_2", zg_2));  
    }
+   else {
+      properties.push_back(MOD::Property("zg_05", 0.0));      
+      properties.push_back(MOD::Property("zg_1", 0.0));      
+      properties.push_back(MOD::Property("zg_2", 0.0));      
+   }
+
+
+   string name;
+   
+   int padding = 30;
+   int header_padding;
+
+   if (event_serial_number == 1) {
+      for (unsigned p = 0; p < properties.size(); p++) {
+         header_padding = padding - properties[p].name().length();
+         
+         if (p > 0)
+            output_file << setw(padding);
+         
+         output_file << properties[p].name();
+      }
+
+      output_file << endl;
+   }
+
+   for (unsigned q = 0; q < properties.size(); q++) {
+      if (q > 0)
+         output_file << setw(padding);
+      output_file << properties[q];
+   }
+
+   output_file << endl;
+
+   
 }
