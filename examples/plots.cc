@@ -32,88 +32,21 @@
 using namespace std;
 
 
-void n_tilde_against_jet_multiplicity();
+
 void hardest_pt_corresponding_triggers();
-void fix_cone_radius_sweep_pt_cut();
-void fix_pt_cut_sweep_cone_radius();
 void corrected_ak5_spectrum();
 void invariant_mass();
 void zg_plots();
 
 
-// void plots() {
 int main() {
-  hardest_pt_corresponding_triggers();
-  // corrected_ak5_spectrum();
+  // hardest_pt_corresponding_triggers();
+  corrected_ak5_spectrum();
   // zg_plots();
 
   return 0;
 }
 
-
-void n_tilde_against_jet_multiplicity() {
-  ifstream infile("../data/CMS_JetSample_analyzed.dat");
-
-  TFile * rootFile_;
-  TTree * multiplicityTree_;
-
-  string tag, trigger_name;
-  int event_number, run_number, antikt_jets_size, prescale;
-  double n_tilde, cone_radius, pt_cut, hardest_pt_ak5, hardest_pt_ak7;
-  bool fired;
-
-  THStack *hs = new THStack("Fractional Jet Multiplicity", "Fractional Jet Multiplicity (pt_cut = 50.0 GeV, R = 0.5)");
-
-  vector<TH1F * > N_tildes = vector<TH1F *>();
-  EColor colors[7] = {kRed, kBlue, kGreen, kYellow, kMagenta, kOrange, kCyan};
-  const char * antikT_labels[7] = {"antikT Jet Size = 0", "antikT Jet Size = 1", "antikT Jet Size = 2", "antikT Jet Size = 3", "antikT Jet Size = 4", "antikT Jet Size = 5", "antikT Jet Size = 6"};
-  
-  gStyle->SetOptStat(false);
-
-  for (int i = 0; i < 7; i++) {
-    TH1F * N_tilde_temp = new TH1F("", "", 50, -0.5, 6.0);
-    N_tildes.push_back(N_tilde_temp);
-  }
-
-  string line;
-  while(getline(infile, line)) {
-    istringstream iss(line);
-    
-    iss >> tag >> event_number >> run_number >> n_tilde >> antikt_jets_size >> trigger_name >> fired >> prescale >> cone_radius >> pt_cut >> hardest_pt_ak5 >> hardest_pt_ak7;
-
-    if (tag != "#") {
-      if ((fired) && (pt_cut == 50) && (cone_radius = 0.50)) {
-        N_tildes[antikt_jets_size]->Fill(n_tilde, prescale);
-      }
-    }
-  }    
-
-
-  TLegend * legend = new TLegend(0.6, 0.7, 0.85, 0.9);
-
-  for(int i = 0; i < 6; i++) {
-    N_tildes[i]->SetFillColorAlpha(colors[i], 0.5);
-    N_tildes[i]->SetMarkerStyle(21);
-    N_tildes[i]->SetMarkerColor(colors[i]);
-    hs->Add(N_tildes[i]);
-    legend->AddEntry(N_tildes[i], antikT_labels[i]);
-  }
-  
-  TCanvas *c2e = new TCanvas("c2e", "c2e", 600, 400);
-
-  c2e->BuildLegend();
-
-  gPad->SetLogy();
-  
-  hs->SetMaximum(10e6);
-  hs->SetMinimum(10e-3);
-
-  hs->Draw();
-  hs->GetHistogram()->GetXaxis()->SetTitle("Fractional Jet Multiplicity (Jets Without Jets)");
-  hs->GetHistogram()->GetXaxis()->CenterTitle();
-  
-  legend->Draw();
-}
 
 
 
@@ -133,6 +66,11 @@ void hardest_pt_corresponding_triggers() {
 
   EColor colors[5] = {kRed, kBlue, kGreen, kYellow, kMagenta};
   const char * trigger_labels[5] = {"HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U", "HLT_Jet15U", "HLT_L1Jet6U"};
+
+  // New
+  TCanvas *cst = new TCanvas("cst","N_tilde and AntikT", 1000, 600);
+
+  THStack *hs = new THStack("Hardest pT & Corresponding Trigger", "Hardest pT & Corresponding Trigger");
   
   gStyle->SetOptStat(false);
 
@@ -157,6 +95,22 @@ void hardest_pt_corresponding_triggers() {
 
   TLegend * legend = new TLegend(0.6, 0.7, 0.85, 0.9);
 
+  // Stacked
+
+  // for(unsigned int i = 0; i < 5; i++) {
+  //   hardest_pts[i]->SetFillColorAlpha(colors[i], 0.5);
+  //   hardest_pts[i]->SetMarkerStyle(21);
+  //   hardest_pts[i]->SetMarkerColor(colors[i]);
+    
+  //   hs->Add(hardest_pts[i]);
+  
+  //   legend->AddEntry(hardest_pts[i], trigger_labels[i]);
+  // }
+
+  // Stacked Ends
+
+  // Overlapping Begins
+
   for(unsigned int i = 0; i < 5; i++) {
     hardest_pts[i]->SetFillColorAlpha(colors[i], 0.5);
     hardest_pts[i]->SetMarkerStyle(21);
@@ -175,170 +129,36 @@ void hardest_pt_corresponding_triggers() {
     }
   }
 
+  // Overlapping Ends
+
+
   gPad->SetLogy();
+
+
+  // Below this line is for stacked.
+
+  // cst->BuildLegend();
   
-  legend->Draw();
+  
+  
+
+  // hs->Draw();
+
+  // hs->GetHistogram()->GetXaxis()->SetTitle("Hardest Jet pT");
+  // hs->GetHistogram()->GetXaxis()->CenterTitle();
+  // // hs->GetHistogram()->GetYaxis()->SetRangeUser(10e-1, 10e6);
+  // hs->SetMaximum(10e6);
+  // hs->SetMinimum(10e-3);
+
+
+  // legend->Draw();
+
+  // For stacked ends.
 
   gPad->Print("hardest_pt_corresponding_triggers.pdf");
 }
 
 
-
-
-void fix_cone_radius_sweep_pt_cut() {
-
-  // Fix R, sweep across pt_cut.
-
-  double fixed_cone_radius = 0.5;
-
-  ifstream infile("../data/CMS_JetSample_analyzed.dat");
-
-  TFile * rootFile_;
-  TTree * multiplicityTree_;
-  
-  string tag, trigger_name;
-  int event_number, run_number, antikt_jets_size, prescale;
-  double n_tilde, cone_radius, pt_cut, hardest_pt_ak5, hardest_pt_ak7;
-  bool fired;
-
-  THStack *hs = new THStack("Fractional Jet Multiplicity", "Fractional Jet Multiplicity (R = 0.5)");
-
-  unordered_map<double, TH1F * > pt_cuts_map;
-  vector<int> pt_cuts = {50, 80, 110};
-
-  EColor colors[3] = {kRed, kBlue, kGreen};
-  const char * pt_cuts_labels[3] = {"pT_cut = 50 GeV", "pT_cut = 80 GeV", "pT_cut = 110 GeV"};
-  
-  gStyle->SetOptStat(false);
-
-  for (unsigned int i = 0; i < pt_cuts.size(); i++) {
-    TH1F * pt_cut_temp = new TH1F("", "", 50, -0.5, 6.0);
-    pt_cuts_map[pt_cuts[i]] = pt_cut_temp;
-  }
-
-
-  string line;
-  while(getline(infile, line)) {
-    istringstream iss(line);
-    
-    iss >> tag >> event_number >> run_number >> n_tilde >> antikt_jets_size >> trigger_name >> fired >> prescale >> cone_radius >> pt_cut >> hardest_pt_ak5 >> hardest_pt_ak7;
-
-    if (tag != "#") {
-      if ((fired) && (cone_radius == fixed_cone_radius)) {
-        pt_cuts_map[pt_cut]->Fill(n_tilde, prescale);
-      }
-    }
-  }
-
-
-  TCanvas *cst = new TCanvas("cst","N_tilde and AntikT", 1000, 600);
-
-  TLegend * legend = new TLegend(0.6, 0.7, 0.85, 0.9);
-
-  for(unsigned int i = 0; i < pt_cuts.size(); i++) {
-    pt_cuts_map[pt_cuts[i]]->SetFillColorAlpha(colors[i], 0.5);
-    pt_cuts_map[pt_cuts[i]]->SetMarkerStyle(21);
-    pt_cuts_map[pt_cuts[i]]->SetMarkerColor(colors[i]);
-    
-    hs->Add(pt_cuts_map[pt_cuts[i]]);
-  
-    legend->AddEntry(pt_cuts_map[pt_cuts[i]], pt_cuts_labels[i]);
-  }
-  
-  cst->BuildLegend();
-
-  gPad->SetLogy();
-  
-  hs->SetMaximum(10e6);
-  hs->SetMinimum(10e-3);
-
-  hs->Draw();
-
-  hs->GetHistogram()->GetXaxis()->SetTitle("N_tilde");
-  hs->GetHistogram()->GetXaxis()->CenterTitle();
-
-  legend->Draw();
-
-}
-
-
-
-
-
-void fix_pt_cut_sweep_cone_radius() {
-
-  // Fix pt_cut, sweep across R.
-  int fixed_pt_cut = 80;
-
-  ifstream infile("../data/CMS_JetSample_analyzed.dat");
-
-  TFile * rootFile_;
-  TTree * multiplicityTree_;
-  
-  string tag, trigger_name;
-  int event_number, run_number, antikt_jets_size, prescale;
-  double n_tilde, cone_radius, pt_cut, hardest_pt_ak5, hardest_pt_ak7;
-  bool fired;
-
-  THStack *hs = new THStack("Fractional Jet Multiplicity", "Fractional Jet Multiplicity (pt_cut = 80 GeV)");
-
-  unordered_map<double, TH1F * > cone_radii_map;
-  vector<double> cone_radii = {0.3, 0.5, 0.7};
-
-  EColor colors[3] = {kRed, kBlue, kGreen};
-  const char * cone_radii_labels[3] = {"R = 0.3", "R = 0.5", "R = 0.7"};
-  
-  gStyle->SetOptStat(false);
-
-  for (unsigned int i = 0; i < cone_radii.size(); i++) {
-    TH1F * cone_radius_temp = new TH1F("", "", 50, -0.5, 6.0);
-    cone_radii_map[cone_radii[i]] = cone_radius_temp;
-  }
-
-
-  string line;
-  while(getline(infile, line)) {
-    istringstream iss(line);
-    
-    iss >> tag >> event_number >> run_number >> n_tilde >> antikt_jets_size >> trigger_name >> fired >> prescale >> cone_radius >> pt_cut >> hardest_pt_ak5 >> hardest_pt_ak7;
-    
-    if (tag != "#") {
-      if ((fired) && (pt_cut == fixed_pt_cut)) {
-        cone_radii_map[cone_radius]->Fill(n_tilde, prescale);
-      }
-    }
-  }
-
-
-  TCanvas *cst = new TCanvas("cst","N_tilde and AntikT", 1000, 600);
-
-  TLegend * legend = new TLegend(0.6, 0.7, 0.85, 0.9);
-
-  for(unsigned int i = 0; i < cone_radii.size(); i++) {
-    cone_radii_map[cone_radii[i]]->SetFillColorAlpha(colors[i], 0.5);
-    cone_radii_map[cone_radii[i]]->SetMarkerStyle(21);
-    cone_radii_map[cone_radii[i]]->SetMarkerColor(colors[i]);
-    
-    hs->Add(cone_radii_map[cone_radii[i]]);
-  
-    legend->AddEntry(cone_radii_map[cone_radii[i]], cone_radii_labels[i]);
-  }
-
-  cst->BuildLegend();
-  
-  gPad->SetLogy();
-  
-  hs->SetMaximum(10e6);
-  hs->SetMinimum(10e-3);
-
-  hs->Draw();
-  
-  hs->GetHistogram()->GetXaxis()->SetTitle("N_tilde");
-  hs->GetHistogram()->GetXaxis()->CenterTitle();
-
-  legend->Draw();
-
-}
 
 
 
