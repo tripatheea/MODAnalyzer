@@ -18,7 +18,7 @@ BINDIR=bin
 INCDIR=interface
 INC= -I$(INCDIR)
 
-_OBJ =calibrated_jet event fractional_jet_multiplicity pfcandidate trigger property
+_OBJ =calibrated_jet event fractional_jet_multiplicity pfcandidate trigger property condition
 OBJ  =$(patsubst %,$(OBJDIR)/%,$(_OBJ:=.o))
 
 

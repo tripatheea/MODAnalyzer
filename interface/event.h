@@ -13,6 +13,7 @@
 #include "trigger.h"
 #include "pfcandidate.h"
 #include "calibrated_jet.h"
+#include "condition.h"
 
 namespace MOD {
 
@@ -25,8 +26,8 @@ namespace MOD {
             int event_number() const;
             int run_number() const;
 
-            int lumi_block() const;
-            double inst_lumi() const;
+            int version() const;
+            std::pair<std::string, std::string> data_type() const;
 
             double hardest_pt() const;
 
@@ -46,14 +47,17 @@ namespace MOD {
             const Trigger trigger_by_name(std::string name) const;    
             const Trigger assigned_trigger() const;
 
+            void add_conditions(std::istringstream & input_stream); 
             void add_particle(std::istringstream & input_stream);
             void add_calibrated_jet(std::istringstream & input_stream);
             void add_trigger(std::istringstream & input_stream);
+            
             void set_event_number(int event_number);
             void set_run_number(int run_number);
+            void set_version(int version);
+            void set_data_type(std::string a, std::string b);
             
-            void set_lumi_block(int lumi_block);
-            void set_inst_lumi(double inst_lumi);
+            
 
             bool read_event(std::istream & data_stream);
             bool assigned_trigger_fired() const;
@@ -64,21 +68,27 @@ namespace MOD {
             double hardest_jet_JEC();
 
 
+
+
             friend std::ostream& operator<< (std::ostream&, const Event&);
             
          private:
             int _run_number, _event_number;
 
+
             
 
             double _hardest_pt;
 
-            int _lumi_block;
-            double _inst_lumi;
+            
+            int _version;
+            std::pair<std::string, std::string> _data_type;
 
             std::string _assigned_trigger_name;
             
             Trigger _assigned_trigger;
+
+            Condition _condition;
 
             std::vector<Trigger> _triggers;
             std::vector<PFCandidate> _particles;

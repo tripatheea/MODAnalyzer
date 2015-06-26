@@ -3,7 +3,7 @@
 using namespace std;
 using namespace fastjet;
 
-MOD::Event::Event(int run_number, int Event_number, int lumi_block, double inst_lumi) : _run_number(run_number), _event_number(Event_number), _hardest_pt(std::numeric_limits<double>::max()), _lumi_block(lumi_block), _inst_lumi(inst_lumi) {}
+MOD::Event::Event(int run_number, int Event_number, int lumi_block, double inst_lumi) : _run_number(run_number), _event_number(Event_number), _hardest_pt(std::numeric_limits<double>::max()) {}
 
 MOD::Event::Event() :  _hardest_pt(std::numeric_limits<double>::max()) {}
 
@@ -15,12 +15,12 @@ int MOD::Event::run_number() const {
    return _run_number;
 }
 
-int MOD::Event::lumi_block() const {
-   return _lumi_block;
+int MOD::Event::version() const {
+   return _version;
 }
 
-double MOD::Event::inst_lumi() const {
-   return _inst_lumi;
+pair<string, string> MOD::Event::data_type() const {
+   return _data_type;
 }
 
 void MOD::Event::set_run_number(int run_number) {
@@ -31,12 +31,12 @@ void MOD::Event::set_event_number(int event_number) {
    _event_number = event_number;
 }
 
-void MOD::Event::set_lumi_block(int lumi_block) {
-   _lumi_block = lumi_block;
+void MOD::Event::set_version(int version) {
+   _version = version;
 }
 
-void MOD::Event::set_inst_lumi(double inst_lumi) {
-   _inst_lumi = inst_lumi;
+void MOD::Event::set_data_type(string a, string b) {
+   _data_type = make_pair(a, b);;
 }
 
 const vector<PseudoJet> & MOD::Event::pseudojets() const {
@@ -89,6 +89,12 @@ void MOD::Event::add_particle(istringstream & input_stream) {
    _pseudojets.push_back(PseudoJet(new_particle.pseudojet()));
 }
 
+void MOD::Event::add_conditions(istringstream & input_stream) {
+   MOD::Condition new_condition(input_stream);
+
+   _condition = new_condition;
+}
+
 void MOD::Event::add_calibrated_jet(istringstream & input_stream) {
    MOD::CalibratedJet new_jet(input_stream);
 
@@ -120,9 +126,14 @@ const vector<MOD::Trigger> & MOD::Event::triggers() const {
 string MOD::Event::make_string() const {
    stringstream file_to_write;
    
-   file_to_write << "BeginEvent Run " << _run_number << " Event " << _event_number << " LumiSection " << _lumi_block << " AvgInstLumi " << _inst_lumi << endl;
+   file_to_write << "BeginEvent Version " << _version << " " << _data_type.first << " " << _data_type.second << " Run " << _run_number << " Event " << _event_number << endl;
    
-   // First, write out all triggers.
+
+   // First, write out conditions.
+   file_to_write << _condition.make_header_string();
+   file_to_write << _condition;
+
+   // Then, write out all triggers.
    
    for(unsigned int i = 0; i < _triggers.size(); i++) {
       if (i == 0)
@@ -158,18 +169,18 @@ bool MOD::Event::read_event(istream & data_stream) {
    while(getline(data_stream, line)) {
       istringstream iss(line);
       
-      int event_number, run_number, lumi_section, event_serial_number;
-      string tag, run_keyword, event_keyword, lumi_section_keyword, inst_lumi_keyword, event_serial_number_keyword;
-      double inst_lumi;
+      int event_number, run_number, version;
+      string tag, run_keyword, event_keyword, version_keyword, a, b;
 
       iss >> tag;      
       istringstream stream(line);
       if (tag == "BeginEvent") {
-         stream >> tag >> run_keyword >> run_number >> event_keyword >> event_number >> lumi_section_keyword >> lumi_section >> inst_lumi_keyword >> inst_lumi >> event_serial_number_keyword >> event_serial_number;
+         stream >> tag >> version_keyword >> version >> a >> b >> run_keyword >> run_number >> event_keyword >> event_number;
+         
          set_event_number(event_number);
          set_run_number(run_number);
-         set_lumi_block(lumi_section);
-         set_inst_lumi(inst_lumi);
+         set_version(version);
+         set_data_type(a, b);
       }
       else if (tag == "PFC") {
          try {
@@ -193,6 +204,14 @@ bool MOD::Event::read_event(istream & data_stream) {
          }
          catch (exception& e) {
             throw runtime_error("Invalid file format! Something's wrong with the way triggers have been written.");
+         }
+      }
+      else if (tag == "Cond") {
+         try {
+            add_conditions(stream);
+         }
+         catch (exception& e) {
+            throw runtime_error("Invalid file format! Something's wrong with the way conditions have been written.");
          }
       }
       else if (tag == "EndEvent") {
