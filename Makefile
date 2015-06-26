@@ -11,6 +11,8 @@ CXXFLAGS= -O3 -Wall -Woverloaded-virtual -g -std=c++11
 FASTINC = `$(PATH_TO_FASTJET) --cxxflags`
 FASTLIB = `$(PATH_TO_FASTJET) --libs --plugins` -lRecursiveTools
 
+ROOTINC = `root-config --cflags --glibs`
+
 
 OBJDIR=src
 EXECDIR=examples
@@ -22,7 +24,7 @@ _OBJ =calibrated_jet event fractional_jet_multiplicity pfcandidate trigger prope
 OBJ  =$(patsubst %,$(OBJDIR)/%,$(_OBJ:=.o))
 
 
-_EXEC=skim analyze validate
+_EXEC=skim analyze validate plots
 EXEC=$(patsubst %,$(EXECDIR)/%,$(_EXEC:=.o))
 BIN=$(patsubst %,$(BINDIR)/%,$(_EXEC))
 
@@ -30,13 +32,13 @@ BIN=$(patsubst %,$(BINDIR)/%,$(_EXEC))
 all: $(BIN)
 
 $(OBJDIR)/%.o : $(OBJDIR)/%.cc
-	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC)
+	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC) $(ROOTINC)
 
 $(EXECDIR)/%.o : $(EXECDIR)/%.cc
-	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC)
+	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC) $(ROOTINC)
 	
 $(BINDIR)/% : $(EXECDIR)/%.o $(OBJ)
-	$(CXX) $< $(OBJ) -o $@ $(CXXFLAGS) $(FASTLIB)
+	$(CXX) $< $(OBJ) -o $@ $(CXXFLAGS) $(FASTLIB) $(ROOTINC)
 
 .PHONY: clean
 .PRECIOUS: $(OBJ) $(EXEC)
