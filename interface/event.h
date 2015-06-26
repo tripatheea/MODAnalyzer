@@ -65,7 +65,10 @@ namespace MOD {
             int assigned_trigger_prescale() const;
 
 
-            double hardest_jet_JEC();
+            
+            MOD::CalibratedJet hardest_jet();
+
+
 
 
 

@@ -168,13 +168,15 @@ bool MOD::Event::read_event(istream & data_stream) {
    string line;
    while(getline(data_stream, line)) {
       istringstream iss(line);
-      
+
       int event_number, run_number, version;
       string tag, run_keyword, event_keyword, version_keyword, a, b;
 
       iss >> tag;      
       istringstream stream(line);
+
       if (tag == "BeginEvent") {
+
          stream >> tag >> version_keyword >> version >> a >> b >> run_keyword >> run_number >> event_keyword >> event_number;
          
          set_event_number(event_number);
@@ -256,19 +258,19 @@ void MOD::Event::set_assigned_trigger() {
 
    string trigger_to_use;
    if (hardest_pt_value > 153) {
-      trigger_to_use = "HLT_Jet70U_v3";
+      trigger_to_use = "HLT_Jet70U";
    }
    else if (hardest_pt_value > 114) {
-      trigger_to_use = "HLT_Jet50U_v3";
+      trigger_to_use = "HLT_Jet50U";
    }
    else if (hardest_pt_value > 84) {
-      trigger_to_use = "HLT_Jet30U_v3";
+      trigger_to_use = "HLT_Jet30U";
    }
    else if (hardest_pt_value > 56) {
-      trigger_to_use = "HLT_Jet15U_v3";
+      trigger_to_use = "HLT_Jet15U";
    }
    else if (hardest_pt_value > 37) {
-      trigger_to_use = "HLT_L1Jet6U_v3";
+      trigger_to_use = "HLT_L1Jet6U";
    }
    else {
       trigger_to_use = "HLT_MinBiasPixel_SingleTrack";
@@ -302,7 +304,9 @@ void MOD::Event::establish_properties() {
    set_assigned_trigger();
 }
 
-double MOD::Event::hardest_jet_JEC() {
+
+
+MOD::CalibratedJet MOD::Event::hardest_jet() {
    // Get CMS Jets.
    vector<MOD::CalibratedJet> cms_jets = _calibrated_jets;
    
@@ -310,11 +314,12 @@ double MOD::Event::hardest_jet_JEC() {
       // Sort by pt.
       sort(cms_jets.begin(), cms_jets.end());
 
-      // Return JEC of the first element.
-      return cms_jets[0].JEC();
+      // Return the first element.
+      return cms_jets[0];
    }
-
-   return cms_jets[0].JEC();
+   else {
+      throw runtime_error("No jet found!");
+   }
 }
 
 namespace MOD {

@@ -39,6 +39,7 @@ int main(int argc, char * argv[]) {
       number_of_events_to_process = stoi(argv[3]);
    }
 
+   cout << argv[2] << endl;
    ifstream data_file(argv[1]);
    ofstream output_file(argv[2], ios::out | ios::app );
    

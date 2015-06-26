@@ -93,7 +93,14 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back(MOD::Property("Event_Number", event_being_read.event_number()));
    properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
    
-   properties.push_back(MOD::Property("Hardest_pT", event_being_read.hardest_pt()));
+   
+
+   MOD::CalibratedJet hardest_jet = event_being_read.hardest_jet();
+   PseudoJet corrected_hardest_pseudojet = hardest_jet.pseudojet() * hardest_jet.JEC();
+
+   properties.push_back(MOD::Property("Hardest_pT", hardest_jet.pseudojet().pt()));
+   properties.push_back(MOD::Property("Corr_Hardest_pT", corrected_hardest_pseudojet.pt()));
+
    properties.push_back(MOD::Property("Prescale", event_being_read.assigned_trigger_prescale()));
    properties.push_back(MOD::Property("Trigger_Name", event_being_read.assigned_trigger_name()));
 
@@ -134,12 +141,10 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    string name;
    
-   int padding = 30;
-   int header_padding;
+   int padding = 20;
 
    if (event_serial_number == 1) {
       for (unsigned p = 0; p < properties.size(); p++) {
-         header_padding = padding - properties[p].name().length();
          
          if (p > 0)
             output_file << setw(padding);

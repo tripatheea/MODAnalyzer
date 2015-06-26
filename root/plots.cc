@@ -42,13 +42,9 @@ void zg_plots();
 
 
 void plots() {
-  // n_tilde_against_jet_multiplicity();
-  // hardest_pt_corresponding_triggers();
-  // fix_cone_radius_sweep_pt_cut();
-  // fix_pt_cut_sweep_cone_radius();
+  hardest_pt_corresponding_triggers();
   // corrected_ak5_spectrum();
-  // invariant_mass();
-  zg_plots();
+  // zg_plots();
 }
 
 
@@ -119,27 +115,26 @@ void n_tilde_against_jet_multiplicity() {
 
 
 void hardest_pt_corresponding_triggers() {
-  ifstream infile("../data/CMS_JetSample_analyzed.mod");
+  ifstream infile("/media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/analyzed.dat");
 
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
 
   string tag, trigger_name;
-  int event_number, run_number, antikt_jets_size, prescale;
-  double n_tilde, cone_radius, pt_cut, hardest_pt_ak5;
-  bool fired;
+  int event_number, run_number, prescale;
+  double uncorrected_pt, corrected_pt, zg_05, zg_1, zg_2;
 
   
   unordered_map<double, TH1F * > hardest_pts;
 
   EColor colors[5] = {kRed, kBlue, kGreen, kYellow, kMagenta};
-  const char * trigger_labels[5] = {"HLT_Jet70U_v3", "HLT_Jet50U_v3", "HLT_Jet30U_v3", "HLT_Jet15U_v3", "HLT_L1Jet6U_v3"};
+  const char * trigger_labels[5] = {"HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U", "HLT_Jet15U", "HLT_L1Jet6U"};
   
   gStyle->SetOptStat(false);
 
   for (unsigned int i = 0; i < 5; i++) {
-    TH1F * pt_temp = new TH1F("a", "", 50, 0, 500);
+    TH1F * pt_temp = new TH1F("a", "", 50, -50, 1000);
     hardest_pts[i] = pt_temp;
 
   }
@@ -147,13 +142,12 @@ void hardest_pt_corresponding_triggers() {
   string line;
   while(getline(infile, line)) {
     istringstream iss(line);
-    iss >> tag >> event_number >> run_number >> n_tilde >> antikt_jets_size >> trigger_name >> fired >> prescale >> cone_radius >> pt_cut >> hardest_pt_ak5;
+    
+    iss >> tag >> event_number >> run_number >> uncorrected_pt >> corrected_pt >> prescale >> trigger_name >> zg_05 >> zg_1 >> zg_2;
 
     if (tag != "#") {
-      if ((pt_cut == 50) && (cone_radius = 0.50)) {
         int trigger_index = std::distance(trigger_labels, std::find(trigger_labels, trigger_labels + 6, trigger_name));
-        hardest_pts[trigger_index]->Fill(hardest_pt_ak5, prescale);
-      }
+        hardest_pts[trigger_index]->Fill(corrected_pt, prescale);
     }
   }
 
@@ -171,7 +165,7 @@ void hardest_pt_corresponding_triggers() {
         hardest_pts[i]->Draw("E");
         hardest_pts[i]->GetXaxis()->SetTitle("Hardest Jet pT");
         hardest_pts[i]->GetXaxis()->CenterTitle();
-        hardest_pts[i]->GetYaxis()->SetRangeUser(10e-2, 10e7);
+        hardest_pts[i]->GetYaxis()->SetRangeUser(10e-2, 10e6);
     }
     else {
       hardest_pts[i]->Draw("same E");            
@@ -351,15 +345,15 @@ void corrected_ak5_spectrum() {
   double pt_cut = 50.00;
 
 
-  ifstream infile("../data/CMS_JetSample_corrected_ak5_spectrum.dat");
+  ifstream infile("/media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/analyzed.dat");
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
 
   
-  string tag;
-  double uncorrected_pt, corrected_pt;
-  int prescale;
+  string tag, trigger_name;
+  double uncorrected_pt, corrected_pt, zg_05, zg_1, zg_2;
+  int prescale, event_number, run_number;
 
   bool fired;
 
@@ -374,16 +368,16 @@ void corrected_ak5_spectrum() {
 
 
 
-  cone_radii_map["Corrected"] = new TH1F("", "", 50, -20.0, 600.0);
-  cone_radii_map["Uncorrected"] = new TH1F("", "", 50, -20.0, 600.0);
+  cone_radii_map["Corrected"] = new TH1F("", "", 50, -20.0, 1000.0);
+  cone_radii_map["Uncorrected"] = new TH1F("", "", 50, -20.0, 1000.0);
 
 
 
   string line;
   while(getline(infile, line)) {
     istringstream iss(line);
- 
-    iss >> tag >> uncorrected_pt >> corrected_pt >> prescale;
+
+    iss >> tag >> event_number >> run_number >> uncorrected_pt >> corrected_pt >> prescale >> trigger_name >> zg_05 >> zg_1 >> zg_2;
     
     if (tag != "#") {
       if (uncorrected_pt > pt_cut)
@@ -416,8 +410,8 @@ void corrected_ak5_spectrum() {
   cone_radii_map["Corrected"]->GetXaxis()->SetTitle("pT");
   cone_radii_map["Uncorrected"]->GetXaxis()->CenterTitle();
 
-  cone_radii_map["Corrected"]->GetYaxis()->SetRangeUser(10, 10e5);
-  cone_radii_map["Uncorrected"]->GetYaxis()->SetRangeUser(10, 10e5);
+  cone_radii_map["Corrected"]->GetYaxis()->SetRangeUser(10e-2, 10e6);
+  cone_radii_map["Uncorrected"]->GetYaxis()->SetRangeUser(10e-2, 10e6);
 
 
   legend->AddEntry(cone_radii_map["Corrected"], "Corrected");
@@ -512,14 +506,14 @@ void zg_plots() {
   double pt_cut = 153;
 
 
-  ifstream infile("../data/zg_CMS_JetSample.dat");
+  ifstream infile("/media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/analyzed.dat");
 
   TFile * rootFile_;
   TTree * multiplicityTree_;
   
-  string tag;
-  int prescale;
-  double zg, z_cut, hardest_jet_pt;
+  string tag, trigger_name;
+  double uncorrected_pt, corrected_pt, zg_05, zg_1, zg_2;
+  int prescale, event_number, run_number;
 
   unordered_map<double, TH1F * > z_cuts_map;
   vector<double> z_cuts = {0.05, 0.1, 0.2};
@@ -537,12 +531,21 @@ void zg_plots() {
   string line;
   while(getline(infile, line)) {
     istringstream iss(line);
+
+    //# Entry        Event_Number          Run_Number          Hardest_pT     Corr_Hardest_pT            Prescale        Trigger_Name               zg_05                zg_1                zg_2
     
-    iss >> tag >> z_cut >> hardest_jet_pt >> zg >> prescale;
-    
+    iss >> tag >> event_number >> run_number >> uncorrected_pt >> corrected_pt >> prescale >> trigger_name >> zg_05 >> zg_1 >> zg_2;
+
+    // cout << event_number << endl;
+    // cout << zg_05 << zg_1 << zg_2 << prescale << endl;
+
     if (tag != "#") {
-      if (hardest_jet_pt >= pt_cut) {
-          z_cuts_map[z_cut]->Fill(zg, prescale);
+      if (corrected_pt >= pt_cut) {
+          z_cuts_map[0.05]->Fill(zg_05, prescale);
+          z_cuts_map[0.1]->Fill(zg_1, prescale);
+          z_cuts_map[0.2]->Fill(zg_2, prescale);
+
+
       }
     }
   }
