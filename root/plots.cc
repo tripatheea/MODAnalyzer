@@ -27,37 +27,33 @@
 
 #include <sstream>
 #include <vector>
-#include <string>
 
 
 using namespace std;
 
 
 
-void hardest_pt_corresponding_triggers(string data_file);
-void corrected_ak5_spectrum(string data_file);
-void invariant_mass(string data_file);
-void zg_plots(string data_file);
+void hardest_pt_corresponding_triggers();
+void corrected_ak5_spectrum();
+void invariant_mass();
+void zg_plots();
 
 
-int main(int argc, char * argv[]) {
-
-  // string data_file = argv[1];
-
-  hardest_pt_corresponding_triggers("");
-  corrected_ak5_spectrum("");
-  zg_plots("");
-
-  return 0;
+void plots() {
+  // hardest_pt_corresponding_triggers();
+  corrected_ak5_spectrum();
+  // zg_plots();
 }
 
 
 
 
-void hardest_pt_corresponding_triggers(string data_file) {
+void hardest_pt_corresponding_triggers() {
   ifstream infile("/media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/analyzed.dat");
 
 
+  TFile * rootFile_;
+  TTree * multiplicityTree_;
 
   string tag, trigger_name;
   int event_number, run_number, prescale;
@@ -134,7 +130,7 @@ void hardest_pt_corresponding_triggers(string data_file) {
   // Overlapping Ends
 
 
- 
+  gPad->SetLogy();
 
 
   // Below this line is for stacked.
@@ -142,7 +138,7 @@ void hardest_pt_corresponding_triggers(string data_file) {
   cst->BuildLegend();
   
   
-  // gPad->SetLogy();
+  
 
   hs->Draw();
 
@@ -152,19 +148,19 @@ void hardest_pt_corresponding_triggers(string data_file) {
   hs->SetMaximum(10e6);
   hs->SetMinimum(10e-3);
 
-   
+
   legend->Draw();
 
   // For stacked ends.
 
-  gPad->Print("hardest_pt_corresponding_triggers.pdf");
+  // gPad->Print("hardest_pt_corresponding_triggers.pdf");
 }
 
 
 
 
 
-void corrected_ak5_spectrum(string data_file) {
+void corrected_ak5_spectrum() {
 
 
   double pt_cut = 50.00;
@@ -172,7 +168,9 @@ void corrected_ak5_spectrum(string data_file) {
 
   ifstream infile("/media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/analyzed.dat");
 
- 
+  TFile * rootFile_;
+  TTree * multiplicityTree_;
+
   
   string tag, trigger_name;
   double uncorrected_pt, corrected_pt, zg_05, zg_1, zg_2;
@@ -185,7 +183,7 @@ void corrected_ak5_spectrum(string data_file) {
 
   unordered_map<std::string, TH1F * > cone_radii_map;
   
-  
+  EColor colors[2] = {kRed, kGreen};
   
   gStyle->SetOptStat(false);
 
@@ -250,7 +248,7 @@ void corrected_ak5_spectrum(string data_file) {
 
 }
 
-void invariant_mass(string data_file) {
+void invariant_mass() {
 
   double m_cut = 0.00;
 
@@ -265,7 +263,7 @@ void invariant_mass(string data_file) {
 
   unordered_map<std::string, TH1F * > invariant_mass;
   
-  
+  EColor colors[2] = {kRed, kGreen};
   
   gStyle->SetOptStat(false);
 
@@ -324,14 +322,15 @@ void invariant_mass(string data_file) {
 }
 
 
-void zg_plots(string data_file) {
+void zg_plots() {
 
-  double pt_cut = 153;
+  double pt_cut = 500;
 
 
   ifstream infile("/media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/analyzed.dat");
 
- 
+  TFile * rootFile_;
+  TTree * multiplicityTree_;
   
   string tag, trigger_name;
   double uncorrected_pt, corrected_pt, zg_05, zg_1, zg_2;
@@ -386,7 +385,7 @@ void zg_plots(string data_file) {
         z_cuts_map[z_cuts[i]]->GetXaxis()->SetTitle("zg");
         z_cuts_map[z_cuts[i]]->GetXaxis()->CenterTitle();
         z_cuts_map[z_cuts[i]]->GetXaxis()->SetRangeUser(0., 0.6);
-        z_cuts_map[z_cuts[i]]->GetYaxis()->SetRangeUser(0, 4000);
+        z_cuts_map[z_cuts[i]]->GetYaxis()->SetRangeUser(0, 35);
       }
       else {
         z_cuts_map[z_cuts[i]]->Draw("same E");            
