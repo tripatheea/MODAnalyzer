@@ -176,20 +176,63 @@ def plot_pdgid_pt():
     plt.autoscale(True)
 
     plt.xlabel('$p_{T}$ GeV')
-    plt.suptitle("Hardest " + pdgid_map[pdgid] + "'s (pdgid=" + str(int(pdgid)) + ") pT Distribution")
+    plt.suptitle("Hardest " + pdgid_map[pdgid] + " s (pdgid=" + str(int(pdgid)) + ") pT Distribution")
     plt.grid(True)
 
-    # print int(pdgid)
-    # print "hardest_pdgid_" + str(int(pdgid)) + "_pt_distribution"
     plt.savefig("plots/hardest_pdgid_" + str(int(pdgid)) + "_pt_distribution")
     plt.show()
 
-  
+
+def plot_pdgid_zg():
+  pT_lower_cut = 153
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+
+  pdgid_map = { 1: "d", 130: "$K^0_L$ Meson", 11: "$e^-$", -211: "$\pi^-$", 13: "$\mu^-$", 211: "$\pi^+$", -11: "$e^+$", 22: "$\gamma$", 2: "u", -13: "$\mu^+$" }
+
+  labels = ['$z_{cut}$ = 0.05', '$z_{cut}$ = 0.1', '$z_{cut}$ = 0.2']
+
+  pdgids = properties['hardest_pfc_pdgid']
+  zg_05s = properties['zg_05']
+  zg_1s = properties['zg_1']
+  zg_2s = properties['zg_2']
+  prescales = properties['prescales']
+
+  pdgid_zg_05s = defaultdict(list)
+  pdgid_zg_1s = defaultdict(list)
+  pdgid_zg_2s = defaultdict(list)
+
+  pdgid_prescales = defaultdict(list)
+
+  for i in range(0, len(pdgids)):
+    pdgid_zg_05s[pdgids[i]].append(zg_05s[i])
+    pdgid_zg_1s[pdgids[i]].append(zg_1s[i])
+    pdgid_zg_2s[pdgids[i]].append(zg_2s[i])
+
+    pdgid_prescales[pdgids[i]].append(prescales[i])
 
 
-# plot_pts()
-# plot_zg()
-# plot_dr()
-# plot_mu()
+  for pdgid in pdgid_zg_05s:
+    plt.hist(np.array(pdgid_zg_05s[pdgid]), 100, normed=1, label=labels[0], weights=pdgid_prescales[pdgid], log=1, histtype='step')
+    plt.hist(np.array(pdgid_zg_1s[pdgid]), 100, normed=1, label=labels[1], weights=pdgid_prescales[pdgid], log=1, histtype='step')
+    plt.hist(np.array(pdgid_zg_2s[pdgid]), 100, normed=1, label=labels[2], weights=pdgid_prescales[pdgid], log=1, histtype='step')
+
+    plt.autoscale(True)
+
+    plt.legend()
+    plt.xlabel('Symmetery Measure (z)')
+    plt.suptitle("Hardest " + pdgid_map[pdgid] + " s (pdgid=" + str(int(pdgid)) + ") Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
+    plt.grid(True)
+
+    plt.savefig("plots/hardest_pdgid_" + str(int(pdgid)) + "_zg_distribution")
+    plt.show()
+
+
+
+plot_pts()
+plot_zg()
+plot_dr()
+plot_mu()
 
 plot_pdgid_pt()
+
+plot_pdgid_zg()
