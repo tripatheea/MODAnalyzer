@@ -15,7 +15,7 @@ def parse_file(input_file, pT_lower_cut = 0.00):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
 
-  # Hardest_pT Corr_Hardest_pT Prescale Trigger_Name zg_05 zg_1 zg_2
+  # Hardest_pT Corr_Hardest_pT Prescale Trigger_Name zg_05 dr_05 mu_05 zg_1 dr_1 mu_1 zg_2 dr_2 mu_2
   
   properties = defaultdict(list)
 
@@ -30,8 +30,14 @@ def parse_file(input_file, pT_lower_cut = 0.00):
           properties['prescales'].append( int( numbers[5] ) )
           properties['trigger_names'].append(  numbers[6] )
           properties['zg_05'].append( float( numbers[7] ) )
-          properties['zg_1'].append( float( numbers[8] ) )
-          properties['zg_2'].append( float( numbers[9] ) )
+          properties['dr_05'].append( float( numbers[8] ) )
+          properties['mu_05'].append( float( numbers[9] ) )
+          properties['zg_1'].append( float( numbers[10] ) )
+          properties['dr_1'].append( float( numbers[11] ) )
+          properties['mu_1'].append( float( numbers[12] ) )
+          properties['zg_2'].append( float( numbers[13] ) )
+          properties['dr_2'].append( float( numbers[14] ) )
+          properties['mu_2'].append( float( numbers[15] ) )
 
     except:
       pass
@@ -78,14 +84,58 @@ def plot_zg():
   plt.xlim(0, 0.6)
 
   plt.legend()
-  plt.xlabel('$z_g$')
+  plt.xlabel('Symmetry Measure(z)')
   plt.grid(True)
 
   plt.show()
 
+def plot_dr():
+  properties = parse_file(input_analysis_file, pT_lower_cut = 153)
 
+  drs = [properties['dr_05'], properties['dr_1'], properties['dr_2']]
+  prescales = properties['prescales']
 
+  colors = ['red', 'blue', 'green']
+  labels = ['0.05', '0.1', '0.2']
 
-plot_pts()
+  i = 0
+  for dr in drs:
+    plt.hist(np.array(dr), 200, normed=1, label=labels[i], weights=prescales, facecolor=colors[i], histtype='step')
+    i += 1
 
+  plt.autoscale(True)
+  plt.xlim(0, 0.5)
+
+  plt.legend()
+  plt.xlabel('$\Delta$R between Subjets')
+  plt.grid(True)
+
+  plt.show()
+
+def plot_mu():
+  properties = parse_file(input_analysis_file, pT_lower_cut = 153)
+
+  mus = [properties['mu_05'], properties['mu_1'], properties['mu_2']]
+  prescales = properties['prescales']
+
+  colors = ['red', 'blue', 'green']
+  labels = ['0.05', '0.1', '0.2']
+
+  i = 0
+  for mu in mus:
+    plt.hist(np.array(mu), 200, normed=1, label=labels[i], weights=prescales, facecolor=colors[i], histtype='step')
+    i += 1
+
+  plt.autoscale(True)
+  plt.xlim(-0.01, 1)
+
+  plt.legend()
+  plt.xlabel('Mass Drop($\mu$)')
+  plt.grid(True)
+
+  plt.show()
+
+# plot_pts()
 plot_zg()
+plot_dr()
+plot_mu()

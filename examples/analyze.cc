@@ -120,22 +120,42 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
       SoftDrop soft_drop(beta, 0.05);
       PseudoJet soft_drop_jet = soft_drop(hardest_jet);
       double zg_05 = soft_drop_jet.structure_of<SoftDrop>().symmetry();
+      double dr_05 = soft_drop_jet.structure_of<SoftDrop>().delta_R();
+      double mu_05 = soft_drop_jet.structure_of<SoftDrop>().mu();
       properties.push_back(MOD::Property("zg_05", zg_05));
+      properties.push_back(MOD::Property("dr_05", dr_05));
+      properties.push_back(MOD::Property("mu_05", mu_05));
 
       SoftDrop soft_drop_1(beta, 0.1);
       PseudoJet soft_drop_jet_1 = soft_drop_1(hardest_jet);
       double zg_1 = soft_drop_jet_1.structure_of<SoftDrop>().symmetry();
+      double dr_1 = soft_drop_jet_1.structure_of<SoftDrop>().delta_R();
+      double mu_1 = soft_drop_jet_1.structure_of<SoftDrop>().mu();
       properties.push_back(MOD::Property("zg_1", zg_1));  
+      properties.push_back(MOD::Property("dr_1", dr_1));  
+      properties.push_back(MOD::Property("mu_1", mu_1));  
 
       SoftDrop soft_drop_2(beta, 0.2);
       PseudoJet soft_drop_jet_2 = soft_drop_2(hardest_jet);
       double zg_2 = soft_drop_jet_2.structure_of<SoftDrop>().symmetry();
+      double dr_2 = soft_drop_jet_2.structure_of<SoftDrop>().delta_R();
+      double mu_2 = soft_drop_jet_2.structure_of<SoftDrop>().mu();
       properties.push_back(MOD::Property("zg_2", zg_2));  
+      properties.push_back(MOD::Property("dr_2", dr_2));  
+      properties.push_back(MOD::Property("mu_2", mu_2));  
    }
    else {
       properties.push_back(MOD::Property("zg_05", 0.0));      
       properties.push_back(MOD::Property("zg_1", 0.0));      
-      properties.push_back(MOD::Property("zg_2", 0.0));      
+      properties.push_back(MOD::Property("zg_2", 0.0));  
+
+      properties.push_back(MOD::Property("dr_05", 0.0));      
+      properties.push_back(MOD::Property("dr_1", 0.0));      
+      properties.push_back(MOD::Property("dr_2", 0.0));        
+
+      properties.push_back(MOD::Property("mu_05", 0.0));      
+      properties.push_back(MOD::Property("mu_1", 0.0));      
+      properties.push_back(MOD::Property("mu_2", 0.0));  
    }
 
 
