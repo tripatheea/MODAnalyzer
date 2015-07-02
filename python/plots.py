@@ -53,27 +53,34 @@ def plot_pts():
   corrected_pTs = properties['corrected_hardest_pts']
   prescales = properties['prescales']
 
-  plt.hist(np.array(pTs), 500, normed=1, label="Uncorrected", weights=prescales, log=1, histtype='step', color='blue') 
-  plt.hist(np.array(corrected_pTs), 500, normed=1, label="Corrected", weights=prescales, log=1, histtype='step', color='red') 
+  err = np.exp(- np.array(prescales))
+
+
+  plt.hist(np.array(pTs), 1000, normed=1, label="Uncorrected", weights=prescales, log=1, histtype='step', color='blue') 
+  plt.hist(np.array(corrected_pTs), 1000, normed=1, label="Corrected", weights=prescales, log=1, histtype='step', color='red') 
+
 
   plt.autoscale(True)
-  plt.xlim(0, 2000)
+  plt.xlim(0, 1000)
 
   plt.legend()
   plt.xlabel('$p_T$ (GeV)')
+  plt.suptitle("$p_T$ (GeV) Spectrum of anti-kT Jets (R = 0.5)")
   plt.grid(True)
 
+  plt.savefig("plots/ak5_pt_distribution.pdf")
   plt.show()
 
 
 def plot_zg():
-  properties = parse_file(input_analysis_file, pT_lower_cut = 153)
+  pT_lower_cut = 153
+  properties = parse_file(input_analysis_file, pT_lower_cut)
 
   zgs = [properties['zg_05'], properties['zg_1'], properties['zg_2']]
   prescales = properties['prescales']
 
   colors = ['red', 'blue', 'green']
-  labels = ['0.05', '0.1', '0.2']
+  labels = ['$z_{cut}$ = 0.05', '$z_{cut}$ = 0.1', '$z_{cut}$ = 0.2']
 
   i = 0
   for zg in zgs:
@@ -81,22 +88,25 @@ def plot_zg():
     i += 1
 
   plt.autoscale(True)
-  plt.xlim(0, 0.6)
+  plt.xlim(0.01, 0.5)
 
   plt.legend()
-  plt.xlabel('Symmetry Measure(z)')
+  plt.xlabel("Symmetry Measure(z)")
+  plt.suptitle("Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
   plt.grid(True)
 
+  plt.savefig("plots/zg_distribution.pdf")
   plt.show()
 
 def plot_dr():
-  properties = parse_file(input_analysis_file, pT_lower_cut = 153)
+  pT_lower_cut = 153
+  properties = parse_file(input_analysis_file, pT_lower_cut)
 
   drs = [properties['dr_05'], properties['dr_1'], properties['dr_2']]
   prescales = properties['prescales']
 
   colors = ['red', 'blue', 'green']
-  labels = ['0.05', '0.1', '0.2']
+  labels = ['$z_{cut}$ = 0.05', '$z_{cut}$ = 0.1', '$z_{cut}$ = 0.2']
 
   i = 0
   for dr in drs:
@@ -104,22 +114,25 @@ def plot_dr():
     i += 1
 
   plt.autoscale(True)
-  plt.xlim(0, 0.5)
+  plt.xlim(0.00, 0.5)
 
   plt.legend()
-  plt.xlabel('$\Delta$R between Subjets')
+  plt.xlabel("$\Delta$R between Subjets")
+  plt.suptitle("$\Delta$R between Subjets with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
   plt.grid(True)
 
+  plt.savefig("plots/delta_r_distribution.pdf")
   plt.show()
 
 def plot_mu():
-  properties = parse_file(input_analysis_file, pT_lower_cut = 153)
+  pT_lower_cut = 153
+  properties = parse_file(input_analysis_file, pT_lower_cut)
 
   mus = [properties['mu_05'], properties['mu_1'], properties['mu_2']]
   prescales = properties['prescales']
 
   colors = ['red', 'blue', 'green']
-  labels = ['0.05', '0.1', '0.2']
+  labels = ['$z_{cut}$ = 0.05', '$z_{cut}$ = 0.1', '$z_{cut}$ = 0.2']
 
   i = 0
   for mu in mus:
@@ -127,15 +140,17 @@ def plot_mu():
     i += 1
 
   plt.autoscale(True)
-  plt.xlim(-0.01, 1)
+  plt.xlim(0.00, 1)
 
   plt.legend()
-  plt.xlabel('Mass Drop($\mu$)')
+  plt.xlabel("Mass Drop($\mu$)")
+  plt.suptitle("Mass Drop($\mu$) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
   plt.grid(True)
 
+  plt.savefig("plots/mass_drop_distribution.pdf")
   plt.show()
 
-# plot_pts()
+plot_pts()
 plot_zg()
 plot_dr()
 plot_mu()

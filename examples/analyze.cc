@@ -93,7 +93,6 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back(MOD::Property("Event_Number", event_being_read.event_number()));
    properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
    
-   
 
    MOD::CalibratedJet hardest_jet = event_being_read.hardest_jet();
    PseudoJet corrected_hardest_pseudojet = hardest_jet.pseudojet() * hardest_jet.JEC();
