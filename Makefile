@@ -24,7 +24,7 @@ _OBJ =calibrated_jet event fractional_jet_multiplicity pfcandidate trigger prope
 OBJ  =$(patsubst %,$(OBJDIR)/%,$(_OBJ:=.o))
 
 
-_EXEC=skim analyze validate plots
+_EXEC=skim analyze validate
 EXEC=$(patsubst %,$(EXECDIR)/%,$(_EXEC:=.o))
 BIN=$(patsubst %,$(BINDIR)/%,$(_EXEC))
 
@@ -32,13 +32,13 @@ BIN=$(patsubst %,$(BINDIR)/%,$(_EXEC))
 all: $(BIN)
 
 $(OBJDIR)/%.o : $(OBJDIR)/%.cc
-	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC) $(ROOTINC)
+	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC)
 
 $(EXECDIR)/%.o : $(EXECDIR)/%.cc
-	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC) $(ROOTINC)
+	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC)
 	
 $(BINDIR)/% : $(EXECDIR)/%.o $(OBJ)
-	$(CXX) $< $(OBJ) -o $@ $(CXXFLAGS) $(FASTLIB) $(ROOTINC)
+	$(CXX) $< $(OBJ) -o $@ $(CXXFLAGS) $(FASTLIB)
 
 .PHONY: clean
 .PRECIOUS: $(OBJ) $(EXEC)

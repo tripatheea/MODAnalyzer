@@ -166,7 +166,8 @@ void corrected_ak5_spectrum() {
   double pt_cut = 50.00;
 
 
-  ifstream infile("/media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/analyzed.dat");
+  // ifstream infile("/media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/analyzed.dat");
+  ifstream infile("~/analyzed.dat");
 
   TFile * rootFile_;
   TTree * multiplicityTree_;

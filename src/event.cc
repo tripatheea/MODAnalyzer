@@ -256,25 +256,41 @@ void MOD::Event::set_assigned_trigger() {
 
    // Next, lookup which trigger to use based on the pt value of the hardest jet.
 
+   
    string trigger_to_use;
+   string trigger;
+
    if (hardest_pt_value > 153) {
-      trigger_to_use = "HLT_Jet70U";
+      trigger = "HLT_Jet70U";
    }
    else if (hardest_pt_value > 114) {
-      trigger_to_use = "HLT_Jet50U";
+      trigger = "HLT_Jet50U";
    }
    else if (hardest_pt_value > 84) {
-      trigger_to_use = "HLT_Jet30U";
+      trigger = "HLT_Jet30U";
    }
    else if (hardest_pt_value > 56) {
-      trigger_to_use = "HLT_Jet15U";
+      trigger = "HLT_Jet15U";
    }
    else if (hardest_pt_value > 37) {
-      trigger_to_use = "HLT_L1Jet6U";
+      trigger = "HLT_L1Jet6U";
    }
-   else {
-      trigger_to_use = "HLT_MinBiasPixel_SingleTrack";
+
+   // Since there are multiple trigger versions, keep trying until you find the right one.
+
+   if ( trigger_by_name(trigger).is_valid()) {
+      trigger_to_use = trigger;
    }
+   else if (trigger_by_name(trigger + "_v1").is_valid()) {
+      trigger_to_use = trigger + "_v1";
+   }
+   else if (trigger_by_name(trigger + "_v2").is_valid()) {
+      trigger_to_use = trigger + "_v2";
+   }
+   else if (trigger_by_name(trigger + "_v3").is_valid()) {
+      trigger_to_use = trigger + "_v3";
+   }
+
 
 
    _assigned_trigger_name = trigger_to_use;
