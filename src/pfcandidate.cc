@@ -50,6 +50,12 @@ string MOD::PFCandidate::make_header_string() const {
    return ss.str();
 }
 
+bool MOD::PFCandidate::operator < (const MOD::PFCandidate& j1) const {
+  if (pseudojet().pt() > j1.pseudojet().pt())
+    return true;
+  return false;
+}
+
 namespace MOD {
    ostream& operator<< (ostream& os, const PFCandidate& particle) {
       os << particle.make_string();

@@ -25,6 +25,8 @@ namespace MOD {
 
          friend std::ostream& operator<< (std::ostream&, const PFCandidate&);
 
+         bool operator<(const PFCandidate& rhs) const;
+
       private:
          fastjet::PseudoJet _pseudojet;
          int _pdgId; 

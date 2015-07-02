@@ -157,6 +157,8 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
       properties.push_back(MOD::Property("mu_2", 0.0));  
    }
 
+   properties.push_back(MOD::Property("Hardest_PFC_pdgId", event_being_read.hardest_pfcandidate().pdgId()));
+   properties.push_back(MOD::Property("Hardest_PFC_pT", event_being_read.hardest_pfcandidate().pseudojet().pt()));
 
    string name;
    

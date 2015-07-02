@@ -69,7 +69,7 @@ namespace MOD {
             MOD::CalibratedJet hardest_jet();
 
 
-
+            MOD::PFCandidate hardest_pfcandidate();
 
 
 

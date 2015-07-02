@@ -3,13 +3,10 @@
 bin/*
 !bin/*.txt
 ./data
+./plots
 *.d
 *.pcm
 *.so
 *.o
-<<<<<<< HEAD
 *.pdf
 *.mod
-=======
-*.pdf
->>>>>>> fb4fa903be032715b1351db53399a0357c1f7cf4

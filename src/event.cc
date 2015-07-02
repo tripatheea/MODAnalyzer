@@ -327,7 +327,7 @@ MOD::CalibratedJet MOD::Event::hardest_jet() {
    vector<MOD::CalibratedJet> cms_jets = _calibrated_jets;
    
    if (cms_jets.size() > 0) {
-      // Sort by pt.
+      // Sort by pT.
       sort(cms_jets.begin(), cms_jets.end());
 
       // Return the first element.
@@ -335,6 +335,22 @@ MOD::CalibratedJet MOD::Event::hardest_jet() {
    }
    else {
       throw runtime_error("No jet found!");
+   }
+}
+
+MOD::PFCandidate MOD::Event::hardest_pfcandidate() {
+   // Get PFCandidates.
+   vector<MOD::PFCandidate> particles = _particles;
+
+   if (particles.size() > 0) {
+      // Sort by pT.
+      sort(particles.begin(), particles.end());
+
+      // Return the first PFCandidate.
+      return particles[0];
+   }
+   else {
+      throw runtime_error("No PFCandidate found!");
    }
 }
 

@@ -38,6 +38,8 @@ def parse_file(input_file, pT_lower_cut = 0.00):
           properties['zg_2'].append( float( numbers[13] ) )
           properties['dr_2'].append( float( numbers[14] ) )
           properties['mu_2'].append( float( numbers[15] ) )
+          properties['hardest_pfc_pdgid'].append( float( numbers[16] ) )
+          properties['hardest_pfc_pt'].append( float( numbers[17] ) )
 
     except:
       pass
@@ -150,7 +152,44 @@ def plot_mu():
   plt.savefig("plots/mass_drop_distribution.pdf")
   plt.show()
 
-plot_pts()
-plot_zg()
-plot_dr()
-plot_mu()
+
+
+def plot_pdgid_pt():
+  properties = parse_file(input_analysis_file)
+  pdgid_map = { 1: "d", 130: "$K^0_L$ Meson", 11: "$e^-$", -211: "$\pi^-$", 13: "$\mu^-$", 211: "$\pi^+$", -11: "$e^+$", 22: "$\gamma$", 2: "u", -13: "$\mu^+$" }
+
+  pdgids = properties['hardest_pfc_pdgid']
+  pTs = properties['hardest_pfc_pt']
+  prescales = properties['prescales']
+
+  pdgid_pts = defaultdict(list)
+  pdgid_prescales = defaultdict(list)
+
+  for i in range(0, len(pdgids)):
+    pdgid_pts[pdgids[i]].append(pTs[i])
+    pdgid_prescales[pdgids[i]].append(prescales[i])
+
+
+  for pdgid in pdgid_pts:
+    plt.hist(np.array(pdgid_pts[pdgid]), 100, normed=1, label="pdgId = " + str(pdgid), weights=pdgid_prescales[pdgid], log=1, histtype='step')
+
+    plt.autoscale(True)
+
+    plt.xlabel('$p_{T}$ GeV')
+    plt.suptitle("Hardest " + pdgid_map[pdgid] + "'s (pdgid=" + str(int(pdgid)) + ") pT Distribution")
+    plt.grid(True)
+
+    # print int(pdgid)
+    # print "hardest_pdgid_" + str(int(pdgid)) + "_pt_distribution"
+    plt.savefig("plots/hardest_pdgid_" + str(int(pdgid)) + "_pt_distribution")
+    plt.show()
+
+  
+
+
+# plot_pts()
+# plot_zg()
+# plot_dr()
+# plot_mu()
+
+plot_pdgid_pt()
