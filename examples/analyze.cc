@@ -94,11 +94,13 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
    
 
-   MOD::CalibratedJet hardest_jet = event_being_read.hardest_jet();
-   PseudoJet corrected_hardest_pseudojet = hardest_jet.pseudojet() * hardest_jet.JEC();
+   MOD::CalibratedJet hardest_corrected_jet = event_being_read.hardest_corrected_jet();
+   MOD::CalibratedJet hardest_uncorrected_jet = event_being_read.hardest_uncorrected_jet();
 
-   properties.push_back(MOD::Property("Hardest_pT", hardest_jet.pseudojet().pt()));
-   properties.push_back(MOD::Property("Corr_Hardest_pT", corrected_hardest_pseudojet.pt()));
+   // PseudoJet corrected_hardest_pseudojet = hardest_jet.pseudojet() * hardest_jet.JEC();
+
+   properties.push_back(MOD::Property("Uncor_Hardest_pT", hardest_uncorrected_jet.pseudojet().pt()));
+   properties.push_back(MOD::Property("Cor_Hardest_pT", hardest_corrected_jet.pseudojet().pt()));
 
    properties.push_back(MOD::Property("Prescale", event_being_read.assigned_trigger_prescale()));
    properties.push_back(MOD::Property("Trigger_Name", event_being_read.assigned_trigger_name()));
@@ -144,17 +146,18 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
       properties.push_back(MOD::Property("mu_2", mu_2));  
    }
    else {
-      properties.push_back(MOD::Property("zg_05", 0.0));      
-      properties.push_back(MOD::Property("zg_1", 0.0));      
-      properties.push_back(MOD::Property("zg_2", 0.0));  
 
-      properties.push_back(MOD::Property("dr_05", 0.0));      
-      properties.push_back(MOD::Property("dr_1", 0.0));      
-      properties.push_back(MOD::Property("dr_2", 0.0));        
+      properties.push_back(MOD::Property("zg_05", -1.00));      
+      properties.push_back(MOD::Property("zg_1", -1.00));      
+      properties.push_back(MOD::Property("zg_2", -1.00));  
 
-      properties.push_back(MOD::Property("mu_05", 0.0));      
-      properties.push_back(MOD::Property("mu_1", 0.0));      
-      properties.push_back(MOD::Property("mu_2", 0.0));  
+      properties.push_back(MOD::Property("dr_05", -1.00));      
+      properties.push_back(MOD::Property("dr_1", -1.00));      
+      properties.push_back(MOD::Property("dr_2", -1.00));        
+
+      properties.push_back(MOD::Property("mu_05", -1.00));      
+      properties.push_back(MOD::Property("mu_1", -1.00));      
+      properties.push_back(MOD::Property("mu_2", -1.00));  
    }
 
    properties.push_back(MOD::Property("Hardest_PFC_pdgId", event_being_read.hardest_pfcandidate().pdgId()));

@@ -93,7 +93,7 @@ bool jets_match(MOD::Event & event_being_read) {
    double pt_cut = 3.00;
    double cone_radius = 0.5;
    
-   vector<PseudoJet> cms_jets = event_being_read.calibrated_pseudojets();
+   vector<PseudoJet> cms_jets = event_being_read.uncorrected_calibrated_pseudojets();
    vector<PseudoJet> pfcandidates = event_being_read.pseudojets();
 
    // Cluster the pfcandidates using Fastjet.

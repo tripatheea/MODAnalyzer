@@ -11,7 +11,7 @@ input_analysis_file = sys.argv[1]
 
 
 
-def parse_file(input_file, pT_lower_cut = 0.00):
+def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
 
@@ -24,7 +24,7 @@ def parse_file(input_file, pT_lower_cut = 0.00):
       numbers = line.split()
       
       if not numbers[0] == "#":
-        if float(numbers[3]) > pT_lower_cut:
+        if (float(numbers[3]) > pT_lower_cut) and (float(numbers[17]) > pfc_pT_cut):
           properties['uncorrected_hardest_pts'].append( float( numbers[3] ) )
           properties['corrected_hardest_pts'].append( float( numbers[4] ) )
           properties['prescales'].append( int( numbers[5] ) )
@@ -75,8 +75,9 @@ def plot_pts():
 
 
 def plot_zg():
-  pT_lower_cut = 153
-  properties = parse_file(input_analysis_file, pT_lower_cut)
+  pT_lower_cut = 150
+  pfc_pT_cut = 50
+  properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
 
   zgs = [properties['zg_05'], properties['zg_1'], properties['zg_2']]
   prescales = properties['prescales']
@@ -90,7 +91,7 @@ def plot_zg():
     i += 1
 
   plt.autoscale(True)
-  plt.xlim(0.01, 0.5)
+  # plt.xlim(0.01, 0.5)
 
   plt.legend()
   plt.xlabel("Symmetry Measure(z)")
@@ -116,7 +117,7 @@ def plot_dr():
     i += 1
 
   plt.autoscale(True)
-  plt.xlim(0.00, 0.5)
+  # plt.xlim(0.0, 0.5)
 
   plt.legend()
   plt.xlabel("$\Delta$R between Subjets")
@@ -179,7 +180,7 @@ def plot_pdgid_pt():
     plt.suptitle("Hardest " + pdgid_map[pdgid] + " s (pdgid=" + str(int(pdgid)) + ") pT Distribution")
     plt.grid(True)
 
-    plt.savefig("plots/hardest_pdgid_" + str(int(pdgid)) + "_pt_distribution")
+    plt.savefig("plots/hardest_pdgid_" + str(int(pdgid)) + "_pt_distribution.pdf")
     plt.show()
 
 
@@ -223,16 +224,92 @@ def plot_pdgid_zg():
     plt.suptitle("Hardest " + pdgid_map[pdgid] + " s (pdgid=" + str(int(pdgid)) + ") Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
     plt.grid(True)
 
-    plt.savefig("plots/hardest_pdgid_" + str(int(pdgid)) + "_zg_distribution")
+    plt.savefig("plots/hardest_pdgid_" + str(int(pdgid)) + "_zg_distribution.pdf")
     plt.show()
 
 
+def plot_charged_pt():
+  properties = parse_file(input_analysis_file)
+  pdgid_map = { 1: "d", 130: "$K^0_L$ Meson", 11: "$e^-$", -211: "$\pi^-$", 13: "$\mu^-$", 211: "$\pi^+$", -11: "$e^+$", 22: "$\gamma$", 2: "u", -13: "$\mu^+$" }
+
+  pdgids = properties['hardest_pfc_pdgid']
+  pTs = properties['hardest_pfc_pt']
+  prescales = properties['prescales']
+
+  pdgid_pts = []
+  pdgid_prescales = []
+
+  for i in range(0, len(pdgids)):
+    if (pdgids[i] != 1) and (pdgids[i] != 2) and (pdgids[i] != 22):
+      pdgid_pts.append(pTs[i])
+      pdgid_prescales.append(prescales[i])
+
+
+  
+  plt.hist(np.array(pdgid_pts), 100, normed=1, weights=pdgid_prescales, log=1, histtype='step')
+
+  plt.autoscale(True)
+
+  plt.xlabel('$p_{T}$ GeV')
+  plt.suptitle("Hardest Charged pT Distribution")
+  plt.grid(True)
+
+  plt.savefig("plots/hardest_charged_pt_distribution.pdf")
+  plt.show()
+
+
+def plot_charged_zgs():
+  pT_lower_cut = 153
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+
+  pdgids = properties['hardest_pfc_pdgid']
+  zg_05s = properties['zg_05']
+  zg_1s = properties['zg_1']
+  zg_2s = properties['zg_2']
+  prescales = properties['prescales']
+
+  pdgid_zgs = [[], [], []]
+
+  pdgid_prescales = []
+
+  for i in range(0, len(pdgids)):
+    if (pdgids[i] != 1) and (pdgids[i] != 2) and (pdgids[i] != 22):
+      pdgid_zgs[0].append(zg_05s[i])
+      pdgid_zgs[1].append(zg_1s[i])
+      pdgid_zgs[2].append(zg_2s[i])
+
+      pdgid_prescales.append(prescales[i])
+
+
+  colors = ['red', 'blue', 'green']
+  labels = ['$z_{cut}$ = 0.05', '$z_{cut}$ = 0.1', '$z_{cut}$ = 0.2']
+
+  i = 0
+  for zg in pdgid_zgs:
+    plt.hist(np.array(zg), 100, normed=1, label=labels[i], weights=pdgid_prescales, facecolor=colors[i], histtype='step')
+    i += 1
+
+  plt.autoscale(True)
+  plt.xlim(0.01, 0.5)
+
+  plt.legend()
+  plt.xlabel("Symmetry Measure(z)")
+  plt.suptitle("Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV for charged PFCs")
+  plt.grid(True)
+
+  plt.savefig("plots/zg_distribution_charged.pdf")
+  plt.show()
+
 
 plot_pts()
-plot_zg()
-plot_dr()
-plot_mu()
+# plot_zg()
+# plot_dr()
+# plot_mu()
 
-plot_pdgid_pt()
+# plot_pdgid_pt()
 
-plot_pdgid_zg()
+# plot_pdgid_zg()
+
+# plot_charged_pt()
+
+# plot_charged_zgs()
