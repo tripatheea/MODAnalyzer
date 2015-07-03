@@ -3,9 +3,14 @@
 import sys
 from collections import defaultdict
 
+# matplotlib
 import numpy as np
 import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
+
+# RootPy
+from rootpy.plotting import Hist, HistStack, Legend, Canvas
+import rootpy.plotting.root2matplotlib as rplt
 
 input_analysis_file = sys.argv[1]
 
@@ -55,15 +60,22 @@ def plot_pts():
   corrected_pTs = properties['corrected_hardest_pts']
   prescales = properties['prescales']
 
-  err = np.exp(- np.array(prescales))
+  # no. of bins, xlower, xhigher
+  uncorrected_pt_hist = Hist(50, 0, 800, title='Uncorrected', markersize=1.0, color='green')
+  corrected_pt_hist = Hist(50, 0, 800, title='Corrected', markersize=1.0, color='red')
 
+  map(uncorrected_pt_hist.Fill, pTs, prescales)
+  map(corrected_pt_hist.Fill, corrected_pTs, prescales)
 
-  plt.hist(np.array(pTs), 1000, normed=1, label="Uncorrected", weights=prescales, log=1, histtype='step', color='blue') 
-  plt.hist(np.array(corrected_pTs), 1000, normed=1, label="Corrected", weights=prescales, log=1, histtype='step', color='red') 
+  uncorrected_pt_hist.Scale(1.0 / uncorrected_pt_hist.GetSumOfWeights())
+  corrected_pt_hist.Scale(1.0 / corrected_pt_hist.GetSumOfWeights())
 
+  rplt.errorbar(uncorrected_pt_hist, xerr=False, emptybins=False)
+  rplt.errorbar(corrected_pt_hist, xerr=False, emptybins=False)
 
   plt.autoscale(True)
-  plt.xlim(0, 1000)
+   
+  plt.yscale('log')
 
   plt.legend()
   plt.xlabel('$p_T$ (GeV)')
@@ -301,8 +313,8 @@ def plot_charged_zgs():
   plt.show()
 
 
-# plot_pts()
-plot_zg()
+plot_pts()
+# plot_zg()
 # plot_dr()
 # plot_mu()
 

@@ -11,3 +11,4 @@ bin/*
 *.pdf
 *.mod
 *.log
+*.num

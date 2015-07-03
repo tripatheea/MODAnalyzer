@@ -17,8 +17,10 @@ def run_skimmer(input_path, output_file_path, error_log_path):
 
   to_analyze.sort()
 
-  # Remove the error log file first.
-  os.remove(error_log_path + "skim_error_log.log")
+  # Open the error log file to empty it.
+  f = open(error_log_path + "skim_error_log.log", "w")
+  f.write("\n")
+  f.close()
 
   # Create a temporary file to count the total number of events. 
   # We'll delete it at the end.
