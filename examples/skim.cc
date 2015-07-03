@@ -142,7 +142,7 @@ bool jets_match(MOD::Event & event_being_read) {
          cerr << endl << fixed << setprecision(5) << "FastJet: " <<  fastjet_jets[i].px() << "   " << fastjet_jets[i].py() << "   " << fastjet_jets[i].pz() << "   " << fastjet_jets[i].E() << endl;
          cerr         << fixed << setprecision(5) << "CMS:     " << cms_jets[i].px() << "   " << cms_jets[i].py() << "   " << cms_jets[i].pz() << "   " << cms_jets[i].E() << endl;
          
-         if( ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().px() - cms_jets[i].px()) > tolerance ) || ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().py() - cms_jets[i].py()) > tolerance ) || ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().pz() - cms_jets[i].pz()) > tolerance ) || ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().E() - cms_jets[i].E()) > tolerance ) ) {
+         if( ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().px() - cms_jets[i].px()) < tolerance ) || ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().py() - cms_jets[i].py()) < tolerance ) || ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().pz() - cms_jets[i].pz()) < tolerance ) || ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().E() - cms_jets[i].E()) < tolerance ) ) {
             cerr << "This error is with the hardest jet!" << endl;
          }
 
