@@ -9,6 +9,8 @@
 #include <iomanip>
 #include <chrono>
 
+#include <cstdio>
+
 #include "fastjet/ClusterSequence.hh"
 #include "../interface/event.h"
 #include "../interface/fractional_jet_multiplicity.h"
@@ -26,28 +28,35 @@ int main(int argc, char * argv[]) {
 
    int number_of_events_to_process;
 
-   if (argc <= 2) {
-        std::cerr << "ERROR: You need to supply three arguments- first, path to the input data; second, path to the output file; third, number of events to process. The path has to be either absolute or relative to the bin directory:" << std::endl << std::endl << "./filter (input_file.dat) (output_file.dat) [optional Nev]" << std::endl;
+   if (argc <= 3) {
+        std::cerr << "ERROR: You need to supply four arguments- first, path to the input data; second, path to the output file; ; third, path to save the log file to, fourth, number of events to process. The path has to be either absolute or relative to the bin directory:" << std::endl << std::endl << "./filter (input_file.dat) (output_file.dat) [optional Nev]" << std::endl;
         return 1;
    }
-   else if (argc == 3) {
-      // Third argument is missing, process everything.
+   else if (argc == 4) {
+      // Fourth argument is missing, process everything.
       number_of_events_to_process = std::numeric_limits<int>::max();
    }
    else {
-      // Third argument gives the number of events to process.
-      number_of_events_to_process = stoi(argv[3]);
+      // Fourth argument gives the number of events to process.
+      number_of_events_to_process = stoi(argv[4]);
    }
+
+   ofstream log_stream(argv[3], ios::out | ios::app );
+   ofstream num_stream( std::string(argv[3]) + ".num", ios::out | ios::app );
+
+   // connect stream buffers
+   std::streambuf *cerrbuf = std::cerr.rdbuf();
+   std::cerr.rdbuf(log_stream.rdbuf () );
 
    cout << argv[2] << endl;
    ifstream data_file(argv[1]);
    ofstream output_file(argv[2], ios::out | ios::app );
    
-   cout << endl << endl << "Starting filtration with the following given arguments: " << endl;
+   cout << endl << endl << "Starting skimming with the following given arguments: " << endl;
    cout << "Input file: " << argv[1] << endl;
    cout << "Output file: " << argv[2] << endl;
    cout << "Number of events: ";
-   if(argc == 3)
+   if(argc == 4)
       cout << "ALL" << endl << endl;
    else
       cout << number_of_events_to_process << endl << endl;
@@ -66,7 +75,7 @@ int main(int argc, char * argv[]) {
       
       if( ! jets_match(event_being_read)) {
          events_with_mismatched_jets++;
-         cout << "AK5 Jets don't match for event: " << event_being_read.event_number() << endl << endl;
+         cerr << "AK5 Jets don't match for event number: " << event_being_read.event_number() << " run number: " << event_being_read.run_number() << " in file: " << argv[1] << endl;
       }
 
       event_being_read = MOD::Event();
@@ -79,7 +88,14 @@ int main(int argc, char * argv[]) {
    double elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double> >(finish - start).count();
 
    cout << "Finished skimming " << (event_serial_number - 1) << " events in " << elapsed_seconds << " seconds!" << endl << endl;
-   
+
+   // Write number of events processed to the num stream so that we can sum it up later.
+   num_stream << (event_serial_number - 1) << endl;
+
+   // restore
+   std::cout.flush ();
+   std::cout.rdbuf(cerrbuf);
+
 }
 
 
@@ -104,7 +120,7 @@ bool jets_match(MOD::Event & event_being_read) {
 
    // Compare the number of jets first.
    if (cms_jets.size() != fastjet_jets.size()) {
-      cout << "Different jet size for CMS vs. FastJet; " << cms_jets.size() << " vs " << fastjet_jets.size() << "." << endl;
+      cerr << endl << "Different jet size for CMS vs. FastJet; " << cms_jets.size() << " vs " << fastjet_jets.size() << "." << endl;
       return false;
    }
 
@@ -123,9 +139,13 @@ bool jets_match(MOD::Event & event_being_read) {
       
       if ( ( abs(fastjet_jets[i].px() - cms_jets[i].px()) > tolerance ) || ( abs(fastjet_jets[i].py() - cms_jets[i].py()) > tolerance ) || ( abs(fastjet_jets[i].pz() - cms_jets[i].pz()) > tolerance ) || ( abs(fastjet_jets[i].E() - cms_jets[i].E()) > tolerance ) ) {
          
-         cout << fixed << setprecision(5) << "FastJet: " <<  fastjet_jets[i].px() << "   " << fastjet_jets[i].py() << "   " << fastjet_jets[i].pz() << "   " << fastjet_jets[i].E() << endl;
-         cout << fixed << setprecision(5) << "CMS:     " << cms_jets[i].px() << "   " << cms_jets[i].py() << "   " << cms_jets[i].pz() << "   " << cms_jets[i].E() << endl << endl;
+         cerr << endl << fixed << setprecision(5) << "FastJet: " <<  fastjet_jets[i].px() << "   " << fastjet_jets[i].py() << "   " << fastjet_jets[i].pz() << "   " << fastjet_jets[i].E() << endl;
+         cerr         << fixed << setprecision(5) << "CMS:     " << cms_jets[i].px() << "   " << cms_jets[i].py() << "   " << cms_jets[i].pz() << "   " << cms_jets[i].E() << endl;
          
+         if( ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().px() - cms_jets[i].px()) > tolerance ) || ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().py() - cms_jets[i].py()) > tolerance ) || ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().pz() - cms_jets[i].pz()) > tolerance ) || ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().E() - cms_jets[i].E()) > tolerance ) ) {
+            cerr << "This error is with the hardest jet!" << endl;
+         }
+
          return false;
 
       }
