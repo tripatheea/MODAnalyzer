@@ -58,8 +58,9 @@ int main(int argc, char * argv[]) {
    int events_with_mismatched_jets = 0;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
 
-      if( (event_serial_number % 100) == 0 )
+      if( (event_serial_number % 1000) == 0 ) {
          cout << "Skimming event number " << event_serial_number << endl;
+      }
 
       skim(event_being_read, output_file);
       
@@ -72,7 +73,7 @@ int main(int argc, char * argv[]) {
       event_serial_number++;
    }
 
-   cout << events_with_mismatched_jets << " events have mismatched AK5 jets!" << endl;
+   // cout << events_with_mismatched_jets << " events have mismatched AK5 jets!" << endl;
 
    auto finish = std::chrono::steady_clock::now();
    double elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double> >(finish - start).count();

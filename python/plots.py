@@ -75,8 +75,8 @@ def plot_pts():
 
 
 def plot_zg():
-  pT_lower_cut = 150
-  pfc_pT_cut = 50
+  pT_lower_cut = 153
+  pfc_pT_cut = 0
   properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
 
   zgs = [properties['zg_05'], properties['zg_1'], properties['zg_2']]
@@ -301,8 +301,8 @@ def plot_charged_zgs():
   plt.show()
 
 
-plot_pts()
-# plot_zg()
+# plot_pts()
+plot_zg()
 # plot_dr()
 # plot_mu()
 
