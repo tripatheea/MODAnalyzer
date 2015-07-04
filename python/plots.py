@@ -51,7 +51,22 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
 
   return properties
     
+def parse_theory_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
+  f = open(input_file, 'r')
+  lines = f.read().split("\n")
 
+  properties = defaultdict(list)
+
+  for line in lines:
+    try:
+      numbers = line.split()
+      properties['zg_05'].append( float( numbers[0] ) )
+      properties['zg_1'].append( float( numbers[1] ) )
+      properties['zg_2'].append( float( numbers[2] ) )
+    except:
+      pass
+  
+  return properties
 
 def plot_pts():
   properties = parse_file(input_analysis_file)
@@ -87,34 +102,55 @@ def plot_pts():
 
 
 def plot_zg():
-  pT_lower_cut = 153
+  pT_lower_cut = 150
   pfc_pT_cut = 0
   properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
+  properties_th = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
 
   zgs = [properties['zg_05'], properties['zg_1'], properties['zg_2']]
+  
+  zg_ths = [properties_th['zg_05'], properties_th['zg_1'], properties_th['zg_2']]
+
   prescales = properties['prescales']
 
   colors = ['red', 'blue', 'green']
-  labels = ['$z_{cut}$ = 0.05', '$z_{cut}$ = 0.1', '$z_{cut}$ = 0.2']
+  labels = ['CMS $z_{cut}$ = 0.05', 'CMS $z_{cut}$ = 0.1', 'CMS $z_{cut}$ = 0.2']
+  th_labels = ['Pythia 8 $z_{cut}$ = 0.05', 'Pythia 8 $z_{cut}$ = 0.1', 'Pythia 8 $z_{cut}$ = 0.2']
 
-  i = 0
-  for zg in zgs:
-    plt.hist(np.array(zg), 100, normed=1, label=labels[i], weights=prescales, facecolor=colors[i], histtype='step')
-    i += 1
+
+  
+  for i in range(0, len(zgs)):
+    # no. of bins, xlower, xhigher
+    zg_hist = Hist(50, 0.0, 0.5, title=labels[i], markersize=1.0, color=colors[i])
+
+    map(zg_hist.Fill, zgs[i], prescales)
+    
+    zg_hist.Scale(1.0 / zg_hist.GetSumOfWeights())
+    
+    rplt.errorbar(zg_hist, xerr=False, emptybins=False)
+
+  zg_th_hists = []
+  for j in range(0, len(zg_ths)):
+    zg_th_hist = Hist(50, 0, 0.5, title=th_labels[j], markersize=1.0, color=colors[j])
+
+    map(zg_th_hist.Fill, zg_ths[j])
+
+    zg_th_hist.Scale(1.0 / zg_th_hist.GetSumOfWeights())
+
+    rplt.hist(zg_th_hist)
 
   plt.autoscale(True)
-  # plt.xlim(0.01, 0.5)
 
   plt.legend()
   plt.xlabel("Symmetry Measure(z)")
   plt.suptitle("Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
   plt.grid(True)
 
-  plt.savefig("plots/zg_distribution.pdf")
+  plt.savefig("plots/zg_distribution_pt_cut_" + str(pT_lower_cut) + ".pdf")
   plt.show()
 
 def plot_dr():
-  pT_lower_cut = 153
+  pT_lower_cut = 150
   properties = parse_file(input_analysis_file, pT_lower_cut)
 
   drs = [properties['dr_05'], properties['dr_1'], properties['dr_2']]
@@ -123,10 +159,15 @@ def plot_dr():
   colors = ['red', 'blue', 'green']
   labels = ['$z_{cut}$ = 0.05', '$z_{cut}$ = 0.1', '$z_{cut}$ = 0.2']
 
-  i = 0
-  for dr in drs:
-    plt.hist(np.array(dr), 200, normed=1, label=labels[i], weights=prescales, facecolor=colors[i], histtype='step')
-    i += 1
+  for i in range(0, len(drs)):
+    # no. of bins, xlower, xhigher
+    dr_hist = Hist(50, 0.0, 0.5, title=labels[i], markersize=1.0, color=colors[i])
+
+    map(dr_hist.Fill, drs[i], prescales)
+    
+    dr_hist.Scale(1.0 / dr_hist.GetSumOfWeights())
+    
+    rplt.errorbar(dr_hist, xerr=False, emptybins=False)
 
   plt.autoscale(True)
   # plt.xlim(0.0, 0.5)
@@ -136,11 +177,11 @@ def plot_dr():
   plt.suptitle("$\Delta$R between Subjets with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
   plt.grid(True)
 
-  plt.savefig("plots/delta_r_distribution.pdf")
+  plt.savefig("plots/delta_r_distribution_pt_cut_" + str(pT_lower_cut) + ".pdf")
   plt.show()
 
 def plot_mu():
-  pT_lower_cut = 153
+  pT_lower_cut = 150
   properties = parse_file(input_analysis_file, pT_lower_cut)
 
   mus = [properties['mu_05'], properties['mu_1'], properties['mu_2']]
@@ -149,20 +190,25 @@ def plot_mu():
   colors = ['red', 'blue', 'green']
   labels = ['$z_{cut}$ = 0.05', '$z_{cut}$ = 0.1', '$z_{cut}$ = 0.2']
 
-  i = 0
-  for mu in mus:
-    plt.hist(np.array(mu), 200, normed=1, label=labels[i], weights=prescales, facecolor=colors[i], histtype='step')
-    i += 1
+  for i in range(0, len(mus)):
+    # no. of bins, xlower, xhigher
+    mu_hist = Hist(50, 0, 1.0, title=labels[i], markersize=1.0, color=colors[i])
+
+    map(mu_hist.Fill, mus[i], prescales)
+    
+    mu_hist.Scale(1.0 / mu_hist.GetSumOfWeights())
+    
+    rplt.errorbar(mu_hist, xerr=False, emptybins=False)
 
   plt.autoscale(True)
-  plt.xlim(0.00, 1)
+  # plt.xlim(0.00, 1)
 
   plt.legend()
   plt.xlabel("Mass Drop($\mu$)")
   plt.suptitle("Mass Drop($\mu$) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
   plt.grid(True)
 
-  plt.savefig("plots/mass_drop_distribution.pdf")
+  plt.savefig("plots/mass_drop_distribution_pt_cut_" + str(pT_lower_cut) + ".pdf")
   plt.show()
 
 
@@ -256,7 +302,6 @@ def plot_charged_pt():
       pdgid_pts.append(pTs[i])
       pdgid_prescales.append(prescales[i])
 
-
   
   plt.hist(np.array(pdgid_pts), 100, normed=1, weights=pdgid_prescales, log=1, histtype='step')
 
@@ -271,7 +316,7 @@ def plot_charged_pt():
 
 
 def plot_charged_zgs():
-  pT_lower_cut = 153
+  pT_lower_cut = 150
   properties = parse_file(input_analysis_file, pT_lower_cut)
 
   pdgids = properties['hardest_pfc_pdgid']
@@ -296,10 +341,16 @@ def plot_charged_zgs():
   colors = ['red', 'blue', 'green']
   labels = ['$z_{cut}$ = 0.05', '$z_{cut}$ = 0.1', '$z_{cut}$ = 0.2']
 
-  i = 0
-  for zg in pdgid_zgs:
-    plt.hist(np.array(zg), 100, normed=1, label=labels[i], weights=pdgid_prescales, facecolor=colors[i], histtype='step')
-    i += 1
+
+  for i in range(0, len(pdgid_zgs)):
+    # no. of bins, xlower, xhigher
+    zg_hist = Hist(50, 0.0, 0.5, title=labels[i], markersize=1.0, color=colors[i])
+
+    map(zg_hist.Fill, pdgid_zgs[i], pdgid_prescales)
+    
+    zg_hist.Scale(1.0 / zg_hist.GetSumOfWeights())
+    
+    rplt.errorbar(zg_hist, xerr=False, emptybins=False)
 
   plt.autoscale(True)
   plt.xlim(0.01, 0.5)
@@ -309,19 +360,19 @@ def plot_charged_zgs():
   plt.suptitle("Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV for charged PFCs")
   plt.grid(True)
 
-  plt.savefig("plots/zg_distribution_charged.pdf")
+  plt.savefig("plots/zg_distribution_charged_pt_cut_" + str(pT_lower_cut) + ".pdf")
   plt.show()
 
 
-plot_pts()
+# plot_pts()
 # plot_zg()
 # plot_dr()
 # plot_mu()
 
-# plot_pdgid_pt()
+plot_pdgid_pt()
 
-# plot_pdgid_zg()
+plot_pdgid_zg()
 
-# plot_charged_pt()
+plot_charged_pt()
 
 # plot_charged_zgs()
