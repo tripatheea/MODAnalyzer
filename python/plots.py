@@ -46,6 +46,26 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
           properties['hardest_pfc_pdgid'].append( float( numbers[16] ) )
           properties['hardest_pfc_pt'].append( float( numbers[17] ) )
 
+          properties['zg_05_pt_1'].append( float( numbers[18] ) )
+          properties['zg_1_pt_1'].append( float( numbers[19] ) )
+          properties['zg_2_pt_1'].append( float( numbers[20] ) )
+
+          properties['zg_05_pt_2'].append( float( numbers[21] ) )
+          properties['zg_1_pt_2'].append( float( numbers[22] ) )
+          properties['zg_2_pt_2'].append( float( numbers[23] ) )
+
+          properties['zg_05_pt_3'].append( float( numbers[24] ) )
+          properties['zg_1_pt_3'].append( float( numbers[25] ) )
+          properties['zg_2_pt_3'].append( float( numbers[26] ) )
+
+          properties['zg_05_pt_5'].append( float( numbers[27] ) )
+          properties['zg_1_pt_5'].append( float( numbers[28] ) )
+          properties['zg_2_pt_5'].append( float( numbers[29] ) )
+
+          properties['zg_05_pt_10'].append( float( numbers[30] ) )
+          properties['zg_1_pt_10'].append( float( numbers[31] ) )
+          properties['zg_2_pt_10'].append( float( numbers[32] ) )
+
     except:
       pass
 
@@ -116,8 +136,6 @@ def plot_zg():
   colors = ['red', 'blue', 'green']
   labels = ['CMS $z_{cut}$ = 0.05', 'CMS $z_{cut}$ = 0.1', 'CMS $z_{cut}$ = 0.2']
   th_labels = ['Pythia 8 $z_{cut}$ = 0.05', 'Pythia 8 $z_{cut}$ = 0.1', 'Pythia 8 $z_{cut}$ = 0.2']
-
-
   
   for i in range(0, len(zgs)):
     # no. of bins, xlower, xhigher
@@ -148,6 +166,39 @@ def plot_zg():
 
   plt.savefig("plots/zg_distribution_pt_cut_" + str(pT_lower_cut) + ".pdf")
   plt.show()
+
+
+def plot_zg_pfc_pt_cut(pfc_pT_cut):
+  pT_lower_cut = 150
+  properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
+
+  zgs = [properties['zg_05_pt_' + str(int(pfc_pT_cut))], properties['zg_1_pt_' + str(int(pfc_pT_cut))], properties['zg_2_pt_' + str(int(pfc_pT_cut))]]
+
+  prescales = properties['prescales']
+
+  colors = ['red', 'blue', 'green']
+  labels = ['CMS $z_{cut}$ = 0.05', 'CMS $z_{cut}$ = 0.1', 'CMS $z_{cut}$ = 0.2']
+  
+  for i in range(0, len(zgs)):
+    # no. of bins, xlower, xhigher
+    zg_hist = Hist(50, 0.0, 0.5, title=labels[i], markersize=1.0, color=colors[i])
+
+    map(zg_hist.Fill, zgs[i], prescales)
+    
+    zg_hist.Scale(1.0 / zg_hist.GetSumOfWeights())
+    
+    rplt.errorbar(zg_hist, xerr=False, emptybins=False)
+
+  plt.autoscale(True)
+
+  plt.legend()
+  plt.xlabel("Symmetry Measure(z)")
+  plt.suptitle("Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV & PFC $p_{T cut}$ = " + str(pfc_pT_cut) + " GeV")
+  plt.grid(True)
+
+  plt.savefig("plots/zg_distribution_pt_cut_" + str(pT_lower_cut) + "_pfc_pt_cut_" + str(pfc_pT_cut) + ".pdf")
+  plt.show()
+
 
 def plot_dr():
   pT_lower_cut = 150
@@ -230,7 +281,16 @@ def plot_pdgid_pt():
 
 
   for pdgid in pdgid_pts:
-    plt.hist(np.array(pdgid_pts[pdgid]), 100, normed=1, label="pdgId = " + str(pdgid), weights=pdgid_prescales[pdgid], log=1, histtype='step')
+    pdgid_hist = Hist(100, 0, 400, title="pdgId = " + str(pdgid), markersize=1.0, color='blue')
+
+    map(pdgid_hist.Fill, pdgid_pts[pdgid], pdgid_prescales[pdgid])
+
+    if pdgid_hist.GetSumOfWeights() != 0:
+      pdgid_hist.Scale(1.0 / pdgid_hist.GetSumOfWeights())
+
+    rplt.errorbar(pdgid_hist, xerr=False, emptybins=False)
+
+    plt.yscale('log')
 
     plt.autoscale(True)
 
@@ -271,9 +331,27 @@ def plot_pdgid_zg():
 
 
   for pdgid in pdgid_zg_05s:
-    plt.hist(np.array(pdgid_zg_05s[pdgid]), 100, normed=1, label=labels[0], weights=pdgid_prescales[pdgid], log=1, histtype='step')
-    plt.hist(np.array(pdgid_zg_1s[pdgid]), 100, normed=1, label=labels[1], weights=pdgid_prescales[pdgid], log=1, histtype='step')
-    plt.hist(np.array(pdgid_zg_2s[pdgid]), 100, normed=1, label=labels[2], weights=pdgid_prescales[pdgid], log=1, histtype='step')
+
+    pdgid_zg_05_hist = Hist(25, 0, 0.5, title=labels[0], markersize=1.0, color='blue')
+    pdgid_zg_1_hist = Hist(25, 0, 0.5, title=labels[1], markersize=1.0, color='red')
+    pdgid_zg_2_hist = Hist(25, 0, 0.5, title=labels[2], markersize=1.0, color='green')
+
+    map(pdgid_zg_05_hist.Fill, pdgid_zg_05s[pdgid], pdgid_prescales[pdgid])
+    map(pdgid_zg_1_hist.Fill, pdgid_zg_1s[pdgid], pdgid_prescales[pdgid])
+    map(pdgid_zg_2_hist.Fill, pdgid_zg_2s[pdgid], pdgid_prescales[pdgid])
+    
+    if pdgid_zg_05_hist.GetSumOfWeights() != 0:
+      pdgid_zg_05_hist.Scale(1.0 / pdgid_zg_05_hist.GetSumOfWeights())
+
+    if pdgid_zg_1_hist.GetSumOfWeights() != 0:
+      pdgid_zg_1_hist.Scale(1.0 / pdgid_zg_1_hist.GetSumOfWeights())
+
+    if pdgid_zg_2_hist.GetSumOfWeights() != 0:
+      pdgid_zg_2_hist.Scale(1.0 / pdgid_zg_2_hist.GetSumOfWeights())
+
+    rplt.errorbar(pdgid_zg_05_hist, xerr=False, emptybins=False)
+    rplt.errorbar(pdgid_zg_1_hist, xerr=False, emptybins=False)
+    rplt.errorbar(pdgid_zg_2_hist, xerr=False, emptybins=False)
 
     plt.autoscale(True)
 
@@ -302,8 +380,17 @@ def plot_charged_pt():
       pdgid_pts.append(pTs[i])
       pdgid_prescales.append(prescales[i])
 
+
+  pdgid_hist = Hist(25, 0, 800, markersize=1.0, color='blue')
   
-  plt.hist(np.array(pdgid_pts), 100, normed=1, weights=pdgid_prescales, log=1, histtype='step')
+  map(pdgid_hist.Fill, pTs, prescales)
+
+  if pdgid_hist.GetSumOfWeights() != 0:
+    pdgid_hist.Scale(1.0 / pdgid_hist.GetSumOfWeights())
+
+  rplt.errorbar(pdgid_hist, xerr=False, emptybins=False)
+
+  plt.yscale('log')
 
   plt.autoscale(True)
 
@@ -364,10 +451,90 @@ def plot_charged_zgs():
   plt.show()
 
 
-# plot_pts()
-# plot_zg()
-# plot_dr()
-# plot_mu()
+def plot_charged_zg_pfc_pt_cut(pfc_pT_cut):
+  pT_lower_cut = 150
+  properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
+
+  pdgids = properties['hardest_pfc_pdgid']
+  zgs = [properties['zg_05_pt_' + str(int(pfc_pT_cut))], properties['zg_1_pt_' + str(int(pfc_pT_cut))], properties['zg_2_pt_' + str(int(pfc_pT_cut))]]
+
+  prescales = properties['prescales']
+
+  colors = ['red', 'blue', 'green']
+  labels = ['CMS $z_{cut}$ = 0.05', 'CMS $z_{cut}$ = 0.1', 'CMS $z_{cut}$ = 0.2']
+  
+  for i in range(0, len(zgs)):
+    if (pdgids[i] != 1) and (pdgids[i] != 2) and (pdgids[i] != 22):
+      # no. of bins, xlower, xhigher
+      zg_hist = Hist(50, 0.0, 0.5, title=labels[i], markersize=1.0, color=colors[i])
+
+      map(zg_hist.Fill, zgs[i], prescales)
+      
+      zg_hist.Scale(1.0 / zg_hist.GetSumOfWeights())
+      
+      rplt.errorbar(zg_hist, xerr=False, emptybins=False)
+
+  plt.autoscale(True)
+
+  plt.legend()
+  plt.xlabel("Symmetry Measure(z)")
+  plt.suptitle("Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV & PFC $p_{T cut}$ = " + str(pfc_pT_cut) + " GeV")
+  plt.grid(True)
+
+  plt.savefig("plots/zg_charged_distribution_pt_cut_" + str(pT_lower_cut) + "_pfc_pt_cut_" + str(pfc_pT_cut) + ".pdf")
+  plt.show()
+
+
+
+def plot_hardest_pt_corresponding_triggers():
+  properties = parse_file(input_analysis_file)
+
+  pTs = properties['corrected_hardest_pts']
+  trigger_names = properties['trigger_names']
+  prescales = properties['prescales']
+
+  expected_trigger_names = ["HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U", "HLT_Jet15U", "HLT_L1Jet6U"]
+
+  colors = ['red', 'blue', 'pink', 'green', 'orange']
+
+  pt_hists = []
+  for i in range(0, len(expected_trigger_names)):
+    # no. of bins, xlower, xhigher
+    pt_hists.append(Hist(50, 0, 500, title=expected_trigger_names[i], markersize=1.0, color=colors[i]))
+
+
+  for i in range(0, len(pTs)):
+    for j in range(0, len(expected_trigger_names)):
+      if expected_trigger_names[j] in trigger_names[i]:
+        pt_hists[j].Fill(pTs[i], prescales[i])
+
+  
+  for k in range(0, len(pt_hists)):
+    # if pt_hists[k].GetSumOfWeights() != 0:
+      # pt_hists[k].Scale(1.0 / pt_hists[k].GetSumOfWeights())
+    rplt.errorbar(pt_hists[k], xerr=False, emptybins=False)
+
+
+  plt.yscale('log')
+  
+  plt.autoscale(True)
+   
+  plt.yscale('log')
+
+  plt.legend()
+  plt.xlabel('$p_T$ (GeV)')
+  plt.suptitle("$p_T$ (GeV) Spectrum of anti-kT Jets (R = 0.5) & Corresponding Triggers")
+  plt.grid(True)
+
+  plt.savefig("plots/hardest_pt_corresponding_triggers.pdf")
+  plt.show()
+
+
+plot_pts()
+plot_zg()
+
+plot_dr()
+plot_mu()
 
 plot_pdgid_pt()
 
@@ -375,4 +542,20 @@ plot_pdgid_zg()
 
 plot_charged_pt()
 
-# plot_charged_zgs()
+plot_charged_zgs()
+
+
+plot_zg_pfc_pt_cut(pfc_pT_cut=1)
+plot_zg_pfc_pt_cut(pfc_pT_cut=2)
+plot_zg_pfc_pt_cut(pfc_pT_cut=3)
+plot_zg_pfc_pt_cut(pfc_pT_cut=5)
+plot_zg_pfc_pt_cut(pfc_pT_cut=10)
+
+
+plot_charged_zg_pfc_pt_cut(pfc_pT_cut=1)
+plot_charged_zg_pfc_pt_cut(pfc_pT_cut=2)
+plot_charged_zg_pfc_pt_cut(pfc_pT_cut=3)
+plot_charged_zg_pfc_pt_cut(pfc_pT_cut=5)
+plot_charged_zg_pfc_pt_cut(pfc_pT_cut=10)
+
+plot_hardest_pt_corresponding_triggers()

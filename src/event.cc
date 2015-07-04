@@ -39,8 +39,18 @@ void MOD::Event::set_data_type(string a, string b) {
    _data_type = make_pair(a, b);;
 }
 
-const vector<PseudoJet> & MOD::Event::pseudojets() const {
-   return _pseudojets;
+const vector<PseudoJet> MOD::Event::pseudojets(double pt_cut) const {
+   
+   vector<PseudoJet> pfcandidates;
+
+   for (unsigned i = 0; i < _pseudojets.size(); i++) {
+      if (_pseudojets[i].pt() >= pt_cut) {
+         pfcandidates.push_back(_pseudojets[i]);
+      }
+   }
+
+   return pfcandidates;
+
 }
 
 

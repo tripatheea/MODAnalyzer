@@ -34,7 +34,7 @@ namespace MOD {
 
             const std::vector<PFCandidate> & particles() const;
             const std::vector<Trigger> & triggers() const;
-            const std::vector<fastjet::PseudoJet> & pseudojets() const;
+            const std::vector<fastjet::PseudoJet> pseudojets(double pt_cut = 0.00) const;
 
             const std::vector<CalibratedJet> corrected_calibrated_jets() const;          
             const std::vector<fastjet::PseudoJet> corrected_calibrated_pseudojets() const;
