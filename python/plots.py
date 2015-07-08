@@ -1,6 +1,7 @@
 # /media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/analyzed.dat
 
 import sys
+import math
 from collections import defaultdict
 
 # matplotlib
@@ -11,6 +12,8 @@ import matplotlib.pyplot as plt
 # RootPy
 from rootpy.plotting import Hist, HistStack, Legend, Canvas
 import rootpy.plotting.root2matplotlib as rplt
+
+import rootpy.plotting.views
 
 input_analysis_file = sys.argv[1]
 
@@ -125,17 +128,22 @@ def plot_zg():
   pT_lower_cut = 150
   pfc_pT_cut = 0
   properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
-  properties_th = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
+  properties_pythia = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
+  properties_herwig = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
 
   zgs = [properties['zg_05'], properties['zg_1'], properties['zg_2']]
   
-  zg_ths = [properties_th['zg_05'], properties_th['zg_1'], properties_th['zg_2']]
+  zg_pythias = [properties_pythia['zg_05'], properties_pythia['zg_1'], properties_pythia['zg_2']]
+  zg_herwigs = [properties_herwig['zg_05'], properties_herwig['zg_1'], properties_herwig['zg_2']]
 
   prescales = properties['prescales']
 
   colors = ['red', 'blue', 'green']
+  colors_2 = ['gray', 'orange', 'magenta']
+
   labels = ['CMS $z_{cut}$ = 0.05', 'CMS $z_{cut}$ = 0.1', 'CMS $z_{cut}$ = 0.2']
-  th_labels = ['Pythia 8 $z_{cut}$ = 0.05', 'Pythia 8 $z_{cut}$ = 0.1', 'Pythia 8 $z_{cut}$ = 0.2']
+  pythia_labels = ['Pythia 8 $z_{cut}$ = 0.05', 'Pythia 8 $z_{cut}$ = 0.1', 'Pythia 8 $z_{cut}$ = 0.2']
+  herwig_labels = ['Herwig 2 $z_{cut}$ = 0.05', 'Herwig 2 $z_{cut}$ = 0.1', 'Herwig 2 $z_{cut}$ = 0.2']
   
   for i in range(0, len(zgs)):
     # no. of bins, xlower, xhigher
@@ -147,15 +155,24 @@ def plot_zg():
     
     rplt.errorbar(zg_hist, xerr=False, emptybins=False)
 
-  zg_th_hists = []
-  for j in range(0, len(zg_ths)):
-    zg_th_hist = Hist(50, 0, 0.5, title=th_labels[j], markersize=1.0, color=colors[j])
+  for j in range(0, len(zg_pythias)):
+    zg_pythia_hist = Hist(50, 0, 0.5, title=pythia_labels[j], markersize=1.0, color=colors[j])
 
-    map(zg_th_hist.Fill, zg_ths[j])
+    map(zg_pythia_hist.Fill, zg_pythias[j])
 
-    zg_th_hist.Scale(1.0 / zg_th_hist.GetSumOfWeights())
+    zg_pythia_hist.Scale(1.0 / zg_pythia_hist.GetSumOfWeights())
 
-    rplt.hist(zg_th_hist)
+    rplt.hist(zg_pythia_hist)
+
+  for j in range(0, len(zg_herwigs)):
+    zg_herwig_hist = Hist(50, 0, 0.5, title=herwig_labels[j], markersize=1.0, color=colors_2[j], linestyle="2") # 1=solid, 2=dash, 3=dot, 4=dash-dot
+
+    map(zg_herwig_hist.Fill, zg_herwigs[j])
+
+    zg_herwig_hist.Scale(1.0 / zg_herwig_hist.GetSumOfWeights())
+
+    rplt.hist(zg_herwig_hist)
+
 
   plt.autoscale(True)
 
@@ -376,7 +393,7 @@ def plot_charged_pt():
   pdgid_prescales = []
 
   for i in range(0, len(pdgids)):
-    if (pdgids[i] != 1) and (pdgids[i] != 2) and (pdgids[i] != 22):
+    if (abs(pdgids[i]) == 211) and (abs(pdgids[i]) == 11) and (abs(pdgids[i]) == 13):
       pdgid_pts.append(pTs[i])
       pdgid_prescales.append(prescales[i])
 
@@ -417,7 +434,7 @@ def plot_charged_zgs():
   pdgid_prescales = []
 
   for i in range(0, len(pdgids)):
-    if (pdgids[i] != 1) and (pdgids[i] != 2) and (pdgids[i] != 22):
+    if (abs(pdgids[i]) == 211) and (abs(pdgids[i]) == 11) and (abs(pdgids[i]) == 13):
       pdgid_zgs[0].append(zg_05s[i])
       pdgid_zgs[1].append(zg_1s[i])
       pdgid_zgs[2].append(zg_2s[i])
@@ -435,7 +452,8 @@ def plot_charged_zgs():
 
     map(zg_hist.Fill, pdgid_zgs[i], pdgid_prescales)
     
-    zg_hist.Scale(1.0 / zg_hist.GetSumOfWeights())
+    if zg_hist.GetSumOfWeights() != 0:
+      zg_hist.Scale(1.0 / zg_hist.GetSumOfWeights())
     
     rplt.errorbar(zg_hist, xerr=False, emptybins=False)
 
@@ -464,7 +482,7 @@ def plot_charged_zg_pfc_pt_cut(pfc_pT_cut):
   labels = ['CMS $z_{cut}$ = 0.05', 'CMS $z_{cut}$ = 0.1', 'CMS $z_{cut}$ = 0.2']
   
   for i in range(0, len(zgs)):
-    if (pdgids[i] != 1) and (pdgids[i] != 2) and (pdgids[i] != 22):
+    if (abs(pdgids[i]) == 211) and (abs(pdgids[i]) == 11) and (abs(pdgids[i]) == 13):
       # no. of bins, xlower, xhigher
       zg_hist = Hist(50, 0.0, 0.5, title=labels[i], markersize=1.0, color=colors[i])
 
@@ -530,15 +548,17 @@ def plot_hardest_pt_corresponding_triggers():
   plt.show()
 
 
-plot_pts()
-plot_zg()
 
-plot_dr()
-plot_mu()
+# plot_pts()
 
-plot_pdgid_pt()
+# plot_zg()
 
-plot_pdgid_zg()
+# plot_dr()
+# plot_mu()
+
+# plot_pdgid_pt()
+
+# plot_pdgid_zg()
 
 plot_charged_pt()
 

@@ -22,12 +22,14 @@ This repository has code to analyze CMS Open Data data produced using [https://g
   ``.x plots.cc+`` 
 
 ## TODO
-- Look into gzip thingy for size issues.
-- Talk to Sal about the jet areas being 0.
+- Talk to Sal about what the rapidity range is for AK5.
+- Figure out migration in charged to neutral.
 
 ## TODO
 - Get Pythia 8 up and running and generate simulated data (with simulated triggers)
 
+## TODO (Low Priority)
+- Look into gzip thingy for size issues.
 
 
 [1]: https://github.com/tripatheea/MODProducer
