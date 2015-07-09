@@ -159,23 +159,23 @@ def plot_zg():
     
     rplt.errorbar(zg_hist, xerr=False, emptybins=False)
 
-  for j in range(0, len(zg_pythias)):
-    zg_pythia_hist = Hist(50, 0, 0.5, title=pythia_labels[j], markersize=1.0, color=colors[j])
+  # for j in range(0, len(zg_pythias)):
+  #   zg_pythia_hist = Hist(50, 0, 0.5, title=pythia_labels[j], markersize=1.0, color=colors[j])
 
-    map(zg_pythia_hist.Fill, zg_pythias[j])
+  #   map(zg_pythia_hist.Fill, zg_pythias[j])
 
-    zg_pythia_hist.Scale(1.0 / zg_pythia_hist.GetSumOfWeights())
+  #   zg_pythia_hist.Scale(1.0 / zg_pythia_hist.GetSumOfWeights())
 
-    rplt.hist(zg_pythia_hist)
+  #   rplt.hist(zg_pythia_hist)
 
-  for j in range(0, len(zg_herwigs)):
-    zg_herwig_hist = Hist(50, 0, 0.5, title=herwig_labels[j], markersize=1.0, color=colors_2[j], linestyle="2") # 1=solid, 2=dash, 3=dot, 4=dash-dot
+  # for j in range(0, len(zg_herwigs)):
+  #   zg_herwig_hist = Hist(50, 0, 0.5, title=herwig_labels[j], markersize=1.0, color=colors_2[j], linestyle="2") # 1=solid, 2=dash, 3=dot, 4=dash-dot
 
-    map(zg_herwig_hist.Fill, zg_herwigs[j])
+  #   map(zg_herwig_hist.Fill, zg_herwigs[j])
 
-    zg_herwig_hist.Scale(1.0 / zg_herwig_hist.GetSumOfWeights())
+  #   zg_herwig_hist.Scale(1.0 / zg_herwig_hist.GetSumOfWeights())
 
-    rplt.hist(zg_herwig_hist)
+  #   rplt.hist(zg_herwig_hist)
 
 
   plt.autoscale(True)
@@ -431,6 +431,7 @@ def plot_charged_zgs():
   prescales = properties['prescales']
 
 
+
   colors = ['red', 'blue', 'green']
   labels = ['$z_{cut}$ = 0.05', '$z_{cut}$ = 0.1', '$z_{cut}$ = 0.2']
 
@@ -446,7 +447,6 @@ def plot_charged_zgs():
     rplt.errorbar(zg_hist, xerr=False, emptybins=False)
 
   plt.autoscale(True)
-  plt.xlim(0.01, 0.5)
 
   plt.legend()
   plt.xlabel("Symmetry Measure(z)")
@@ -554,8 +554,8 @@ def plot_2d_hist():
   # Plot 2D histogram using pcolor
   
   plt.pcolormesh(xedges,yedges,Hmasked)
-  plt.xlabel('zg_05')
-  plt.ylabel('Charged zg_05')
+  plt.xlabel('Charged zg_05')
+  plt.ylabel('zg_05')
   cbar = plt.colorbar()
   cbar.ax.set_ylabel('Counts')
 
@@ -564,7 +564,7 @@ def plot_2d_hist():
 
 # plot_pts()
 
-# plot_zg()
+plot_zg()
 
 # plot_dr()
 # plot_mu()
@@ -575,7 +575,7 @@ def plot_2d_hist():
 
 # plot_charged_pt()
 
-# plot_charged_zgs()
+plot_charged_zgs()
 
 
 # plot_zg_pfc_pt_cut(pfc_pT_cut=1)
