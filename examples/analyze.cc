@@ -328,6 +328,41 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    }
 
 
+
+
+   // Run AK5 clustering with FastJet to get zg value.
+
+   JetDefinition jet_def_charged(antikt_algorithm, 0.5);
+   ClusterSequence cs_charged(event_being_read.charged_pseudojets(), jet_def_charged);
+   vector<PseudoJet> ak5_jets_charged = sorted_by_pt(cs_charged.inclusive_jets());
+
+   if (ak5_jets_charged.size() > 0) {
+      PseudoJet hardest_jet_charged = ak5_jets_charged[0];
+
+      double beta_charged = 0;
+
+      SoftDrop soft_drop_charged(beta_charged, 0.05);
+      PseudoJet soft_drop_jet_charged = soft_drop_charged(hardest_jet_charged);
+      double zg_charged_05 = soft_drop_jet_charged.structure_of<SoftDrop>().symmetry();
+      properties.push_back(MOD::Property("zg_charged_05", zg_charged_05));
+
+      SoftDrop soft_drop_charged_2(beta_charged, 0.1);
+      PseudoJet soft_drop_jet_charged_2 = soft_drop_charged_2(hardest_jet_charged);
+      double zg_charged_1 = soft_drop_jet_charged_2.structure_of<SoftDrop>().symmetry();
+      properties.push_back(MOD::Property("zg_charged_1", zg_charged_1));  
+
+      SoftDrop soft_drop_charged_3(beta_charged, 0.2);
+      PseudoJet soft_drop_jet_charged_3 = soft_drop_charged_3(hardest_jet_charged);
+      double zg_charged_2 = soft_drop_jet_charged_3.structure_of<SoftDrop>().symmetry();
+      properties.push_back(MOD::Property("zg_charged_2", zg_charged_2));  
+   }
+   else {
+      properties.push_back(MOD::Property("zg_charged_05", -1.00));      
+      properties.push_back(MOD::Property("zg_charged_1", -1.00));      
+      properties.push_back(MOD::Property("zg_charged_2", -1.00));  
+   }
+
+
    string name;
    
    int padding = 20;

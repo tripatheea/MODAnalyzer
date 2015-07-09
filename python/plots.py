@@ -69,6 +69,10 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
           properties['zg_1_pt_10'].append( float( numbers[31] ) )
           properties['zg_2_pt_10'].append( float( numbers[32] ) )
 
+          properties['zg_charged_05'].append( float( numbers[33] ) )
+          properties['zg_charged_1'].append( float( numbers[34] ) )
+          properties['zg_charged_2'].append( float( numbers[35] ) )
+
     except:
       pass
 
@@ -423,34 +427,18 @@ def plot_charged_zgs():
   pT_lower_cut = 150
   properties = parse_file(input_analysis_file, pT_lower_cut)
 
-  pdgids = properties['hardest_pfc_pdgid']
-  zg_05s = properties['zg_05']
-  zg_1s = properties['zg_1']
-  zg_2s = properties['zg_2']
+  charged_zgs = [properties['zg_charged_05'], properties['zg_charged_1'], properties['zg_charged_2']]
   prescales = properties['prescales']
-
-  pdgid_zgs = [[], [], []]
-
-  pdgid_prescales = []
-
-  for i in range(0, len(pdgids)):
-    if (abs(pdgids[i]) == 211) and (abs(pdgids[i]) == 11) and (abs(pdgids[i]) == 13):
-      pdgid_zgs[0].append(zg_05s[i])
-      pdgid_zgs[1].append(zg_1s[i])
-      pdgid_zgs[2].append(zg_2s[i])
-
-      pdgid_prescales.append(prescales[i])
 
 
   colors = ['red', 'blue', 'green']
   labels = ['$z_{cut}$ = 0.05', '$z_{cut}$ = 0.1', '$z_{cut}$ = 0.2']
 
-
-  for i in range(0, len(pdgid_zgs)):
+  for i in range(0, len(charged_zgs)):
     # no. of bins, xlower, xhigher
     zg_hist = Hist(50, 0.0, 0.5, title=labels[i], markersize=1.0, color=colors[i])
 
-    map(zg_hist.Fill, pdgid_zgs[i], pdgid_prescales)
+    map(zg_hist.Fill, charged_zgs[i], prescales)
     
     if zg_hist.GetSumOfWeights() != 0:
       zg_hist.Scale(1.0 / zg_hist.GetSumOfWeights())
@@ -547,7 +535,32 @@ def plot_hardest_pt_corresponding_triggers():
   plt.savefig("plots/hardest_pt_corresponding_triggers.pdf")
   plt.show()
 
+def plot_2d_hist():
 
+
+  pT_lower_cut = 150
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+
+  zgs = [properties['zg_05'], properties['zg_1'], properties['zg_2']]
+  charged_zgs = [properties['zg_charged_05'], properties['zg_charged_1'], properties['zg_charged_2']]
+  prescales = properties['prescales']
+
+  
+  H, xedges, yedges = np.histogram2d(zgs[0], charged_zgs[0], normed=1, range=[[0, 0.5], [0, 0.5]], weights=prescales, bins=100)
+   
+  # Mask zeros
+  Hmasked = np.ma.masked_where(H==0,H) # Mask pixels with a value of zero
+   
+  # Plot 2D histogram using pcolor
+  
+  plt.pcolormesh(xedges,yedges,Hmasked)
+  plt.xlabel('zg_05')
+  plt.ylabel('Charged zg_05')
+  cbar = plt.colorbar()
+  cbar.ax.set_ylabel('Counts')
+
+  plt.savefig("plots/zg_vs_charged_zg.pdf")
+  plt.show()
 
 # plot_pts()
 
@@ -560,22 +573,25 @@ def plot_hardest_pt_corresponding_triggers():
 
 # plot_pdgid_zg()
 
-plot_charged_pt()
+# plot_charged_pt()
 
-plot_charged_zgs()
-
-
-plot_zg_pfc_pt_cut(pfc_pT_cut=1)
-plot_zg_pfc_pt_cut(pfc_pT_cut=2)
-plot_zg_pfc_pt_cut(pfc_pT_cut=3)
-plot_zg_pfc_pt_cut(pfc_pT_cut=5)
-plot_zg_pfc_pt_cut(pfc_pT_cut=10)
+# plot_charged_zgs()
 
 
-plot_charged_zg_pfc_pt_cut(pfc_pT_cut=1)
-plot_charged_zg_pfc_pt_cut(pfc_pT_cut=2)
-plot_charged_zg_pfc_pt_cut(pfc_pT_cut=3)
-plot_charged_zg_pfc_pt_cut(pfc_pT_cut=5)
-plot_charged_zg_pfc_pt_cut(pfc_pT_cut=10)
+# plot_zg_pfc_pt_cut(pfc_pT_cut=1)
+# plot_zg_pfc_pt_cut(pfc_pT_cut=2)
+# plot_zg_pfc_pt_cut(pfc_pT_cut=3)
+# plot_zg_pfc_pt_cut(pfc_pT_cut=5)
+# plot_zg_pfc_pt_cut(pfc_pT_cut=10)
 
-plot_hardest_pt_corresponding_triggers()
+
+# plot_charged_zg_pfc_pt_cut(pfc_pT_cut=1)
+# plot_charged_zg_pfc_pt_cut(pfc_pT_cut=2)
+# plot_charged_zg_pfc_pt_cut(pfc_pT_cut=3)
+# plot_charged_zg_pfc_pt_cut(pfc_pT_cut=5)
+# plot_charged_zg_pfc_pt_cut(pfc_pT_cut=10)
+
+# plot_hardest_pt_corresponding_triggers()
+
+
+plot_2d_hist()

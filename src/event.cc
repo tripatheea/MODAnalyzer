@@ -53,9 +53,35 @@ const vector<PseudoJet> MOD::Event::pseudojets(double pt_cut) const {
 
 }
 
+const vector<PseudoJet> MOD::Event::charged_pseudojets(double pt_cut) const {
+   
+   vector<PseudoJet> charged_pseudojets;
+
+   for (unsigned i = 0; i < charged_particles().size(); i++) {
+      if (charged_particles()[i].pseudojet().pt() >= pt_cut) {
+         charged_pseudojets.push_back(charged_particles()[i].pseudojet());
+      }
+   }
+
+   return charged_pseudojets;
+
+}
+
 
 const vector<MOD::PFCandidate> & MOD::Event::particles() const {
    return _particles;
+}
+
+const vector<MOD::PFCandidate> MOD::Event::charged_particles() const {
+   
+   vector<MOD::PFCandidate> charged_particles;
+
+   for (unsigned i = 0; i < _particles.size(); i++) {
+      if ( (abs(_particles[i].pdgId()) == 211) || (abs(_particles[i].pdgId()) == 11) || (abs(_particles[i].pdgId()) == 13) ) {
+         charged_particles.push_back(_particles[i]);
+      }
+   }
+   return charged_particles;
 }
 
 const vector<MOD::CalibratedJet> MOD::Event::corrected_calibrated_jets() const {
