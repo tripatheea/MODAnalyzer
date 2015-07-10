@@ -6,12 +6,15 @@ from collections import defaultdict
 
 # matplotlib
 import numpy as np
-import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 
+
 # RootPy
-from rootpy.plotting import Hist, HistStack, Legend, Canvas
+from rootpy.plotting import Hist, HistStack, Legend
 import rootpy.plotting.root2matplotlib as rplt
+
+
+from matplotlib import gridspec
 
 import rootpy.plotting.views
 
@@ -78,7 +81,7 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
 
   return properties
     
-def parse_theory_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
+def parse_mc_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
 
@@ -132,8 +135,8 @@ def plot_zg():
   pT_lower_cut = 150
   pfc_pT_cut = 0
   properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
-  properties_pythia = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
-  properties_herwig = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
+  properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
+  properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
 
   zgs = [properties['zg_05'], properties['zg_1'], properties['zg_2']]
   
@@ -559,12 +562,252 @@ def plot_2d_hist():
   cbar = plt.colorbar()
   cbar.ax.set_ylabel('Counts')
 
-  plt.savefig("plots/zg_vs_charged_zg.pdf")
+  plt.savefig("plots/zg_05_vs_charged_zg_05.pdf")
   plt.show()
+
+  H, xedges, yedges = np.histogram2d(zgs[1], charged_zgs[1], normed=1, range=[[0, 0.5], [0, 0.5]], weights=prescales, bins=100)
+   
+  # Mask zeros
+  Hmasked = np.ma.masked_where(H==0,H) # Mask pixels with a value of zero
+   
+  # Plot 2D histogram using pcolor
+  
+  plt.pcolormesh(xedges,yedges,Hmasked)
+  plt.xlabel('Charged zg_1')
+  plt.ylabel('zg_1')
+  cbar = plt.colorbar()
+  cbar.ax.set_ylabel('Counts')
+
+  plt.savefig("plots/zg_1_vs_charged_zg_1.pdf")
+  plt.show()
+
+  H, xedges, yedges = np.histogram2d(zgs[2], charged_zgs[2], normed=1, range=[[0, 0.5], [0, 0.5]], weights=prescales, bins=100)
+   
+  # Mask zeros
+  Hmasked = np.ma.masked_where(H==0,H) # Mask pixels with a value of zero
+   
+  # Plot 2D histogram using pcolor
+  
+  plt.pcolormesh(xedges,yedges,Hmasked)
+  plt.xlabel('Charged zg_2')
+  plt.ylabel('zg_2')
+  cbar = plt.colorbar()
+  cbar.ax.set_ylabel('Counts')
+
+  plt.savefig("plots/zg_2_vs_charged_zg_2.pdf")
+  plt.show()
+
+
+
+
+
+
+def plot_zg_th_mc_data(zg_cutoff):
+  pT_lower_cut = 150
+  pfc_pT_cut = 0
+  properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
+  properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
+  properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
+
+  zgs = properties[zg_cutoff]
+  
+  zg_pythias = properties_pythia[zg_cutoff]
+  zg_herwigs = properties_herwig[zg_cutoff]
+
+  prescales = properties['prescales']
+
+  label = 'Data'
+  pythia_label = 'Pythia 8'
+  herwig_label = 'Herwig 2'
+
+  
+  gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
+
+ 
+  ax0 = plt.subplot(gs[0])
+  ax1 = plt.subplot(gs[1])
+
+
+  ax0.set_ylabel("Events")
+  
+  # Theory Plots.
+
+  points_th = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results/band_gluon_pt" + str(pT_lower_cut) + "_zc005.dat")
+
+  points = defaultdict(list)
+
+  for x in points_th:
+    points[x] = [ points_th[x][0], points_th[x][1], points_th[x][2], points_th[x][3], points_th[x][4], points_th[x][5] ]
+
+  keys = points.keys()
+  keys.sort()
+
+  x = keys
+
+  y = []
+  for j in range(0, 6):
+    y.append([points[i][j] for i in keys])
+
+  areas = [sum(y[i]) for i in range(0, len(y))]
+  weighted_y = []
+  for i in range(0, len(y)):
+    weighted_y.append([el / areas[i] for el in y[i]])
+
+  print len(y)
+  
+  y = weighted_y
+
+  ax0.plot(x, y[0], label="Theory", alpha=0.1, color='red')
+  ax0.plot(x, y[1], x, y[2], x, y[3], x, y[4], x, y[5], alpha=0.1, color='red')
+  
+  for i in range(0, 5):
+    ax0.fill_between(x, y[i], y[i + 1], norm=1, where=np.less_equal(y[i], y[i + 1]), facecolor='red', interpolate=True, alpha=0.1)
+  
+  # Theory Plot Ends.
+  
+  # Data
+  zg_hist = Hist(50, 0.0, 0.5, title=label, markersize=0.75, color='black')
+
+  map(zg_hist.Fill, zgs, prescales)
+  
+  zg_hist.Scale(1.0 / zg_hist.GetSumOfWeights())
+  
+  rplt.errorbar(zg_hist, xerr=False, emptybins=False, axes=ax0)
+
+  
+  # Pythia.
+  zg_pythia_hist = Hist(50, 0, 0.5, title=pythia_label, markersize=1.0, color='blue')
+
+  map(zg_pythia_hist.Fill, zg_pythias)
+
+  zg_pythia_hist.Scale(1.0 / zg_pythia_hist.GetSumOfWeights())
+
+  rplt.hist(zg_pythia_hist, axes=ax0)
+
+  
+  # Herwig  
+  zg_herwig_hist = Hist(50, 0, 0.5, title=herwig_label, markersize=1.0, color='green')
+
+  map(zg_herwig_hist.Fill, zg_herwigs)
+
+  zg_herwig_hist.Scale(1.0 / zg_herwig_hist.GetSumOfWeights())
+
+  rplt.hist(zg_herwig_hist, axes=ax0)
+
+  # Herwig Ends.
+
+  # Normalized by data begins.
+
+  ax1.set_ylabel("Events / Data")
+
+  zg_herwig_hist.Divide(zg_hist)
+  rplt.hist(zg_herwig_hist, axes=ax1)
+
+  zg_pythia_hist.Divide(zg_hist)
+  rplt.hist(zg_pythia_hist, axes=ax1)
+
+  zg_hist.Divide(zg_hist)
+  rplt.errorbar(zg_hist, axes=ax1)
+
+  ax1.set_ylim(0.5, 1.5)
+  
+
+
+
+
+  ax0.autoscale(True)
+
+  ax0.legend()
+
+  
+  plt.suptitle("Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
+  
+  ax0.grid(True)
+  ax1.grid(True)
+
+
+
+  plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + ".pdf")
+  plt.show()
+
+
+
+
+
+def parse_theory_file(input_file):
+  f = open(input_file, 'r')
+  lines = f.read().split("\n")
+
+  properties = defaultdict(list)
+
+  points = defaultdict(list)
+  for line in lines:
+    try:
+      numbers = line.split()
+      try:
+        # Areas range from 4 to 1, 5 to 2 and 6 to 3.
+        # When returned, will be 1 to 2, 2 to 3 and 3 to 4.
+        
+        points[float(numbers[0])].append(float(numbers[4]))
+        points[float(numbers[0])].append(float(numbers[1]))
+        
+        points[float(numbers[0])].append(float(numbers[5]))
+        points[float(numbers[0])].append(float(numbers[2]))
+
+        points[float(numbers[0])].append(float(numbers[6]))
+        points[float(numbers[0])].append(float(numbers[3]))
+
+      except ValueError:
+        pass
+    except:
+      pass
+
+  return points
+
+
+def plot_th():
+  pT_lower_cut = 300
+  pfc_pT_cut = 0
+  
+  points_th = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results/band_gluon_pt" + str(pT_lower_cut) + "_zc005.dat")
+
+  
+  points = defaultdict(list)
+
+  for x in points_th:
+    points[x] = [ points_th[x][0], points_th[x][1], points_th[x][2], points_th[x][3], points_th[x][4], points_th[x][5] ]
+
+  keys = points.keys()
+  keys.sort()
+
+  x = keys
+
+  y = []
+  for j in range(0, 6):
+    y.append([points[i][j] for i in keys])
+
+  plt.plot(x, y[0], x, y[1], x, y[2], x, y[3], x, y[4], x, y[5], alpha=0.5, color='green')
+
+  for i in range(0, 5):
+    plt.fill_between(x, y[i], y[i + 1], where=np.less_equal(y[i], y[i + 1]), facecolor='green', interpolate=True, alpha=0.5)
+  
+
+  
+
+
+
+
+
+
+
+# plot_th()
+
+plot_zg_th_mc_data('zg_05')
+
 
 # plot_pts()
 
-plot_zg()
+# plot_zg()
 
 # plot_dr()
 # plot_mu()
@@ -575,7 +818,7 @@ plot_zg()
 
 # plot_charged_pt()
 
-plot_charged_zgs()
+# plot_charged_zgs()
 
 
 # plot_zg_pfc_pt_cut(pfc_pT_cut=1)
@@ -594,4 +837,4 @@ plot_charged_zgs()
 # plot_hardest_pt_corresponding_triggers()
 
 
-plot_2d_hist()
+# plot_2d_hist()
