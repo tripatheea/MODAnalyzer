@@ -9,6 +9,7 @@ from collections import defaultdict
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+import matplotlib.patches as mpatches
 
 # RootPy
 from rootpy.plotting import Hist, HistStack, Legend
@@ -634,10 +635,10 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
 
   prescales = properties['prescales']
 
-  data_label = 'CMS Open Data'
+  data_label = 'CMS 2010 Open Data'
   pythia_label = 'Pythia 8'
   herwig_label = 'Herwig++'
-  theory_label = 'MLL'
+  theory_label = 'Theory (MLL)'
 
   
   gs = gridspec.GridSpec(2, 1, height_ratios=[2, 1]) 
@@ -762,7 +763,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   ax0.set_ylabel("$ \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$           ", fontsize=35, rotation=0)
   
   ax1.set_xlabel("$z_g$", fontsize=35)
-  ax1.set_ylabel("Ratio                   \nto                   \nTheory                   ", fontsize=25, rotation=0)
+  ax1.set_ylabel("Ratio                   \nto                   \nData                   ", fontsize=25, rotation=0)
 
   zg_herwig_hist.Divide(zg_data_hist)
   rplt.hist(zg_herwig_hist, axes=ax1)
@@ -803,27 +804,39 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
 
   
   # Legend.
-  first_legend = ax0.legend(loc=0, frameon=0)
+
+  handles, labels = ax0.get_legend_handles_labels()
+  
+
+  for i in range(0, len(labels)):
+    if labels[i] == theory_label:
+      handles[i] = mpatches.Patch(facecolor='red', alpha=0.1, linestyle='solid', label=theory_label, hatch='- ')
+
+      # a = handles[i]
+      # a.set_facecolor('pink')
+      # handles[i] = a
+
+  first_legend = ax0.legend(handles, labels, loc=0, frameon=0, borderpad=0.1)
   ax = ax0.add_artist(first_legend)
   
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra, extra]
-  labels = ["$p_{T cut}$ = " + str(pT_lower_cut) + " GeV; R = $0.5$", "$z_{cut}$ = " + zg_cut + "; $\\beta$ = 0"]
-  ax0.legend(handles, labels, loc=9, frameon=0)
+  labels = ["$p_{T cut}$ = " + str(pT_lower_cut) + "; R = $0.5$", "$z_{cut}$ = " + zg_cut + "; $\\beta$ = 0"]
+  ax0.legend(handles, labels, loc=2, frameon=0, borderpad=0.1)
 
   ax0.autoscale(True)
   
-  # ax0.set_ylim(0, 10)
-  ax1.set_ylim(0.5, 1.5)
+  ax0.set_ylim(0, 10)
+  ax1.set_ylim(0.8, 1.3)
 
 
   fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
   ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=1.0), (0.56, 0.75), boxcoords="offset points")
   ax0.add_artist(ab)
 
-  figManager = plt.get_current_fig_manager()
-  figManager.window.showMaximized()
+  fig = plt.gcf()
+  fig.set_size_inches(20, 20, forward=1)
 
   plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + ".pdf")
   plt.show()
