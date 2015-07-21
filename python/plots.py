@@ -1,4 +1,5 @@
 # /media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/analyzed.dat
+from __future__ import division
 
 import sys
 import math
@@ -13,6 +14,10 @@ import matplotlib.pyplot as plt
 from rootpy.plotting import Hist, HistStack, Legend
 import rootpy.plotting.root2matplotlib as rplt
 
+# Stuff for calculating areas.
+from scipy.integrate import simps
+from numpy import trapz
+
 
 from matplotlib import gridspec
 
@@ -20,6 +25,7 @@ import rootpy.plotting.views
 
 input_analysis_file = sys.argv[1]
 
+plt.rc('font', family='serif', size=15)
 
 
 def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
@@ -626,12 +632,9 @@ def plot_zg_th_mc_data(zg_cutoff):
  
   ax0 = plt.subplot(gs[0])
   ax1 = plt.subplot(gs[1])
-
-
-  ax0.set_ylabel("Events")
   
-  # Theory Plots.
-
+  # Theory Plots Begin.
+  
   points_th = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results/band_gluon_pt" + str(pT_lower_cut) + "_zc005.dat")
 
   points = defaultdict(list)
@@ -648,70 +651,96 @@ def plot_zg_th_mc_data(zg_cutoff):
   for j in range(0, 6):
     y.append([points[i][j] for i in keys])
 
-  areas = [sum(y[i]) for i in range(0, len(y))]
-  weighted_y = []
-  for i in range(0, len(y)):
-    weighted_y.append([el / areas[i] for el in y[i]])
-
-  print len(y)
+  # areas = [sum(y[i]) for i in range(0, len(y))]
+  # weighted_y = []
+  # for i in range(0, len(y)):
+  #   weighted_y.append([el / areas[i] for el in y[i]])
   
-  y = weighted_y
+  # y = weighted_y
 
-  ax0.plot(x, y[0], label="Theory", alpha=0.1, color='red')
-  ax0.plot(x, y[1], x, y[2], x, y[3], x, y[4], x, y[5], alpha=0.1, color='red')
+  # for i in range(0, 6):
+  #   if i == 0:  
+  #     ax0.plot(x, y[i], label="Theory", alpha=0.1, color='red')
+  #   elif i == 4:  # e11 xmu=1
+  #     ax0.plot(x, y[i], alpha=1.0, color='red')
+  #   else:
+  #     ax0.plot(x, y[i], alpha=0.1, color='red')
+
+  for i in range(0, 6):
+    ax0.plot(x, y[i], label="Theory", alpha=0.1, color='red')
+
   
   for i in range(0, 5):
     ax0.fill_between(x, y[i], y[i + 1], norm=1, where=np.less_equal(y[i], y[i + 1]), facecolor='red', interpolate=True, alpha=0.1)
   
+
+  
+
   # Theory Plot Ends.
   
-  # Data
-  zg_hist = Hist(50, 0.0, 0.5, title=label, markersize=0.75, color='black')
-
-  map(zg_hist.Fill, zgs, prescales)
   
-  zg_hist.Scale(1.0 / zg_hist.GetSumOfWeights())
-  
-  rplt.errorbar(zg_hist, xerr=False, emptybins=False, axes=ax0)
+  # Data Plot Begins.
+  zg_data_hist = Hist(50, 0.0, 0.5, title=label, markersize=0.75, color='black')
+  bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
 
+  map(zg_data_hist.Fill, zgs, prescales)
+  
+  zg_data_hist.Scale(1.0 / ( zg_data_hist.GetSumOfWeights() * bin_width_data ))
+  
+  rplt.errorbar(zg_data_hist, xerr=False, emptybins=False, axes=ax0)
+
+  # Data Plots Ends.
+
+  # Simulation Plots Begin. 
   
   # Pythia.
+  
   zg_pythia_hist = Hist(50, 0, 0.5, title=pythia_label, markersize=1.0, color='blue')
+  bin_width_pythia = (zg_pythia_hist.upperbound() - zg_pythia_hist.lowerbound()) / zg_pythia_hist.nbins()
 
   map(zg_pythia_hist.Fill, zg_pythias)
 
-  zg_pythia_hist.Scale(1.0 / zg_pythia_hist.GetSumOfWeights())
+  zg_pythia_hist.Scale(1.0 / ( zg_pythia_hist.GetSumOfWeights() * bin_width_pythia ))
 
   rplt.hist(zg_pythia_hist, axes=ax0)
-
   
-  # Herwig  
+  # Pythia Ends.
+  
+  # Herwig. 
+  
   zg_herwig_hist = Hist(50, 0, 0.5, title=herwig_label, markersize=1.0, color='green')
+  bin_width_herwig = (zg_herwig_hist.upperbound() - zg_herwig_hist.lowerbound()) / zg_herwig_hist.nbins()
 
   map(zg_herwig_hist.Fill, zg_herwigs)
 
-  zg_herwig_hist.Scale(1.0 / zg_herwig_hist.GetSumOfWeights())
+  zg_herwig_hist.Scale(1.0 / ( zg_herwig_hist.GetSumOfWeights() * bin_width_herwig ))
 
   rplt.hist(zg_herwig_hist, axes=ax0)
-
+  
   # Herwig Ends.
 
-  # Normalized by data begins.
+  # Simulation Plots End.
 
-  ax1.set_ylabel("Events / Data")
+  
+  # Normalized-By-Data Plot Begins.
 
-  zg_herwig_hist.Divide(zg_hist)
+  ax0.set_ylabel("$ \\frac{1}{\sigma} \cdot \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=20)
+  ax1.set_ylabel("$ \\frac{1}{\sigma} \cdot \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=20)
+  ax1.set_xlabel("$z_g$", fontsize=20)
+
+  zg_herwig_hist.Divide(zg_data_hist)
   rplt.hist(zg_herwig_hist, axes=ax1)
 
-  zg_pythia_hist.Divide(zg_hist)
+  zg_pythia_hist.Divide(zg_data_hist)
   rplt.hist(zg_pythia_hist, axes=ax1)
 
-  zg_hist.Divide(zg_hist)
-  rplt.errorbar(zg_hist, axes=ax1)
+  zg_data_hist.Divide(zg_data_hist)
+  rplt.hist(zg_data_hist, axes=ax1)
 
   ax1.set_ylim(0.5, 1.5)
-  
 
+  # Normalized-By-Data Plot Ends.
+  
 
 
 
@@ -724,8 +753,6 @@ def plot_zg_th_mc_data(zg_cutoff):
   
   ax0.grid(True)
   ax1.grid(True)
-
-
 
   plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + ".pdf")
   plt.show()
