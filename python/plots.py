@@ -8,7 +8,7 @@ from collections import defaultdict
 # matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
-
+from matplotlib.patches import Rectangle
 
 # RootPy
 from rootpy.plotting import Hist, HistStack, Legend
@@ -608,26 +608,27 @@ def plot_2d_hist():
 
 
 
-def plot_zg_th_mc_data(zg_cutoff):
+def plot_zg_th_mc_data(zg_cut, zg_filename):
   pT_lower_cut = 150
   pfc_pT_cut = 0
   properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
   properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
   properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
 
-  zgs = properties[zg_cutoff]
+  zgs = properties[zg_filename]
   
-  zg_pythias = properties_pythia[zg_cutoff]
-  zg_herwigs = properties_herwig[zg_cutoff]
+  zg_pythias = properties_pythia[zg_filename]
+  zg_herwigs = properties_herwig[zg_filename]
 
   prescales = properties['prescales']
 
-  label = 'Data'
+  data_label = 'Data'
   pythia_label = 'Pythia 8'
   herwig_label = 'Herwig 2'
+  theory_label = 'Theory'
 
   
-  gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
+  gs = gridspec.GridSpec(2, 1, height_ratios=[2, 1]) 
 
  
   ax0 = plt.subplot(gs[0])
@@ -660,15 +661,26 @@ def plot_zg_th_mc_data(zg_cutoff):
 
   # for i in range(0, 6):
   #   if i == 0:  
-  #     ax0.plot(x, y[i], label="Theory", alpha=0.1, color='red')
+  #     ax0.plot(x, y[i], label=theory_label, alpha=0.1, color='red')
   #   elif i == 4:  # e11 xmu=1
   #     ax0.plot(x, y[i], alpha=1.0, color='red')
   #   else:
   #     ax0.plot(x, y[i], alpha=0.1, color='red')
 
   for i in range(0, 6):
-    ax0.plot(x, y[i], label="Theory", alpha=0.1, color='red')
+    # area = trapz(y[i], x)
+    area = simps(y[i], x)
+    
+    weighted_y = map(lambda x: x / area, y[i])
 
+    if i == 0:  
+      theory_plot = ax0.plot(x, weighted_y, label=theory_label, alpha=0.1, color='red')
+    elif i == 4:  # e11 xmu=1
+      theory_plot = ax0.plot(x, weighted_y, alpha=1.0, color='red')
+    else:
+      theory_plot = ax0.plot(x, weighted_y, alpha=0.1, color='red')
+
+    
   
   for i in range(0, 5):
     ax0.fill_between(x, y[i], y[i + 1], norm=1, where=np.less_equal(y[i], y[i + 1]), facecolor='red', interpolate=True, alpha=0.1)
@@ -680,14 +692,14 @@ def plot_zg_th_mc_data(zg_cutoff):
   
   
   # Data Plot Begins.
-  zg_data_hist = Hist(50, 0.0, 0.5, title=label, markersize=0.75, color='black')
+  zg_data_hist = Hist(50, 0.0, 0.5, title=data_label, markersize=0.75, color='black')
   bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
 
   map(zg_data_hist.Fill, zgs, prescales)
   
   zg_data_hist.Scale(1.0 / ( zg_data_hist.GetSumOfWeights() * bin_width_data ))
   
-  rplt.errorbar(zg_data_hist, xerr=False, emptybins=False, axes=ax0)
+  data_plot = rplt.errorbar(zg_data_hist, xerr=False, emptybins=False, axes=ax0)
 
   # Data Plots Ends.
 
@@ -702,7 +714,7 @@ def plot_zg_th_mc_data(zg_cutoff):
 
   zg_pythia_hist.Scale(1.0 / ( zg_pythia_hist.GetSumOfWeights() * bin_width_pythia ))
 
-  rplt.hist(zg_pythia_hist, axes=ax0)
+  pythia_plot = rplt.hist(zg_pythia_hist, axes=ax0)
   
   # Pythia Ends.
   
@@ -715,7 +727,7 @@ def plot_zg_th_mc_data(zg_cutoff):
 
   zg_herwig_hist.Scale(1.0 / ( zg_herwig_hist.GetSumOfWeights() * bin_width_herwig ))
 
-  rplt.hist(zg_herwig_hist, axes=ax0)
+  herwig_plot = rplt.hist(zg_herwig_hist, axes=ax0)
   
   # Herwig Ends.
 
@@ -724,9 +736,11 @@ def plot_zg_th_mc_data(zg_cutoff):
   
   # Normalized-By-Data Plot Begins.
 
-  ax0.set_ylabel("$ \\frac{1}{\sigma} \cdot \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=20)
-  ax1.set_ylabel("$ \\frac{1}{\sigma} \cdot \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=20)
-  ax1.set_xlabel("$z_g$", fontsize=20)
+  ax0.set_xlabel("$z_g$", fontsize=25)
+  ax0.set_ylabel("$ \\frac{1}{\sigma} \cdot \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=25)
+
+  ax1.set_ylabel("$ \\frac{1}{\sigma} \cdot \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=25)
+  ax1.set_xlabel("$z_g$", fontsize=25)
 
   zg_herwig_hist.Divide(zg_data_hist)
   rplt.hist(zg_herwig_hist, axes=ax1)
@@ -741,13 +755,15 @@ def plot_zg_th_mc_data(zg_cutoff):
 
   # Normalized-By-Data Plot Ends.
   
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 
-
+  handles, labels = ax0.get_legend_handles_labels()
+  handles.extend([extra, extra, extra])
+  labels.extend(["Cone Radius = $0.5$", "$z_g$ cut = " + zg_cut, "$\\beta$ = 0"])
+  
+  ax0.legend(handles, labels)
 
   ax0.autoscale(True)
-
-  ax0.legend()
-
   
   plt.suptitle("Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
   
@@ -829,7 +845,7 @@ def plot_th():
 
 # plot_th()
 
-plot_zg_th_mc_data('zg_05')
+plot_zg_th_mc_data('0.05', 'zg_05')
 
 
 # plot_pts()
