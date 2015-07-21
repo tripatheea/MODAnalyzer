@@ -21,11 +21,16 @@ from numpy import trapz
 
 from matplotlib import gridspec
 
+from matplotlib.cbook import get_sample_data
+from matplotlib._png import read_png
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+
+
 import rootpy.plotting.views
 
 input_analysis_file = sys.argv[1]
 
-plt.rc('font', family='serif', size=15)
+plt.rc('font', family='serif', size=25)
 
 
 def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
@@ -611,6 +616,13 @@ def plot_2d_hist():
 def plot_zg_th_mc_data(zg_cut, zg_filename):
   pT_lower_cut = 150
   pfc_pT_cut = 0
+
+  # mod_logo_image = mpimg.imread("./mod_logo.png")
+
+  # plt.imshow(mod_logo_image,  extent=[-130,130,0,77])
+
+  
+
   properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
   properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
   properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
@@ -633,15 +645,19 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
  
   ax0 = plt.subplot(gs[0])
   ax1 = plt.subplot(gs[1])
+
+
   
   # Theory Plots Begin.
   
-  points_th = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results/band_gluon_pt" + str(pT_lower_cut) + "_zc01.dat")
+  points_th_gluon = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results/band_gluon_pt" + str(pT_lower_cut) + "_zc01.dat")
+  points_th_quark = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results/band_quark_pt" + str(pT_lower_cut) + "_zc01.dat")
 
   points = defaultdict(list)
 
-  for x in points_th:
-    points[x] = [ points_th[x][0], points_th[x][1], points_th[x][2], points_th[x][3], points_th[x][4], points_th[x][5] ]
+  for x in points_th_gluon:
+    points[x] = [ points_th_gluon[x][0], points_th_gluon[x][1], points_th_gluon[x][2], points_th_gluon[x][3], points_th_gluon[x][4], points_th_gluon[x][5] ]
+    points[x].extend([ points_th_quark[x][0], points_th_quark[x][1], points_th_quark[x][2], points_th_quark[x][3], points_th_quark[x][4], points_th_quark[x][5] ])
 
   keys = points.keys()
   keys.sort()
@@ -652,37 +668,50 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   for j in range(0, 6):
     y.append([points[i][j] for i in keys])
 
-  # areas = [sum(y[i]) for i in range(0, len(y))]
-  # weighted_y = []
-  # for i in range(0, len(y)):
-  #   weighted_y.append([el / areas[i] for el in y[i]])
-  
-  # y = weighted_y
+  # For each x, record three y's viz. max_y, min_y, line_y (i.e. e11 xmu=1).
 
+  y_max = []
+  y_min = []
+  y_line = []
+  for i in range(0, len(x)):
+    y_for_current_x = []
+    for j in range(0, 6):
+      y_for_current_x.append(y[j][i])
 
-  for i in range(0, 6):
-    # area = trapz(y[i], x)
-    area = simps(y[i], x)
+    y_min.append(min(y_for_current_x))
+    y_line.append(y_for_current_x[1])
+    y_max.append(max(y_for_current_x))
     
-    weighted_y = map(lambda x: x / area, y[i])
+    
 
-    if i == 0:  
-      theory_plot = ax0.plot(x, weighted_y, label=theory_label, alpha=0.1, color='red')
-    elif i == 1:  # e11 xmu=1
-      theory_plot = ax0.plot(x, weighted_y, alpha=1.0, color='red')
-    else:
-      theory_plot = ax0.plot(x, weighted_y, alpha=0.1, color='red')
+  area_y_max = simps(y_max, x)
+  # weighted_y_max = map(lambda x: x / area_y_max, y_max)
+  weighted_y_max = y_max
+  ax0.plot(x, weighted_y_max, alpha=0.0, color='red')
+  
+  area_y_line = simps(y_line, x)
+  # weighted_y_line = map(lambda x: x / area_y_line, y_line)
+  weighted_y_line = y_line
+  ax0.plot(x, weighted_y_line, label=theory_label, alpha=1.0, color='red')
+
+  area_y_min = simps(y_min, x)
+  # weighted_y_min = map(lambda x: x / area_y_min, y_min)
+  weighted_y_min = y_min
+  ax0.plot(x, weighted_y_min, alpha=0.0, color='red')
+
+
+  ax0.fill_between(x, y_max, y_min, norm=1, where=np.less_equal(y_min, y_max), facecolor='red', interpolate=True, alpha=0.1, linewidth=0.0)
+
+
 
   
-  for i in range(0, 5):
-    ax0.fill_between(x, y[i], y[i + 1], norm=1, where=np.less_equal(y[i], y[i + 1]), facecolor='red', interpolate=True, alpha=0.1)
-  
+
 
   # Theory Plot Ends.
   
   
   # Data Plot Begins.
-  zg_data_hist = Hist(50, 0.0, 0.5, title=data_label, markersize=0.75, color='black')
+  zg_data_hist = Hist(50, 0.0, 0.6, title=data_label, markersize=0.75, color='black')
   bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
 
   map(zg_data_hist.Fill, zg_data, prescales)
@@ -695,11 +724,12 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
 
   # Data Plots Ends.
 
+  
   # Simulation Plots Begin. 
   
   # Pythia.
   
-  zg_pythia_hist = Hist(50, 0, 0.5, title=pythia_label, markersize=1.0, color='blue')
+  zg_pythia_hist = Hist(50, 0, 0.6, title=pythia_label, markersize=1.0, color='blue')
   bin_width_pythia = (zg_pythia_hist.upperbound() - zg_pythia_hist.lowerbound()) / zg_pythia_hist.nbins()
 
   map(zg_pythia_hist.Fill, zg_pythias)
@@ -712,7 +742,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   
   # Herwig. 
   
-  zg_herwig_hist = Hist(50, 0, 0.5, title=herwig_label, markersize=1.0, color='green')
+  zg_herwig_hist = Hist(50, 0, 0.6, title=herwig_label, markersize=1.0, color='green')
   bin_width_herwig = (zg_herwig_hist.upperbound() - zg_herwig_hist.lowerbound()) / zg_herwig_hist.nbins()
 
   map(zg_herwig_hist.Fill, zg_herwigs)
@@ -728,11 +758,11 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   
   # Normalized-Over-Data Plot Begins.
 
-  ax0.set_xlabel("$z_g$", fontsize=25)
-  ax0.set_ylabel("$ \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$         ", fontsize=25, rotation=0)
+  ax0.set_xlabel("$z_g$", fontsize=35)
+  ax0.set_ylabel("$ \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$           ", fontsize=35, rotation=0)
   
-  ax1.set_xlabel("$z_g$", fontsize=25)
-  ax1.set_ylabel("Ratio                \nto                \nTheory                ", fontsize=15, rotation=0)
+  ax1.set_xlabel("$z_g$", fontsize=35)
+  ax1.set_ylabel("Ratio                   \nto                   \nTheory                   ", fontsize=25, rotation=0)
 
   zg_herwig_hist.Divide(zg_data_hist)
   rplt.hist(zg_herwig_hist, axes=ax1)
@@ -741,10 +771,10 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   rplt.hist(zg_pythia_hist, axes=ax1)
 
   zg_data_hist.Divide(zg_data_hist)
-  rplt.hist(zg_data_hist, axes=ax1)
+  rplt.errorbar(zg_data_hist, axes=ax1)
 
   # Theory-Over-Data Plot.
-  theory_over_data_hist = Hist(50, 0, 0.5, markersize=1.0, color='blue')
+  theory_over_data_hist = Hist(50, 0, 0.6, markersize=1.0, color='blue')
 
   zg_data.sort()
 
@@ -754,36 +784,50 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
 
   # map(theory_over_data_hist.Fill, zg_pythias, prescales)
 
-  '''
-  norm_data_prescales
+  
+  # norm_data_prescales
 
-  zg_data
+  # zg_data
 
-  prescales
-  '''
+  # prescales
+  
 
   # Theory-Over-Data Plot Ends.
 
-  ax1.set_ylim(0.5, 1.5)
+
+  
 
   # Normalized-Over-Data Plot Ends.
   
-  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-
-  handles, labels = ax0.get_legend_handles_labels()
-  handles.extend([extra, extra, extra, extra])
-  labels.extend(["$p_{T cut}$ = " + str(pT_lower_cut) + " GeV", "R = $0.5$", "$z_{cut}$ = " + zg_cut, "$\\beta$ = 0"])
   
-  ax0.legend(handles, labels)
+
+  
+  # Legend.
+  first_legend = ax0.legend(loc=0, frameon=0)
+  ax = ax0.add_artist(first_legend)
+  
+  # Info about R, pT_cut, etc.
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  handles = [extra, extra]
+  labels = ["$p_{T cut}$ = " + str(pT_lower_cut) + " GeV; R = $0.5$", "$z_{cut}$ = " + zg_cut + "; $\\beta$ = 0"]
+  ax0.legend(handles, labels, loc=9, frameon=0)
 
   ax0.autoscale(True)
   
-  ax0.grid(True)
-  ax1.grid(True)
+  # ax0.set_ylim(0, 10)
+  ax1.set_ylim(0.5, 1.5)
+
+
+  fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
+  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=1.0), (0.56, 0.75), boxcoords="offset points")
+  ax0.add_artist(ab)
+
+  figManager = plt.get_current_fig_manager()
+  figManager.window.showMaximized()
 
   plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + ".pdf")
   plt.show()
-
+  
 
 
 
