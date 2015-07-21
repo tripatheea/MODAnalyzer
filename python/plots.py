@@ -615,17 +615,17 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
   properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
 
-  zgs = properties[zg_filename]
+  zg_data = properties[zg_filename]
   
   zg_pythias = properties_pythia[zg_filename]
   zg_herwigs = properties_herwig[zg_filename]
 
   prescales = properties['prescales']
 
-  data_label = 'Data'
+  data_label = 'CMS Open Data'
   pythia_label = 'Pythia 8'
-  herwig_label = 'Herwig 2'
-  theory_label = 'Theory'
+  herwig_label = 'Herwig++'
+  theory_label = 'MLL'
 
   
   gs = gridspec.GridSpec(2, 1, height_ratios=[2, 1]) 
@@ -636,7 +636,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   
   # Theory Plots Begin.
   
-  points_th = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results/band_gluon_pt" + str(pT_lower_cut) + "_zc005.dat")
+  points_th = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results/band_gluon_pt" + str(pT_lower_cut) + "_zc01.dat")
 
   points = defaultdict(list)
 
@@ -659,13 +659,6 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   
   # y = weighted_y
 
-  # for i in range(0, 6):
-  #   if i == 0:  
-  #     ax0.plot(x, y[i], label=theory_label, alpha=0.1, color='red')
-  #   elif i == 4:  # e11 xmu=1
-  #     ax0.plot(x, y[i], alpha=1.0, color='red')
-  #   else:
-  #     ax0.plot(x, y[i], alpha=0.1, color='red')
 
   for i in range(0, 6):
     # area = trapz(y[i], x)
@@ -675,17 +668,14 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
 
     if i == 0:  
       theory_plot = ax0.plot(x, weighted_y, label=theory_label, alpha=0.1, color='red')
-    elif i == 4:  # e11 xmu=1
+    elif i == 1:  # e11 xmu=1
       theory_plot = ax0.plot(x, weighted_y, alpha=1.0, color='red')
     else:
       theory_plot = ax0.plot(x, weighted_y, alpha=0.1, color='red')
 
-    
   
   for i in range(0, 5):
     ax0.fill_between(x, y[i], y[i + 1], norm=1, where=np.less_equal(y[i], y[i + 1]), facecolor='red', interpolate=True, alpha=0.1)
-  
-
   
 
   # Theory Plot Ends.
@@ -695,9 +685,11 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   zg_data_hist = Hist(50, 0.0, 0.5, title=data_label, markersize=0.75, color='black')
   bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
 
-  map(zg_data_hist.Fill, zgs, prescales)
+  map(zg_data_hist.Fill, zg_data, prescales)
   
   zg_data_hist.Scale(1.0 / ( zg_data_hist.GetSumOfWeights() * bin_width_data ))
+
+  norm_data_prescales = map(lambda x: x / ( zg_data_hist.GetSumOfWeights() * bin_width_data ), prescales)
   
   data_plot = rplt.errorbar(zg_data_hist, xerr=False, emptybins=False, axes=ax0)
 
@@ -734,13 +726,13 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   # Simulation Plots End.
 
   
-  # Normalized-By-Data Plot Begins.
+  # Normalized-Over-Data Plot Begins.
 
   ax0.set_xlabel("$z_g$", fontsize=25)
-  ax0.set_ylabel("$ \\frac{1}{\sigma} \cdot \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=25)
-
-  ax1.set_ylabel("$ \\frac{1}{\sigma} \cdot \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=25)
+  ax0.set_ylabel("$ \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$         ", fontsize=25, rotation=0)
+  
   ax1.set_xlabel("$z_g$", fontsize=25)
+  ax1.set_ylabel("Ratio                \nto                \nTheory                ", fontsize=15, rotation=0)
 
   zg_herwig_hist.Divide(zg_data_hist)
   rplt.hist(zg_herwig_hist, axes=ax1)
@@ -751,21 +743,40 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   zg_data_hist.Divide(zg_data_hist)
   rplt.hist(zg_data_hist, axes=ax1)
 
+  # Theory-Over-Data Plot.
+  theory_over_data_hist = Hist(50, 0, 0.5, markersize=1.0, color='blue')
+
+  zg_data.sort()
+
+  for datum in zg_data:
+    # print datum
+    pass
+
+  # map(theory_over_data_hist.Fill, zg_pythias, prescales)
+
+  '''
+  norm_data_prescales
+
+  zg_data
+
+  prescales
+  '''
+
+  # Theory-Over-Data Plot Ends.
+
   ax1.set_ylim(0.5, 1.5)
 
-  # Normalized-By-Data Plot Ends.
+  # Normalized-Over-Data Plot Ends.
   
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 
   handles, labels = ax0.get_legend_handles_labels()
-  handles.extend([extra, extra, extra])
-  labels.extend(["Cone Radius = $0.5$", "$z_g$ cut = " + zg_cut, "$\\beta$ = 0"])
+  handles.extend([extra, extra, extra, extra])
+  labels.extend(["$p_{T cut}$ = " + str(pT_lower_cut) + " GeV", "R = $0.5$", "$z_{cut}$ = " + zg_cut, "$\\beta$ = 0"])
   
   ax0.legend(handles, labels)
 
   ax0.autoscale(True)
-  
-  plt.suptitle("Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
   
   ax0.grid(True)
   ax1.grid(True)
@@ -845,7 +856,7 @@ def plot_th():
 
 # plot_th()
 
-plot_zg_th_mc_data('0.05', 'zg_05')
+plot_zg_th_mc_data('0.1', 'zg_1')
 
 
 # plot_pts()
