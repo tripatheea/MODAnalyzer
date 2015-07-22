@@ -140,70 +140,11 @@ def plot_pts():
   plt.legend()
   plt.xlabel('$p_T$ (GeV)')
   plt.suptitle("$p_T$ (GeV) Spectrum of anti-kT Jets (R = 0.5)")
-  plt.grid(True)
+
+  fig = plt.gcf()
+  fig.set_size_inches(20, 20, forward=1)
 
   plt.savefig("plots/ak5_pt_distribution.pdf")
-  plt.show()
-
-
-def plot_zg():
-  pT_lower_cut = 150
-  pfc_pT_cut = 0
-  properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
-  properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
-  properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
-
-  zgs = [properties['zg_05'], properties['zg_1'], properties['zg_2']]
-  
-  zg_pythias = [properties_pythia['zg_05'], properties_pythia['zg_1'], properties_pythia['zg_2']]
-  zg_herwigs = [properties_herwig['zg_05'], properties_herwig['zg_1'], properties_herwig['zg_2']]
-
-  prescales = properties['prescales']
-
-  colors = ['red', 'blue', 'green']
-  colors_2 = ['gray', 'orange', 'magenta']
-
-  labels = ['CMS $z_{cut}$ = 0.05', 'CMS $z_{cut}$ = 0.1', 'CMS $z_{cut}$ = 0.2']
-  pythia_labels = ['Pythia 8 $z_{cut}$ = 0.05', 'Pythia 8 $z_{cut}$ = 0.1', 'Pythia 8 $z_{cut}$ = 0.2']
-  herwig_labels = ['Herwig 2 $z_{cut}$ = 0.05', 'Herwig 2 $z_{cut}$ = 0.1', 'Herwig 2 $z_{cut}$ = 0.2']
-  
-  for i in range(0, len(zgs)):
-    # no. of bins, xlower, xhigher
-    zg_hist = Hist(50, 0.0, 0.5, title=labels[i], markersize=1.0, color=colors[i])
-
-    map(zg_hist.Fill, zgs[i], prescales)
-    
-    zg_hist.Scale(1.0 / zg_hist.GetSumOfWeights())
-    
-    rplt.errorbar(zg_hist, xerr=False, emptybins=False)
-
-  # for j in range(0, len(zg_pythias)):
-  #   zg_pythia_hist = Hist(50, 0, 0.5, title=pythia_labels[j], markersize=1.0, color=colors[j])
-
-  #   map(zg_pythia_hist.Fill, zg_pythias[j])
-
-  #   zg_pythia_hist.Scale(1.0 / zg_pythia_hist.GetSumOfWeights())
-
-  #   rplt.hist(zg_pythia_hist)
-
-  # for j in range(0, len(zg_herwigs)):
-  #   zg_herwig_hist = Hist(50, 0, 0.5, title=herwig_labels[j], markersize=1.0, color=colors_2[j], linestyle="2") # 1=solid, 2=dash, 3=dot, 4=dash-dot
-
-  #   map(zg_herwig_hist.Fill, zg_herwigs[j])
-
-  #   zg_herwig_hist.Scale(1.0 / zg_herwig_hist.GetSumOfWeights())
-
-  #   rplt.hist(zg_herwig_hist)
-
-
-  plt.autoscale(True)
-
-  plt.legend()
-  plt.xlabel("Symmetry Measure(z)")
-  plt.suptitle("Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
-  plt.grid(True)
-
-  plt.savefig("plots/zg_distribution_pt_cut_" + str(pT_lower_cut) + ".pdf")
   plt.show()
 
 
@@ -233,7 +174,9 @@ def plot_zg_pfc_pt_cut(pfc_pT_cut):
   plt.legend()
   plt.xlabel("Symmetry Measure(z)")
   plt.suptitle("Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV & PFC $p_{T cut}$ = " + str(pfc_pT_cut) + " GeV")
-  plt.grid(True)
+
+  fig = plt.gcf()
+  fig.set_size_inches(20, 20, forward=1)
 
   plt.savefig("plots/zg_distribution_pt_cut_" + str(pT_lower_cut) + "_pfc_pt_cut_" + str(pfc_pT_cut) + ".pdf")
   plt.show()
@@ -265,7 +208,9 @@ def plot_dr():
   plt.legend()
   plt.xlabel("$\Delta$R between Subjets")
   plt.suptitle("$\Delta$R between Subjets with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
-  plt.grid(True)
+
+  fig = plt.gcf()
+  fig.set_size_inches(20, 20, forward=1)
 
   plt.savefig("plots/delta_r_distribution_pt_cut_" + str(pT_lower_cut) + ".pdf")
   plt.show()
@@ -296,111 +241,14 @@ def plot_mu():
   plt.legend()
   plt.xlabel("Mass Drop($\mu$)")
   plt.suptitle("Mass Drop($\mu$) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
-  plt.grid(True)
+
+  fig = plt.gcf()
+  fig.set_size_inches(20, 20, forward=1)
 
   plt.savefig("plots/mass_drop_distribution_pt_cut_" + str(pT_lower_cut) + ".pdf")
   plt.show()
 
 
-
-def plot_pdgid_pt():
-  properties = parse_file(input_analysis_file)
-  pdgid_map = { 1: "d", 130: "$K^0_L$ Meson", 11: "$e^-$", -211: "$\pi^-$", 13: "$\mu^-$", 211: "$\pi^+$", -11: "$e^+$", 22: "$\gamma$", 2: "u", -13: "$\mu^+$" }
-
-  pdgids = properties['hardest_pfc_pdgid']
-  pTs = properties['hardest_pfc_pt']
-  prescales = properties['prescales']
-
-  pdgid_pts = defaultdict(list)
-  pdgid_prescales = defaultdict(list)
-
-  for i in range(0, len(pdgids)):
-    pdgid_pts[pdgids[i]].append(pTs[i])
-    pdgid_prescales[pdgids[i]].append(prescales[i])
-
-
-  for pdgid in pdgid_pts:
-    pdgid_hist = Hist(100, 0, 400, title="pdgId = " + str(pdgid), markersize=1.0, color='blue')
-
-    map(pdgid_hist.Fill, pdgid_pts[pdgid], pdgid_prescales[pdgid])
-
-    if pdgid_hist.GetSumOfWeights() != 0:
-      pdgid_hist.Scale(1.0 / pdgid_hist.GetSumOfWeights())
-
-    rplt.errorbar(pdgid_hist, xerr=False, emptybins=False)
-
-    plt.yscale('log')
-
-    plt.autoscale(True)
-
-    plt.xlabel('$p_{T}$ GeV')
-    plt.suptitle("Hardest " + pdgid_map[pdgid] + " s (pdgid=" + str(int(pdgid)) + ") pT Distribution")
-    plt.grid(True)
-
-    plt.savefig("plots/hardest_pdgid_" + str(int(pdgid)) + "_pt_distribution.pdf")
-    plt.show()
-
-
-def plot_pdgid_zg():
-  pT_lower_cut = 153
-  properties = parse_file(input_analysis_file, pT_lower_cut)
-
-  pdgid_map = { 1: "d", 130: "$K^0_L$ Meson", 11: "$e^-$", -211: "$\pi^-$", 13: "$\mu^-$", 211: "$\pi^+$", -11: "$e^+$", 22: "$\gamma$", 2: "u", -13: "$\mu^+$" }
-
-  labels = ['$z_{cut}$ = 0.05', '$z_{cut}$ = 0.1', '$z_{cut}$ = 0.2']
-
-  pdgids = properties['hardest_pfc_pdgid']
-  zg_05s = properties['zg_05']
-  zg_1s = properties['zg_1']
-  zg_2s = properties['zg_2']
-  prescales = properties['prescales']
-
-  pdgid_zg_05s = defaultdict(list)
-  pdgid_zg_1s = defaultdict(list)
-  pdgid_zg_2s = defaultdict(list)
-
-  pdgid_prescales = defaultdict(list)
-
-  for i in range(0, len(pdgids)):
-    pdgid_zg_05s[pdgids[i]].append(zg_05s[i])
-    pdgid_zg_1s[pdgids[i]].append(zg_1s[i])
-    pdgid_zg_2s[pdgids[i]].append(zg_2s[i])
-
-    pdgid_prescales[pdgids[i]].append(prescales[i])
-
-
-  for pdgid in pdgid_zg_05s:
-
-    pdgid_zg_05_hist = Hist(25, 0, 0.5, title=labels[0], markersize=1.0, color='blue')
-    pdgid_zg_1_hist = Hist(25, 0, 0.5, title=labels[1], markersize=1.0, color='red')
-    pdgid_zg_2_hist = Hist(25, 0, 0.5, title=labels[2], markersize=1.0, color='green')
-
-    map(pdgid_zg_05_hist.Fill, pdgid_zg_05s[pdgid], pdgid_prescales[pdgid])
-    map(pdgid_zg_1_hist.Fill, pdgid_zg_1s[pdgid], pdgid_prescales[pdgid])
-    map(pdgid_zg_2_hist.Fill, pdgid_zg_2s[pdgid], pdgid_prescales[pdgid])
-    
-    if pdgid_zg_05_hist.GetSumOfWeights() != 0:
-      pdgid_zg_05_hist.Scale(1.0 / pdgid_zg_05_hist.GetSumOfWeights())
-
-    if pdgid_zg_1_hist.GetSumOfWeights() != 0:
-      pdgid_zg_1_hist.Scale(1.0 / pdgid_zg_1_hist.GetSumOfWeights())
-
-    if pdgid_zg_2_hist.GetSumOfWeights() != 0:
-      pdgid_zg_2_hist.Scale(1.0 / pdgid_zg_2_hist.GetSumOfWeights())
-
-    rplt.errorbar(pdgid_zg_05_hist, xerr=False, emptybins=False)
-    rplt.errorbar(pdgid_zg_1_hist, xerr=False, emptybins=False)
-    rplt.errorbar(pdgid_zg_2_hist, xerr=False, emptybins=False)
-
-    plt.autoscale(True)
-
-    plt.legend()
-    plt.xlabel('Symmetery Measure (z)')
-    plt.suptitle("Hardest " + pdgid_map[pdgid] + " s (pdgid=" + str(int(pdgid)) + ") Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
-    plt.grid(True)
-
-    plt.savefig("plots/hardest_pdgid_" + str(int(pdgid)) + "_zg_distribution.pdf")
-    plt.show()
 
 
 def plot_charged_pt():
@@ -435,7 +283,9 @@ def plot_charged_pt():
 
   plt.xlabel('$p_{T}$ GeV')
   plt.suptitle("Hardest Charged pT Distribution")
-  plt.grid(True)
+
+  fig = plt.gcf()
+  fig.set_size_inches(20, 20, forward=1)
 
   plt.savefig("plots/hardest_charged_pt_distribution.pdf")
   plt.show()
@@ -469,7 +319,9 @@ def plot_charged_zgs():
   plt.legend()
   plt.xlabel("Symmetry Measure(z)")
   plt.suptitle("Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV for charged PFCs")
-  plt.grid(True)
+
+  fig = plt.gcf()
+  fig.set_size_inches(20, 20, forward=1)
 
   plt.savefig("plots/zg_distribution_charged_pt_cut_" + str(pT_lower_cut) + ".pdf")
   plt.show()
@@ -503,7 +355,9 @@ def plot_charged_zg_pfc_pt_cut(pfc_pT_cut):
   plt.legend()
   plt.xlabel("Symmetry Measure(z)")
   plt.suptitle("Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV & PFC $p_{T cut}$ = " + str(pfc_pT_cut) + " GeV")
-  plt.grid(True)
+
+  fig = plt.gcf()
+  fig.set_size_inches(20, 20, forward=1)
 
   plt.savefig("plots/zg_charged_distribution_pt_cut_" + str(pT_lower_cut) + "_pfc_pt_cut_" + str(pfc_pT_cut) + ".pdf")
   plt.show()
@@ -548,7 +402,9 @@ def plot_hardest_pt_corresponding_triggers():
   plt.legend()
   plt.xlabel('$p_T$ (GeV)')
   plt.suptitle("$p_T$ (GeV) Spectrum of anti-kT Jets (R = 0.5) & Corresponding Triggers")
-  plt.grid(True)
+
+  fig = plt.gcf()
+  fig.set_size_inches(20, 20, forward=1)
 
   plt.savefig("plots/hardest_pt_corresponding_triggers.pdf")
   plt.show()
@@ -608,6 +464,9 @@ def plot_2d_hist():
   plt.ylabel('zg_2')
   cbar = plt.colorbar()
   cbar.ax.set_ylabel('Counts')
+
+  fig = plt.gcf()
+  fig.set_size_inches(20, 20, forward=1)
 
   plt.savefig("plots/zg_2_vs_charged_zg_2.pdf")
   plt.show()
@@ -919,32 +778,7 @@ def parse_theory_file(input_file):
   return points
 
 
-def plot_th():
-  pT_lower_cut = 300
-  pfc_pT_cut = 0
-  
-  points_th = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results/band_gluon_pt" + str(pT_lower_cut) + "_zc005.dat")
 
-  
-  points = defaultdict(list)
-
-  for x in points_th:
-    points[x] = [ points_th[x][0], points_th[x][1], points_th[x][2], points_th[x][3], points_th[x][4], points_th[x][5] ]
-
-  keys = points.keys()
-  keys.sort()
-
-  x = keys
-
-  y = []
-  for j in range(0, 6):
-    y.append([points[i][j] for i in keys])
-
-  plt.plot(x, y[0], x, y[1], x, y[2], x, y[3], x, y[4], x, y[5], alpha=0.5, color='green')
-
-  for i in range(0, 5):
-    plt.fill_between(x, y[i], y[i + 1], where=np.less_equal(y[i], y[i + 1]), facecolor='green', interpolate=True, alpha=0.5)
-  
 
   
 
@@ -954,41 +788,37 @@ def plot_th():
 
 
 
-# plot_th()
 
-# plot_zg_th_mc_data('0.1', 'zg_1')
-
-
-# plot_pts()
-
-# plot_zg()
-
-# plot_dr()
-# plot_mu()
-
-# plot_pdgid_pt()
-
-# plot_pdgid_zg()
-
-# plot_charged_pt()
-
-# plot_charged_zgs()
+plot_zg_th_mc_data('0.1', 'zg_1')
 
 
-# plot_zg_pfc_pt_cut(pfc_pT_cut=1)
-# plot_zg_pfc_pt_cut(pfc_pT_cut=2)
-# plot_zg_pfc_pt_cut(pfc_pT_cut=3)
-# plot_zg_pfc_pt_cut(pfc_pT_cut=5)
-# plot_zg_pfc_pt_cut(pfc_pT_cut=10)
+plot_pts()
 
 
-# plot_charged_zg_pfc_pt_cut(pfc_pT_cut=1)
-# plot_charged_zg_pfc_pt_cut(pfc_pT_cut=2)
-# plot_charged_zg_pfc_pt_cut(pfc_pT_cut=3)
-# plot_charged_zg_pfc_pt_cut(pfc_pT_cut=5)
-# plot_charged_zg_pfc_pt_cut(pfc_pT_cut=10)
 
-# plot_hardest_pt_corresponding_triggers()
+plot_dr()
+plot_mu()
+
+
+plot_charged_pt()
+
+plot_charged_zgs()
+
+
+plot_zg_pfc_pt_cut(pfc_pT_cut=1)
+plot_zg_pfc_pt_cut(pfc_pT_cut=2)
+plot_zg_pfc_pt_cut(pfc_pT_cut=3)
+plot_zg_pfc_pt_cut(pfc_pT_cut=5)
+plot_zg_pfc_pt_cut(pfc_pT_cut=10)
+
+
+plot_charged_zg_pfc_pt_cut(pfc_pT_cut=1)
+plot_charged_zg_pfc_pt_cut(pfc_pT_cut=2)
+plot_charged_zg_pfc_pt_cut(pfc_pT_cut=3)
+plot_charged_zg_pfc_pt_cut(pfc_pT_cut=5)
+plot_charged_zg_pfc_pt_cut(pfc_pT_cut=10)
+
+plot_hardest_pt_corresponding_triggers()
 
 
 plot_2d_hist()
