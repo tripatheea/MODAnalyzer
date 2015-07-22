@@ -765,19 +765,30 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   rplt.errorbar(zg_data_hist, axes=ax1)
 
   # Theory-Over-Data Plot.
-  theory_over_data_hist = Hist(75, 0, 0.6, markersize=1.0, color='blue')
-
-  zg_data.sort()
-
   
+
+  data_points_x = data_plot[0].get_xdata()
+  data_points_y = data_plot[0].get_ydata()
+
+  data_plot_points_x = []
+  data_plot_points_y = []
+
+  for i in range(0, len(data_points_x)):
+    if float(data_points_x[i]) >= float(zg_cut):
+      data_plot_points_x.append(data_points_x[i])
+      data_plot_points_y.append(data_points_y[i])
+
+
+
 
   theory_extrapolated_min = []
   theory_extrapolated_line = []
   theory_extrapolated_max = []
 
+
   j = 0
-  for i in range(0, len(zg_data)):
-    x = zg_data[i]
+  for i in range(0, len(data_plot_points_x)):
+    x = data_plot_points_x[i]
 
     
     if x >= theory_x[j] and x <= theory_x[j + 1]:
@@ -815,59 +826,16 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
     theory_extrapolated_max.append(y_max)
 
 
-  data_plot_points_x = data_plot[0].get_xdata()
-  data_plot_points_y = data_plot[0].get_ydata()
-
-  bins = len(data_plot_points_x)
-
-  # binned = (np.histogram(data_plot_points_x, bins, weights=data_plot_points_y)[0] /
-             # np.histogram(data_plot_points_x, bins)[0])
-
-  
-
-  # print len(data_plot_points_y)
-
-
-  theory_line_plot = ax0.plot(zg_data, theory_extrapolated_line, alpha=0.0)
-  theory_min_plot = ax0.plot(zg_data, theory_extrapolated_min, alpha=0.0)
-  theory_max_plot = ax0.plot(zg_data, theory_extrapolated_max, alpha=0.0)
-
-
-  binned_theory_line_points = binned_statistic(zg_data, theory_line_plot[0].get_ydata(), range=[(zg_cut, 0.5)], statistic='mean', bins=len(data_plot_points_x))[0]
-  binned_theory_min_points  = binned_statistic(zg_data, theory_min_plot[0].get_ydata(), range=[(zg_cut, 0.5)], statistic='mean', bins=len(data_plot_points_x))[0]
-  binned_theory_max_points  = binned_statistic(zg_data, theory_max_plot[0].get_ydata(), range=[(zg_cut, 0.5)], statistic='mean', bins=len(data_plot_points_x))[0]
-
-
-  # print len(theory_line_plot[0].get_ydata())
-
-
-  
-  
-  
-
-  
-  ratio_theory_line_to_data = [m / n for m, n in zip(binned_theory_line_points, data_plot_points_y)]
+  ratio_theory_line_to_data = [m / n for m, n in zip(theory_extrapolated_line, data_plot_points_y)]
   ax1.plot(data_plot_points_x, ratio_theory_line_to_data, alpha=1.0, color='red')
 
-  ratio_theory_min_to_data = [m / n for m, n in zip(binned_theory_min_points, data_plot_points_y)]
+  ratio_theory_min_to_data = [m / n for m, n in zip(theory_extrapolated_min, data_plot_points_y)]
   ax1.plot(data_plot_points_x, ratio_theory_min_to_data, alpha=0.0, color='red')
 
-  ratio_theory_max_to_data = [m / n for m, n in zip(binned_theory_max_points, data_plot_points_y)]
+  ratio_theory_max_to_data = [m / n for m, n in zip(theory_extrapolated_max, data_plot_points_y)]
   ax1.plot(data_plot_points_x, ratio_theory_max_to_data, alpha=0.0, color='red')
-  
 
   ax1.fill_between(data_plot_points_x, ratio_theory_max_to_data, ratio_theory_min_to_data, norm=1, where=np.less_equal(ratio_theory_min_to_data, ratio_theory_max_to_data), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
-
-
-  
-  # Normalized-Over-Data Plot Ends.
-  
-  ax0.set_xlabel("$z_g$", fontsize=45)
-  ax0.set_ylabel("$ \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$     ", fontsize=55, rotation=0)
-  
-  ax1.set_xlabel("$z_g$", fontsize=45)
-  ax1.set_ylabel("Ratio          \nto          \nData          ", fontsize=35, rotation=0)
-
   
   # Legend.
 
@@ -896,7 +864,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
 
   # Legend Ends.
 
-  
+
   ax0.autoscale(True)
   ax1.autoscale(True)
   
@@ -905,7 +873,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
 
 
   fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
-  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=1.0), (0.55, 0.83), boxcoords="offset points")
+  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=1.0), (0.55, 0.80), boxcoords="offset points")
   ax0.add_artist(ab)
 
   fig = plt.gcf()
@@ -988,7 +956,7 @@ def plot_th():
 
 # plot_th()
 
-plot_zg_th_mc_data('0.1', 'zg_1')
+# plot_zg_th_mc_data('0.1', 'zg_1')
 
 
 # plot_pts()
@@ -1023,4 +991,4 @@ plot_zg_th_mc_data('0.1', 'zg_1')
 # plot_hardest_pt_corresponding_triggers()
 
 
-# plot_2d_hist()
+plot_2d_hist()
