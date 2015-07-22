@@ -27,11 +27,14 @@ from matplotlib._png import read_png
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 
+
+from scipy.stats import binned_statistic
+
 import rootpy.plotting.views
 
 input_analysis_file = sys.argv[1]
 
-plt.rc('font', family='serif', size=25)
+plt.rc('font', family='serif', size=30)
 
 
 def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
@@ -618,12 +621,6 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   pT_lower_cut = 150
   pfc_pT_cut = 0
 
-  # mod_logo_image = mpimg.imread("./mod_logo.png")
-
-  # plt.imshow(mod_logo_image,  extent=[-130,130,0,77])
-
-  
-
   properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
   properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
   properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
@@ -648,7 +645,6 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   ax1 = plt.subplot(gs[1])
 
 
-  
   # Theory Plots Begin.
   
   points_th_gluon = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results/band_gluon_pt" + str(pT_lower_cut) + "_zc01.dat")
@@ -718,8 +714,6 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   norm_data_prescales = map(lambda x: x / ( zg_data_hist.GetSumOfWeights() * bin_width_data ), prescales)
   
   data_plot = rplt.errorbar(zg_data_hist, emptybins=False, axes=ax0)
-
-
 
 
 
@@ -824,41 +818,55 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   data_plot_points_x = data_plot[0].get_xdata()
   data_plot_points_y = data_plot[0].get_ydata()
 
+  bins = len(data_plot_points_x)
+
+  # binned = (np.histogram(data_plot_points_x, bins, weights=data_plot_points_y)[0] /
+             # np.histogram(data_plot_points_x, bins)[0])
+
+  
+
+  # print len(data_plot_points_y)
+
+
+  theory_line_plot = ax0.plot(zg_data, theory_extrapolated_line, alpha=0.0)
+  theory_min_plot = ax0.plot(zg_data, theory_extrapolated_min, alpha=0.0)
+  theory_max_plot = ax0.plot(zg_data, theory_extrapolated_max, alpha=0.0)
+
+
+  binned_theory_line_points = binned_statistic(zg_data, theory_line_plot[0].get_ydata(), range=[(zg_cut, 0.5)], statistic='mean', bins=len(data_plot_points_x))[0]
+  binned_theory_min_points  = binned_statistic(zg_data, theory_min_plot[0].get_ydata(), range=[(zg_cut, 0.5)], statistic='mean', bins=len(data_plot_points_x))[0]
+  binned_theory_max_points  = binned_statistic(zg_data, theory_max_plot[0].get_ydata(), range=[(zg_cut, 0.5)], statistic='mean', bins=len(data_plot_points_x))[0]
+
+
+  # print len(theory_line_plot[0].get_ydata())
+
+
   
   
-
-  lines_line = ax0.plot(zg_data, theory_extrapolated_line, color='grey', alpha=0.0)
-  tabulate_every = int(len(lines_line[0].get_xdata()) / len(data_plot_points_x))
-  ratio_theory_line_to_data = [m / n for m, n in zip(lines_line[0].get_ydata()[::tabulate_every], data_plot_points_y)]
-  th_line_to_data_plot = ax1.plot(data_plot_points_x, ratio_theory_line_to_data, alpha=1.0, color="red")
   
-  lines_line = ax0.plot(zg_data, theory_extrapolated_min, color='grey', alpha=0.0)
-  tabulate_every = int(len(lines_line[0].get_xdata()) / len(data_plot_points_x))
-  ratio_theory_min_to_data = [m / n for m, n in zip(lines_line[0].get_ydata()[::tabulate_every], data_plot_points_y)]
-  th_min_to_data_plot = ax1.plot(data_plot_points_x, ratio_theory_min_to_data, alpha=0.0, color="red")
 
-  lines_line = ax0.plot(zg_data, theory_extrapolated_max, color='grey', alpha=0.0)
-  tabulate_every = int(len(lines_line[0].get_xdata()) / len(data_plot_points_x))
-  ratio_theory_max_to_data = [m / n for m, n in zip(lines_line[0].get_ydata()[::tabulate_every], data_plot_points_y)]
-  th_max_to_data_plot = ax1.plot(data_plot_points_x, ratio_theory_max_to_data, alpha=0.0, color="red")
+  
+  ratio_theory_line_to_data = [m / n for m, n in zip(binned_theory_line_points, data_plot_points_y)]
+  ax1.plot(data_plot_points_x, ratio_theory_line_to_data, alpha=1.0, color='red')
 
+  ratio_theory_min_to_data = [m / n for m, n in zip(binned_theory_min_points, data_plot_points_y)]
+  ax1.plot(data_plot_points_x, ratio_theory_min_to_data, alpha=0.0, color='red')
 
+  ratio_theory_max_to_data = [m / n for m, n in zip(binned_theory_max_points, data_plot_points_y)]
+  ax1.plot(data_plot_points_x, ratio_theory_max_to_data, alpha=0.0, color='red')
+  
 
   ax1.fill_between(data_plot_points_x, ratio_theory_max_to_data, ratio_theory_min_to_data, norm=1, where=np.less_equal(ratio_theory_min_to_data, ratio_theory_max_to_data), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
 
 
-
-
-
   
-
   # Normalized-Over-Data Plot Ends.
   
-  ax0.set_xlabel("$z_g$", fontsize=35)
-  ax0.set_ylabel("$ \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$           ", fontsize=35, rotation=0)
+  ax0.set_xlabel("$z_g$", fontsize=45)
+  ax0.set_ylabel("$ \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$     ", fontsize=55, rotation=0)
   
-  ax1.set_xlabel("$z_g$", fontsize=35)
-  ax1.set_ylabel("Ratio                   \nto                   \nData                   ", fontsize=25, rotation=0)
+  ax1.set_xlabel("$z_g$", fontsize=45)
+  ax1.set_ylabel("Ratio          \nto          \nData          ", fontsize=35, rotation=0)
 
   
   # Legend.
@@ -885,11 +893,15 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   labels = ["$p_{T cut}$ = " + str(pT_lower_cut) + "; R = $0.5$", "$z_{cut}$ = " + zg_cut + "; $\\beta$ = 0"]
   ax0.legend(handles, labels, loc=2, frameon=0, borderpad=0.1)
 
+
+  # Legend Ends.
+
+  
   ax0.autoscale(True)
   ax1.autoscale(True)
   
   ax0.set_ylim(0, 10)
-  # ax1.set_ylim(0.8, 1.3)
+  ax1.set_ylim(0.5, 1.8)
 
 
   fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
@@ -902,7 +914,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + ".pdf")
   
 
-  # plt.show()
+  plt.show()
   
 
 
