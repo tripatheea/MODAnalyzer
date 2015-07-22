@@ -663,7 +663,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   keys = points.keys()
   keys.sort()
 
-  x = keys
+  theory_x = keys
 
   y = []
   for j in range(0, 6):
@@ -671,48 +671,44 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
 
   # For each x, record three y's viz. max_y, min_y, line_y (i.e. e11 xmu=1).
 
-  y_max = []
-  y_min = []
-  y_line = []
-  for i in range(0, len(x)):
+  theory_y_max = []
+  theory_y_min = []
+  theory_y_line = []
+  for i in range(0, len(theory_x)):
     y_for_current_x = []
     for j in range(0, 6):
       y_for_current_x.append(y[j][i])
 
-    y_min.append(min(y_for_current_x))
-    y_line.append(y_for_current_x[1])
-    y_max.append(max(y_for_current_x))
+    theory_y_min.append(min(y_for_current_x))
+    theory_y_line.append(y_for_current_x[1])
+    theory_y_max.append(max(y_for_current_x))
     
     
 
-  area_y_max = simps(y_max, x)
-  # weighted_y_max = map(lambda x: x / area_y_max, y_max)
-  weighted_y_max = y_max
-  ax0.plot(x, weighted_y_max, alpha=0.0, color='red')
+  area_theory_y_max = simps(theory_y_max, theory_x)
+  # weighted_theory_y_max = map(lambda x: x / area_theory_y_max, theory_y_max)
+  weighted_theory_y_max = theory_y_max
+  ax0.plot(theory_x, weighted_theory_y_max, alpha=0.0, color='red')
   
-  area_y_line = simps(y_line, x)
-  # weighted_y_line = map(lambda x: x / area_y_line, y_line)
-  weighted_y_line = y_line
-  ax0.plot(x, weighted_y_line, label=theory_label, alpha=1.0, color='red')
+  area_theory_y_line = simps(theory_y_line, theory_x)
+  # weighted_theory_y_line = map(lambda x: x / area_theory_y_line, theory_y_line)
+  weighted_theory_y_line = theory_y_line
+  ax0.plot(theory_x, weighted_theory_y_line, label=theory_label, alpha=1.0, color='red')
 
-  area_y_min = simps(y_min, x)
-  # weighted_y_min = map(lambda x: x / area_y_min, y_min)
-  weighted_y_min = y_min
-  ax0.plot(x, weighted_y_min, alpha=0.0, color='red')
-
-
-  ax0.fill_between(x, y_max, y_min, norm=1, where=np.less_equal(y_min, y_max), facecolor='red', interpolate=True, alpha=0.1, linewidth=0.0)
+  area_theory_y_min = simps(theory_y_min, theory_x)
+  # weighted_theory_y_min = map(lambda x: x / area_theory_y_min, theory_y_min)
+  weighted_theory_y_min = theory_y_min
+  ax0.plot(theory_x, weighted_theory_y_min, alpha=0.0, color='red')
 
 
-
-  
+  ax0.fill_between(theory_x, theory_y_max, theory_y_min, norm=1, where=np.less_equal(theory_y_min, theory_y_max), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
 
 
   # Theory Plot Ends.
   
   
   # Data Plot Begins.
-  zg_data_hist = Hist(50, 0.0, 0.6, title=data_label, markersize=0.75, color='black')
+  zg_data_hist = Hist(75, 0.0, 0.6, title=data_label, markersize=0.75, color='black')
   bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
 
   map(zg_data_hist.Fill, zg_data, prescales)
@@ -721,7 +717,11 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
 
   norm_data_prescales = map(lambda x: x / ( zg_data_hist.GetSumOfWeights() * bin_width_data ), prescales)
   
-  data_plot = rplt.errorbar(zg_data_hist, xerr=False, emptybins=False, axes=ax0)
+  data_plot = rplt.errorbar(zg_data_hist, emptybins=False, axes=ax0)
+
+
+
+
 
   # Data Plots Ends.
 
@@ -730,7 +730,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   
   # Pythia.
   
-  zg_pythia_hist = Hist(50, 0, 0.6, title=pythia_label, markersize=1.0, color='blue')
+  zg_pythia_hist = Hist(75, 0, 0.6, title=pythia_label, markersize=1.0, color='blue')
   bin_width_pythia = (zg_pythia_hist.upperbound() - zg_pythia_hist.lowerbound()) / zg_pythia_hist.nbins()
 
   map(zg_pythia_hist.Fill, zg_pythias)
@@ -743,7 +743,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   
   # Herwig. 
   
-  zg_herwig_hist = Hist(50, 0, 0.6, title=herwig_label, markersize=1.0, color='green')
+  zg_herwig_hist = Hist(75, 0, 0.6, title=herwig_label, markersize=1.0, color='green')
   bin_width_herwig = (zg_herwig_hist.upperbound() - zg_herwig_hist.lowerbound()) / zg_herwig_hist.nbins()
 
   map(zg_herwig_hist.Fill, zg_herwigs)
@@ -759,11 +759,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   
   # Normalized-Over-Data Plot Begins.
 
-  ax0.set_xlabel("$z_g$", fontsize=35)
-  ax0.set_ylabel("$ \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$           ", fontsize=35, rotation=0)
   
-  ax1.set_xlabel("$z_g$", fontsize=35)
-  ax1.set_ylabel("Ratio                   \nto                   \nData                   ", fontsize=25, rotation=0)
 
   zg_herwig_hist.Divide(zg_data_hist)
   rplt.hist(zg_herwig_hist, axes=ax1)
@@ -775,46 +771,110 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   rplt.errorbar(zg_data_hist, axes=ax1)
 
   # Theory-Over-Data Plot.
-  theory_over_data_hist = Hist(50, 0, 0.6, markersize=1.0, color='blue')
+  theory_over_data_hist = Hist(75, 0, 0.6, markersize=1.0, color='blue')
 
   zg_data.sort()
 
-  for datum in zg_data:
-    # print datum
-    pass
-
-  # map(theory_over_data_hist.Fill, zg_pythias, prescales)
-
-  
-  # norm_data_prescales
-
-  # zg_data
-
-  # prescales
   
 
-  # Theory-Over-Data Plot Ends.
+  theory_extrapolated_min = []
+  theory_extrapolated_line = []
+  theory_extrapolated_max = []
+
+  j = 0
+  for i in range(0, len(zg_data)):
+    x = zg_data[i]
+
+    
+    if x >= theory_x[j] and x <= theory_x[j + 1]:
+      x1, x2 = theory_x[j], theory_x[j + 1]
+      
+      y1, y2 = theory_y_min[j], theory_y_min[j + 1]
+      y_min = ( ( (x - x1) / (x2 - x1) ) * (y2 - y1) ) + y1  
+
+      y1, y2 = theory_y_line[j], theory_y_line[j + 1]
+      y_line = ( ( (x - x1) / (x2 - x1) ) * (y2 - y1) ) + y1  
+
+      y1, y2 = theory_y_max[j], theory_y_max[j + 1]
+      y_max = ( ( (x - x1) / (x2 - x1) ) * (y2 - y1) ) + y1  
+
+    elif x > theory_x[j + 1]:
+      j += 1
+
+      x1, x2 = theory_x[j], theory_x[j + 1]
+      
+      y1, y2 = theory_y_min[j], theory_y_min[j + 1]
+      y_min = ( ( (x - x1) / (x2 - x1) ) * (y2 - y1) ) + y1  
+
+      y1, y2 = theory_y_line[j], theory_y_line[j + 1]
+      y_line = ( ( (x - x1) / (x2 - x1) ) * (y2 - y1) ) + y1  
+
+      y1, y2 = theory_y_max[j], theory_y_max[j + 1]
+      y_max = ( ( (x - x1) / (x2 - x1) ) * (y2 - y1) ) + y1  
+    elif x == 0:
+      y_min, y_line, y_max = 0, 0, 0
+    else:
+      raise ValueError("Some very weird zg value found!", x)
+
+    theory_extrapolated_min.append(y_min)
+    theory_extrapolated_line.append(y_line)
+    theory_extrapolated_max.append(y_max)
+
+
+  data_plot_points_x = data_plot[0].get_xdata()
+  data_plot_points_y = data_plot[0].get_ydata()
+
+  
+  
+
+  lines_line = ax0.plot(zg_data, theory_extrapolated_line, color='grey', alpha=0.0)
+  tabulate_every = int(len(lines_line[0].get_xdata()) / len(data_plot_points_x))
+  ratio_theory_line_to_data = [m / n for m, n in zip(lines_line[0].get_ydata()[::tabulate_every], data_plot_points_y)]
+  th_line_to_data_plot = ax1.plot(data_plot_points_x, ratio_theory_line_to_data, alpha=1.0, color="red")
+  
+  lines_line = ax0.plot(zg_data, theory_extrapolated_min, color='grey', alpha=0.0)
+  tabulate_every = int(len(lines_line[0].get_xdata()) / len(data_plot_points_x))
+  ratio_theory_min_to_data = [m / n for m, n in zip(lines_line[0].get_ydata()[::tabulate_every], data_plot_points_y)]
+  th_min_to_data_plot = ax1.plot(data_plot_points_x, ratio_theory_min_to_data, alpha=0.0, color="red")
+
+  lines_line = ax0.plot(zg_data, theory_extrapolated_max, color='grey', alpha=0.0)
+  tabulate_every = int(len(lines_line[0].get_xdata()) / len(data_plot_points_x))
+  ratio_theory_max_to_data = [m / n for m, n in zip(lines_line[0].get_ydata()[::tabulate_every], data_plot_points_y)]
+  th_max_to_data_plot = ax1.plot(data_plot_points_x, ratio_theory_max_to_data, alpha=0.0, color="red")
+
+
+
+  ax1.fill_between(data_plot_points_x, ratio_theory_max_to_data, ratio_theory_min_to_data, norm=1, where=np.less_equal(ratio_theory_min_to_data, ratio_theory_max_to_data), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
+
+
+
 
 
   
 
   # Normalized-Over-Data Plot Ends.
   
+  ax0.set_xlabel("$z_g$", fontsize=35)
+  ax0.set_ylabel("$ \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$           ", fontsize=35, rotation=0)
   
+  ax1.set_xlabel("$z_g$", fontsize=35)
+  ax1.set_ylabel("Ratio                   \nto                   \nData                   ", fontsize=25, rotation=0)
 
   
   # Legend.
 
   handles, labels = ax0.get_legend_handles_labels()
   
+  handles = handles[::-1]
+  labels = labels[::-1]
 
   for i in range(0, len(labels)):
     if labels[i] == theory_label:
-      handles[i] = mpatches.Patch(facecolor='red', alpha=0.1, linestyle='solid', label=theory_label, hatch='- ')
+      handles[i] = mpatches.Patch(facecolor='red', edgecolor='red', alpha=1.0, linewidth=0, label=theory_label, hatch='-')
 
-      # a = handles[i]
-      # a.set_facecolor('pink')
-      # handles[i] = a
+      a = handles[i]
+      a.set_facecolor('pink')
+      handles[i] = a
 
   first_legend = ax0.legend(handles, labels, loc=0, frameon=0, borderpad=0.1)
   ax = ax0.add_artist(first_legend)
@@ -826,20 +886,23 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   ax0.legend(handles, labels, loc=2, frameon=0, borderpad=0.1)
 
   ax0.autoscale(True)
+  ax1.autoscale(True)
   
   ax0.set_ylim(0, 10)
-  ax1.set_ylim(0.8, 1.3)
+  # ax1.set_ylim(0.8, 1.3)
 
 
   fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
-  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=1.0), (0.56, 0.75), boxcoords="offset points")
+  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=1.0), (0.55, 0.83), boxcoords="offset points")
   ax0.add_artist(ab)
 
   fig = plt.gcf()
   fig.set_size_inches(20, 20, forward=1)
 
   plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + ".pdf")
-  plt.show()
+  
+
+  # plt.show()
   
 
 
