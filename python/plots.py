@@ -34,7 +34,7 @@ import rootpy.plotting.views
 
 input_analysis_file = sys.argv[1]
 
-plt.rc('font', family='serif', size=30)
+plt.rc('font', family='serif', size=43)
 
 
 def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
@@ -476,7 +476,7 @@ def plot_2d_hist():
 
 
 
-def plot_zg_th_mc_data(zg_cut, zg_filename):
+def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory"):
   pT_lower_cut = 150
   pfc_pT_cut = 0
 
@@ -548,7 +548,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   area_theory_y_line = simps(theory_y_line, theory_x)
   # weighted_theory_y_line = map(lambda x: x / area_theory_y_line, theory_y_line)
   weighted_theory_y_line = theory_y_line
-  ax0.plot(theory_x, weighted_theory_y_line, label=theory_label, alpha=1.0, color='red')
+  ax0.plot(theory_x, weighted_theory_y_line, label=theory_label, alpha=1.0, color='red', linewidth=5)
 
   area_theory_y_min = simps(theory_y_min, theory_x)
   # weighted_theory_y_min = map(lambda x: x / area_theory_y_min, theory_y_min)
@@ -560,10 +560,12 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
 
 
   # Theory Plot Ends.
+
+
   
   
   # Data Plot Begins.
-  zg_data_hist = Hist(75, 0.0, 0.6, title=data_label, markersize=0.75, color='black')
+  zg_data_hist = Hist(50, 0.0, 0.6, title=data_label, markersize=2.5, color='black')
   bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
 
   map(zg_data_hist.Fill, zg_data, prescales)
@@ -572,9 +574,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
 
   norm_data_prescales = map(lambda x: x / ( zg_data_hist.GetSumOfWeights() * bin_width_data ), prescales)
   
-  data_plot = rplt.errorbar(zg_data_hist, emptybins=False, axes=ax0)
-
-
+  data_plot = rplt.errorbar(zg_data_hist, emptybins=False, axes=ax0, linewidth=5)
 
   # Data Plots Ends.
 
@@ -583,45 +583,35 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   
   # Pythia.
   
-  zg_pythia_hist = Hist(75, 0, 0.6, title=pythia_label, markersize=1.0, color='blue')
+  zg_pythia_hist = Hist(50, 0, 0.6, title=pythia_label, markersize=5.0, color='blue')
   bin_width_pythia = (zg_pythia_hist.upperbound() - zg_pythia_hist.lowerbound()) / zg_pythia_hist.nbins()
 
   map(zg_pythia_hist.Fill, zg_pythias)
 
   zg_pythia_hist.Scale(1.0 / ( zg_pythia_hist.GetSumOfWeights() * bin_width_pythia ))
 
-  pythia_plot = rplt.hist(zg_pythia_hist, axes=ax0)
+  pythia_plot = rplt.hist(zg_pythia_hist, axes=ax0, linewidth=5.0, rwidth=0.9)
   
   # Pythia Ends.
   
   # Herwig. 
   
-  zg_herwig_hist = Hist(75, 0, 0.6, title=herwig_label, markersize=1.0, color='green')
+  zg_herwig_hist = Hist(50, 0, 0.6, title=herwig_label, markersize=5.0, color='green')
   bin_width_herwig = (zg_herwig_hist.upperbound() - zg_herwig_hist.lowerbound()) / zg_herwig_hist.nbins()
 
   map(zg_herwig_hist.Fill, zg_herwigs)
 
   zg_herwig_hist.Scale(1.0 / ( zg_herwig_hist.GetSumOfWeights() * bin_width_herwig ))
 
-  herwig_plot = rplt.hist(zg_herwig_hist, axes=ax0)
+  herwig_plot = rplt.hist(zg_herwig_hist, axes=ax0, linewidth=5.0)
   
   # Herwig Ends.
 
   # Simulation Plots End.
 
   
-  # Normalized-Over-Data Plot Begins.
+  # Ratio-Over Plot Begins.
 
-  
-
-  zg_herwig_hist.Divide(zg_data_hist)
-  rplt.hist(zg_herwig_hist, axes=ax1)
-
-  zg_pythia_hist.Divide(zg_data_hist)
-  rplt.hist(zg_pythia_hist, axes=ax1)
-
-  zg_data_hist.Divide(zg_data_hist)
-  rplt.errorbar(zg_data_hist, axes=ax1)
 
   # Theory-Over-Data Plot.
   
@@ -637,13 +627,9 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
       data_plot_points_x.append(data_points_x[i])
       data_plot_points_y.append(data_points_y[i])
 
-
-
-
   theory_extrapolated_min = []
   theory_extrapolated_line = []
   theory_extrapolated_max = []
-
 
   j = 0
   for i in range(0, len(data_plot_points_x)):
@@ -685,17 +671,58 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
     theory_extrapolated_max.append(y_max)
 
 
-  ratio_theory_line_to_data = [m / n for m, n in zip(theory_extrapolated_line, data_plot_points_y)]
-  ax1.plot(data_plot_points_x, ratio_theory_line_to_data, alpha=1.0, color='red')
+  if ratio_denominator == "data":
 
-  ratio_theory_min_to_data = [m / n for m, n in zip(theory_extrapolated_min, data_plot_points_y)]
-  ax1.plot(data_plot_points_x, ratio_theory_min_to_data, alpha=0.0, color='red')
+    zg_herwig_hist.Divide(zg_data_hist)
+    rplt.hist(zg_herwig_hist, axes=ax1, linewidth=5.0)
 
-  ratio_theory_max_to_data = [m / n for m, n in zip(theory_extrapolated_max, data_plot_points_y)]
-  ax1.plot(data_plot_points_x, ratio_theory_max_to_data, alpha=0.0, color='red')
+    zg_pythia_hist.Divide(zg_data_hist)
+    rplt.hist(zg_pythia_hist, axes=ax1, linewidth=5.0)
 
-  ax1.fill_between(data_plot_points_x, ratio_theory_max_to_data, ratio_theory_min_to_data, norm=1, where=np.less_equal(ratio_theory_min_to_data, ratio_theory_max_to_data), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
+    zg_data_hist.Divide(zg_data_hist)
+    rplt.errorbar(zg_data_hist, axes=ax1, linewidth=5.0)
+
+    ratio_theory_line_to_data = [m / n for m, n in zip(theory_extrapolated_line, data_plot_points_y)]
+    ax1.plot(data_plot_points_x, ratio_theory_line_to_data, alpha=1.0, color='red', linewidth=5.0)
+
+    ratio_theory_min_to_data = [m / n for m, n in zip(theory_extrapolated_min, data_plot_points_y)]
+    ax1.plot(data_plot_points_x, ratio_theory_min_to_data, alpha=0.0, color='red')
+
+    ratio_theory_max_to_data = [m / n for m, n in zip(theory_extrapolated_max, data_plot_points_y)]
+    ax1.plot(data_plot_points_x, ratio_theory_max_to_data, alpha=0.0, color='red')
+
+    ax1.fill_between(data_plot_points_x, ratio_theory_max_to_data, ratio_theory_min_to_data, norm=1, where=np.less_equal(ratio_theory_min_to_data, ratio_theory_max_to_data), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
+    
+  elif ratio_denominator == "theory":
+    zg_theory_line_hist = Hist(50, 0.0, 0.6, color='red')
+    map(zg_theory_line_hist.Fill, data_plot_points_x, theory_extrapolated_line)
+
+    zg_herwig_hist.Divide(zg_theory_line_hist)
+    rplt.hist(zg_herwig_hist, axes=ax1, linewidth=5.0)
+
+    zg_pythia_hist.Divide(zg_theory_line_hist)
+    rplt.hist(zg_pythia_hist, axes=ax1, linewidth=5.0)
+
+    zg_data_hist.Divide(zg_theory_line_hist)
+    rplt.errorbar(zg_data_hist, axes=ax1, linewidth=5.0)
+
+    zg_theory_line_hist.Divide(zg_theory_line_hist)
+    rplt.hist(zg_theory_line_hist, axes=ax1, linewidth=5.0)
+
+  else:
+    raise ValueError("Only 'theory' or 'data' are valid options for calculating ratios!")
+
+
+  # Normalized-Over-Data Plot Ends.
+
+  ax0.set_xlabel("$z_g$", fontsize=45)
+  ax0.set_ylabel("$ \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$     ", fontsize=85, rotation=0)
   
+  ax1.set_xlabel("$z_g$", fontsize=45)
+  ax1.set_ylabel("Ratio           \nto           \n" + ratio_denominator.capitalize() + "           ", fontsize=45, rotation=0)
+
+
+
   # Legend.
 
   handles, labels = ax0.get_legend_handles_labels()
@@ -717,7 +744,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra, extra]
-  labels = ["$p_{T cut}$ = " + str(pT_lower_cut) + "; R = $0.5$", "$z_{cut}$ = " + zg_cut + "; $\\beta$ = 0"]
+  labels = ["Anti-$k_T$: R = $0.5$; $p_{T cut}$ = " + str(pT_lower_cut), "Soft Drop: $\\beta$ = 0; $z_{cut}$ = " + zg_cut]
   ax0.legend(handles, labels, loc=2, frameon=0, borderpad=0.1)
 
 
@@ -728,7 +755,11 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   ax1.autoscale(True)
   
   ax0.set_ylim(0, 10)
-  ax1.set_ylim(0.5, 1.8)
+
+  if ratio_denominator == "data":
+    ax1.set_ylim(0.85, 1.5)
+  else:
+    ax1.set_ylim(0.75, 1.1)
 
 
   fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
@@ -736,9 +767,9 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   ax0.add_artist(ab)
 
   fig = plt.gcf()
-  fig.set_size_inches(20, 20, forward=1)
+  fig.set_size_inches(30, 30, forward=1)
 
-  plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + ".pdf")
+  plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + ".pdf")
   
 
   plt.show()
@@ -789,36 +820,37 @@ def parse_theory_file(input_file):
 
 
 
-plot_zg_th_mc_data('0.1', 'zg_1')
+plot_zg_th_mc_data('0.1', 'zg_1', 'theory')
+plot_zg_th_mc_data('0.1', 'zg_1', 'data')
 
 
-plot_pts()
+# plot_pts()
 
 
 
-plot_dr()
-plot_mu()
+# plot_dr()
+# plot_mu()
 
 
-plot_charged_pt()
+# plot_charged_pt()
 
-plot_charged_zgs()
-
-
-plot_zg_pfc_pt_cut(pfc_pT_cut=1)
-plot_zg_pfc_pt_cut(pfc_pT_cut=2)
-plot_zg_pfc_pt_cut(pfc_pT_cut=3)
-plot_zg_pfc_pt_cut(pfc_pT_cut=5)
-plot_zg_pfc_pt_cut(pfc_pT_cut=10)
+# plot_charged_zgs()
 
 
-plot_charged_zg_pfc_pt_cut(pfc_pT_cut=1)
-plot_charged_zg_pfc_pt_cut(pfc_pT_cut=2)
-plot_charged_zg_pfc_pt_cut(pfc_pT_cut=3)
-plot_charged_zg_pfc_pt_cut(pfc_pT_cut=5)
-plot_charged_zg_pfc_pt_cut(pfc_pT_cut=10)
-
-plot_hardest_pt_corresponding_triggers()
+# plot_zg_pfc_pt_cut(pfc_pT_cut=1)
+# plot_zg_pfc_pt_cut(pfc_pT_cut=2)
+# plot_zg_pfc_pt_cut(pfc_pT_cut=3)
+# plot_zg_pfc_pt_cut(pfc_pT_cut=5)
+# plot_zg_pfc_pt_cut(pfc_pT_cut=10)
 
 
-plot_2d_hist()
+# plot_charged_zg_pfc_pt_cut(pfc_pT_cut=1)
+# plot_charged_zg_pfc_pt_cut(pfc_pT_cut=2)
+# plot_charged_zg_pfc_pt_cut(pfc_pT_cut=3)
+# plot_charged_zg_pfc_pt_cut(pfc_pT_cut=5)
+# plot_charged_zg_pfc_pt_cut(pfc_pT_cut=10)
+
+# plot_hardest_pt_corresponding_triggers()
+
+
+# plot_2d_hist()
