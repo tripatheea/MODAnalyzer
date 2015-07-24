@@ -29,6 +29,10 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 
 
+
+from rootpy.io import root_open, DoesNotExist
+
+
 from scipy.stats import binned_statistic
 
 import rootpy.plotting.views
@@ -99,86 +103,54 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
 
   return properties
     
-def parse_mc_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
-  f = open(input_file, 'r')
-  lines = f.read().split("\n")
-
-  properties = defaultdict(list)
-
-  for line in lines:
-    try:
-      numbers = line.split()
-      properties['zg_05'].append( float( numbers[0] ) )
-      properties['zg_1'].append( float( numbers[1] ) )
-      properties['zg_2'].append( float( numbers[2] ) )
-    except:
-      pass
-  
-  return properties
 
 
 
 
-
-
-def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=True, mc=True, theory=True):
+def plot_zg_th_mc_data(zg_cut, zg_filename):
   pT_lower_cut = 150
   pfc_pT_cut = 0
 
-  properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
-
-  zg_pythias = properties_pythia[zg_filename]
-
-  # zg_pythia_hist = Hist(50, 0, 0.6, markersize=5.0, color='blue', linewidth=5)
-  # map(zg_pythia_hist.Fill, zg_pythias)
-  # pythia_plot = rplt.hist(zg_pythia_hist)
-
-  plt.hist(zg_pythias, normed=1, bins=50, histtype='step')
-    
+  properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
   
-  plt.gca().xaxis.set_tick_params(width=5, length=10)
-  plt.gca().yaxis.set_tick_params(width=5, length=10)
+  zg_data = properties[zg_filename]
+  prescales = properties['prescales']
+
+  zg_data_hist = Hist(50, 0.0, 0.6, markersize=2.5, color='black')
+  bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
+
+  map(zg_data_hist.Fill, zg_data, prescales)
+  
+  zg_data_hist.Scale(1.0 / ( zg_data_hist.GetSumOfWeights() * bin_width_data ))
 
 
-  plt.autoscale(True)
+  plotline, caplines, barlinecols = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, linewidth=5, alpha=1.0)
+
+  x = plotline.get_xdata()
+  y = plotline.get_ydata()
+
+  x_errors = []
+  y_errors = []
+
+
+  for x_segment in barlinecols[0].get_segments():
+    x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+
+
+  for y_segment in barlinecols[1].get_segments():
+    y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+
+
+  f = open('data_' + zg_filename + '.txt','w')
+  
+  for i in range(0, len(x)):
+    f.write(str(x[i]) + '\t' + str(y[i]) + '\t' + str(x_errors[i]) + '\t' + str(y_errors[i]) + '\n') 
+  
+  f.close() # you can omit in most cases as the destructor will call it
+
+  plt.autoscale()
 
   plt.show()
-  
-
-
-
-
-def parse_theory_file(input_file):
-  f = open(input_file, 'r')
-  lines = f.read().split("\n")
-
-  properties = defaultdict(list)
-
-  points = defaultdict(list)
-  for line in lines:
-    try:
-      numbers = line.split()
-      try:
-        # Areas range from 4 to 1, 5 to 2 and 6 to 3.
-        # When returned, will be 1 to 2, 2 to 3 and 3 to 4.
-        
-        points[float(numbers[0])].append(float(numbers[4]))
-        points[float(numbers[0])].append(float(numbers[1]))
-        
-        points[float(numbers[0])].append(float(numbers[5]))
-        points[float(numbers[0])].append(float(numbers[2]))
-
-        points[float(numbers[0])].append(float(numbers[6]))
-        points[float(numbers[0])].append(float(numbers[3]))
-
-      except ValueError:
-        pass
-    except:
-      pass
-
-  return points
-
-
 
 
   
@@ -190,9 +162,10 @@ def parse_theory_file(input_file):
 
 
 
-# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', )
-# plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=0, data=0)
-plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
+
+plot_zg_th_mc_data('0.05', 'zg_05')
+plot_zg_th_mc_data('0.1', 'zg_1')
+plot_zg_th_mc_data('0.2', 'zg_2')
+
 
 
