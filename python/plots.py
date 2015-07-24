@@ -747,22 +747,21 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   for i in range(0, len(labels)):
     if labels[i] == theory_label:
+      line, = ax0.plot(range(1), linewidth=5, color='red')
+      patch = mpatches.Patch(facecolor='pink', alpha=1.0, linewidth=0)
+      handles[i] = (patch, line)
+    elif labels[i] == herwig_label:
+      line, = ax0.plot(range(1), linewidth=5, color=zg_herwig_hist.GetLineColor())
+      handles[i] = line
+    elif labels[i] == pythia_label:
+      line, = ax0.plot(range(1), linewidth=5, color=zg_pythia_hist.GetLineColor())
+      handles[i] = line
 
 
-      theory_line, = ax0.plot(range(1), color = 'red')
-      theory_patch = mpatches.Patch(facecolor='pink', alpha=1.0, linewidth=0)
-      handles[i] = (theory_patch, theory_line)
 
 
-
-  first_legend = ax0.legend(handles, labels, handler_map = {theory_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1)
-  # first_legend = ax0.legend(handles, labels, frameon=0, borderpad=0.1)
+  first_legend = ax0.legend(handles, labels, handler_map = {line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1)
   ax = ax0.add_artist(first_legend)
-
-
-
-
-
 
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
