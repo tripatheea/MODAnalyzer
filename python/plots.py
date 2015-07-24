@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import matplotlib.patches as mpatches
+from matplotlib.legend_handler import HandlerLine2D
 
 # RootPy
 from rootpy.plotting import Hist, HistStack, Legend
@@ -599,8 +600,8 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   zg_pythia_hist.Scale(1.0 / ( zg_pythia_hist.GetSumOfWeights() * bin_width_pythia ))
 
   if mc:
-    pythia_plot = rplt.hist(zg_pythia_hist, axes=ax0)
-    pythia_plot.set_snap(True)
+    # pythia_plot = rplt.hist(zg_pythia_hist, axes=ax0)
+    pythia_plot = ax0.hist(zg_pythias, label=pythia_label, bins=50, normed=1, histtype='step', color='blue', linewidth=5)
 
   
   # Pythia Ends.
@@ -615,7 +616,8 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   zg_herwig_hist.Scale(1.0 / ( zg_herwig_hist.GetSumOfWeights() * bin_width_herwig ))
 
   if mc:
-    herwig_plot = rplt.hist(zg_herwig_hist, axes=ax0)
+    # herwig_plot = rplt.hist(zg_herwig_hist, axes=ax0)
+    herwig_plot = ax0.hist(zg_herwigs, label=herwig_label, bins=50, normed=1, histtype='step', color='green', linewidth=5)
   
   # Herwig Ends.
 
@@ -686,10 +688,10 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   if ratio_denominator == "data":
 
     zg_herwig_hist.Divide(zg_data_hist)
-    rplt.hist(zg_herwig_hist, axes=ax1, linewidth=5)
+    plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=50, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
 
     zg_pythia_hist.Divide(zg_data_hist)
-    rplt.hist(zg_pythia_hist, axes=ax1, linewidth=5)
+    plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=50, weights=list(zg_pythia_hist.y()), axes=ax1, color='blue', linewidth=5)
 
     zg_data_hist.Divide(zg_data_hist)
     rplt.errorbar(zg_data_hist, axes=ax1, linewidth=5)
@@ -710,10 +712,10 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
     map(zg_theory_line_hist.Fill, data_plot_points_x, theory_extrapolated_line)
 
     zg_herwig_hist.Divide(zg_theory_line_hist)
-    rplt.hist(zg_herwig_hist, axes=ax1, linewidth=5)
+    plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=50, weights=list(zg_herwig_hist.y()), axes=ax1, linewidth=5)
 
     zg_pythia_hist.Divide(zg_theory_line_hist)
-    rplt.hist(zg_pythia_hist, axes=ax1, linewidth=5)
+    plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=50, weights=list(zg_pythia_hist.y()), axes=ax1, linewidth=5)
 
     zg_data_hist.Divide(zg_theory_line_hist)
     rplt.errorbar(zg_data_hist, axes=ax1, linewidth=5)
@@ -742,17 +744,26 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   handles = handles[::-1]
   labels = labels[::-1]
 
+
   for i in range(0, len(labels)):
     if labels[i] == theory_label:
-      handles[i] = mpatches.Patch(facecolor='red', edgecolor='red', alpha=1.0, linewidth=0, label=theory_label, hatch='-')
 
-      a = handles[i]
-      a.set_facecolor('pink')
-      handles[i] = a
 
-  first_legend = ax0.legend(handles, labels, loc=0, frameon=0, borderpad=0.1)
+      theory_line, = ax0.plot(range(1), color = 'red')
+      theory_patch = mpatches.Patch(facecolor='pink', alpha=1.0, linewidth=0)
+      handles[i] = (theory_patch, theory_line)
+
+
+
+  first_legend = ax0.legend(handles, labels, handler_map = {theory_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1)
+  # first_legend = ax0.legend(handles, labels, frameon=0, borderpad=0.1)
   ax = ax0.add_artist(first_legend)
-  
+
+
+
+
+
+
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra, extra]
@@ -798,8 +809,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   fig.set_snap(True)
 
   plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + ".pdf")
-  
-  ax0.axis('tight')
+
 
 
   plt.show()
@@ -852,8 +862,8 @@ def parse_theory_file(input_file):
 
 # plot_zg_th_mc_data('0.1', 'zg_1', 'theory', )
 # plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=0, data=0)
-plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=0)
+plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
 
 # plot_pts()
