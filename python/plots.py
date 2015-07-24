@@ -687,42 +687,56 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   if ratio_denominator == "data":
 
-    zg_herwig_hist.Divide(zg_data_hist)
-    plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=50, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
+    if mc:
+      zg_herwig_hist.Divide(zg_data_hist)
+      plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=50, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
 
-    zg_pythia_hist.Divide(zg_data_hist)
-    plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=50, weights=list(zg_pythia_hist.y()), axes=ax1, color='blue', linewidth=5)
+      zg_pythia_hist.Divide(zg_data_hist)
+      plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=50, weights=list(zg_pythia_hist.y()), axes=ax1, color='blue', linewidth=5)
 
-    zg_data_hist.Divide(zg_data_hist)
-    rplt.errorbar(zg_data_hist, axes=ax1, linewidth=5)
-    # plt.errorbar(list(zg_data_hist.x()), list(zg_data_hist.y()), elinewidth=5, capsize=5, capthick=5, color=zg_data_hist.GetLineColor(), xerr=np.array([list(zg_data_hist.xerrl()), list(zg_data_hist.xerrh())]), yerr=np.array([list(zg_data_hist.yerrl()), list(zg_data_hist.yerrh())]))
+    if data:
+      zg_data_hist.Divide(zg_data_hist)
+      rplt.errorbar(zg_data_hist, axes=ax1, linewidth=5)
+      # plt.errorbar(list(zg_data_hist.x()), list(zg_data_hist.y()), elinewidth=5, capsize=5, capthick=5, color=zg_data_hist.GetLineColor(), xerr=np.array([list(zg_data_hist.xerrl()), list(zg_data_hist.xerrh())]), yerr=np.array([list(zg_data_hist.yerrl()), list(zg_data_hist.yerrh())]))
 
-    ratio_theory_line_to_data = [m / n for m, n in zip(theory_extrapolated_line, data_plot_points_y)]
-    ax1.plot(data_plot_points_x, ratio_theory_line_to_data, alpha=1.0, color='red', linewidth=5)
+    if theory:
+      ratio_theory_line_to_data = [m / n for m, n in zip(theory_extrapolated_line, data_plot_points_y)]
+      ax1.plot(data_plot_points_x, ratio_theory_line_to_data, alpha=1.0, color='red', linewidth=5)
 
-    ratio_theory_min_to_data = [m / n for m, n in zip(theory_extrapolated_min, data_plot_points_y)]
-    ax1.plot(data_plot_points_x, ratio_theory_min_to_data, alpha=0.0, color='red')
+      ratio_theory_min_to_data = [m / n for m, n in zip(theory_extrapolated_min, data_plot_points_y)]
+      ax1.plot(data_plot_points_x, ratio_theory_min_to_data, alpha=0.0, color='red')
 
-    ratio_theory_max_to_data = [m / n for m, n in zip(theory_extrapolated_max, data_plot_points_y)]
-    ax1.plot(data_plot_points_x, ratio_theory_max_to_data, alpha=0.0, color='red')
+      ratio_theory_max_to_data = [m / n for m, n in zip(theory_extrapolated_max, data_plot_points_y)]
+      ax1.plot(data_plot_points_x, ratio_theory_max_to_data, alpha=0.0, color='red')
 
-    ax1.fill_between(data_plot_points_x, ratio_theory_max_to_data, ratio_theory_min_to_data, norm=1, where=np.less_equal(ratio_theory_min_to_data, ratio_theory_max_to_data), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
-    
+      ax1.fill_between(data_plot_points_x, ratio_theory_max_to_data, ratio_theory_min_to_data, norm=1, where=np.less_equal(ratio_theory_min_to_data, ratio_theory_max_to_data), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
+      
   elif ratio_denominator == "theory":
     zg_theory_line_hist = Hist(50, 0.0, 0.6, color='red')
     map(zg_theory_line_hist.Fill, data_plot_points_x, theory_extrapolated_line)
 
-    zg_herwig_hist.Divide(zg_theory_line_hist)
-    plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=50, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
+    if mc:
+      zg_herwig_hist.Divide(zg_theory_line_hist)
 
-    zg_pythia_hist.Divide(zg_theory_line_hist)
-    plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=50, weights=list(zg_pythia_hist.y()), axes=ax1, color='blue', linewidth=5)
+      # a = list(zg_herwigs)
+      # print sorted(a)[0:15]
 
-    zg_data_hist.Divide(zg_theory_line_hist)
-    rplt.errorbar(zg_data_hist, axes=ax1, linewidth=5)
+      plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=50, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
 
-    zg_theory_line_hist.Divide(zg_theory_line_hist)
-    plt.hist(list(zg_theory_line_hist.x()), histtype='step', bins=50, weights=list(zg_theory_line_hist.y()), axes=ax1, linewidth=5, color='red')
+      zg_herwig_hist.Divide(zg_data_hist)
+      plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=50, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
+
+
+      zg_pythia_hist.Divide(zg_theory_line_hist)
+      plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=50, weights=list(zg_pythia_hist.y()), axes=ax1, color='blue', linewidth=5)
+
+    if data:
+      zg_data_hist.Divide(zg_theory_line_hist)
+      rplt.errorbar(zg_data_hist, axes=ax1, linewidth=5)
+
+    if theory:
+      zg_theory_line_hist.Divide(zg_theory_line_hist)
+      plt.hist(list(zg_theory_line_hist.x()), histtype='step', bins=50, weights=list(zg_theory_line_hist.y()), axes=ax1, linewidth=5, color='red')
 
   else:
     raise ValueError("Only 'theory' or 'data' are valid options for calculating ratios!")
@@ -808,7 +822,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   fig.set_snap(True)
 
-  plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + ".pdf")
+  plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf")
 
 
 
@@ -860,10 +874,11 @@ def parse_theory_file(input_file):
 
 
 
-plot_zg_th_mc_data('0.1', 'zg_1', 'theory')
-# plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=0, data=0)
-# plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
+plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
+plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
+plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+
+plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
 
 # plot_pts()
