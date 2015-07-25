@@ -496,8 +496,8 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   prescales = properties['prescales']
 
   data_label = 'CMS 2010 Open Data'
-  pythia_label = 'Pythia 8'
-  herwig_label = 'Herwig++'
+  pythia_label = 'Pythia 8.205'
+  herwig_label = 'Herwig++ 2.6.3'
   theory_label = 'Theory (MLL)'
 
   
@@ -510,8 +510,8 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   # Theory Plots Begin.
   
-  points_th_gluon = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results/band_gluon_pt" + str(pT_lower_cut) + "_zc01.dat")
-  points_th_quark = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results/band_quark_pt" + str(pT_lower_cut) + "_zc01.dat")
+  points_th_gluon = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_gluon_pt" + str(pT_lower_cut) + "_zc01.dat")
+  points_th_quark = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_quark_pt" + str(pT_lower_cut) + "_zc01.dat")
 
   points = defaultdict(list)
 
@@ -689,10 +689,27 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
     if mc:
       zg_herwig_hist.Divide(zg_data_hist)
-      plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=50, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
+      
+      x = list(zg_herwig_hist.x())      
+      weights = list(zg_herwig_hist.y())
+
+      herwig_x = []
+      herwig_weights = []
+      for i in range(0, len(x)):
+        print x[i]
+        if float(x[i]) > zg_cut and float(x[i]) < 0.5:
+          herwig_x.append(x[i])
+          herwig_weights.append(weights[i])
+
+      print len(herwig_x)
+      print len(herwig_weights)
+
+      plt.hist(herwig_x, histtype='step', bins=50, weights=herwig_weights, axes=ax1, color='green', linewidth=5)
 
       zg_pythia_hist.Divide(zg_data_hist)
-      plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=50, weights=list(zg_pythia_hist.y()), axes=ax1, color='blue', linewidth=5)
+      weights = list(zg_pythia_hist.y())
+      # weights[weights == 0.0] = np.nan
+      plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=50, weights=weights, axes=ax1, color='blue', linewidth=5)
 
     if data:
       zg_data_hist.Divide(zg_data_hist)
@@ -701,6 +718,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
     if theory:
       ratio_theory_line_to_data = [m / n for m, n in zip(theory_extrapolated_line, data_plot_points_y)]
+      ratio_theory_line_to_data[ratio_theory_line_to_data == 0.0] = np.nan
       ax1.plot(data_plot_points_x, ratio_theory_line_to_data, alpha=1.0, color='red', linewidth=5)
 
       ratio_theory_min_to_data = [m / n for m, n in zip(theory_extrapolated_min, data_plot_points_y)]
@@ -724,11 +742,14 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
       plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=50, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
 
       zg_herwig_hist.Divide(zg_data_hist)
-      plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=50, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
-
+      weights = list(zg_herwig_hist.y())
+      weights[weights == 0.0] = np.nan
+      plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=50, weights=weights, axes=ax1, color='green', linewidth=5)
 
       zg_pythia_hist.Divide(zg_theory_line_hist)
-      plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=50, weights=list(zg_pythia_hist.y()), axes=ax1, color='blue', linewidth=5)
+      weights = list(zg_pythia_hist.y())
+      weights[weights == 0.0] = np.nan
+      plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=50, weights=weights, axes=ax1, color='blue', linewidth=5)
 
     if data:
       zg_data_hist.Divide(zg_theory_line_hist)
@@ -781,7 +802,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra, extra]
-  labels = ["Anti-$k_T$: R = $0.5$; $p_{T cut}$ = " + str(pT_lower_cut), "Soft Drop: $\\beta$ = 0; $z_{cut}$ = " + zg_cut]
+  labels = ["Anti-$k_T$: $R = 0.5$; $p_{T}$ > " + str(pT_lower_cut) + " GeV", "Soft Drop: $\\beta$ = 0; $z_{\mathrm{cut}}$ = " + zg_cut]
   ax0.legend(handles, labels, loc=2, frameon=0, borderpad=0.1)
 
 
@@ -793,21 +814,23 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   ax1.autoscale(True)
   
   ax0.set_ylim(0, 10)
+  ax1.set_ylim(0.5, 1.5)
 
-  if ratio_denominator == "data":
-    ax1.set_ylim(0.85, 1.5)
-  else:
-    ax1.set_ylim(0.75, 1.1)
 
 
   fig = plt.gcf()
 
+  if data:
+    fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
+    ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=1.0), (0.185, 0.97), boxcoords=("figure fraction"), frameon=0)
+    ax0.add_artist(ab)
 
-  fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
-  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=1.0), (0.185, 0.97), boxcoords=("figure fraction"), frameon=0)
-  ax0.add_artist(ab)
+  if data:
+    preliminary_text = "Preliminary \n(25% sample)"
+  else:
+    preliminary_text = "Preliminary"
 
-  fig.text(0.125, 0.915, "Preliminary \n(25% sample)", fontsize=30, weight='bold', color='#444444', multialignment='center')
+  fig.text(0.255, 0.95, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
 
 
 
@@ -843,18 +866,8 @@ def parse_theory_file(input_file):
     try:
       numbers = line.split()
       try:
-        # Areas range from 4 to 1, 5 to 2 and 6 to 3.
-        # When returned, will be 1 to 2, 2 to 3 and 3 to 4.
-        
-        points[float(numbers[0])].append(float(numbers[4]))
-        points[float(numbers[0])].append(float(numbers[1]))
-        
-        points[float(numbers[0])].append(float(numbers[5]))
-        points[float(numbers[0])].append(float(numbers[2]))
-
-        points[float(numbers[0])].append(float(numbers[6]))
-        points[float(numbers[0])].append(float(numbers[3]))
-
+        for i in range(1, len(numbers)):
+          points[float(numbers[0])].append(float(numbers[i]))
       except ValueError:
         pass
     except:
@@ -874,9 +887,9 @@ def parse_theory_file(input_file):
 
 
 
-plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
-plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
-plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
+# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
+# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
 
 plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
