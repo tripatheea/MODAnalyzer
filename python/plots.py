@@ -590,10 +590,10 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   prescales = properties['prescales']
 
-  data_label = 'CMS 2010 Open Data' if data else ""
-  pythia_label = 'Pythia 8.205' if mc else ""
-  herwig_label = 'Herwig++ 2.6.3' if mc else ""
-  theory_label = 'Theory (MLL)' if theory else ""
+  data_label = "CMS 2010 Open Data  " if data else "                    "
+  pythia_label = "Pythia 8.205        " if mc else "                    "
+  herwig_label = "Herwig++ 2.6.3      " if mc else "                    "
+  theory_label = "Theory (MLL)        " if theory else "                    "
 
   
   gs = gridspec.GridSpec(2, 1, height_ratios=[2, 1]) 
@@ -831,6 +831,13 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
     zg_theory_line_hist = Hist(60, 0.0, 0.6, color='red')
     map(zg_theory_line_hist.Fill, data_plot_points_x, theory_extrapolated_line)
 
+    zg_theory_min_hist = Hist(60, 0.0, 0.6, color='pink')
+    map(zg_theory_min_hist.Fill, data_plot_points_x, theory_extrapolated_min)
+
+    zg_theory_max_hist = Hist(60, 0.0, 0.6, color='red')
+    map(zg_theory_max_hist.Fill, data_plot_points_x, theory_extrapolated_max)
+
+
     if mc:
       zg_herwig_hist.Divide(zg_theory_line_hist)
       plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=60, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
@@ -843,6 +850,14 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
       rplt.errorbar(zg_data_hist, axes=ax1, linewidth=5)
 
     if theory:
+      
+      zg_theory_min_hist.Divide(zg_theory_line_hist)
+      # plt.hist(list(zg_theory_min_hist.x()), histtype='step', bins=60, weights=list(zg_theory_min_hist.y()), axes=ax1, linewidth=5, color='pink')
+      plt.plot(list(zg_theory_min_hist.x()), list(zg_theory_min_hist.y()), color='pink', linewidth=5)
+
+      zg_theory_max_hist.Divide(zg_theory_line_hist)
+      plt.hist(list(zg_theory_max_hist.x()), histtype='step', bins=60, weights=list(zg_theory_max_hist.y()), axes=ax1, linewidth=5, color='pink')
+
       zg_theory_line_hist.Divide(zg_theory_line_hist)
       plt.hist(list(zg_theory_line_hist.x()), histtype='step', bins=60, weights=list(zg_theory_line_hist.y()), axes=ax1, linewidth=5, color='red')
 
@@ -852,10 +867,10 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   # Normalized-Over-Data Plot Ends.
 
-  ax0.set_xlabel("$z_g$", fontsize=45)
+  ax0.set_xlabel("$z_g$", fontsize=85)
   ax0.set_ylabel("$ \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$     ", fontsize=85, rotation=0)
   
-  ax1.set_xlabel("$z_g$", fontsize=45)
+  ax1.set_xlabel("$z_g$", fontsize=85)
   ax1.set_ylabel("Ratio           \nto           \n" + ratio_denominator.capitalize() + "           ", fontsize=45, rotation=0)
 
 
@@ -893,7 +908,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   ax1.autoscale(True)
   
   ax0.set_ylim(0, 10)
-  ax1.set_ylim(0.5, 1.5)
+  # ax1.set_ylim(0.5, 1.5)
 
   ax0.set_xlim(0.0, 0.6)
 
@@ -925,7 +940,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   fig.set_snap(True)
 
-  # plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf")
+  plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf")
 
 
 
@@ -969,10 +984,10 @@ def parse_theory_file(input_file):
 
 
 plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
-plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
-plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
+# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
 
-plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
 
 # plot_pts()
