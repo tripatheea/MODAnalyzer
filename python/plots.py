@@ -26,6 +26,7 @@ from matplotlib import gridspec
 
 from matplotlib.cbook import get_sample_data
 from matplotlib._png import read_png
+
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 
@@ -96,9 +97,43 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
           properties['zg_charged_2'].append( float( numbers[35] ) )
 
     except:
-      pass
+      if len(numbers) != 0:
+        print "Some kind of error occured while parsing the given file!"
+        print numbers
+        print
 
   return properties
+
+
+
+
+def parse_file_turn_on(input_file, pT_lower_cut = 0.00):
+  f = open(input_file, 'r')
+  lines = f.read().split("\n")
+
+  properties = defaultdict(list)
+
+  for line in lines:
+    try:
+      numbers = line.split()
+      
+      if not numbers[0] == "#":
+        if (float(numbers[1]) > pT_lower_cut):
+          properties['corrected_hardest_pts'].append( float( numbers[1] ) )
+          properties['prescales'].append( int( numbers[2] ) )
+          properties['trigger_names'].append(  numbers[3] )
+
+    except:
+      if len(numbers) != 0:
+        print "Some kind of error occured while parsing the given file!"
+        print numbers
+        print
+
+
+  return properties
+
+
+
     
 def parse_mc_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
   f = open(input_file, 'r')
@@ -113,7 +148,10 @@ def parse_mc_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
       properties['zg_1'].append( float( numbers[1] ) )
       properties['zg_2'].append( float( numbers[2] ) )
     except:
-      pass
+      if len(numbers) != 0:
+        print "Some kind of error occured while parsing the given file!"
+        print numbers
+        print
   
   return properties
 
@@ -479,10 +517,67 @@ def plot_2d_hist():
 
 
 
+def plot_turn_on_curves():
+  # properties = parse_file_turn_on(input_analysis_file)
+  
+  properties = parse_file_turn_on('./turn_on.dat')
+
+  pTs = properties['corrected_hardest_pts']
+  trigger_names = properties['trigger_names']
+  prescales = properties['prescales']
+
+  # expected_trigger_names = ["HLT_DiJetAve15U", "HLT_DiJetAve30U", "HLT_DiJetAve50U", "HLT_DiJetAve70U", "HLT_EcalOnly_SumEt160", "HLT_HT100U", "HLT_HT120U", "HLT_HT140U", "HLT_Jet100U", "HLT_Jet15U_HcalNoiseFiltered", "HLT_QuadJet20U", "HLT_QuadJet25U", "HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U", "HLT_Jet15U", "HLT_L1Jet6U"]
+  expected_trigger_names = ["HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U", "HLT_Jet15U", "HLT_L1Jet6U"]
+
+  colors = ['red', 'blue', 'orange', 'green', 'black']
+
+  pt_hists = []
+  for i in range(0, len(expected_trigger_names)):
+    pt_hists.append(Hist(1000, 0, 500, title=expected_trigger_names[i], markersize=1.0, color=colors[i], linewidth=5))
+
+  for i in range(0, len(pTs)):
+    for j in range(0, len(expected_trigger_names)):
+      if expected_trigger_names[j] in trigger_names[i]:
+        pt_hists[j].Fill(pTs[i], prescales[i])
+
+  for k in range(0, len(pt_hists)):
+    rplt.errorbar(pt_hists[k], xerr=0, yerr=0)
+    # rplt.hist(pt_hists[k])
+
+  plt.axvspan(153, pt_hists[0].upperbound(), fc="red", linewidth=0, alpha=0.5)
+  plt.axvspan(114, 153, fc="blue", linewidth=0, alpha=0.5)
+  plt.axvspan(84, 114, fc="orange", linewidth=0, alpha=0.5)
+  plt.axvspan(56, 84, fc="green", linewidth=0, alpha=0.5)
+  plt.axvspan(37, 56, fc="black", linewidth=0, alpha=0.5)
+
+
+  fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
+  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=1.0), (305, 1375), frameon=0, boxcoords='figure points')
+  plt.gca().add_artist(ab)
+
+  plt.gcf().text(0.300, 0.93, "Preliminary \n(25% sample)", fontsize=40, weight='bold', color='#444444', multialignment='center')
+
+  plt.autoscale(True)
+  plt.yscale('log')
+
+  plt.legend()
+  plt.xlabel('$p_T$ (GeV)')
+
+
+  plt.gcf().set_size_inches(20, 20, forward=1)
+
+
+  plt.savefig("plots/turn_on_curves.pdf")
+  plt.show()
+
+
+
 
 def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=True, mc=True, theory=True):
   pT_lower_cut = 150
   pfc_pT_cut = 0
+
+  zg_cut = float(zg_cut)
 
   properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
   properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
@@ -570,7 +665,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   
   # Data Plot Begins.
   
-  zg_data_hist = Hist(50, 0.0, 0.6, title=data_label, markersize=2.5, color='black')
+  zg_data_hist = Hist(60, 0.0, 0.6, title=data_label, markersize=2.5, color='black')
   bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
 
   map(zg_data_hist.Fill, zg_data, prescales)
@@ -592,7 +687,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   
   # Pythia.
   
-  zg_pythia_hist = Hist(50, 0, 0.6, title=pythia_label, markersize=5.0, color='blue', linewidth=5)
+  zg_pythia_hist = Hist(60, 0, 0.6, title=pythia_label, markersize=5.0, color='blue', linewidth=5)
   bin_width_pythia = (zg_pythia_hist.upperbound() - zg_pythia_hist.lowerbound()) / zg_pythia_hist.nbins()
 
   map(zg_pythia_hist.Fill, zg_pythias)
@@ -608,7 +703,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   
   # Herwig. 
   
-  zg_herwig_hist = Hist(50, 0, 0.6, title=herwig_label, markersize=5.0, color='green', linewidth=5)
+  zg_herwig_hist = Hist(60, 0, 0.6, title=herwig_label, markersize=5.0, color='green', linewidth=5)
   bin_width_herwig = (zg_herwig_hist.upperbound() - zg_herwig_hist.lowerbound()) / zg_herwig_hist.nbins()
 
   map(zg_herwig_hist.Fill, zg_herwigs)
@@ -689,27 +784,45 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
     if mc:
       zg_herwig_hist.Divide(zg_data_hist)
+
+      a = []
+      b = {}
+      for i in range(0, len(list(zg_herwig_hist.x()))):
+        a.append(list(zg_herwig_hist.x())[i] - 0.01 / 2.)
+        a.append(list(zg_herwig_hist.x())[i])
+        a.append(list(zg_herwig_hist.x())[i] + 0.01 / 2.)
+
+        b[list(zg_herwig_hist.x())[i] - 0.01 / 2.] = list(zg_herwig_hist.y())[i]
+        b[list(zg_herwig_hist.x())[i]] = list(zg_herwig_hist.y())[i]
+        b[list(zg_herwig_hist.x())[i] - 0.01 / 2.] = list(zg_herwig_hist.y())[i]
+        
+
+      # print a
+      print 
+      # print b
+
+      a.sort()
+
+      c, d = [], []
+      for i in range(0, len(a)):
+        c.append(a[i])
+
+        print a[i], b[a[i]]
+
+        # d.append(b[a[i]])
+
+
+      # print c
+      # print d
+
+      # plt.plot(c, d, color='grey', linewidth=5)
       
-      x = list(zg_herwig_hist.x())      
-      weights = list(zg_herwig_hist.y())
 
-      herwig_x = []
-      herwig_weights = []
-      for i in range(0, len(x)):
-        print x[i]
-        if float(x[i]) > zg_cut and float(x[i]) < 0.5:
-          herwig_x.append(x[i])
-          herwig_weights.append(weights[i])
+      plt.hist(list(zg_herwig_hist.x()) , histtype='step', bins=60, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
 
-      print len(herwig_x)
-      print len(herwig_weights)
-
-      plt.hist(herwig_x, histtype='step', bins=50, weights=herwig_weights, axes=ax1, color='green', linewidth=5)
 
       zg_pythia_hist.Divide(zg_data_hist)
-      weights = list(zg_pythia_hist.y())
-      # weights[weights == 0.0] = np.nan
-      plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=50, weights=weights, axes=ax1, color='blue', linewidth=5)
+      plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=60, weights=list(zg_pythia_hist.y()), axes=ax1, color='blue', linewidth=5)
 
     if data:
       zg_data_hist.Divide(zg_data_hist)
@@ -730,7 +843,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
       ax1.fill_between(data_plot_points_x, ratio_theory_max_to_data, ratio_theory_min_to_data, norm=1, where=np.less_equal(ratio_theory_min_to_data, ratio_theory_max_to_data), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
       
   elif ratio_denominator == "theory":
-    zg_theory_line_hist = Hist(50, 0.0, 0.6, color='red')
+    zg_theory_line_hist = Hist(60, 0.0, 0.6, color='red')
     map(zg_theory_line_hist.Fill, data_plot_points_x, theory_extrapolated_line)
 
     if mc:
@@ -802,7 +915,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra, extra]
-  labels = ["Anti-$k_T$: $R = 0.5$; $p_{T}$ > " + str(pT_lower_cut) + " GeV", "Soft Drop: $\\beta$ = 0; $z_{\mathrm{cut}}$ = " + zg_cut]
+  labels = ["Anti-$k_T$: $R = 0.5$; $p_{T}$ > " + str(pT_lower_cut) + " GeV", "Soft Drop: $\\beta$ = 0; $z_{\mathrm{cut}}$ = " + str(zg_cut)]
   ax0.legend(handles, labels, loc=2, frameon=0, borderpad=0.1)
 
 
@@ -845,7 +958,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   fig.set_snap(True)
 
-  plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf")
+  # plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf")
 
 
 
@@ -885,13 +998,14 @@ def parse_theory_file(input_file):
 
 
 
+plot_turn_on_curves()
 
 
 # plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
 # plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
 # plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
 
-plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
 
 # plot_pts()

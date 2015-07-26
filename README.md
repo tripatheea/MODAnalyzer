@@ -12,6 +12,7 @@ This repository has code to analyze CMS Open Data data produced using [https://g
    ``./bin/validate data/CMS_JetSample.dat data/CMS_JetSample_ validated.dat (57)``
    ``./bin/filter data/CMS_JetSample.dat data/CMS_JetSample_filtered.dat (29)``
    ``./bin/analyze data/CMS_JetSample.dat data/CMS_JetSample_analyzed.dat (33)``
+   ``./bin/turn_on /media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/MOD/Apr21ReReco-v1/0000/68562CF9-6871-E011-B007-002481E0D66C.root.mod 1``
 
  - The code will output a `DAT` file `./data/output.dat`.
  - To make the plots, move to the directory `./root`.
