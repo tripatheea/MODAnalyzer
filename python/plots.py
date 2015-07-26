@@ -590,10 +590,10 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   prescales = properties['prescales']
 
-  data_label = 'CMS 2010 Open Data'
-  pythia_label = 'Pythia 8.205'
-  herwig_label = 'Herwig++ 2.6.3'
-  theory_label = 'Theory (MLL)'
+  data_label = 'CMS 2010 Open Data' if data else ""
+  pythia_label = 'Pythia 8.205' if mc else ""
+  herwig_label = 'Herwig++ 2.6.3' if mc else ""
+  theory_label = 'Theory (MLL)' if theory else ""
 
   
   gs = gridspec.GridSpec(2, 1, height_ratios=[2, 1]) 
@@ -696,7 +696,9 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   if mc:
     # pythia_plot = rplt.hist(zg_pythia_hist, axes=ax0)
-    pythia_plot = ax0.hist(zg_pythias, label=pythia_label, bins=50, normed=1, histtype='step', color='blue', linewidth=5)
+    pythia_plot = ax0.hist(zg_pythias, label=pythia_label, bins=60, normed=1, histtype='step', color='blue', linewidth=5)
+  else:
+    pythia_plot = ax0.hist(zg_pythias, bins=60, normed=1, histtype='step', color='blue', linewidth=0)
 
   
   # Pythia Ends.
@@ -712,7 +714,9 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   if mc:
     # herwig_plot = rplt.hist(zg_herwig_hist, axes=ax0)
-    herwig_plot = ax0.hist(zg_herwigs, label=herwig_label, bins=50, normed=1, histtype='step', color='green', linewidth=5)
+    herwig_plot = ax0.hist(zg_herwigs, label=herwig_label, bins=60, normed=1, histtype='step', color='green', linewidth=5)
+  else:
+    herwig_plot = ax0.hist(zg_herwigs, bins=60, normed=1, histtype='step', color='green', linewidth=0)
   
   # Herwig Ends.
 
@@ -795,27 +799,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
         b[list(zg_herwig_hist.x())[i] - 0.01 / 2.] = list(zg_herwig_hist.y())[i]
         b[list(zg_herwig_hist.x())[i]] = list(zg_herwig_hist.y())[i]
         b[list(zg_herwig_hist.x())[i] - 0.01 / 2.] = list(zg_herwig_hist.y())[i]
-        
 
-      # print a
-      print 
-      # print b
-
-      a.sort()
-
-      c, d = [], []
-      for i in range(0, len(a)):
-        c.append(a[i])
-
-        print a[i], b[a[i]]
-
-        # d.append(b[a[i]])
-
-
-      # print c
-      # print d
-
-      # plt.plot(c, d, color='grey', linewidth=5)
       
 
       plt.hist(list(zg_herwig_hist.x()) , histtype='step', bins=60, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
@@ -843,26 +827,16 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
       ax1.fill_between(data_plot_points_x, ratio_theory_max_to_data, ratio_theory_min_to_data, norm=1, where=np.less_equal(ratio_theory_min_to_data, ratio_theory_max_to_data), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
       
   elif ratio_denominator == "theory":
+
     zg_theory_line_hist = Hist(60, 0.0, 0.6, color='red')
     map(zg_theory_line_hist.Fill, data_plot_points_x, theory_extrapolated_line)
 
     if mc:
       zg_herwig_hist.Divide(zg_theory_line_hist)
-
-      # a = list(zg_herwigs)
-      # print sorted(a)[0:15]
-
-      plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=50, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
-
-      zg_herwig_hist.Divide(zg_data_hist)
-      weights = list(zg_herwig_hist.y())
-      weights[weights == 0.0] = np.nan
-      plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=50, weights=weights, axes=ax1, color='green', linewidth=5)
+      plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=60, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
 
       zg_pythia_hist.Divide(zg_theory_line_hist)
-      weights = list(zg_pythia_hist.y())
-      weights[weights == 0.0] = np.nan
-      plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=50, weights=weights, axes=ax1, color='blue', linewidth=5)
+      plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=60, weights=list(zg_pythia_hist.y()), axes=ax1, color='blue', linewidth=5)
 
     if data:
       zg_data_hist.Divide(zg_theory_line_hist)
@@ -870,7 +844,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
     if theory:
       zg_theory_line_hist.Divide(zg_theory_line_hist)
-      plt.hist(list(zg_theory_line_hist.x()), histtype='step', bins=50, weights=list(zg_theory_line_hist.y()), axes=ax1, linewidth=5, color='red')
+      plt.hist(list(zg_theory_line_hist.x()), histtype='step', bins=60, weights=list(zg_theory_line_hist.y()), axes=ax1, linewidth=5, color='red')
 
   else:
     raise ValueError("Only 'theory' or 'data' are valid options for calculating ratios!")
@@ -888,28 +862,20 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   # Legend.
 
-  handles, labels = ax0.get_legend_handles_labels()
-  
-  handles = handles[::-1]
-  labels = labels[::-1]
+  th_line, = ax0.plot(range(1), linewidth=5, color='red')
+  th_patch = mpatches.Patch(facecolor='pink', alpha=1.0, linewidth=0)
 
+  if mc:
+    pythia_line, = ax0.plot(range(1), linewidth=5, color=zg_pythia_hist.GetLineColor())
+    herwig_line, = ax0.plot(range(1), linewidth=5, color=zg_herwig_hist.GetLineColor())
+  else:
+    pythia_line, = ax0.plot(range(1), linewidth=5, color=zg_pythia_hist.GetLineColor(), alpha=0)
+    herwig_line, = ax0.plot(range(1), linewidth=5, color=zg_herwig_hist.GetLineColor(), alpha=0)
 
-  for i in range(0, len(labels)):
-    if labels[i] == theory_label:
-      line, = ax0.plot(range(1), linewidth=5, color='red')
-      patch = mpatches.Patch(facecolor='pink', alpha=1.0, linewidth=0)
-      handles[i] = (patch, line)
-    elif labels[i] == herwig_label:
-      line, = ax0.plot(range(1), linewidth=5, color=zg_herwig_hist.GetLineColor())
-      handles[i] = line
-    elif labels[i] == pythia_label:
-      line, = ax0.plot(range(1), linewidth=5, color=zg_pythia_hist.GetLineColor())
-      handles[i] = line
+  handles = [data_plot, (th_patch, th_line), pythia_line, herwig_line]
+  labels = [data_label, theory_label, pythia_label, herwig_label]
 
-
-
-
-  first_legend = ax0.legend(handles, labels, handler_map = {line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1)
+  first_legend = ax0.legend(handles, labels, handler_map = {th_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1)
   ax = ax0.add_artist(first_legend)
 
   # Info about R, pT_cut, etc.
@@ -929,6 +895,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   ax0.set_ylim(0, 10)
   ax1.set_ylim(0.5, 1.5)
 
+  ax0.set_xlim(0.0, 0.6)
 
 
   fig = plt.gcf()
@@ -998,14 +965,14 @@ def parse_theory_file(input_file):
 
 
 
-plot_turn_on_curves()
+# plot_turn_on_curves()
 
 
-# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
-# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
+plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
+plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
 
-# plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
+plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
 
 # plot_pts()
