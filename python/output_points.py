@@ -63,41 +63,9 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
           properties['prescales'].append( int( numbers[5] ) )
           properties['trigger_names'].append(  numbers[6] )
           properties['zg_05'].append( float( numbers[7] ) )
-          properties['dr_05'].append( float( numbers[8] ) )
-          properties['mu_05'].append( float( numbers[9] ) )
           properties['zg_1'].append( float( numbers[10] ) )
-          properties['dr_1'].append( float( numbers[11] ) )
-          properties['mu_1'].append( float( numbers[12] ) )
           properties['zg_2'].append( float( numbers[13] ) )
-          properties['dr_2'].append( float( numbers[14] ) )
-          properties['mu_2'].append( float( numbers[15] ) )
-          properties['hardest_pfc_pdgid'].append( float( numbers[16] ) )
-          properties['hardest_pfc_pt'].append( float( numbers[17] ) )
-
-          properties['zg_05_pt_1'].append( float( numbers[18] ) )
-          properties['zg_1_pt_1'].append( float( numbers[19] ) )
-          properties['zg_2_pt_1'].append( float( numbers[20] ) )
-
-          properties['zg_05_pt_2'].append( float( numbers[21] ) )
-          properties['zg_1_pt_2'].append( float( numbers[22] ) )
-          properties['zg_2_pt_2'].append( float( numbers[23] ) )
-
-          properties['zg_05_pt_3'].append( float( numbers[24] ) )
-          properties['zg_1_pt_3'].append( float( numbers[25] ) )
-          properties['zg_2_pt_3'].append( float( numbers[26] ) )
-
-          properties['zg_05_pt_5'].append( float( numbers[27] ) )
-          properties['zg_1_pt_5'].append( float( numbers[28] ) )
-          properties['zg_2_pt_5'].append( float( numbers[29] ) )
-
-          properties['zg_05_pt_10'].append( float( numbers[30] ) )
-          properties['zg_1_pt_10'].append( float( numbers[31] ) )
-          properties['zg_2_pt_10'].append( float( numbers[32] ) )
-
-          properties['zg_charged_05'].append( float( numbers[33] ) )
-          properties['zg_charged_1'].append( float( numbers[34] ) )
-          properties['zg_charged_2'].append( float( numbers[35] ) )
-
+          
     except:
       pass
 
@@ -116,7 +84,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename):
   zg_data = properties[zg_filename]
   prescales = properties['prescales']
 
-  zg_data_hist = Hist(50, 0.0, 0.6, markersize=2.5, color='black')
+  zg_data_hist = Hist(60, 0.0, 0.6, markersize=2.5, color='black')
   bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
 
   map(zg_data_hist.Fill, zg_data, prescales)

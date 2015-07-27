@@ -98,9 +98,10 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
 
     except:
       if len(numbers) != 0:
-        print "Some kind of error occured while parsing the given file!"
-        print numbers
-        print
+        # print "Some kind of error occured while parsing the given file!"
+        # print numbers
+        # print
+        pass
 
   return properties
 
@@ -149,9 +150,10 @@ def parse_mc_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
       properties['zg_2'].append( float( numbers[2] ) )
     except:
       if len(numbers) != 0:
-        print "Some kind of error occured while parsing the given file!"
-        print numbers
-        print
+        # print "Some kind of error occured while parsing the given file!"
+        # print numbers
+        # print
+        pass
   
   return properties
 
@@ -527,9 +529,13 @@ def plot_turn_on_curves():
   prescales = properties['prescales']
 
   # expected_trigger_names = ["HLT_DiJetAve15U", "HLT_DiJetAve30U", "HLT_DiJetAve50U", "HLT_DiJetAve70U", "HLT_EcalOnly_SumEt160", "HLT_HT100U", "HLT_HT120U", "HLT_HT140U", "HLT_Jet100U", "HLT_Jet15U_HcalNoiseFiltered", "HLT_QuadJet20U", "HLT_QuadJet25U", "HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U", "HLT_Jet15U", "HLT_L1Jet6U"]
-  expected_trigger_names = ["HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U", "HLT_Jet15U", "HLT_L1Jet6U"]
+  expected_trigger_names = ["HLT_Jet180U", "HLT_Jet140U", "HLT_Jet100U", "HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U" ]
 
-  colors = ['red', 'blue', 'orange', 'green', 'black']
+  colors = ['red', 'blue', 'orange', 'green', 'black', 'pink']
+
+
+
+
 
   pt_hists = []
   for i in range(0, len(expected_trigger_names)):
@@ -544,11 +550,12 @@ def plot_turn_on_curves():
     rplt.errorbar(pt_hists[k], xerr=0, yerr=0)
     # rplt.hist(pt_hists[k])
 
-  plt.axvspan(153, pt_hists[0].upperbound(), fc="red", linewidth=0, alpha=0.5)
-  plt.axvspan(114, 153, fc="blue", linewidth=0, alpha=0.5)
-  plt.axvspan(84, 114, fc="orange", linewidth=0, alpha=0.5)
-  plt.axvspan(56, 84, fc="green", linewidth=0, alpha=0.5)
-  plt.axvspan(37, 56, fc="black", linewidth=0, alpha=0.5)
+  # plt.axvspan(153, pt_hists[0].upperbound(), fc="red", linewidth=0, alpha=0.5)
+  # plt.axvspan(114, 153, fc="blue", linewidth=0, alpha=0.5)
+  # plt.axvspan(84, 114, fc="orange", linewidth=0, alpha=0.5)
+  # plt.axvspan(56, 84, fc="green", linewidth=0, alpha=0.5)
+  # plt.axvspan(37, 56, fc="black", linewidth=0, alpha=0.5)
+  # plt.axvspan(37, 56, fc="pink", linewidth=0, alpha=0.5)
 
 
   fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
@@ -675,10 +682,17 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   norm_data_prescales = map(lambda x: x / ( zg_data_hist.GetSumOfWeights() * bin_width_data ), prescales)
   
   if data:
-    data_plot = rplt.errorbar(zg_data_hist, emptybins=False, axes=ax0, linewidth=5, alpha=1.0)
+    data_plot, caplines, barlinecols = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, linewidth=5, alpha=1.0)
   else:
     zg_data_hist.SetTitle("")
-    data_plot = rplt.errorbar(zg_data_hist, emptybins=False, axes=ax0, linewidth=5, alpha=0.0)
+    data_plot, caplines, barlinecols = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, linewidth=5, alpha=0.0)
+
+
+  data_x_errors, data_y_errors = [], []
+  for x_segment in barlinecols[0].get_segments():
+    data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 10.)
+  for y_segment in barlinecols[1].get_segments():
+    data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 10.)
 
   # Data Plots Ends.
 
@@ -729,8 +743,8 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   # Theory-Over-Data Plot.
   
 
-  data_points_x = data_plot[0].get_xdata()
-  data_points_y = data_plot[0].get_ydata()
+  data_points_x = data_plot.get_xdata()
+  data_points_y = data_plot.get_ydata()
 
   data_plot_points_x = []
   data_plot_points_y = []
@@ -747,7 +761,6 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   j = 0
   for i in range(0, len(data_plot_points_x)):
     x = data_plot_points_x[i]
-
     
     if x >= theory_x[j] and x <= theory_x[j + 1]:
       x1, x2 = theory_x[j], theory_x[j + 1]
@@ -796,34 +809,57 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
         a.append(list(zg_herwig_hist.x())[i])
         a.append(list(zg_herwig_hist.x())[i] + 0.01 / 2.)
 
-        b[list(zg_herwig_hist.x())[i] - 0.01 / 2.] = list(zg_herwig_hist.y())[i]
-        b[list(zg_herwig_hist.x())[i]] = list(zg_herwig_hist.y())[i]
-        b[list(zg_herwig_hist.x())[i] - 0.01 / 2.] = list(zg_herwig_hist.y())[i]
+        if (list(zg_herwig_hist.x())[i] - 0.01 / 2.) not in b.keys():
+          b[list(zg_herwig_hist.x())[i] - 0.01 / 2.] = [ list(zg_herwig_hist.y())[i] ]
+        else:
+          b[list(zg_herwig_hist.x())[i] - 0.01 / 2.].append(list(zg_herwig_hist.y())[i])
+        
+        if (list(zg_herwig_hist.x())[i]) not in b.keys():
+          b[list(zg_herwig_hist.x())[i]] = [ list(zg_herwig_hist.y())[i] ]
+        else:
+          b[list(zg_herwig_hist.x())[i]].append(list(zg_herwig_hist.y())[i])
+
+        if (list(zg_herwig_hist.x())[i] + 0.01 / 2.) not in b.keys():
+          b[list(zg_herwig_hist.x())[i] + 0.01 / 2.] = [ list(zg_herwig_hist.y())[i] ]
+        else:
+          b[list(zg_herwig_hist.x())[i] + 0.01 / 2.].append(list(zg_herwig_hist.y())[i])
 
       
+      
+
+      a.sort()
+      
+      c = []
+
+      for i in range(0, len(a)):
+        # for j in range(0, len(b[a[i]])):
+        #   c.append(b[a[i]][j])
+        # c.append(b[a[i]])
+
+        c.append(b[a[i]][0])
+
+      # print c
 
       plt.hist(list(zg_herwig_hist.x()) , histtype='step', bins=60, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
 
+      plt.plot(a, c, linewidth=5)
+
 
       zg_pythia_hist.Divide(zg_data_hist)
-      plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=60, weights=list(zg_pythia_hist.y()), axes=ax1, color='blue', linewidth=5)
+      # plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=60, weights=list(zg_pythia_hist.y()), axes=ax1, color='blue', linewidth=5)
 
     if data:
-      zg_data_hist.Divide(zg_data_hist)
-      rplt.errorbar(zg_data_hist, axes=ax1, linewidth=5)
-      # plt.errorbar(list(zg_data_hist.x()), list(zg_data_hist.y()), elinewidth=5, capsize=5, capthick=5, color=zg_data_hist.GetLineColor(), xerr=np.array([list(zg_data_hist.xerrl()), list(zg_data_hist.xerrh())]), yerr=np.array([list(zg_data_hist.yerrl()), list(zg_data_hist.yerrh())]))
-
+      ratio_data_to_data = [None if n == 0 else m / n for m, n in zip(data_plot_points_y, data_plot_points_y)]
+      data_to_data_y_err = [b / m for b, m in zip(data_y_errors, data_plot_points_y)]
+      plt.errorbar(data_plot_points_x, ratio_data_to_data, yerr=data_to_data_y_err, ls='None', marker='o', markersize=8, pickradius=15, elinewidth=15, color='black')
+   
     if theory:
       ratio_theory_line_to_data = [m / n for m, n in zip(theory_extrapolated_line, data_plot_points_y)]
-      ratio_theory_line_to_data[ratio_theory_line_to_data == 0.0] = np.nan
-      ax1.plot(data_plot_points_x, ratio_theory_line_to_data, alpha=1.0, color='red', linewidth=5)
-
       ratio_theory_min_to_data = [m / n for m, n in zip(theory_extrapolated_min, data_plot_points_y)]
-      ax1.plot(data_plot_points_x, ratio_theory_min_to_data, alpha=0.0, color='red')
-
       ratio_theory_max_to_data = [m / n for m, n in zip(theory_extrapolated_max, data_plot_points_y)]
-      ax1.plot(data_plot_points_x, ratio_theory_max_to_data, alpha=0.0, color='red')
 
+      ax1.plot(data_plot_points_x, ratio_theory_line_to_data, alpha=1.0, color='red', linewidth=5)
+      
       ax1.fill_between(data_plot_points_x, ratio_theory_max_to_data, ratio_theory_min_to_data, norm=1, where=np.less_equal(ratio_theory_min_to_data, ratio_theory_max_to_data), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
       
   elif ratio_denominator == "theory":
@@ -846,17 +882,16 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
       plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=60, weights=list(zg_pythia_hist.y()), axes=ax1, color='blue', linewidth=5)
 
     if data:
-      zg_data_hist.Divide(zg_theory_line_hist)
-      rplt.errorbar(zg_data_hist, axes=ax1, linewidth=5)
+      zg_data_to_th_y = [b / m for b, m in zip(data_plot_points_y, theory_extrapolated_line)]
+      zg_data_to_th_y_err = [b / m for b, m in zip(data_y_errors, theory_extrapolated_line)]
 
+      plt.errorbar(data_plot_points_x, zg_data_to_th_y, yerr=zg_data_to_th_y_err, ls='None', marker='o', markersize=8, pickradius=15, elinewidth=15, color='black')
+   
     if theory:
       
       zg_theory_min_hist.Divide(zg_theory_line_hist)
-      # plt.hist(list(zg_theory_min_hist.x()), histtype='step', bins=60, weights=list(zg_theory_min_hist.y()), axes=ax1, linewidth=5, color='pink')
-      plt.plot(list(zg_theory_min_hist.x()), list(zg_theory_min_hist.y()), color='pink', linewidth=5)
-
       zg_theory_max_hist.Divide(zg_theory_line_hist)
-      plt.hist(list(zg_theory_max_hist.x()), histtype='step', bins=60, weights=list(zg_theory_max_hist.y()), axes=ax1, linewidth=5, color='pink')
+      ax1.fill_between(list(zg_theory_max_hist.x()), list(zg_theory_max_hist.y()), list(zg_theory_min_hist.y()), norm=1, where=np.less_equal(list(zg_theory_min_hist.y()), list(zg_theory_max_hist.y())), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
 
       zg_theory_line_hist.Divide(zg_theory_line_hist)
       plt.hist(list(zg_theory_line_hist.x()), histtype='step', bins=60, weights=list(zg_theory_line_hist.y()), axes=ax1, linewidth=5, color='red')
@@ -873,7 +908,11 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   ax1.set_xlabel("$z_g$", fontsize=85)
   ax1.set_ylabel("Ratio           \nto           \n" + ratio_denominator.capitalize() + "           ", fontsize=45, rotation=0)
 
+  ax0.tick_params(axis='x', labelsize=60)
+  ax0.tick_params(axis='y', labelsize=60)
 
+  ax1.tick_params(axis='x', labelsize=60)
+  ax1.tick_params(axis='y', labelsize=60)
 
   # Legend.
 
@@ -908,10 +947,10 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   ax1.autoscale(True)
   
   ax0.set_ylim(0, 10)
-  # ax1.set_ylim(0.5, 1.5)
+  ax1.set_ylim(0.5, 1.5)
 
   ax0.set_xlim(0.0, 0.6)
-
+  
 
   fig = plt.gcf()
 
@@ -983,11 +1022,11 @@ def parse_theory_file(input_file):
 # plot_turn_on_curves()
 
 
-plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
+# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
 # plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
 
-# plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
+plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
 
 # plot_pts()
