@@ -983,7 +983,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   if data:
     fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
-    ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=1.0), (0.185, 0.97), boxcoords=("figure fraction"), frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.25, resample=1, dpi_cor=1), (0.22, 0.95), boxcoords=("figure fraction"), frameon=0)
     ax0.add_artist(ab)
 
   if data:
@@ -991,7 +991,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   else:
     preliminary_text = "Preliminary"
 
-  fig.text(0.255, 0.95, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
+  fig.text(0.32, 0.925, preliminary_text, fontsize=60, weight='bold', color='#444444', multialignment='center')
 
 
 
@@ -1049,9 +1049,9 @@ def parse_theory_file(input_file):
 # plot_turn_on_curves()
 
 
-plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
-plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
-plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
+# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
+# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
 
 plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
