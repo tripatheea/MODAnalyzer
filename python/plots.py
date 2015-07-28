@@ -1,6 +1,8 @@
 # /media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/analyzed.dat
 from __future__ import division
 
+from sets import Set
+
 import sys
 import math
 from collections import defaultdict
@@ -682,10 +684,10 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   norm_data_prescales = map(lambda x: x / ( zg_data_hist.GetSumOfWeights() * bin_width_data ), prescales)
   
   if data:
-    data_plot, caplines, barlinecols = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, linewidth=5, alpha=1.0)
+    data_plot, caplines, barlinecols = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=8, pickradius=3, elinewidth=3, alpha=1.0)
   else:
     zg_data_hist.SetTitle("")
-    data_plot, caplines, barlinecols = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, linewidth=5, alpha=0.0)
+    data_plot, caplines, barlinecols = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=8, pickradius=3, elinewidth=3, alpha=0.0)
 
 
   data_x_errors, data_y_errors = [], []
@@ -693,6 +695,13 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
     data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 10.)
   for y_segment in barlinecols[1].get_segments():
     data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 10.)
+
+  data_points_x = data_plot.get_xdata()
+  data_points_y = data_plot.get_ydata()
+
+  # print sorted(data_points_x)
+
+
 
   # Data Plots Ends.
 
@@ -743,24 +752,27 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   # Theory-Over-Data Plot.
   
 
-  data_points_x = data_plot.get_xdata()
-  data_points_y = data_plot.get_ydata()
+  
 
   data_plot_points_x = []
   data_plot_points_y = []
 
   for i in range(0, len(data_points_x)):
-    if float(data_points_x[i]) >= float(zg_cut):
+    if float(data_points_x[i]) > float(zg_cut):
       data_plot_points_x.append(data_points_x[i])
       data_plot_points_y.append(data_points_y[i])
+
+  
+
 
   theory_extrapolated_min = []
   theory_extrapolated_line = []
   theory_extrapolated_max = []
 
+
   j = 0
   for i in range(0, len(data_plot_points_x)):
-    x = data_plot_points_x[i]
+    x = float(data_plot_points_x[i])
     
     if x >= theory_x[j] and x <= theory_x[j + 1]:
       x1, x2 = theory_x[j], theory_x[j + 1]
@@ -790,7 +802,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
     elif x == 0:
       y_min, y_line, y_max = 0, 0, 0
     else:
-      raise ValueError("Some very weird zg value found!", x)
+      raise ValueError("Some very weird zg value found!", x, theory_x[j], theory_x[j + 1])
 
     theory_extrapolated_min.append(y_min)
     theory_extrapolated_line.append(y_line)
@@ -805,44 +817,59 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
       a = []
       b = {}
       for i in range(0, len(list(zg_herwig_hist.x()))):
-        a.append(list(zg_herwig_hist.x())[i] - 0.01 / 2.)
-        a.append(list(zg_herwig_hist.x())[i])
-        a.append(list(zg_herwig_hist.x())[i] + 0.01 / 2.)
+        a.append(round(list(zg_herwig_hist.x())[i] - 0.01 / 2., 4))
+        a.append(round(list(zg_herwig_hist.x())[i], 4))
+        a.append(round(list(zg_herwig_hist.x())[i] + 0.01 / 2., 4))
 
-        if (list(zg_herwig_hist.x())[i] - 0.01 / 2.) not in b.keys():
-          b[list(zg_herwig_hist.x())[i] - 0.01 / 2.] = [ list(zg_herwig_hist.y())[i] ]
+        if round(list(zg_herwig_hist.x())[i] - 0.01 / 2., 4) not in b.keys():
+          b[round(list(zg_herwig_hist.x())[i] - 0.01 / 2., 4)] = [ float("{0:.3f}".format(list(zg_herwig_hist.y())[i])) ]
         else:
-          b[list(zg_herwig_hist.x())[i] - 0.01 / 2.].append(list(zg_herwig_hist.y())[i])
+          # print "Bing", round(list(zg_herwig_hist.x())[i] - 0.01 / 2., 4)
+          b[round(list(zg_herwig_hist.x())[i] - 0.01 / 2., 4)].append(float("{0:.3f}".format(list(zg_herwig_hist.y())[i])))
         
-        if (list(zg_herwig_hist.x())[i]) not in b.keys():
-          b[list(zg_herwig_hist.x())[i]] = [ list(zg_herwig_hist.y())[i] ]
+        if round(list(zg_herwig_hist.x())[i], 4) not in b.keys():
+          b[round(list(zg_herwig_hist.x())[i], 4)] = [ float("{0:.3f}".format(list(zg_herwig_hist.y())[i])) ]
         else:
-          b[list(zg_herwig_hist.x())[i]].append(list(zg_herwig_hist.y())[i])
+          # print "Bing", round(list(zg_herwig_hist.x())[i], 4)
+          b[round(list(zg_herwig_hist.x())[i], 4)].append(float("{0:.3f}".format(list(zg_herwig_hist.y())[i])))
 
-        if (list(zg_herwig_hist.x())[i] + 0.01 / 2.) not in b.keys():
-          b[list(zg_herwig_hist.x())[i] + 0.01 / 2.] = [ list(zg_herwig_hist.y())[i] ]
+        if round(list(zg_herwig_hist.x())[i] + 0.01 / 2., 4) not in b.keys():
+          b[round(list(zg_herwig_hist.x())[i] + 0.01 / 2., 4)] = [ float("{0:.3f}".format(list(zg_herwig_hist.y())[i])) ]
         else:
-          b[list(zg_herwig_hist.x())[i] + 0.01 / 2.].append(list(zg_herwig_hist.y())[i])
+          # print "Bing", round(list(zg_herwig_hist.x())[i] + 0.01 / 2., 4)
+          b[round(list(zg_herwig_hist.x())[i] + 0.01 / 2., 4)].append(float("{0:.3f}".format(list(zg_herwig_hist.y())[i])))
 
       
       
 
+
+      
+      x = sorted(list(Set(a)))
       a.sort()
       
       c = []
 
+      for i in range(0, len(x)):
+        c.append(b[x[i]])
+      
+      y = [item for sublist in c for item in sublist]
+
+      # a = a[0:len(a) - 50]
+      # y = y[0:len(y) - 50]
+
+      a_zero_removed = []
+      y_zero_removed = []
       for i in range(0, len(a)):
-        # for j in range(0, len(b[a[i]])):
-        #   c.append(b[a[i]][j])
-        # c.append(b[a[i]])
+        if a[i] > zg_cut and a[i] < 0.5:
+          a_zero_removed.append(a[i])
+          y_zero_removed.append(y[i])
 
-        c.append(b[a[i]][0])
 
-      # print c
 
-      plt.hist(list(zg_herwig_hist.x()) , histtype='step', bins=60, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
 
-      plt.plot(a, c, linewidth=5)
+      # plt.hist(list(zg_herwig_hist.x()) , histtype='step', bins=60, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
+
+      plt.plot(a_zero_removed, y_zero_removed, linewidth=5, color='green')
 
 
       zg_pythia_hist.Divide(zg_data_hist)
@@ -859,7 +886,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
       ratio_theory_max_to_data = [m / n for m, n in zip(theory_extrapolated_max, data_plot_points_y)]
 
       ax1.plot(data_plot_points_x, ratio_theory_line_to_data, alpha=1.0, color='red', linewidth=5)
-      
+
       ax1.fill_between(data_plot_points_x, ratio_theory_max_to_data, ratio_theory_min_to_data, norm=1, where=np.less_equal(ratio_theory_min_to_data, ratio_theory_max_to_data), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
       
   elif ratio_denominator == "theory":
@@ -950,6 +977,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   ax1.set_ylim(0.5, 1.5)
 
   ax0.set_xlim(0.0, 0.6)
+  ax1.set_xlim(0.0, 0.6)
   
 
   fig = plt.gcf()
@@ -1024,7 +1052,7 @@ def parse_theory_file(input_file):
 
 # plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
 # plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
-plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
 
 plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
