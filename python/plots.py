@@ -1036,30 +1036,109 @@ def parse_theory_file(input_file):
 
 
 
+
+def plot_trigger_efficiency_curves(trigger_1, trigger_2):
+  # properties = parse_file_turn_on(input_analysis_file)
   
+  properties = parse_file_turn_on('./turn_on.dat')
+
+  pTs = properties['corrected_hardest_pts']
+  trigger_names = properties['trigger_names']
+  prescales = properties['prescales']
+
+  expected_trigger_names = [trigger_1, trigger_2]
+
+  pt_hist_1 = Hist(50, 0, 500)
+  pt_hist_2 = Hist(50, 0, 500)
+
+  pTs_1, weights_1 = [], []
+  pTs_2, weights_2 = [], []
+  
+  for i in range(0, len(pTs)):
+    if trigger_names[i] == trigger_1:
+      pTs_1.append(pTs[i])
+      weights_1.append(prescales[i])
+    elif trigger_names[i] == trigger_2:
+      pTs_2.append(pTs[i])
+      weights_2.append(prescales[i])
+  
+  map(pt_hist_1.Fill, pTs_1, weights_1)
+  map(pt_hist_2.Fill, pTs_2, weights_2)
+
+  pt_hist_1.Divide(pt_hist_2)
+
+  plt.plot(list(pt_hist_1.x()), list(pt_hist_1.y()), color="red", linewidth=5)
+
+
+  # Horizontal line.
+  plt.plot(list(pt_hist_1.x()), [1] * len(list(pt_hist_1.x())), color="green", linewidth=3, linestyle="dashed")
+
+  # Vertical line.
+  efficient_pt_x = 0.0
+  efficient_pt_y = 0.0
+  for i in range(0, len(list(pt_hist_1.x()))):
+    if abs(list(pt_hist_1.y())[i] - 1.00) < 0.02:
+      efficient_pt_x = list(pt_hist_1.x())[i]
+      efficient_pt_y = list(pt_hist_1.y())[i]
+      break
+
+  plt.plot([efficient_pt_x, efficient_pt_x], [efficient_pt_y, 0.0], color="blue", linewidth=3, linestyle="dashed")
+
+  plt.gca().annotate(str(efficient_pt_x) + " GeV", xy=(efficient_pt_x, efficient_pt_y), xycoords='data', xytext=(100, 2), textcoords='data', size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor='orange', connectionstyle="arc3,rad=-0.2"), )
+
+
+  fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
+  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=1.0), (305, 1375), frameon=0, boxcoords='figure points')
+  plt.gca().add_artist(ab)
+
+  plt.gcf().text(0.300, 0.93, "Preliminary \n(25% sample)", fontsize=40, weight='bold', color='#444444', multialignment='center')
+
+  plt.autoscale(True)
+  plt.yscale('log')
+  plt.gca().set_ylim(plt.gca().get_ylim()[0], 10)
+
+  plt.legend()
+  plt.xlabel('$p_T$ (GeV)')
+
+
+  plt.gcf().set_size_inches(20, 20, forward=1)
+
+  plt.title("Efficiency Curve- " + trigger_1 + " / " + trigger_2)
+
+  plt.savefig("plots/efficiency_curves_" + trigger_1 + "_" + trigger_2 + ".pdf")
+  plt.show()
 
 
 
 
+
+# "HLT_Jet180U", "HLT_Jet140U", "HLT_Jet100U", "HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U"
+
+plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U")
+plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U")
+plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U")
+plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U")
+plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U")
+plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U")
 
 
 # plot_turn_on_curves()
 
 
-plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=0, data=0)
-plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=0)
-plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1)
-plot_zg_th_mc_data(150, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=0, data=0)
+# plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=0)
+# plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data(150, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1)
 
-plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
-plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
-plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
-plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
+# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
+# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
-plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=0, data=0)
-plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=0)
-plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1)
-plot_zg_th_mc_data(150, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=0, data=0)
+# plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=0)
+# plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data(150, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
 
 
 # plot_pts()
