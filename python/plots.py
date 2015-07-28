@@ -582,8 +582,7 @@ def plot_turn_on_curves():
 
 
 
-def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=True, mc=True, theory=True):
-  pT_lower_cut = 150
+def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="theory", data=True, mc=True, theory=True):
   pfc_pT_cut = 0
 
   zg_cut = float(zg_cut)
@@ -614,8 +613,8 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   # Theory Plots Begin.
   
-  points_th_gluon = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_gluon_pt" + str(pT_lower_cut) + "_zc01.dat")
-  points_th_quark = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_quark_pt" + str(pT_lower_cut) + "_zc01.dat")
+  points_th_gluon = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_gluon_pt" + str(pT_lower_cut) + "_zc" + str(zg_cut).replace(".", "") + ".dat")
+  points_th_quark = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_quark_pt" + str(pT_lower_cut) + "_zc" + str(zg_cut).replace(".", "") + ".dat")
 
   points = defaultdict(list)
 
@@ -955,14 +954,14 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   handles = [data_plot, (th_patch, th_line), pythia_line, herwig_line]
   labels = [data_label, theory_label, pythia_label, herwig_label]
 
-  first_legend = ax0.legend(handles, labels, handler_map = {th_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1)
+  first_legend = ax0.legend(handles, labels, fontsize=49, handler_map = {th_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1)
   ax = ax0.add_artist(first_legend)
 
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra, extra]
   labels = ["Anti-$k_T$: $R = 0.5$; $p_{T}$ > " + str(pT_lower_cut) + " GeV", "Soft Drop: $\\beta$ = 0; $z_{\mathrm{cut}}$ = " + str(zg_cut)]
-  ax0.legend(handles, labels, loc=2, frameon=0, borderpad=0.1)
+  ax0.legend(handles, labels, loc=2, frameon=0, borderpad=0.1, fontsize=49)
 
 
   # Legend Ends.
@@ -972,7 +971,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
   ax0.autoscale(True)
   ax1.autoscale(True)
   
-  ax0.set_ylim(0, 10)
+  ax0.set_ylim(0, ax0.get_ylim()[1] + 2)
   ax1.set_ylim(0.5, 1.5)
 
   ax0.set_xlim(0.0, 0.6)
@@ -988,10 +987,10 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   if data:
     preliminary_text = "Preliminary \n(25% sample)"
+    fig.text(0.32, 0.925, preliminary_text, fontsize=60, weight='bold', color='#444444', multialignment='center')
   else:
     preliminary_text = "Preliminary"
-
-  fig.text(0.32, 0.925, preliminary_text, fontsize=60, weight='bold', color='#444444', multialignment='center')
+    fig.text(0.329, 0.9561, preliminary_text, fontsize=60, weight='bold', color='#444444', multialignment='center')
 
 
 
@@ -1006,9 +1005,7 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
   fig.set_snap(True)
 
-  plt.savefig("plots/zg_distribution_data_mc_th_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf")
-
-
+  plt.savefig("plots/zg_distribution_data_mc_th_zg_cut_" + str(zg_cut).replace(".", "") + "_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf")
 
   plt.show()
   
@@ -1049,11 +1046,20 @@ def parse_theory_file(input_file):
 # plot_turn_on_curves()
 
 
-# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
-# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=0, data=0)
+plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=0)
+plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1)
 
-plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
+
+plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=0, data=0)
+plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=0)
+plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
 
 
 # plot_pts()
