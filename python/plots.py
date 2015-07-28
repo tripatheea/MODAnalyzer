@@ -809,71 +809,57 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
     theory_extrapolated_max.append(y_max)
 
 
+  def convert_hist_to_line_plot(hist):
+
+        a = []
+        b = {}
+        for i in range(0, len(list(hist.x()))):
+          a.append(round(list(hist.x())[i] - 0.01 / 2., 4))
+          a.append(round(list(hist.x())[i], 4))
+          a.append(round(list(hist.x())[i] + 0.01 / 2., 4))
+
+          if round(list(hist.x())[i] - 0.01 / 2., 4) not in b.keys():
+            b[round(list(hist.x())[i] - 0.01 / 2., 4)] = [ list(hist.y())[i] ]
+          else:
+            b[round(list(hist.x())[i] - 0.01 / 2., 4)].append( list(hist.y())[i] )
+          
+          if round(list(hist.x())[i], 4) not in b.keys():
+            b[round(list(hist.x())[i], 4)] = [ list(hist.y())[i] ]
+          else:
+            b[round(list(hist.x())[i], 4)].append( list(hist.y())[i] )
+
+          if round(list(hist.x())[i] + 0.01 / 2., 4) not in b.keys():
+            b[round(list(hist.x())[i] + 0.01 / 2., 4)] = [ list(hist.y())[i] ]
+          else:
+            b[round(list(hist.x())[i] + 0.01 / 2., 4)].append( list(hist.y())[i] )
+
+        x = sorted(list(Set(a)))
+        a.sort()
+        
+        c = [b[x[i]] for i in range(0, len(x))]
+
+        y = [item for sublist in c for item in sublist]
+        
+        a_zero_removed = []
+        y_zero_removed = []
+        for i in range(0, len(a)):
+          if a[i] > zg_cut and a[i] < 0.5:
+            a_zero_removed.append(a[i])
+            y_zero_removed.append(y[i])
+
+        return a_zero_removed, y_zero_removed
+
+
   if ratio_denominator == "data":
 
     if mc:
       zg_herwig_hist.Divide(zg_data_hist)
-
-      a = []
-      b = {}
-      for i in range(0, len(list(zg_herwig_hist.x()))):
-        a.append(round(list(zg_herwig_hist.x())[i] - 0.01 / 2., 4))
-        a.append(round(list(zg_herwig_hist.x())[i], 4))
-        a.append(round(list(zg_herwig_hist.x())[i] + 0.01 / 2., 4))
-
-        if round(list(zg_herwig_hist.x())[i] - 0.01 / 2., 4) not in b.keys():
-          b[round(list(zg_herwig_hist.x())[i] - 0.01 / 2., 4)] = [ float("{0:.3f}".format(list(zg_herwig_hist.y())[i])) ]
-        else:
-          # print "Bing", round(list(zg_herwig_hist.x())[i] - 0.01 / 2., 4)
-          b[round(list(zg_herwig_hist.x())[i] - 0.01 / 2., 4)].append(float("{0:.3f}".format(list(zg_herwig_hist.y())[i])))
-        
-        if round(list(zg_herwig_hist.x())[i], 4) not in b.keys():
-          b[round(list(zg_herwig_hist.x())[i], 4)] = [ float("{0:.3f}".format(list(zg_herwig_hist.y())[i])) ]
-        else:
-          # print "Bing", round(list(zg_herwig_hist.x())[i], 4)
-          b[round(list(zg_herwig_hist.x())[i], 4)].append(float("{0:.3f}".format(list(zg_herwig_hist.y())[i])))
-
-        if round(list(zg_herwig_hist.x())[i] + 0.01 / 2., 4) not in b.keys():
-          b[round(list(zg_herwig_hist.x())[i] + 0.01 / 2., 4)] = [ float("{0:.3f}".format(list(zg_herwig_hist.y())[i])) ]
-        else:
-          # print "Bing", round(list(zg_herwig_hist.x())[i] + 0.01 / 2., 4)
-          b[round(list(zg_herwig_hist.x())[i] + 0.01 / 2., 4)].append(float("{0:.3f}".format(list(zg_herwig_hist.y())[i])))
-
-      
-      
-
-
-      
-      x = sorted(list(Set(a)))
-      a.sort()
-      
-      c = []
-
-      for i in range(0, len(x)):
-        c.append(b[x[i]])
-      
-      y = [item for sublist in c for item in sublist]
-
-      # a = a[0:len(a) - 50]
-      # y = y[0:len(y) - 50]
-
-      a_zero_removed = []
-      y_zero_removed = []
-      for i in range(0, len(a)):
-        if a[i] > zg_cut and a[i] < 0.5:
-          a_zero_removed.append(a[i])
-          y_zero_removed.append(y[i])
-
-
-
-
-      # plt.hist(list(zg_herwig_hist.x()) , histtype='step', bins=60, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
-
-      plt.plot(a_zero_removed, y_zero_removed, linewidth=5, color='green')
-
+      zg_herwig_line_plot = convert_hist_to_line_plot(zg_herwig_hist)
+      plt.plot(zg_herwig_line_plot[0], zg_herwig_line_plot[1], linewidth=5, color='green')
 
       zg_pythia_hist.Divide(zg_data_hist)
-      # plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=60, weights=list(zg_pythia_hist.y()), axes=ax1, color='blue', linewidth=5)
+      zg_pythia_line_plot = convert_hist_to_line_plot(zg_pythia_hist)
+      plt.plot(zg_pythia_line_plot[0], zg_pythia_line_plot[1], linewidth=5, color='blue')
 
     if data:
       ratio_data_to_data = [None if n == 0 else m / n for m, n in zip(data_plot_points_y, data_plot_points_y)]
@@ -903,10 +889,12 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
 
     if mc:
       zg_herwig_hist.Divide(zg_theory_line_hist)
-      plt.hist(list(zg_herwig_hist.x()), histtype='step', bins=60, weights=list(zg_herwig_hist.y()), axes=ax1, color='green', linewidth=5)
+      zg_herwig_line_plot = convert_hist_to_line_plot(zg_herwig_hist)
+      plt.plot(zg_herwig_line_plot[0], zg_herwig_line_plot[1], linewidth=5, color='green')
 
       zg_pythia_hist.Divide(zg_theory_line_hist)
-      plt.hist(list(zg_pythia_hist.x()), histtype='step', bins=60, weights=list(zg_pythia_hist.y()), axes=ax1, color='blue', linewidth=5)
+      zg_pythia_line_plot = convert_hist_to_line_plot(zg_pythia_hist)
+      plt.plot(zg_pythia_line_plot[0], zg_pythia_line_plot[1], linewidth=5, color='blue')
 
     if data:
       zg_data_to_th_y = [b / m for b, m in zip(data_plot_points_y, theory_extrapolated_line)]
@@ -918,10 +906,21 @@ def plot_zg_th_mc_data(zg_cut, zg_filename, ratio_denominator="theory", data=Tru
       
       zg_theory_min_hist.Divide(zg_theory_line_hist)
       zg_theory_max_hist.Divide(zg_theory_line_hist)
-      ax1.fill_between(list(zg_theory_max_hist.x()), list(zg_theory_max_hist.y()), list(zg_theory_min_hist.y()), norm=1, where=np.less_equal(list(zg_theory_min_hist.y()), list(zg_theory_max_hist.y())), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
+
+      zg_theory_min_x, zg_theory_min_y = list(zg_theory_min_hist.x()), list(zg_theory_min_hist.y())
+      zg_theory_max_x, zg_theory_max_y = list(zg_theory_max_hist.x()), list(zg_theory_max_hist.y())
+
+      x_min = [zg_theory_min_x[i] for i in range(0, len(zg_theory_min_x)) if zg_theory_min_x[i] > zg_cut and zg_theory_min_x[i] < 0.5]
+      y_min = [zg_theory_min_y[i] for i in range(0, len(zg_theory_min_x)) if zg_theory_min_x[i] > zg_cut and zg_theory_min_x[i] < 0.5]
+
+      x_max = [zg_theory_max_x[i] for i in range(0, len(zg_theory_max_x)) if zg_theory_max_x[i] > zg_cut and zg_theory_max_x[i] < 0.5]
+      y_max = [zg_theory_max_y[i] for i in range(0, len(zg_theory_max_x)) if zg_theory_max_x[i] > zg_cut and zg_theory_max_x[i] < 0.5]
+
+      ax1.fill_between(x_max, y_max, y_min, norm=1, where=np.less_equal(y_min, y_max), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
 
       zg_theory_line_hist.Divide(zg_theory_line_hist)
-      plt.hist(list(zg_theory_line_hist.x()), histtype='step', bins=60, weights=list(zg_theory_line_hist.y()), axes=ax1, linewidth=5, color='red')
+      zg_theory_line_plot = convert_hist_to_line_plot(zg_theory_line_hist)
+      plt.plot(zg_theory_line_plot[0], zg_theory_line_plot[1], linewidth=5, color='red')
 
   else:
     raise ValueError("Only 'theory' or 'data' are valid options for calculating ratios!")
@@ -1050,9 +1049,9 @@ def parse_theory_file(input_file):
 # plot_turn_on_curves()
 
 
-# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
-# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
+plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
+plot_zg_th_mc_data('0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
 
 plot_zg_th_mc_data('0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
