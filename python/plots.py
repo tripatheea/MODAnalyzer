@@ -691,9 +691,9 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
   data_x_errors, data_y_errors = [], []
   for x_segment in barlinecols[0].get_segments():
-    data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 10.)
+    data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
   for y_segment in barlinecols[1].get_segments():
-    data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 10.)
+    data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
 
   data_points_x = data_plot.get_xdata()
   data_points_y = data_plot.get_ydata()
@@ -862,9 +862,17 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
     if data:
       ratio_data_to_data = [None if n == 0 else m / n for m, n in zip(data_plot_points_y, data_plot_points_y)]
-      data_to_data_y_err = [b / m for b, m in zip(data_y_errors, data_plot_points_y)]
-      plt.errorbar(data_plot_points_x, ratio_data_to_data, yerr=data_to_data_y_err, ls='None', marker='o', markersize=8, pickradius=15, elinewidth=15, color='black')
-   
+      data_to_data_y_err = [2 * (b / m) for b, m in zip(data_y_errors, data_plot_points_y)]
+      
+      plt.errorbar(data_plot_points_x, ratio_data_to_data, yerr=data_to_data_y_err, ls='None', marker='o', markersize=8, linewidth=3, pickradius=5, elinewidth=3, color='black')
+      # plt.errorbar(data_plot_points_x, ratio_data_to_data, yerr=data_to_data_y_err, color='black', ls='None')
+      
+      # a = Hist(60, 0, 0.6, markersize=5.0, color='green', linewidth=5)
+      # map(a.Fill, data_plot_points_x, ratio_data_to_data)
+      
+
+      # rplt.errorbar(a, yerr=data_to_data_y_err, markersize=8)
+
     if theory:
       ratio_theory_line_to_data = [m / n for m, n in zip(theory_extrapolated_line, data_plot_points_y)]
       ratio_theory_min_to_data = [m / n for m, n in zip(theory_extrapolated_min, data_plot_points_y)]
@@ -928,10 +936,10 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   # Normalized-Over-Data Plot Ends.
 
   ax0.set_xlabel("$z_g$", fontsize=85)
-  ax0.set_ylabel("$ \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$     ", fontsize=85, rotation=0)
+  ax0.set_ylabel("$ \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=115, rotation=0, labelpad=75)
   
   ax1.set_xlabel("$z_g$", fontsize=85)
-  ax1.set_ylabel("Ratio           \nto           \n" + ratio_denominator.capitalize() + "           ", fontsize=45, rotation=0)
+  ax1.set_ylabel("Ratio           \nto           \n" + ratio_denominator.capitalize() + "           ", fontsize=45, rotation=0, y=0.36)
 
   ax0.tick_params(axis='x', labelsize=60)
   ax0.tick_params(axis='y', labelsize=60)
@@ -951,7 +959,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
     pythia_line, = ax0.plot(range(1), linewidth=5, color=zg_pythia_hist.GetLineColor(), alpha=0)
     herwig_line, = ax0.plot(range(1), linewidth=5, color=zg_herwig_hist.GetLineColor(), alpha=0)
 
-  handles = [data_plot, (th_patch, th_line), pythia_line, herwig_line]
+  handles = [(data_plot, caplines), (th_patch, th_line), pythia_line, herwig_line]
   labels = [data_label, theory_label, pythia_label, herwig_label]
 
   first_legend = ax0.legend(handles, labels, fontsize=49, handler_map = {th_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1)
@@ -1062,6 +1070,7 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
       pTs_2.append(pTs[i])
       weights_2.append(prescales[i])
   
+
   map(pt_hist_1.Fill, pTs_1, weights_1)
   map(pt_hist_2.Fill, pTs_2, weights_2)
 
@@ -1086,12 +1095,11 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
 
   plt.gca().annotate(str(efficient_pt_x) + " GeV", xy=(efficient_pt_x, efficient_pt_y), xycoords='data', xytext=(100, 2), textcoords='data', size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor='orange', connectionstyle="arc3,rad=-0.2"), )
 
+  # fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
+  # ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=1.0), (305, 1375), frameon=0, boxcoords='figure points')
+  # plt.gca().add_artist(ab)
 
-  fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
-  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=1.0), (305, 1375), frameon=0, boxcoords='figure points')
-  plt.gca().add_artist(ab)
-
-  plt.gcf().text(0.300, 0.93, "Preliminary \n(25% sample)", fontsize=40, weight='bold', color='#444444', multialignment='center')
+  # plt.gcf().text(0.300, 0.93, "Preliminary \n(25% sample)", fontsize=40, weight='bold', color='#444444', multialignment='center')
 
   plt.autoscale(True)
   plt.yscale('log')
@@ -1100,10 +1108,9 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
   plt.legend()
   plt.xlabel('$p_T$ (GeV)')
 
-
   plt.gcf().set_size_inches(20, 20, forward=1)
 
-  plt.title("Efficiency Curve- " + trigger_1 + " / " + trigger_2)
+  plt.title("Efficiency Curve- " + trigger_1 + " / " + trigger_2, fontsize=30)
 
   plt.savefig("plots/efficiency_curves_" + trigger_1 + "_" + trigger_2 + ".pdf")
   plt.show()
@@ -1114,12 +1121,12 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
 
 # "HLT_Jet180U", "HLT_Jet140U", "HLT_Jet100U", "HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U"
 
-plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U")
-plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U")
-plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U")
-plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U")
-plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U")
-plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U")
+# plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U")
+# plaaplot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U")
+# plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U")
+# plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U")
+# plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U")
+# plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U")
 
 
 # plot_turn_on_curves()
@@ -1138,7 +1145,7 @@ plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U")
 # plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=0, data=0)
 # plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=0)
 # plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1)
-# plot_zg_th_mc_data(150, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
 
 
 # plot_pts()
