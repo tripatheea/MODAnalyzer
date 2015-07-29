@@ -41,7 +41,9 @@ input_analysis_file = sys.argv[1]
 
 
 mpl.rcParams['axes.linewidth'] = 5.0 #set the value globally
+mpl.rcParams['text.usetex'] = True
 plt.rc('font', family='serif', size=43)
+
 
 
 def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
@@ -721,9 +723,9 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
   if mc:
     # pythia_plot = rplt.hist(zg_pythia_hist, axes=ax0)
-    pythia_plot = ax0.hist(zg_pythias, label=pythia_label, bins=60, normed=1, histtype='step', color='blue', linewidth=5)
+    pythia_plot = ax0.hist(zg_pythias, label=pythia_label, bins=50, normed=1, histtype='step', color='blue', linewidth=5)
   else:
-    pythia_plot = ax0.hist(zg_pythias, bins=60, normed=1, histtype='step', color='blue', linewidth=0)
+    pythia_plot = ax0.hist(zg_pythias, bins=50, normed=1, histtype='step', color='blue', linewidth=0)
 
   
   # Pythia Ends.
@@ -739,9 +741,9 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
   if mc:
     # herwig_plot = rplt.hist(zg_herwig_hist, axes=ax0)
-    herwig_plot = ax0.hist(zg_herwigs, label=herwig_label, bins=60, normed=1, histtype='step', color='green', linewidth=5)
+    herwig_plot = ax0.hist(zg_herwigs, label=herwig_label, bins=50, normed=1, histtype='step', color='green', linewidth=5)
   else:
-    herwig_plot = ax0.hist(zg_herwigs, bins=60, normed=1, histtype='step', color='green', linewidth=0)
+    herwig_plot = ax0.hist(zg_herwigs, bins=50, normed=1, histtype='step', color='green', linewidth=0)
   
   # Herwig Ends.
 
@@ -932,10 +934,10 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   # Normalized-Over-Data Plot Ends.
 
   ax0.set_xlabel("$z_g$", fontsize=85)
-  ax0.set_ylabel("$ \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=115, rotation=0, labelpad=75)
+  ax0.set_ylabel("$\displaystyle \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=95, rotation=0, labelpad=85, y=0.39)
   
   ax1.set_xlabel("$z_g$", fontsize=85)
-  ax1.set_ylabel("Ratio           \nto           \n" + ratio_denominator.capitalize() + "           ", fontsize=45, rotation=0, y=0.36)
+  ax1.set_ylabel("Ratio           \nto           \n" + ratio_denominator.capitalize() + "           ", fontsize=65, rotation=0, labelpad=85, y=0.31)
 
   ax0.tick_params(axis='x', labelsize=60)
   ax0.tick_params(axis='y', labelsize=60)
@@ -964,7 +966,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra, extra]
-  labels = ["Anti-$k_T$: $R = 0.5$; $p_{T}$ > " + str(pT_lower_cut) + " GeV", "Soft Drop: $\\beta$ = 0; $z_{\mathrm{cut}}$ = " + str(zg_cut)]
+  labels = ["Anti-$k_T$: $R = 0.5$; $p_{T} > " + str(pT_lower_cut) + "$ GeV", "Soft Drop: $\\beta$ = 0; $z_{\mathrm{cut}}$ = " + str(zg_cut)]
   ax0.legend(handles, labels, loc=2, frameon=0, borderpad=0.1, fontsize=49)
 
 
@@ -990,11 +992,11 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
     ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.20, resample=1, dpi_cor=1), (0.6, 0.65), xycoords='data', box_alignment=(0.0, 0.7), boxcoords=("axes fraction"), frameon=0)
     ax0.add_artist(ab)
 
-    preliminary_text = "Preliminary \n(25% sample)"
-    fig.text(0.59, 0.64, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
+    preliminary_text = "Preliminary\n(25\% sample)"
+    fig.text(0.59, 0.64, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
   else:
     preliminary_text = "Preliminary"
-    fig.text(0.596, 0.661, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
+    fig.text(0.596, 0.661, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 
 
@@ -1118,65 +1120,65 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
 
 # "HLT_Jet180U", "HLT_Jet140U", "HLT_Jet100U", "HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U"
 
-plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U")
-plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U")
-plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U")
-plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U")
-plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U")
-plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U")
+# plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U")
+# plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U")
+# plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U")
+# plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U")
+# plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U")
+# plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U")
 
 
 # plot_turn_on_curves()
 
 
-# plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=0, data=0)
-# plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1)
-# plot_zg_th_mc_data(150, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=0, data=0)
+plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=0)
+plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1)
 
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
-# plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=0, data=0)
-# plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1)
-# plot_zg_th_mc_data(150, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
-
-
-
-# plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=0, data=0)
-# plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1)
-# plot_zg_th_mc_data(300, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1)
-
-# plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
-# plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
-# plot_zg_th_mc_data(300, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
-
-# plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=0, data=0)
-# plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1)
-# plot_zg_th_mc_data(300, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=0, data=0)
+plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=0)
+plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
 
 
 
-# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=0, data=0)
-# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1)
-# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=0, data=0)
+plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=0)
+plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(300, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1)
 
-# plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
-# plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
-# plot_zg_th_mc_data(600, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
+plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
+plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(300, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
-# plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=0, data=0)
-# plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1)
-# plot_zg_th_mc_data(600, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=0, data=0)
+plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=0)
+plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(300, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
+
+
+
+plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=0, data=0)
+plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=0)
+plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1)
+
+plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
+plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
+plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(600, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
+
+plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=0, data=0)
+plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=0)
+plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(600, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
 
 
 
