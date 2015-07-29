@@ -685,20 +685,21 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   norm_data_prescales = map(lambda x: x / ( zg_data_hist.GetSumOfWeights() * bin_width_data ), prescales)
   
   if data:
-    data_plot, caplines, barlinecols = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=8, pickradius=3, elinewidth=3, alpha=1.0)
+    # data_plot, caplines, barlinecols
+    data_plot = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=8, pickradius=3, elinewidth=3, alpha=1.0)
   else:
     zg_data_hist.SetTitle("")
-    data_plot, caplines, barlinecols = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=8, pickradius=3, elinewidth=3, alpha=0.0)
+    data_plot = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=8, pickradius=3, elinewidth=3, alpha=0.0)
 
 
   data_x_errors, data_y_errors = [], []
-  for x_segment in barlinecols[0].get_segments():
+  for x_segment in data_plot[2][0].get_segments():
     data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
-  for y_segment in barlinecols[1].get_segments():
+  for y_segment in data_plot[2][1].get_segments():
     data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
 
-  data_points_x = data_plot.get_xdata()
-  data_points_y = data_plot.get_ydata()
+  data_points_x = data_plot[0].get_xdata()
+  data_points_y = data_plot[0].get_ydata()
 
   # print sorted(data_points_x)
 
@@ -954,7 +955,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
     pythia_line, = ax0.plot(range(1), linewidth=5, color=zg_pythia_hist.GetLineColor(), alpha=0)
     herwig_line, = ax0.plot(range(1), linewidth=5, color=zg_herwig_hist.GetLineColor(), alpha=0)
 
-  handles = [(data_plot, caplines), (th_patch, th_line), pythia_line, herwig_line]
+  handles = [data_plot, (th_patch, th_line), pythia_line, herwig_line]
   labels = [data_label, theory_label, pythia_label, herwig_label]
 
   first_legend = ax0.legend(handles, labels, fontsize=49, handler_map = {th_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1)
@@ -1051,8 +1052,8 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
 
   expected_trigger_names = [trigger_1, trigger_2]
 
-  pt_hist_1 = Hist(50, 0, 500)
-  pt_hist_2 = Hist(50, 0, 500)
+  pt_hist_1 = Hist(100, 0, 1000)
+  pt_hist_2 = Hist(100, 0, 1000)
 
   pTs_1, weights_1 = [], []
   pTs_2, weights_2 = [], []
@@ -1117,12 +1118,12 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
 
 # "HLT_Jet180U", "HLT_Jet140U", "HLT_Jet100U", "HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U"
 
-# plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U")
-# plaaplot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U")
-# plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U")
-# plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U")
-# plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U")
-# plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U")
+plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U")
+plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U")
+plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U")
+plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U")
+plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U")
+plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U")
 
 
 # plot_turn_on_curves()
@@ -1135,7 +1136,7 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
 
 # plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
 # plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
-plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
 # plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
 # plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=0, data=0)
@@ -1176,8 +1177,11 @@ plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
 # plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=0)
 # plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1)
 # plot_zg_th_mc_data(600, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
-# plot_pts()
 
+
+
+
+# plot_pts()
 
 
 # plot_dr()
