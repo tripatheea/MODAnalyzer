@@ -560,11 +560,13 @@ def plot_turn_on_curves():
   # plt.axvspan(37, 56, fc="pink", linewidth=0, alpha=0.5)
 
 
-  fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
-  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=1.0), (305, 1375), frameon=0, boxcoords='figure points')
-  plt.gca().add_artist(ab)
+  # fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
+  # ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.20, resample=1, dpi_cor=1), (0.6, 0.65), xycoords='data', box_alignment=(0.0, 0.7), boxcoords=("axes fraction"), frameon=0)
+  # plt.gca().add_artist(ab)
 
-  plt.gcf().text(0.300, 0.93, "Preliminary \n(25% sample)", fontsize=40, weight='bold', color='#444444', multialignment='center')
+  # preliminary_text = "Preliminary \n(25% sample)"
+  # plt.gcf().text(0.59, 0.64, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
+
 
   plt.autoscale(True)
   plt.yscale('log')
@@ -842,7 +844,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
         a_zero_removed = []
         y_zero_removed = []
         for i in range(0, len(a)):
-          if a[i] > zg_cut and a[i] < 0.5:
+          if a[i] >= zg_cut and a[i] <= 0.5 and y[i] != 0.0:
             a_zero_removed.append(a[i])
             y_zero_removed.append(y[i])
 
@@ -862,16 +864,10 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
     if data:
       ratio_data_to_data = [None if n == 0 else m / n for m, n in zip(data_plot_points_y, data_plot_points_y)]
-      data_to_data_y_err = [2 * (b / m) for b, m in zip(data_y_errors, data_plot_points_y)]
+      data_to_data_y_err = [(b / m) for b, m in zip(data_y_errors, data_plot_points_y)]
+      data_to_data_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(data_plot_points_y))]
       
-      plt.errorbar(data_plot_points_x, ratio_data_to_data, yerr=data_to_data_y_err, ls='None', marker='o', markersize=8, linewidth=3, pickradius=5, elinewidth=3, color='black')
-      # plt.errorbar(data_plot_points_x, ratio_data_to_data, yerr=data_to_data_y_err, color='black', ls='None')
-      
-      # a = Hist(60, 0, 0.6, markersize=5.0, color='green', linewidth=5)
-      # map(a.Fill, data_plot_points_x, ratio_data_to_data)
-      
-
-      # rplt.errorbar(a, yerr=data_to_data_y_err, markersize=8)
+      plt.errorbar(data_plot_points_x, ratio_data_to_data, xerr=data_to_data_x_err, yerr=data_to_data_y_err, ls='None', marker='o', markersize=8, linewidth=3, pickradius=5, elinewidth=3, color='black')
 
     if theory:
       ratio_theory_line_to_data = [m / n for m, n in zip(theory_extrapolated_line, data_plot_points_y)]
@@ -906,8 +902,9 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
     if data:
       zg_data_to_th_y = [b / m for b, m in zip(data_plot_points_y, theory_extrapolated_line)]
       zg_data_to_th_y_err = [b / m for b, m in zip(data_y_errors, theory_extrapolated_line)]
+      data_to_th_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(zg_data_to_th_y_err))]
 
-      plt.errorbar(data_plot_points_x, zg_data_to_th_y, yerr=zg_data_to_th_y_err, ls='None', marker='o', markersize=8, pickradius=15, elinewidth=15, color='black')
+      plt.errorbar(data_plot_points_x, zg_data_to_th_y, xerr=data_to_th_x_err, yerr=zg_data_to_th_y_err, ls='None', marker='o', markersize=8, linewidth=3, pickradius=5, elinewidth=3, color='black')
    
     if theory:
       
@@ -990,15 +987,15 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
   if data:
     fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
-    ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.25, resample=1, dpi_cor=1), (0.22, 0.95), boxcoords=("figure fraction"), frameon=0)
+
+    ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.20, resample=1, dpi_cor=1), (0.6, 0.65), xycoords='data', box_alignment=(0.0, 0.7), boxcoords=("axes fraction"), frameon=0)
     ax0.add_artist(ab)
 
-  if data:
     preliminary_text = "Preliminary \n(25% sample)"
-    fig.text(0.32, 0.925, preliminary_text, fontsize=60, weight='bold', color='#444444', multialignment='center')
+    fig.text(0.59, 0.64, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
   else:
     preliminary_text = "Preliminary"
-    fig.text(0.329, 0.9561, preliminary_text, fontsize=60, weight='bold', color='#444444', multialignment='center')
+    fig.text(0.596, 0.661, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
 
 
 
@@ -1096,10 +1093,11 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
   plt.gca().annotate(str(efficient_pt_x) + " GeV", xy=(efficient_pt_x, efficient_pt_y), xycoords='data', xytext=(100, 2), textcoords='data', size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor='orange', connectionstyle="arc3,rad=-0.2"), )
 
   # fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
-  # ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=1.0), (305, 1375), frameon=0, boxcoords='figure points')
+  # ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.20, resample=1, dpi_cor=1), (0.6, 0.65), xycoords='data', box_alignment=(0.0, 0.7), boxcoords=("axes fraction"), frameon=0)
   # plt.gca().add_artist(ab)
 
-  # plt.gcf().text(0.300, 0.93, "Preliminary \n(25% sample)", fontsize=40, weight='bold', color='#444444', multialignment='center')
+  # preliminary_text = "Preliminary \n(25% sample)"
+  # plt.gcf().text(0.59, 0.64, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
 
   plt.autoscale(True)
   plt.yscale('log')
@@ -1139,15 +1137,47 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
 
 # plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
 # plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
 # plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
 # plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=0, data=0)
 # plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=0)
 # plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1)
-plot_zg_th_mc_data(150, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data(150, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
 
 
+
+# plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=0, data=0)
+# plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=0)
+# plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data(300, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1)
+
+# plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
+# plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
+# plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data(300, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
+
+# plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=0, data=0)
+# plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=0)
+# plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data(300, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
+
+
+
+# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=0, data=0)
+# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=0)
+# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1)
+
+# plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
+# plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
+# plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data(600, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
+
+# plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=0, data=0)
+# plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=0)
+# plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1)
+# plot_zg_th_mc_data(600, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
 # plot_pts()
 
 
