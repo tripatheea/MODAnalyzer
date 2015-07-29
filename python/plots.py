@@ -759,11 +759,10 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   data_plot_points_y = []
 
   for i in range(0, len(data_points_x)):
-    if float(data_points_x[i]) > float(zg_cut):
+    if float(data_points_x[i]) >= float(zg_cut):
       data_plot_points_x.append(data_points_x[i])
       data_plot_points_y.append(data_points_y[i])
 
-  
 
 
   theory_extrapolated_min = []
@@ -811,44 +810,43 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
 
   def convert_hist_to_line_plot(hist):
+    a = []
+    b = {}
+    for i in range(0, len(list(hist.x()))):
+      a.append(round(list(hist.x())[i] - 0.01 / 2., 4))
+      a.append(round(list(hist.x())[i], 4))
+      a.append(round(list(hist.x())[i] + 0.01 / 2., 4))
 
-        a = []
-        b = {}
-        for i in range(0, len(list(hist.x()))):
-          a.append(round(list(hist.x())[i] - 0.01 / 2., 4))
-          a.append(round(list(hist.x())[i], 4))
-          a.append(round(list(hist.x())[i] + 0.01 / 2., 4))
+      if round(list(hist.x())[i] - 0.01 / 2., 4) not in b.keys():
+        b[round(list(hist.x())[i] - 0.01 / 2., 4)] = [ list(hist.y())[i] ]
+      else:
+        b[round(list(hist.x())[i] - 0.01 / 2., 4)].append( list(hist.y())[i] )
+      
+      if round(list(hist.x())[i], 4) not in b.keys():
+        b[round(list(hist.x())[i], 4)] = [ list(hist.y())[i] ]
+      else:
+        b[round(list(hist.x())[i], 4)].append( list(hist.y())[i] )
 
-          if round(list(hist.x())[i] - 0.01 / 2., 4) not in b.keys():
-            b[round(list(hist.x())[i] - 0.01 / 2., 4)] = [ list(hist.y())[i] ]
-          else:
-            b[round(list(hist.x())[i] - 0.01 / 2., 4)].append( list(hist.y())[i] )
-          
-          if round(list(hist.x())[i], 4) not in b.keys():
-            b[round(list(hist.x())[i], 4)] = [ list(hist.y())[i] ]
-          else:
-            b[round(list(hist.x())[i], 4)].append( list(hist.y())[i] )
+      if round(list(hist.x())[i] + 0.01 / 2., 4) not in b.keys():
+        b[round(list(hist.x())[i] + 0.01 / 2., 4)] = [ list(hist.y())[i] ]
+      else:
+        b[round(list(hist.x())[i] + 0.01 / 2., 4)].append( list(hist.y())[i] )
 
-          if round(list(hist.x())[i] + 0.01 / 2., 4) not in b.keys():
-            b[round(list(hist.x())[i] + 0.01 / 2., 4)] = [ list(hist.y())[i] ]
-          else:
-            b[round(list(hist.x())[i] + 0.01 / 2., 4)].append( list(hist.y())[i] )
+    x = sorted(list(Set(a)))
+    a.sort()
+    
+    c = [b[x[i]] for i in range(0, len(x))]
 
-        x = sorted(list(Set(a)))
-        a.sort()
-        
-        c = [b[x[i]] for i in range(0, len(x))]
+    y = [item for sublist in c for item in sublist]
+    
+    a_zero_removed = []
+    y_zero_removed = []
+    for i in range(0, len(a)):
+      if a[i] >= zg_cut and a[i] <= 0.5 and y[i] != 0.0:
+        a_zero_removed.append(a[i])
+        y_zero_removed.append(y[i])
 
-        y = [item for sublist in c for item in sublist]
-        
-        a_zero_removed = []
-        y_zero_removed = []
-        for i in range(0, len(a)):
-          if a[i] >= zg_cut and a[i] <= 0.5 and y[i] != 0.0:
-            a_zero_removed.append(a[i])
-            y_zero_removed.append(y[i])
-
-        return a_zero_removed, y_zero_removed
+    return a_zero_removed, y_zero_removed
 
 
   if ratio_denominator == "data":
@@ -911,14 +909,14 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
       zg_theory_min_hist.Divide(zg_theory_line_hist)
       zg_theory_max_hist.Divide(zg_theory_line_hist)
 
-      zg_theory_min_x, zg_theory_min_y = list(zg_theory_min_hist.x()), list(zg_theory_min_hist.y())
-      zg_theory_max_x, zg_theory_max_y = list(zg_theory_max_hist.x()), list(zg_theory_max_hist.y())
+      zg_theory_min_plot = convert_hist_to_line_plot(zg_theory_min_hist)
+      zg_theory_max_plot = convert_hist_to_line_plot(zg_theory_max_hist)
 
-      x_min = [zg_theory_min_x[i] for i in range(0, len(zg_theory_min_x)) if zg_theory_min_x[i] > zg_cut and zg_theory_min_x[i] < 0.5]
-      y_min = [zg_theory_min_y[i] for i in range(0, len(zg_theory_min_x)) if zg_theory_min_x[i] > zg_cut and zg_theory_min_x[i] < 0.5]
-
-      x_max = [zg_theory_max_x[i] for i in range(0, len(zg_theory_max_x)) if zg_theory_max_x[i] > zg_cut and zg_theory_max_x[i] < 0.5]
-      y_max = [zg_theory_max_y[i] for i in range(0, len(zg_theory_max_x)) if zg_theory_max_x[i] > zg_cut and zg_theory_max_x[i] < 0.5]
+      zg_theory_min_line, = plt.plot(zg_theory_min_plot[0], zg_theory_min_plot[1], linewidth=0)
+      zg_theory_max_line, = plt.plot(zg_theory_max_plot[0], zg_theory_max_plot[1], linewidth=0)
+      
+      x_min, y_min = zg_theory_min_line.get_xdata(), zg_theory_min_line.get_ydata()
+      x_max, y_max = zg_theory_max_line.get_xdata(), zg_theory_max_line.get_ydata()
 
       ax1.fill_between(x_max, y_max, y_min, norm=1, where=np.less_equal(y_min, y_max), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
 
