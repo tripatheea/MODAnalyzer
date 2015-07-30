@@ -357,40 +357,64 @@ def plot_charged_pt():
   plt.show()
 
 
-def plot_charged_zgs():
-  pT_lower_cut = 150
+def plot_charged_and_all_zgs(pT_lower_cut, zg_cut, zg_filename, n_bins=10):
+
   properties = parse_file(input_analysis_file, pT_lower_cut)
 
-  charged_zgs = [properties['zg_charged_05'], properties['zg_charged_1'], properties['zg_charged_2']]
+  zgs = properties[zg_filename]
+  charged_zgs = properties[zg_filename[0:2] + "_charged_" + zg_filename[3: len(zg_filename)]]
   prescales = properties['prescales']
+ 
+  zg_hist = Hist(6 * n_bins, 0.0, 0.6, title="Everything", markersize=1.0, color='black')
+  zg_charged_hist = Hist(6 * n_bins, 0.0, 0.6, title="Charged", markersize=1.0, color='red')
+
+  bin_width_zg = (zg_hist.upperbound() - zg_hist.lowerbound()) / zg_hist.nbins()
+  bin_width_zg_charged = (zg_charged_hist.upperbound() - zg_charged_hist.lowerbound()) / zg_charged_hist.nbins()
 
 
+  map(zg_hist.Fill, zgs, prescales)
+  map(zg_charged_hist.Fill, charged_zgs, prescales)
 
-  colors = ['red', 'blue', 'green']
-  labels = ['$z_{cut}$ = 0.05', '$z_{cut}$ = 0.1', '$z_{cut}$ = 0.2']
+  if zg_hist.GetSumOfWeights() != 0:
+    zg_hist.Scale(1.0 / (zg_hist.GetSumOfWeights() * bin_width_zg))
 
-  for i in range(0, len(charged_zgs)):
-    # no. of bins, xlower, xhigher
-    zg_hist = Hist(50, 0.0, 0.5, title=labels[i], markersize=1.0, color=colors[i])
-
-    map(zg_hist.Fill, charged_zgs[i], prescales)
-    
-    if zg_hist.GetSumOfWeights() != 0:
-      zg_hist.Scale(1.0 / zg_hist.GetSumOfWeights())
-    
-    rplt.errorbar(zg_hist, xerr=False, emptybins=False)
-
+  if zg_charged_hist.GetSumOfWeights() != 0:
+    zg_charged_hist.Scale(1.0 / (zg_charged_hist.GetSumOfWeights() * bin_width_zg_charged))
+  
+  rplt.errorbar(zg_hist, emptybins=False, ls='None', marker='o', markersize=8, pickradius=3, elinewidth=3)
+  rplt.errorbar(zg_charged_hist, emptybins=False, ls='None', marker='o', markersize=8, pickradius=3, elinewidth=3)
+  
   plt.autoscale(True)
 
-  plt.legend()
+  legend = plt.legend(frameon=0)
+  plt.gca().add_artist(legend)
+
+  
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  handles = [extra, extra]
+  labels = [r"$ \textrm{Anti\\-k_{T} : }~R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "$"]
+  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=49)
+
+
+
   plt.xlabel("Symmetry Measure(z)")
-  plt.suptitle("Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV for charged PFCs")
 
-  fig = plt.gcf()
-  fig.set_size_inches(20, 20, forward=1)
+  fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
 
-  plt.savefig("plots/zg_distribution_charged_pt_cut_" + str(pT_lower_cut) + ".pdf")
-  plt.show()
+  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.15, resample=1, dpi_cor=1), (0.02, 0.95), xycoords='data', box_alignment=(0.0, 0.7), boxcoords=("axes fraction"), frameon=0)
+  plt.gca().add_artist(ab)
+
+  preliminary_text = "Preliminary\n(20\% sample)"
+  plt.gcf().text(0.32, 0.82, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
+
+  plt.gca().set_ylim(0, plt.gca().get_ylim()[1] + 2)
+  plt.gca().set_xlim(0.0, 0.6)
+
+  plt.gcf().set_size_inches(20, 20, forward=1)
+
+  plt.savefig("plots/charged_zg_cut_" + str(zg_cut) + "_pt_cut_" + str(pT_lower_cut) + ".pdf")
+  # plt.show()
+  plt.clf()
 
 
 def plot_charged_zg_pfc_pt_cut(pfc_pT_cut):
@@ -1170,7 +1194,7 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
 
 
 
-plot_pts()
+# plot_pts()
 
 
 # plot_dr()
@@ -1179,7 +1203,18 @@ plot_pts()
 
 # plot_charged_pt()
 
-# plot_charged_zgs()
+plot_charged_and_all_zgs(150, '0.05', 'zg_05', n_bins=10)
+plot_charged_and_all_zgs(150, '0.1', 'zg_1', n_bins=10)
+plot_charged_and_all_zgs(150, '0.2', 'zg_2', n_bins=10)
+
+plot_charged_and_all_zgs(300, '0.05', 'zg_05', n_bins=10)
+plot_charged_and_all_zgs(300, '0.1', 'zg_1', n_bins=10)
+plot_charged_and_all_zgs(300, '0.2', 'zg_2', n_bins=10)
+
+plot_charged_and_all_zgs(600, '0.05', 'zg_05', n_bins=10)
+plot_charged_and_all_zgs(600, '0.1', 'zg_1', n_bins=10)
+plot_charged_and_all_zgs(600, '0.2', 'zg_2', n_bins=10)
+
 
 
 # plot_zg_pfc_pt_cut(pfc_pT_cut=1)
