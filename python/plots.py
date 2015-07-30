@@ -172,8 +172,8 @@ def plot_pts():
   prescales = properties['prescales']
 
   # no. of bins, xlower, xhigher
-  uncorrected_pt_hist = Hist(50, 0, 800, title='Uncorrected', markersize=1.0, color='green')
-  corrected_pt_hist = Hist(50, 0, 800, title='Corrected', markersize=1.0, color='red')
+  uncorrected_pt_hist = Hist(50, 0, 800, title='Uncorrected', markersize=1.0, color='orange')
+  corrected_pt_hist = Hist(50, 0, 800, title='Corrected', markersize=1.0, color='black')
 
   map(uncorrected_pt_hist.Fill, pTs, prescales)
   map(corrected_pt_hist.Fill, corrected_pTs, prescales)
@@ -181,22 +181,37 @@ def plot_pts():
   uncorrected_pt_hist.Scale(1.0 / uncorrected_pt_hist.GetSumOfWeights())
   corrected_pt_hist.Scale(1.0 / corrected_pt_hist.GetSumOfWeights())
 
-  rplt.errorbar(uncorrected_pt_hist, xerr=False, emptybins=False)
-  rplt.errorbar(corrected_pt_hist, xerr=False, emptybins=False)
+  rplt.errorbar(uncorrected_pt_hist, emptybins=False, marker='o', markersize=8, linewidth=3, pickradius=5, elinewidth=3)
+  rplt.errorbar(corrected_pt_hist, emptybins=False, marker='o', markersize=8, linewidth=3, pickradius=5, elinewidth=3)
 
   plt.autoscale(True)
    
   plt.yscale('log')
 
-  plt.legend()
-  plt.xlabel('$p_T$ (GeV)')
-  plt.suptitle("$p_T$ (GeV) Spectrum of anti-kT Jets (R = 0.5)")
+  legend = plt.legend(loc=1, frameon=0)
+  plt.gca().add_artist(legend)
 
-  fig = plt.gcf()
-  fig.set_size_inches(20, 20, forward=1)
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti - k_{T} : }~R = 0.5$"]
+  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=49)
+
+  plt.gca().set_ylim(10e-8, 10)
+
+  plt.xlabel('$p_T~\mathrm{(GeV)}$')
+
+  fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
+  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.15, resample=1, dpi_cor=1), (100, 3.5), frameon=0)
+  plt.gca().add_artist(ab)
+
+  preliminary_text = "Preliminary\n(20\% sample)"
+  plt.gcf().text(0.31, 0.83, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
+
+
+  plt.gcf().set_size_inches(20, 20, forward=1)
 
   plt.savefig("plots/ak5_pt_distribution.pdf")
-  plt.show()
+  # plt.show()
+  plt.clf()
 
 
 def plot_zg_pfc_pt_cut(pfc_pT_cut):
@@ -422,43 +437,45 @@ def plot_hardest_pt_corresponding_triggers():
   trigger_names = properties['trigger_names']
   prescales = properties['prescales']
 
-  expected_trigger_names = ["HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U", "HLT_Jet15U", "HLT_L1Jet6U"]
+  expected_trigger_names = ["HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U", "HLT\_Jet15U"]
 
-  colors = ['red', 'blue', 'pink', 'green', 'orange']
+  colors = ['red', 'blue', 'pink', 'green']
 
   pt_hists = []
   for i in range(0, len(expected_trigger_names)):
-    # no. of bins, xlower, xhigher
-    pt_hists.append(Hist(50, 0, 500, title=expected_trigger_names[i], markersize=1.0, color=colors[i]))
-
+    pt_hists.append(Hist(50, 0, 1000, title=expected_trigger_names[i], markersize=1.0, color=colors[i], linewidth=5))
 
   for i in range(0, len(pTs)):
     for j in range(0, len(expected_trigger_names)):
-      if expected_trigger_names[j] in trigger_names[i]:
+      if expected_trigger_names[j].replace("\\", "") in trigger_names[i]:
         pt_hists[j].Fill(pTs[i], prescales[i])
 
-  
   for k in range(0, len(pt_hists)):
-    # if pt_hists[k].GetSumOfWeights() != 0:
-      # pt_hists[k].Scale(1.0 / pt_hists[k].GetSumOfWeights())
-    rplt.errorbar(pt_hists[k], xerr=False, emptybins=False)
-
+    rplt.errorbar(pt_hists[k], marker='o', markersize=8, linewidth=3, pickradius=5, elinewidth=3)
 
   plt.yscale('log')
-  
   plt.autoscale(True)
-   
-  plt.yscale('log')
 
-  plt.legend()
-  plt.xlabel('$p_T$ (GeV)')
-  plt.suptitle("$p_T$ (GeV) Spectrum of anti-kT Jets (R = 0.5) & Corresponding Triggers")
+  plt.gca().set_ylim(1, 10e8)
 
-  fig = plt.gcf()
-  fig.set_size_inches(20, 20, forward=1)
+  plt.legend(loc=0, frameon=0)
+
+  plt.xlabel('$p_T \mathrm{(GeV)}$')
+
+  fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
+  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.15, resample=1, dpi_cor=1), (125, 30e7), frameon=0)
+  plt.gca().add_artist(ab)
+
+  preliminary_text = "Preliminary\n(20\% sample)"
+  plt.gcf().text(0.31, 0.83, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_size_inches(20, 20, forward=1)
 
   plt.savefig("plots/hardest_pt_corresponding_triggers.pdf")
-  plt.show()
+  # plt.show()
+  plt.clf()
+
+
 
 def plot_2d_hist():
 
@@ -594,6 +611,9 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
   zg_cut = float(zg_cut)
 
+  if pT_lower_cut == 600:
+    n_bins = 2
+
   properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
   properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
   properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
@@ -606,9 +626,9 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   prescales = properties['prescales']
 
   data_label = "CMS 2010 Open Data"
-  pythia_label = "Pythia 8.205        " if mc else "                    "
-  herwig_label = "Herwig++ 2.6.3      " if mc else "                    "
-  theory_label = "Theory (MLL)        " if theory else "                    "
+  pythia_label = "Pythia 8.205" if mc else ""
+  herwig_label = "Herwig++ 2.6.3" if mc else ""
+  theory_label = "Theory (MLL)" if theory else ""
 
   
   gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
@@ -1135,16 +1155,22 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
 
 
 
+# Bins Stuff.
+
 # plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=10)
 # plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=8)
 # plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=6)
 # plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=4)
-plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=2)
+# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=2)
 
 # plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=2)
 # plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=2)
 
-# plot_pts()
+
+
+
+
+plot_pts()
 
 
 # plot_dr()
