@@ -723,11 +723,11 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
   zg_pythia_hist.Scale(1.0 / ( zg_pythia_hist.GetSumOfWeights() * bin_width_pythia ))
 
-  # if mc:
-  #   # pythia_plot = rplt.hist(zg_pythia_hist, axes=ax0)
-  #   pythia_plot = ax0.hist(zg_pythias, label=pythia_label, bins=5 * n_bins, normed=1, histtype='step', color='blue', linewidth=5)
-  # else:
-  #   pythia_plot = ax0.hist(zg_pythias, bins=5 * n_bins, normed=1, histtype='step', color='blue', linewidth=0)
+  if mc:
+    # pythia_plot = rplt.hist(zg_pythia_hist, axes=ax0)
+    pythia_plot = ax0.hist(zg_pythias, label=pythia_label, bins=5 * n_bins, normed=1, histtype='step', color='blue', linewidth=5)
+  else:
+    pythia_plot = ax0.hist(zg_pythias, bins=5 * n_bins, normed=1, histtype='step', color='blue', linewidth=0)
 
   
   # Pythia Ends.
@@ -769,110 +769,38 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
       data_plot_points_y.append(data_points_y[i])
 
 
+  theory_min_interpolate_function = interpolate.interp1d(theory_x, theory_y_min)
+  theory_line_interpolate_function = interpolate.interp1d(theory_x, theory_y_line)
+  theory_max_interpolate_function = interpolate.interp1d(theory_x, theory_y_max)
 
-  herwig_plot_points_x = []
-  herwig_plot_points_y = []
-
-  for i in range(0, len(list(zg_herwig_hist.x()))):
-    if float(list(zg_herwig_hist.x())[i]) >= float(zg_cut):
-      herwig_plot_points_x.append(list(zg_herwig_hist.x())[i])
-      herwig_plot_points_y.append(list(zg_herwig_hist.y())[i])
-
-
-  theory_extrapolated_min = []
-  theory_extrapolated_line = []
-  theory_extrapolated_max = []
-
-  print theory_extrapolated_min
-
-
-  th_segment_number = 0
-
-  # for i in range(0, len(data_plot_points_x)):
-  #   x = float(data_plot_points_x[i])
-
-  #   if x >= float(theory_x[th_segment_number]) and x <= float(theory_x[th_segment_number + 1]):
-  #     x1, x2 = theory_x[th_segment_number], theory_x[th_segment_number + 1]
-      
-  #     y1, y2 = theory_y_min[th_segment_number], theory_y_min[th_segment_number + 1]
-  #     y_min = ( ( (x - x1) / (x2 - x1) ) * (y2 - y1) ) + y1  
-
-  #     y1, y2 = theory_y_line[th_segment_number], theory_y_line[th_segment_number + 1]
-  #     y_line = ( ( (x - x1) / (x2 - x1) ) * (y2 - y1) ) + y1  
-
-  #     print y_line
-
-  #     y1, y2 = theory_y_max[th_segment_number], theory_y_max[th_segment_number + 1]
-  #     y_max = ( ( (x - x1) / (x2 - x1) ) * (y2 - y1) ) + y1  
-
-  #   elif x > float(theory_x[th_segment_number + 1]):
-  #     th_segment_number += 1
-
-  #     x1, x2 = theory_x[th_segment_number], theory_x[th_segment_number + 1]
-      
-  #     y1, y2 = theory_y_min[th_segment_number], theory_y_min[th_segment_number + 1]
-  #     y_min = ( ( (x - x1) / (x2 - x1) ) * (y2 - y1) ) + y1  
-
-  #     y1, y2 = theory_y_line[th_segment_number], theory_y_line[th_segment_number + 1]
-  #     y_line = ( ( (x - x1) / (x2 - x1) ) * (y2 - y1) ) + y1  
-
-  #     y1, y2 = theory_y_max[th_segment_number], theory_y_max[th_segment_number + 1]
-  #     y_max = ( ( (x - x1) / (x2 - x1) ) * (y2 - y1) ) + y1  
-  #   elif x == 0.0:
-  #     y_min, y_line, y_max = 0, 0, 0
-  #   else:
-  #     raise ValueError("Some very weird zg value found!", x, theory_x[j], theory_x[j + 1])
-
-  #   theory_extrapolated_min.append(y_min)
-  #   theory_extrapolated_line.append(y_line)
-  #   theory_extrapolated_max.append(y_max)
-
-
-  def piecewise_linear(x, x0, y0, k1, k2):
-    return np.piecewise(x, [x < x0], [lambda x:k1*x + y0-k1*x0, lambda x:k2*x + y0-k2*x0])
-
-
-  
-
-  theory_min_function = interpolate.interp1d(theory_x, theory_y_min)
-  theory_max_function = interpolate.interp1d(theory_x, theory_y_max)
-
-  theory_extrapolated_min = theory_min_function(data_plot_points_x)
-  theory_extrapolated_max = theory_max_function(data_plot_points_x)
-
-
-  # theory_line_function = interpolate.LinearNDInterpolator(theory_x, theory_y_line)
-  # theory_extrapolated_line = theory_line_function(a)
-
-  theory_extrapolated_line = np.interp(data_plot_points_x, theory_x, theory_y_line)
-
-
-  p , e = optimize.curve_fit(piecewise_linear, theory_x, theory_y_line)
-  ax0.plot(data_plot_points_x, piecewise_linear(data_plot_points_x, *p))
+  theory_extrapolated_min = theory_min_interpolate_function(data_plot_points_x)
+  theory_extrapolated_line = theory_line_interpolate_function(data_plot_points_x)
+  theory_extrapolated_max = theory_max_interpolate_function(data_plot_points_x)
 
 
   def convert_hist_to_line_plot(hist):
     a = []
     b = {}
+    bin_width = 0.6 / (6 * n_bins)
     for i in range(0, len(list(hist.x()))):
-      a.append(round(list(hist.x())[i] - 0.01 / 2., 4))
+      a.append(round(list(hist.x())[i] - bin_width / 2., 4))
       a.append(round(list(hist.x())[i], 4))
-      a.append(round(list(hist.x())[i] + 0.01 / 2., 4))
+      a.append(round(list(hist.x())[i] + bin_width / 2., 4))
 
-      if round(list(hist.x())[i] - 0.01 / 2., 4) not in b.keys():
-        b[round(list(hist.x())[i] - 0.01 / 2., 4)] = [ list(hist.y())[i] ]
+      if round(list(hist.x())[i] - bin_width / 2., 4) not in b.keys():
+        b[round(list(hist.x())[i] - bin_width / 2., 4)] = [ list(hist.y())[i] ]
       else:
-        b[round(list(hist.x())[i] - 0.01 / 2., 4)].append( list(hist.y())[i] )
+        b[round(list(hist.x())[i] - bin_width / 2., 4)].append( list(hist.y())[i] )
       
       if round(list(hist.x())[i], 4) not in b.keys():
         b[round(list(hist.x())[i], 4)] = [ list(hist.y())[i] ]
       else:
         b[round(list(hist.x())[i], 4)].append( list(hist.y())[i] )
 
-      if round(list(hist.x())[i] + 0.01 / 2., 4) not in b.keys():
-        b[round(list(hist.x())[i] + 0.01 / 2., 4)] = [ list(hist.y())[i] ]
+      if round(list(hist.x())[i] + bin_width / 2., 4) not in b.keys():
+        b[round(list(hist.x())[i] + bin_width / 2., 4)] = [ list(hist.y())[i] ]
       else:
-        b[round(list(hist.x())[i] + 0.01 / 2., 4)].append( list(hist.y())[i] )
+        b[round(list(hist.x())[i] + bin_width / 2., 4)].append( list(hist.y())[i] )
 
     x = sorted(list(Set(a)))
     a.sort()
@@ -931,41 +859,13 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
 
     if mc:
-
-      a = [ b / m if m != 0 else 0 for b, m in zip(list(zg_herwig_hist.y()), list(zg_theory_line_hist.y()))]
-
-      # print list(zg_herwig_hist.y())
-      # print 
-      
-      
-      # # Below this line.
-      # print list(zg_theory_min_hist.y())
-      # print
-      # print list(zg_theory_line_hist.y())
-      # print
-      # print list(zg_theory_max_hist.y())
-      # # Upto here.
-
-      ax0.plot(list(zg_theory_line_hist.x()), list(zg_theory_line_hist.y()), color="black", axes=ax0, linewidth=5)
-      ax0.plot(theory_x, theory_y_line, color="grey", axes=ax0, linewidth=5)
-      
-      # print
-      # print a
-
       zg_herwig_hist.Divide(zg_theory_line_hist)
       zg_herwig_line_plot = convert_hist_to_line_plot(zg_herwig_hist)
-
-
-      
-      # print list(zg_herwig_hist.y())
-      # print 
-      # print zg_herwig_line_plot[1]
-
       plt.plot(zg_herwig_line_plot[0], zg_herwig_line_plot[1], linewidth=5, color='green')
 
-      # zg_pythia_hist.Divide(zg_theory_line_hist)
-      # zg_pythia_line_plot = convert_hist_to_line_plot(zg_pythia_hist)
-      # plt.plot(zg_pythia_line_plot[0], zg_pythia_line_plot[1], linewidth=5, color='blue')
+      zg_pythia_hist.Divide(zg_theory_line_hist)
+      zg_pythia_line_plot = convert_hist_to_line_plot(zg_pythia_hist)
+      plt.plot(zg_pythia_line_plot[0], zg_pythia_line_plot[1], linewidth=5, color='blue')
 
     if data:
       zg_data_to_th_y = [b / m for b, m in zip(data_plot_points_y, theory_extrapolated_line)]
@@ -1043,14 +943,11 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
   # Legend Ends.
 
-
-
   ax0.autoscale(True)
   ax1.autoscale(True)
   
   ax0.set_ylim(0, ax0.get_ylim()[1] + 2)
-  # ax0.set_ylim(0, 60)
-  # ax1.set_ylim(0.5, 1.5)
+  ax1.set_ylim(0.5, 1.5)
 
   ax0.set_xlim(0.0, 0.6)
   ax1.set_xlim(0.0, 0.6)
