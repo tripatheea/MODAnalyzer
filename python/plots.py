@@ -842,9 +842,20 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
       ratio_theory_min_to_data = [m / n for m, n in zip(theory_extrapolated_min, data_plot_points_y)]
       ratio_theory_max_to_data = [m / n for m, n in zip(theory_extrapolated_max, data_plot_points_y)]
 
-      ax1.plot(data_plot_points_x, ratio_theory_line_to_data, alpha=1.0, color='red', linewidth=5)
+      zg_theory_line_to_data_hist = Hist(6 * n_bins, 0.0, 0.6)
+      map(zg_theory_line_to_data_hist.Fill, data_plot_points_x, ratio_theory_line_to_data)
+      zg_theory_line_to_data_plot = convert_hist_to_line_plot(zg_theory_line_to_data_hist)
+      plt.plot(zg_theory_line_to_data_plot[0], zg_theory_line_to_data_plot[1], linewidth=5, color='red')
 
-      ax1.fill_between(data_plot_points_x, ratio_theory_max_to_data, ratio_theory_min_to_data, norm=1, where=np.less_equal(ratio_theory_min_to_data, ratio_theory_max_to_data), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
+      zg_theory_min_to_data_hist = Hist(6 * n_bins, 0.0, 0.6)
+      map(zg_theory_min_to_data_hist.Fill, data_plot_points_x, ratio_theory_min_to_data)
+      zg_theory_min_to_data_plot = convert_hist_to_line_plot(zg_theory_min_to_data_hist)
+
+      zg_theory_max_to_data_hist = Hist(6 * n_bins, 0.0, 0.6)
+      map(zg_theory_max_to_data_hist.Fill, data_plot_points_x, ratio_theory_max_to_data)
+      zg_theory_max_to_data_plot = convert_hist_to_line_plot(zg_theory_max_to_data_hist)
+
+      ax1.fill_between(zg_theory_max_to_data_plot[0], zg_theory_max_to_data_plot[1], zg_theory_min_to_data_plot[1], norm=1, where=np.less_equal(zg_theory_min_to_data_plot[1], zg_theory_max_to_data_plot[1]), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
       
   elif ratio_denominator == "theory":
 
@@ -947,7 +958,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   ax1.autoscale(True)
   
   ax0.set_ylim(0, ax0.get_ylim()[1] + 2)
-  ax1.set_ylim(0.5, 1.5)
+  # ax1.set_ylim(0.5, 1.5)
 
   ax0.set_xlim(0.0, 0.6)
   ax1.set_xlim(0.0, 0.6)
@@ -1128,10 +1139,10 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
 # plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=8)
 # plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=6)
 # plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=4)
-# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=2)
+plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=2)
 
 # plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=2)
-plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=2)
+# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=2)
 
 # plot_pts()
 
