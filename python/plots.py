@@ -181,8 +181,8 @@ def plot_pts():
   uncorrected_pt_hist.Scale(1.0 / uncorrected_pt_hist.GetSumOfWeights())
   corrected_pt_hist.Scale(1.0 / corrected_pt_hist.GetSumOfWeights())
 
-  rplt.errorbar(uncorrected_pt_hist, emptybins=False, marker='o', markersize=8, linewidth=3, pickradius=5, elinewidth=3)
-  rplt.errorbar(corrected_pt_hist, emptybins=False, marker='o', markersize=8, linewidth=3, pickradius=5, elinewidth=3)
+  rplt.errorbar(uncorrected_pt_hist, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=3, pickradius=5, elinewidth=3)
+  rplt.errorbar(corrected_pt_hist, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=3, pickradius=5, elinewidth=3)
 
   plt.autoscale(True)
    
@@ -357,7 +357,7 @@ def plot_charged_pt():
   plt.show()
 
 
-def plot_charged_and_all_zgs(pT_lower_cut, zg_cut, zg_filename, n_bins=10):
+def plot_charged_and_all_zgs(pT_lower_cut, zg_cut, zg_filename, n_bins=10, y_max_limit=20):
 
   properties = parse_file(input_analysis_file, pT_lower_cut)
 
@@ -365,8 +365,8 @@ def plot_charged_and_all_zgs(pT_lower_cut, zg_cut, zg_filename, n_bins=10):
   charged_zgs = properties[zg_filename[0:2] + "_charged_" + zg_filename[3: len(zg_filename)]]
   prescales = properties['prescales']
  
-  zg_hist = Hist(6 * n_bins, 0.0, 0.6, title="Everything", markersize=1.0, color='black')
-  zg_charged_hist = Hist(6 * n_bins, 0.0, 0.6, title="Charged", markersize=1.0, color='red')
+  zg_hist = Hist(6 * n_bins, 0.0, 0.6, title="PF Candidates", markersize=1.0, color='black')
+  zg_charged_hist = Hist(6 * n_bins, 0.0, 0.6, title="Charged PFCs", markersize=1.0, color='red')
 
   bin_width_zg = (zg_hist.upperbound() - zg_hist.lowerbound()) / zg_hist.nbins()
   bin_width_zg_charged = (zg_charged_hist.upperbound() - zg_charged_hist.lowerbound()) / zg_charged_hist.nbins()
@@ -381,10 +381,11 @@ def plot_charged_and_all_zgs(pT_lower_cut, zg_cut, zg_filename, n_bins=10):
   if zg_charged_hist.GetSumOfWeights() != 0:
     zg_charged_hist.Scale(1.0 / (zg_charged_hist.GetSumOfWeights() * bin_width_zg_charged))
   
-  rplt.errorbar(zg_hist, emptybins=False, ls='None', marker='o', markersize=8, pickradius=3, elinewidth=3)
-  rplt.errorbar(zg_charged_hist, emptybins=False, ls='None', marker='o', markersize=8, pickradius=3, elinewidth=3)
+  rplt.errorbar(zg_hist, emptybins=False, ls='None', marker='o', markersize=8, capthick=3, pickradius=3, elinewidth=3)
+  rplt.errorbar(zg_charged_hist, emptybins=False, ls='None', marker='o', markersize=8, capthick=3, pickradius=3, elinewidth=3)
   
   plt.autoscale(True)
+  plt.gca().set_ylim(0, y_max_limit)
 
   legend = plt.legend(frameon=0)
   plt.gca().add_artist(legend)
@@ -475,7 +476,7 @@ def plot_hardest_pt_corresponding_triggers():
         pt_hists[j].Fill(pTs[i], prescales[i])
 
   for k in range(0, len(pt_hists)):
-    rplt.errorbar(pt_hists[k], marker='o', markersize=8, linewidth=3, pickradius=5, elinewidth=3)
+    rplt.errorbar(pt_hists[k], marker='o', markersize=8, linewidth=3, capthick=3, pickradius=5, elinewidth=3)
 
   plt.yscale('log')
   plt.autoscale(True)
@@ -630,7 +631,7 @@ def plot_turn_on_curves():
 
 
 
-def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10):
+def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
   pfc_pT_cut = 0
 
   zg_cut = float(zg_cut)
@@ -735,9 +736,9 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   
   if data:
     # data_plot, caplines, barlinecols
-    data_plot = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=8, pickradius=3, elinewidth=3, alpha=1.0)
+    data_plot = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=8, pickradius=3, capthick=3, elinewidth=3, alpha=1.0)
   else:
-    data_plot = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=8, pickradius=3, elinewidth=3, alpha=0.0)
+    data_plot = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=8, pickradius=3, capthick=3, elinewidth=3, alpha=0.0)
 
 
   data_x_errors, data_y_errors = [], []
@@ -879,7 +880,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
       data_to_data_y_err = [(b / m) for b, m in zip(data_y_errors, data_plot_points_y)]
       data_to_data_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(data_plot_points_y))]
       
-      plt.errorbar(data_plot_points_x, ratio_data_to_data, xerr=data_to_data_x_err, yerr=data_to_data_y_err, ls='None', marker='o', markersize=8, linewidth=3, pickradius=5, elinewidth=3, color='black')
+      plt.errorbar(data_plot_points_x, ratio_data_to_data, xerr=data_to_data_x_err, yerr=data_to_data_y_err, ls='None', marker='o', markersize=8, linewidth=3, capthick=3, pickradius=5, elinewidth=3, color='black')
 
     if theory:
       ratio_theory_line_to_data = [m / n for m, n in zip(theory_extrapolated_line, data_plot_points_y)]
@@ -927,7 +928,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
       zg_data_to_th_y_err = [b / m for b, m in zip(data_y_errors, theory_extrapolated_line)]
       data_to_th_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(zg_data_to_th_y_err))]
 
-      plt.errorbar(data_plot_points_x, zg_data_to_th_y, xerr=data_to_th_x_err, yerr=zg_data_to_th_y_err, ls='None', marker='o', markersize=8, linewidth=3, pickradius=5, elinewidth=3, color='black')
+      plt.errorbar(data_plot_points_x, zg_data_to_th_y, xerr=data_to_th_x_err, yerr=zg_data_to_th_y_err, ls='None', capthick=3, marker='o', markersize=8, linewidth=3, pickradius=5, elinewidth=3, color='black')
    
     if theory:
       
@@ -982,7 +983,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   handles = [data_plot, (th_patch, th_line), pythia_line, herwig_line]
   labels = [data_label, theory_label, pythia_label, herwig_label]
 
-  first_legend = ax0.legend(handles, labels, fontsize=49, handler_map = {th_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1)
+  first_legend = ax0.legend(handles, labels, fontsize=49, handler_map = {th_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1, bbox_to_anchor=[0.97, 1.0])
   ax = ax0.add_artist(first_legend)
 
   for txt in first_legend.get_texts():
@@ -992,8 +993,8 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra, extra]
-  labels = [r"$ \textrm{Anti\\-k_{T} : }~R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "$"]
-  ax0.legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=49)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "$"]
+  ax0.legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=49, bbox_to_anchor=[1.0, 0.65])
 
 
   # Legend Ends.
@@ -1001,8 +1002,10 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   ax0.autoscale(True)
   ax1.autoscale(True)
   
-  ax0.set_ylim(0, ax0.get_ylim()[1] + 2)
+  ax0.set_ylim(0, y_max_limit)
+  # ax0.set_ylim(0, ax0.get_ylim()[1] + 2)
   # ax1.set_ylim(0.5, 1.5)
+  ax1.set_ylim(1.0 - y_limit_ratio_plot, 1.0 + y_limit_ratio_plot)
 
   ax0.set_xlim(0.0, 0.6)
   ax1.set_xlim(0.0, 0.6)
@@ -1016,11 +1019,11 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
     ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.20, resample=1, dpi_cor=1), (0.02, 0.93), xycoords='data', box_alignment=(0.0, 0.7), boxcoords=("axes fraction"), frameon=0)
     ax0.add_artist(ab)
 
-    preliminary_text = "Preliminary\n(20\% sample)"
-    fig.text(0.32, 0.895, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+    preliminary_text = "Preliminary (20\%)"
+    fig.text(0.33, 0.90, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
   else:
     preliminary_text = "Preliminary"
-    fig.text(0.327, 0.920, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+    fig.text(0.33, 0.90, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 
 
@@ -1037,7 +1040,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
   plt.tight_layout()
 
-  plt.savefig("plots/" + str(n_bins) + "_zg_cut_" + str(zg_cut).replace(".", "") + "_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf")
+  plt.savefig("plots/zg_cut_" + str(zg_cut).replace(".", "") + "_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf")
 
   # plt.show()
   
@@ -1159,23 +1162,23 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
 
 
 
-# plot_zg_th_mc_data(150, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0)
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0)
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
 
-# plot_zg_th_mc_data(150, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
-# plot_zg_th_mc_data(300, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1)
-# plot_zg_th_mc_data(300, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
-# plot_zg_th_mc_data(300, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
 
-# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1)
-# plot_zg_th_mc_data(600, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1)
-# plot_zg_th_mc_data(600, '0.2', 'zg_2', 'data', theory=1, mc=1, data=1)
+plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
 
 
 
@@ -1203,17 +1206,17 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
 
 # plot_charged_pt()
 
-plot_charged_and_all_zgs(150, '0.05', 'zg_05', n_bins=10)
-plot_charged_and_all_zgs(150, '0.1', 'zg_1', n_bins=10)
-plot_charged_and_all_zgs(150, '0.2', 'zg_2', n_bins=10)
+# plot_charged_and_all_zgs(150, '0.05', 'zg_05', n_bins=8, y_max_limit=18)
+# plot_charged_and_all_zgs(150, '0.1', 'zg_1', n_bins=8, y_max_limit=10)
+# plot_charged_and_all_zgs(150, '0.2', 'zg_2', n_bins=8, y_max_limit=10)
 
-plot_charged_and_all_zgs(300, '0.05', 'zg_05', n_bins=10)
-plot_charged_and_all_zgs(300, '0.1', 'zg_1', n_bins=10)
-plot_charged_and_all_zgs(300, '0.2', 'zg_2', n_bins=10)
+# plot_charged_and_all_zgs(300, '0.05', 'zg_05', n_bins=4, y_max_limit=15)
+# plot_charged_and_all_zgs(300, '0.1', 'zg_1', n_bins=4, y_max_limit=15)
+# plot_charged_and_all_zgs(300, '0.2', 'zg_2', n_bins=4, y_max_limit=15)
 
-plot_charged_and_all_zgs(600, '0.05', 'zg_05', n_bins=10)
-plot_charged_and_all_zgs(600, '0.1', 'zg_1', n_bins=10)
-plot_charged_and_all_zgs(600, '0.2', 'zg_2', n_bins=10)
+# plot_charged_and_all_zgs(600, '0.05', 'zg_05', n_bins=2, y_max_limit=15)
+# plot_charged_and_all_zgs(600, '0.1', 'zg_1', n_bins=2, y_max_limit=15)
+# plot_charged_and_all_zgs(600, '0.2', 'zg_2', n_bins=2, y_max_limit=15)
 
 
 
