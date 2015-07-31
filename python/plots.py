@@ -45,6 +45,8 @@ input_analysis_file = sys.argv[1]
 
 mpl.rcParams['axes.linewidth'] = 5.0 #set the value globally
 mpl.rcParams['text.usetex'] = True
+
+
 plt.rc('font', family='serif', size=43)
 
 
@@ -203,7 +205,7 @@ def plot_pts():
   ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.15, resample=1, dpi_cor=1), (100, 3.5), frameon=0)
   plt.gca().add_artist(ab)
 
-  preliminary_text = "Preliminary\n(20\% sample)"
+  preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.31, 0.83, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
 
 
@@ -213,39 +215,6 @@ def plot_pts():
   # plt.show()
   plt.clf()
 
-
-def plot_zg_pfc_pt_cut(pfc_pT_cut):
-  pT_lower_cut = 150
-  properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
-
-  zgs = [properties['zg_05_pt_' + str(int(pfc_pT_cut))], properties['zg_1_pt_' + str(int(pfc_pT_cut))], properties['zg_2_pt_' + str(int(pfc_pT_cut))]]
-
-  prescales = properties['prescales']
-
-  colors = ['red', 'blue', 'green']
-  labels = ['CMS $z_{cut}$ = 0.05', 'CMS $z_{cut}$ = 0.1', 'CMS $z_{cut}$ = 0.2']
-  
-  for i in range(0, len(zgs)):
-    # no. of bins, xlower, xhigher
-    zg_hist = Hist(50, 0.0, 0.5, title=labels[i], markersize=1.0, color=colors[i])
-
-    map(zg_hist.Fill, zgs[i], prescales)
-    
-    zg_hist.Scale(1.0 / zg_hist.GetSumOfWeights())
-    
-    rplt.errorbar(zg_hist, xerr=False, emptybins=False)
-
-  plt.autoscale(True)
-
-  plt.legend()
-  plt.xlabel("Symmetry Measure(z)")
-  plt.suptitle("Symmetry Measure(z) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV & PFC $p_{T cut}$ = " + str(pfc_pT_cut) + " GeV")
-
-  fig = plt.gcf()
-  fig.set_size_inches(20, 20, forward=1)
-
-  plt.savefig("plots/zg_distribution_pt_cut_" + str(pT_lower_cut) + "_pfc_pt_cut_" + str(pfc_pT_cut) + ".pdf")
-  plt.show()
 
 
 def plot_dr():
@@ -357,6 +326,69 @@ def plot_charged_pt():
   plt.show()
 
 
+def plot_zg_pfc_pt_cut(pT_lower_cut, zg_cut, zg_filename, pfc_pT_cut, n_bins=10, y_max_limit=20):
+
+  properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
+
+  zgs = properties[zg_filename]
+  zg_pfc_cut = properties[zg_filename + '_pt_' + str(int(pfc_pT_cut))]
+  prescales = properties['prescales']
+
+  zg_hist = Hist(6 * n_bins, 0.0, 0.6, title="PF Candidates", markersize=1.0, color='black')
+  zg_pfc_cut_hist = Hist(6 * n_bins, 0.0, 0.6, title="PFCs with a pT Cut", markersize=1.0, color='red')
+
+  bin_width_zg = (zg_hist.upperbound() - zg_hist.lowerbound()) / zg_hist.nbins()
+  bin_width_zg_pfc_cut = (zg_pfc_cut_hist.upperbound() - zg_pfc_cut_hist.lowerbound()) / zg_pfc_cut_hist.nbins()
+
+
+  map(zg_hist.Fill, zgs, prescales)
+  map(zg_pfc_cut_hist.Fill, zg_pfc_cut, prescales)
+
+  if zg_hist.GetSumOfWeights() != 0:
+    zg_hist.Scale(1.0 / (zg_hist.GetSumOfWeights() * bin_width_zg))
+
+  if zg_pfc_cut_hist.GetSumOfWeights() != 0:
+    zg_pfc_cut_hist.Scale(1.0 / (zg_pfc_cut_hist.GetSumOfWeights() * bin_width_zg_pfc_cut))
+  
+  rplt.errorbar(zg_hist, emptybins=False, ls='None', marker='o', markersize=8, capthick=3, pickradius=3, elinewidth=3)
+  rplt.errorbar(zg_pfc_cut_hist, emptybins=False, ls='None', marker='o', markersize=8, capthick=3, pickradius=3, elinewidth=3)
+  
+  plt.autoscale(True)
+  plt.gca().set_ylim(0, y_max_limit)
+
+  legend = plt.legend(frameon=0)
+  plt.gca().add_artist(legend)
+
+  
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  handles = [extra, extra]
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};~PFC~p_{T} > " + str(pfc_pT_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "$"]
+  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=49)
+
+
+  plt.xlabel("$z_g$")
+
+  fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
+
+  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.15, resample=1, dpi_cor=1), (0.02, 0.95), xycoords='data', box_alignment=(0.0, 0.7), boxcoords=("axes fraction"), frameon=0)
+  plt.gca().add_artist(ab)
+
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.32, 0.82, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
+
+  plt.gca().set_ylim(0, plt.gca().get_ylim()[1] + 2)
+  plt.gca().set_xlim(0.0, 0.6)
+
+  plt.gcf().set_size_inches(30, 30, forward=1)
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20)
+  plt.gca().yaxis.set_tick_params(width=5, length=20)
+
+  plt.savefig("plots/zg_distribution_pt_cut_" + str(pT_lower_cut) + "_pfc_pt_cut_" + str(pfc_pT_cut) + ".pdf")
+  # plt.show()
+  plt.clf()
+
+
 def plot_charged_and_all_zgs(pT_lower_cut, zg_cut, zg_filename, n_bins=10, y_max_limit=20):
 
   properties = parse_file(input_analysis_file, pT_lower_cut)
@@ -393,25 +425,28 @@ def plot_charged_and_all_zgs(pT_lower_cut, zg_cut, zg_filename, n_bins=10, y_max
   
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra, extra]
-  labels = [r"$ \textrm{Anti\\-k_{T} : }~R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "$"]
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "$"]
   plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=49)
 
 
 
-  plt.xlabel("Symmetry Measure(z)")
+  plt.xlabel("$z_g$")
 
   fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
 
   ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.15, resample=1, dpi_cor=1), (0.02, 0.95), xycoords='data', box_alignment=(0.0, 0.7), boxcoords=("axes fraction"), frameon=0)
   plt.gca().add_artist(ab)
 
-  preliminary_text = "Preliminary\n(20\% sample)"
+  preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.32, 0.82, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
 
   plt.gca().set_ylim(0, plt.gca().get_ylim()[1] + 2)
   plt.gca().set_xlim(0.0, 0.6)
 
   plt.gcf().set_size_inches(20, 20, forward=1)
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20)
+  plt.gca().yaxis.set_tick_params(width=5, length=20)
 
   plt.savefig("plots/charged_zg_cut_" + str(zg_cut) + "_pt_cut_" + str(pT_lower_cut) + ".pdf")
   # plt.show()
@@ -491,7 +526,7 @@ def plot_hardest_pt_corresponding_triggers():
   ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.15, resample=1, dpi_cor=1), (125, 30e7), frameon=0)
   plt.gca().add_artist(ab)
 
-  preliminary_text = "Preliminary\n(20\% sample)"
+  preliminary_text = "Prelim. \n(20\%)"
   plt.gcf().text(0.31, 0.83, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
 
   plt.gcf().set_size_inches(20, 20, forward=1)
@@ -611,7 +646,7 @@ def plot_turn_on_curves():
   # ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.20, resample=1, dpi_cor=1), (0.6, 0.65), xycoords='data', box_alignment=(0.0, 0.7), boxcoords=("axes fraction"), frameon=0)
   # plt.gca().add_artist(ab)
 
-  # preliminary_text = "Preliminary \n(25% sample)"
+  # preliminary_text = "Prelim. (20%)"
   # plt.gcf().text(0.59, 0.64, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
 
 
@@ -956,17 +991,12 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
   # Normalized-Over-Data Plot Ends.
 
-  ax0.set_xlabel("$z_g$", fontsize=85)
-  ax0.set_ylabel("$\displaystyle \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=85, rotation=0, labelpad=115, y=0.39)
+  ax0.set_xlabel("$z_g$", fontsize=95)
+  ax0.set_ylabel("$\displaystyle \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=80, rotation=0, labelpad=115, y=0.39)
   
-  ax1.set_xlabel("$z_g$", fontsize=85)
+  ax1.set_xlabel("$z_g$", fontsize=95)
   ax1.set_ylabel("Ratio           \nto           \n" + ratio_denominator.capitalize() + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
 
-  ax0.tick_params(axis='x', labelsize=60)
-  ax0.tick_params(axis='y', labelsize=60)
-
-  ax1.tick_params(axis='x', labelsize=60)
-  ax1.tick_params(axis='y', labelsize=60)
 
   # Legend.
 
@@ -983,7 +1013,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   handles = [data_plot, (th_patch, th_line), pythia_line, herwig_line]
   labels = [data_label, theory_label, pythia_label, herwig_label]
 
-  first_legend = ax0.legend(handles, labels, fontsize=49, handler_map = {th_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1, bbox_to_anchor=[0.97, 1.0])
+  first_legend = ax0.legend(handles, labels, fontsize=60, handler_map = {th_line : HandlerLine2D(marker_pad = 0), pythia_line : HandlerLine2D(marker_pad = 0), herwig_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1, bbox_to_anchor=[0.97, 0.98])
   ax = ax0.add_artist(first_legend)
 
   for txt in first_legend.get_texts():
@@ -994,7 +1024,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra, extra]
   labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "$"]
-  ax0.legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=49, bbox_to_anchor=[1.0, 0.65])
+  ax0.legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.58])
 
 
   # Legend Ends.
@@ -1003,8 +1033,6 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   ax1.autoscale(True)
   
   ax0.set_ylim(0, y_max_limit)
-  # ax0.set_ylim(0, ax0.get_ylim()[1] + 2)
-  # ax1.set_ylim(0.5, 1.5)
   ax1.set_ylim(1.0 - y_limit_ratio_plot, 1.0 + y_limit_ratio_plot)
 
   ax0.set_xlim(0.0, 0.6)
@@ -1019,22 +1047,22 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
     ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.20, resample=1, dpi_cor=1), (0.02, 0.93), xycoords='data', box_alignment=(0.0, 0.7), boxcoords=("axes fraction"), frameon=0)
     ax0.add_artist(ab)
 
-    preliminary_text = "Preliminary (20\%)"
-    fig.text(0.33, 0.90, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+    preliminary_text = "Prelim. (20\%)"
+    fig.text(0.34, 0.90, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
   else:
-    preliminary_text = "Preliminary"
-    fig.text(0.33, 0.90, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+    preliminary_text = " "
+    fig.text(0.34, 0.90, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 
 
   fig = plt.gcf()
   fig.set_size_inches(30, 30, forward=1)
 
-  ax0.xaxis.set_tick_params(width=5, length=10)
-  ax0.yaxis.set_tick_params(width=5, length=10)
+  ax0.xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  ax0.yaxis.set_tick_params(width=5, length=20, labelsize=70)
 
-  ax1.xaxis.set_tick_params(width=5, length=10)
-  ax1.yaxis.set_tick_params(width=5, length=10)
+  ax1.xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  ax1.yaxis.set_tick_params(width=5, length=20, labelsize=70)
 
   fig.set_snap(True)
 
@@ -1073,8 +1101,7 @@ def parse_theory_file(input_file):
 
 
 
-def plot_trigger_efficiency_curves(trigger_1, trigger_2):
-  # properties = parse_file_turn_on(input_analysis_file)
+def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
   
   properties = parse_file_turn_on('./turn_on.dat')
 
@@ -1082,119 +1109,158 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2):
   trigger_names = properties['trigger_names']
   prescales = properties['prescales']
 
-  expected_trigger_names = [trigger_1, trigger_2]
+  colors = ['magenta', 'blue', 'orange', 'green', 'black', 'red']
+  expected_trigger_names = ["HLT\_Jet180U", "HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U" ]
 
-  pt_hist_1 = Hist(100, 0, 1000)
-  pt_hist_2 = Hist(100, 0, 1000)
+  color = colors[expected_trigger_names.index(trigger_1.replace("_", "\_"))]
 
-  pTs_1, weights_1 = [], []
-  pTs_2, weights_2 = [], []
-  
+  pt_hist_trigger_1 = Hist(2000, 0, pT_upper_limit, title=trigger_1.replace("_", "\_"), color=color, markersize=1.0, linewidth=5)
+  pt_hist_trigger_2 = Hist(2000, 0, pT_upper_limit, title=trigger_2.replace("_", "\_"), color=color, markersize=1.0, linewidth=5)
+
+
   for i in range(0, len(pTs)):
-    if trigger_names[i] == trigger_1:
-      pTs_1.append(pTs[i])
-      weights_1.append(prescales[i])
-    elif trigger_names[i] == trigger_2:
-      pTs_2.append(pTs[i])
-      weights_2.append(prescales[i])
+    if trigger_1 in trigger_names[i]:
+      pt_hist_trigger_1.Fill(pTs[i], prescales[i])
+
+    # The len thingy is to make sure trigger names like HLT_Jet15U_HcalNoiseFiltered_v3 are excluded.
+    # if trigger_2 in trigger_names[i] and len(trigger_names[i]) < (len(trigger_2) + 3):
+    if trigger_2 in trigger_names[i]:
+      pt_hist_trigger_2.Fill(pTs[i], prescales[i])
+
+
+  pt_hist_trigger_1.Divide(pt_hist_trigger_2)
+
+
+  rplt.errorbar(pt_hist_trigger_1, xerr=0, yerr=0, color=color)
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+
+  fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
+
+  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.20, resample=1, dpi_cor=1), (0.02, 0.955), xycoords='data', box_alignment=(0.0, 0.7), boxcoords=("axes fraction"), frameon=0)
+  plt.gca().add_artist(ab)
+
+  plt.gcf().text(0.31, 0.845, "Prelim. (20\%)", fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_snap(1)
+
+  # Horizontal Line.
+  plt.plot(list(pt_hist_trigger_1.x()), [1] * len(list(pt_hist_trigger_1.x())), color="black", linewidth=5, linestyle="dashed")
+
+ 
+  if trigger_1 == "HLT_L1Jet6U":
+    lower_pT = 37
+  elif trigger_1 == "HLT_Jet15U":
+    lower_pT = 56
+  elif trigger_1 == "HLT_Jet30U":
+    lower_pT = 84
+  elif trigger_1 == "HLT_Jet50U":
+    lower_pT = 114
+  elif trigger_1 == "HLT_Jet70U":
+    lower_pT = 153
+  else:
+    lower_pT = 0
+
+
+  if lower_pT != 0:
+    # CMS Vertical line.
+    plt.plot([lower_pT, lower_pT], [plt.gca().get_ylim()[0], 1.], color="purple", linewidth=3, linestyle="dashed")
+
+
+
+  # # MOD Vertical line.
+  # efficient_pt_x = 0.0
+  # efficient_pt_y = 0.0
+
+  # efficient_pt_x_s = []
+  # efficient_pt_y_s = []
+
+  # distance_to_previous_point_close_to_one = 0
+
+  # for i in range(0, len(list(pt_hist_trigger_1.x()))):
+  #   if abs(list(pt_hist_trigger_1.y())[i] - 1.00) < 0.1:
+
+  #     if distance_to_previous_point_close_to_one > 25:
+  #       # Last point close to one too far away.
+  #       # Empty the lists.
+  #       efficient_pt_x_s, efficient_pt_y_s = [], []
+
+  #     efficient_pt_x_s.append(list(pt_hist_trigger_1.x())[i])
+  #     efficient_pt_y_s.append(list(pt_hist_trigger_1.y())[i])
+  #     distance_to_previous_point_close_to_one = 0
+
+  #   else:
+  #     distance_to_previous_point_close_to_one += 1
+
+
+  #   if len(efficient_pt_x_s) > 75:
+  #     efficient_pt_x = efficient_pt_x_s[0]
+  #     efficient_pt_y = efficient_pt_y_s[0]
+  #     break
+
+
+  # plt.plot([efficient_pt_x, efficient_pt_x], [plt.gca().get_ylim()[0], 1000], color="gray", linewidth=3, linestyle="dashed")
   
 
-  map(pt_hist_1.Fill, pTs_1, weights_1)
-  map(pt_hist_2.Fill, pTs_2, weights_2)
-
-  pt_hist_1.Divide(pt_hist_2)
-
-  plt.plot(list(pt_hist_1.x()), list(pt_hist_1.y()), color="red", linewidth=5)
+  if lower_pT != 0:
+    plt.gca().annotate("CMS: " + str(lower_pT) + " GeV", xy=(lower_pT, 1.), xycoords='data', xytext=(-100, 250),  textcoords='offset points', color="purple", size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor="purple", zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
+  
+  # plt.gca().annotate("MOD: " + str(int(efficient_pt_x)) + " GeV", xy=(efficient_pt_x, efficient_pt_y), xycoords='data', xytext=(250, 200), textcoords='offset points', color="gray", size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor="gray", zorder=99, connectionstyle="angle3,angleA=45,angleB=-90") )
 
 
-  # Horizontal line.
-  plt.plot(list(pt_hist_1.x()), [1] * len(list(pt_hist_1.x())), color="green", linewidth=3, linestyle="dashed")
 
-  # Vertical line.
-  efficient_pt_x = 0.0
-  efficient_pt_y = 0.0
-  for i in range(0, len(list(pt_hist_1.x()))):
-    if abs(list(pt_hist_1.y())[i] - 1.00) < 0.02:
-      efficient_pt_x = list(pt_hist_1.x())[i]
-      efficient_pt_y = list(pt_hist_1.y())[i]
-      break
-
-  plt.plot([efficient_pt_x, efficient_pt_x], [efficient_pt_y, 0.0], color="blue", linewidth=3, linestyle="dashed")
-
-  plt.gca().annotate(str(efficient_pt_x) + " GeV", xy=(efficient_pt_x, efficient_pt_y), xycoords='data', xytext=(100, 2), textcoords='data', size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor='orange', connectionstyle="arc3,rad=-0.2"), )
-
-  # fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
-  # ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.20, resample=1, dpi_cor=1), (0.6, 0.65), xycoords='data', box_alignment=(0.0, 0.7), boxcoords=("axes fraction"), frameon=0)
-  # plt.gca().add_artist(ab)
-
-  # preliminary_text = "Preliminary \n(25% sample)"
-  # plt.gcf().text(0.59, 0.64, preliminary_text, fontsize=40, weight='bold', color='#444444', multialignment='center')
-
-  plt.autoscale(True)
   plt.yscale('log')
-  plt.gca().set_ylim(plt.gca().get_ylim()[0], 10)
+  plt.gca().set_ylim(plt.gca().get_ylim()[0], 100)
 
-  plt.legend()
-  plt.xlabel('$p_T$ (GeV)')
+  plt.legend(frameon=0)
 
-  plt.gcf().set_size_inches(20, 20, forward=1)
+  plt.xlabel('$p_T~(GeV)$', fontsize=55, rotation=0)
 
-  plt.title("Efficiency Curve- " + trigger_1 + " / " + trigger_2, fontsize=30)
 
-  plt.savefig("plots/efficiency_curves_" + trigger_1 + "_" + trigger_2 + ".pdf")
-  plt.show()
+  plt.gcf().set_size_inches(30, 30, forward=1)
+  plt.gcf().set_snap(True)
 
+
+  plt.savefig("plots/efficiency_curves_" + trigger_1 + ".pdf")
+  # plt.show()
+  plt.clf()
 
 
 
 
 # "HLT_Jet180U", "HLT_Jet140U", "HLT_Jet100U", "HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U"
 
-# plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U")
-# plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U")
-# plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U")
-# plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U")
-# plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U")
-# plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U")
+
+# plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U", pT_upper_limit=200)
+# plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U", pT_upper_limit=300)
+# plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U", pT_upper_limit=350)
+# plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U", pT_upper_limit=800)
+# plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U ", pT_upper_limit=800)
+# plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U", pT_upper_limit=1200)
 
 
 # plot_turn_on_curves()
 
 
 
-plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
-plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-
-
-plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-
-plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-
-plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
 
+# plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
-# Bins Stuff.
+# plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
 
-# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=10)
-# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=8)
-# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=6)
-# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=4)
-# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=2)
-
-# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=2)
-# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=2)
-
-
-
+# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
 
 
 # plot_pts()
@@ -1220,11 +1286,11 @@ plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=
 
 
 
-# plot_zg_pfc_pt_cut(pfc_pT_cut=1)
-# plot_zg_pfc_pt_cut(pfc_pT_cut=2)
-# plot_zg_pfc_pt_cut(pfc_pT_cut=3)
-# plot_zg_pfc_pt_cut(pfc_pT_cut=5)
-# plot_zg_pfc_pt_cut(pfc_pT_cut=10)
+plot_zg_pfc_pt_cut(150, 0.1, 'zg_1', pfc_pT_cut=1, n_bins=10, y_max_limit=10)
+# plot_zg_pfc_pt_cut(150, 0.1, 'zg_1', pfc_pT_cut=2, n_bins=10, y_max_limit=20)
+# plot_zg_pfc_pt_cut(150, 0.1, 'zg_1', pfc_pT_cut=3, n_bins=10, y_max_limit=20)
+# plot_zg_pfc_pt_cut(150, 0.1, 'zg_1', pfc_pT_cut=5, n_bins=10, y_max_limit=20)
+# plot_zg_pfc_pt_cut(150, 0.1, 'zg_1', pfc_pT_cut=10, n_bins=10, y_max_limit=20)
 
 
 # plot_charged_zg_pfc_pt_cut(pfc_pT_cut=1)
