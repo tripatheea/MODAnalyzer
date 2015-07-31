@@ -25,4 +25,6 @@ def count_events(input_file, pt_cut):
 
   return number_of_events
 
-print count_events(input_file, 150.0)
+print "No. of events with pT > " + str(150.00) + " GeV: " + str(count_events(input_file, 150.0))
+print "No. of events with pT > " + str(300.00) + " GeV: " + str(count_events(input_file, 300.0))
+print "No. of events with pT > " + str(600.00) + " GeV: " + str(count_events(input_file, 600.0))
