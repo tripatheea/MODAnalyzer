@@ -1165,8 +1165,8 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
       pt_hist_trigger_1.Fill(pTs[i], prescales[i])
 
     # The len thingy is to make sure trigger names like HLT_Jet15U_HcalNoiseFiltered_v3 are excluded.
-    if trigger_2 in trigger_names[i] and len(trigger_names[i]) > (len(trigger_2) + 3):
-    # if trigger_2 in trigger_names[i]:
+    # if trigger_2 in trigger_names[i] and len(trigger_names[i]) > (len(trigger_2) + 3):
+    if trigger_2 in trigger_names[i]:
       pt_hist_trigger_2.Fill(pTs[i], prescales[i])
 
 
@@ -1359,7 +1359,7 @@ plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U", pT_upper_limit=800)
 plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U", pT_upper_limit=1200)
 
 
-plot_all_trigger_efficiency_curves()
+# plot_all_trigger_efficiency_curves()
 
 # # Trigger Efficiency Curves End.
 
@@ -1372,7 +1372,7 @@ plot_all_trigger_efficiency_curves()
 
 # Triggers Turn-On Curve Begins.
 
-plot_turn_on_curves()
+# plot_turn_on_curves()
 
 # Triggers Turn-On Curve Ends.
 
@@ -1389,7 +1389,7 @@ plot_turn_on_curves()
 
 # # AK5 Distribution Begins.
 
-plot_pts()
+# plot_pts()
 
 # # AK5 Distribution Ends.
 
@@ -1463,17 +1463,17 @@ plot_charged_and_all_zgs(600, '0.2', 'zg_2', n_bins=2, y_max_limit=15)
 # Everything, 2 GeV, 5 GeV. Same plots as charged. 
 
 
-plot_zg_pfc_pt_cut(150, '0.05', 'zg_05', n_bins=8, y_max_limit=18)
-plot_zg_pfc_pt_cut(150, '0.1', 'zg_1', n_bins=8, y_max_limit=10)
-plot_zg_pfc_pt_cut(150, '0.2', 'zg_2', n_bins=8, y_max_limit=10)
+# plot_zg_pfc_pt_cut(150, '0.05', 'zg_05', n_bins=8, y_max_limit=18)
+# plot_zg_pfc_pt_cut(150, '0.1', 'zg_1', n_bins=8, y_max_limit=10)
+# plot_zg_pfc_pt_cut(150, '0.2', 'zg_2', n_bins=8, y_max_limit=10)
 
-plot_zg_pfc_pt_cut(300, '0.05', 'zg_05', n_bins=4, y_max_limit=15)
-plot_zg_pfc_pt_cut(300, '0.1', 'zg_1', n_bins=4, y_max_limit=15)
-plot_zg_pfc_pt_cut(300, '0.2', 'zg_2', n_bins=4, y_max_limit=15)
+# plot_zg_pfc_pt_cut(300, '0.05', 'zg_05', n_bins=4, y_max_limit=15)
+# plot_zg_pfc_pt_cut(300, '0.1', 'zg_1', n_bins=4, y_max_limit=15)
+# plot_zg_pfc_pt_cut(300, '0.2', 'zg_2', n_bins=4, y_max_limit=15)
 
-plot_zg_pfc_pt_cut(600, '0.05', 'zg_05', n_bins=2, y_max_limit=15)
-plot_zg_pfc_pt_cut(600, '0.1', 'zg_1', n_bins=2, y_max_limit=15)
-plot_zg_pfc_pt_cut(600, '0.2', 'zg_2', n_bins=2, y_max_limit=15)
+# plot_zg_pfc_pt_cut(600, '0.05', 'zg_05', n_bins=2, y_max_limit=15)
+# plot_zg_pfc_pt_cut(600, '0.1', 'zg_1', n_bins=2, y_max_limit=15)
+# plot_zg_pfc_pt_cut(600, '0.2', 'zg_2', n_bins=2, y_max_limit=15)
 
 
 
