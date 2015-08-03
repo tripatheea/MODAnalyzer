@@ -452,7 +452,7 @@ def plot_turn_on_curves():
 
   pt_hists = []
   for i in range(0, len(expected_trigger_names)):
-    pt_hists.append(Hist(500, 0, 250, title=expected_trigger_names[i][5:], markersize=1.0, color=colors[i], linewidth=5))
+    pt_hists.append(Hist(600, 0, 300, title=expected_trigger_names[i][5:], markersize=1.0, color=colors[i], linewidth=5))
 
   for i in range(0, len(pTs)):
     for j in range(0, len(expected_trigger_names)):
@@ -460,7 +460,7 @@ def plot_turn_on_curves():
         pt_hists[j].Fill(pTs[i], prescales[i])
 
   for k in range(0, len(pt_hists)):
-    rplt.errorbar(pt_hists[k], xerr=0, yerr=0)
+    rplt.errorbar(pt_hists[k])
 
   plt.autoscale(True)
   plt.yscale('log')
@@ -500,13 +500,11 @@ def plot_pts():
   herwig_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_herwig_pp2jj_150pTcut_7TeV.dat")
   pythia_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_pythia_pp2jj_150pTcut_7TeV.dat")
 
-  pythia_pt_hist = Hist(100, 0, 1000, title="Pythia 8.205", markersize=3.0, color="blue")
+  pythia_pt_hist = Hist(100, 0, 1000, title="Pythia 8.205", linewidth=5, markersize=5.0, color="blue")
   bin_width_pythia = (pythia_pt_hist.upperbound() - pythia_pt_hist.lowerbound()) / pythia_pt_hist.nbins()
 
-  herwig_pt_hist = Hist(100, 0, 1000, title="Herwig++ 2.6.3", markersize=3.0, color="green")
+  herwig_pt_hist = Hist(100, 0, 1000, title="Herwig++ 2.6.3", linewidth=5, markersize=5.0, color="green")
   bin_width_herwig = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
-
-  
 
   corrected_pt_hist = Hist(100, 0, 1000, title='Corrected', markersize=3.0, color='black')
   bin_width_corrected = (corrected_pt_hist.upperbound() - corrected_pt_hist.lowerbound()) / corrected_pt_hist.nbins()
@@ -525,44 +523,66 @@ def plot_pts():
   pythia_pt_hist.Scale(1.0 / (pythia_pt_hist.GetSumOfWeights() * bin_width_pythia))
   herwig_pt_hist.Scale(1.0 / (herwig_pt_hist.GetSumOfWeights() * bin_width_herwig))
   
-  
-  rplt.errorbar(corrected_pt_hist, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=3, pickradius=5, elinewidth=3)
-  rplt.errorbar(uncorrected_pt_hist, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=3, pickradius=5, elinewidth=3)
-  rplt.hist(pythia_pt_hist, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
-  rplt.hist(herwig_pt_hist, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
+  gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
+
+  ax0 = plt.subplot(gs[0])
+  ax1 = plt.subplot(gs[1])
+
+  rplt.errorbar(corrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=3, pickradius=5, elinewidth=3)
+  rplt.errorbar(uncorrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=3, pickradius=5, elinewidth=3)
+  rplt.hist(pythia_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
+  rplt.hist(herwig_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
   
 
-  plt.autoscale(True)
-   
-  plt.yscale('log')
+  ax0.autoscale(True)
+  ax0.set_yscale('log')
 
   legend = plt.legend(loc=1, frameon=0)
-  plt.gca().add_artist(legend)
+  # ax0.add_artist(legend)
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   labels = [r"$ \textrm{Anti - k_{T} : }~R = 0.5$"]
-  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=49)
+  ax0.legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=49)
 
-  plt.gca().set_ylim(10e-7, 10e-2)
+  ax0.set_ylim(10e-7, 10e-2)
 
-  plt.legend(frameon=0)
-  plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
-  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=115.)
+  ax0.legend(frameon=0)
+  ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
+  ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
 
-  fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
-
-  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.20, resample=1, dpi_cor=1), (200, 0.045), frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
-
   preliminary_text = "Prelim. (20\%)"
-  plt.gcf().text(0.335, 0.875, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+  plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
-  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+  # Ratio Plot.
+  pythia_pt_hist.Divide(corrected_pt_hist)
+  herwig_pt_hist.Divide(corrected_pt_hist)
+  corrected_pt_hist.Divide(corrected_pt_hist)
 
-  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+  rplt.hist(pythia_pt_hist, axes=ax1, linewidth=5)
+  rplt.hist(herwig_pt_hist, axes=ax1, linewidth=5)
+  rplt.errorbar(corrected_pt_hist, axes=ax1, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
 
-  plt.tight_layout()
+  ax1.autoscale(True)
+  
+  ax0.set_ylim(10e-6, 10e-2)
+  ax1.set_ylim(0., 2.)
+
+
+  plt.gcf().set_size_inches(30, 30, forward=1)
+
+
+  ax0.xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  ax0.yaxis.set_tick_params(width=5, length=20, labelsize=70)
+
+  ax1.xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  ax1.yaxis.set_tick_params(width=5, length=20, labelsize=70)
+
+  plt.ylabel("Ratio           \nto           \n" + "Data" + "           ", fontsize=55, rotation=0, labelpad=135, y=0.31, axes=ax1)
+
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
   plt.savefig("plots/ak5_pt_distribution.pdf")
   # plt.show()
@@ -689,9 +709,6 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
   zg_cut = float(zg_cut)
 
-  if pT_lower_cut == 600:
-    n_bins = 2
-
   properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
   properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
   properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
@@ -773,6 +790,45 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
   # Theory Plot Ends.
 
+  def convert_hist_to_line_plot(hist, n_bins):
+    a = []
+    b = {}
+    bin_width = 0.6 / (6 * n_bins)
+    for i in range(0, len(list(hist.x()))):
+      a.append(round(list(hist.x())[i] - bin_width / 2., 4))
+      a.append(round(list(hist.x())[i], 4))
+      a.append(round(list(hist.x())[i] + bin_width / 2., 4))
+
+      if round(list(hist.x())[i] - bin_width / 2., 4) not in b.keys():
+        b[round(list(hist.x())[i] - bin_width / 2., 4)] = [ list(hist.y())[i] ]
+      else:
+        b[round(list(hist.x())[i] - bin_width / 2., 4)].append( list(hist.y())[i] )
+      
+      if round(list(hist.x())[i], 4) not in b.keys():
+        b[round(list(hist.x())[i], 4)] = [ list(hist.y())[i] ]
+      else:
+        b[round(list(hist.x())[i], 4)].append( list(hist.y())[i] )
+
+      if round(list(hist.x())[i] + bin_width / 2., 4) not in b.keys():
+        b[round(list(hist.x())[i] + bin_width / 2., 4)] = [ list(hist.y())[i] ]
+      else:
+        b[round(list(hist.x())[i] + bin_width / 2., 4)].append( list(hist.y())[i] )
+
+    x = sorted(list(Set(a)))
+    a.sort()
+    
+    c = [b[x[i]] for i in range(0, len(x))]
+
+    y = [item for sublist in c for item in sublist]
+    
+    a_zero_removed = []
+    y_zero_removed = []
+    for i in range(0, len(a)):
+      if a[i] >= zg_cut and a[i] <= 0.5 and y[i] != 0.0:
+        a_zero_removed.append(a[i])
+        y_zero_removed.append(y[i])
+
+    return a_zero_removed, y_zero_removed
 
   
   
@@ -875,57 +931,15 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   theory_extrapolated_line = theory_line_interpolate_function(data_plot_points_x)
   theory_extrapolated_max = theory_max_interpolate_function(data_plot_points_x)
 
-
-  def convert_hist_to_line_plot(hist):
-    a = []
-    b = {}
-    bin_width = 0.6 / (6 * n_bins)
-    for i in range(0, len(list(hist.x()))):
-      a.append(round(list(hist.x())[i] - bin_width / 2., 4))
-      a.append(round(list(hist.x())[i], 4))
-      a.append(round(list(hist.x())[i] + bin_width / 2., 4))
-
-      if round(list(hist.x())[i] - bin_width / 2., 4) not in b.keys():
-        b[round(list(hist.x())[i] - bin_width / 2., 4)] = [ list(hist.y())[i] ]
-      else:
-        b[round(list(hist.x())[i] - bin_width / 2., 4)].append( list(hist.y())[i] )
-      
-      if round(list(hist.x())[i], 4) not in b.keys():
-        b[round(list(hist.x())[i], 4)] = [ list(hist.y())[i] ]
-      else:
-        b[round(list(hist.x())[i], 4)].append( list(hist.y())[i] )
-
-      if round(list(hist.x())[i] + bin_width / 2., 4) not in b.keys():
-        b[round(list(hist.x())[i] + bin_width / 2., 4)] = [ list(hist.y())[i] ]
-      else:
-        b[round(list(hist.x())[i] + bin_width / 2., 4)].append( list(hist.y())[i] )
-
-    x = sorted(list(Set(a)))
-    a.sort()
-    
-    c = [b[x[i]] for i in range(0, len(x))]
-
-    y = [item for sublist in c for item in sublist]
-    
-    a_zero_removed = []
-    y_zero_removed = []
-    for i in range(0, len(a)):
-      if a[i] >= zg_cut and a[i] <= 0.5 and y[i] != 0.0:
-        a_zero_removed.append(a[i])
-        y_zero_removed.append(y[i])
-
-    return a_zero_removed, y_zero_removed
-
-
   if ratio_denominator == "data":
 
     if mc:
       zg_herwig_hist.Divide(zg_data_hist)
-      zg_herwig_line_plot = convert_hist_to_line_plot(zg_herwig_hist)
+      zg_herwig_line_plot = convert_hist_to_line_plot(zg_herwig_hist, n_bins)
       plt.plot(zg_herwig_line_plot[0], zg_herwig_line_plot[1], linewidth=5, color='green')
 
       zg_pythia_hist.Divide(zg_data_hist)
-      zg_pythia_line_plot = convert_hist_to_line_plot(zg_pythia_hist)
+      zg_pythia_line_plot = convert_hist_to_line_plot(zg_pythia_hist, n_bins)
       plt.plot(zg_pythia_line_plot[0], zg_pythia_line_plot[1], linewidth=5, color='blue')
 
     if data:
@@ -942,16 +956,16 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
       zg_theory_line_to_data_hist = Hist(6 * n_bins, 0.0, 0.6)
       map(zg_theory_line_to_data_hist.Fill, data_plot_points_x, ratio_theory_line_to_data)
-      zg_theory_line_to_data_plot = convert_hist_to_line_plot(zg_theory_line_to_data_hist)
+      zg_theory_line_to_data_plot = convert_hist_to_line_plot(zg_theory_line_to_data_hist, n_bins)
       plt.plot(zg_theory_line_to_data_plot[0], zg_theory_line_to_data_plot[1], linewidth=5, color='red')
 
       zg_theory_min_to_data_hist = Hist(6 * n_bins, 0.0, 0.6)
       map(zg_theory_min_to_data_hist.Fill, data_plot_points_x, ratio_theory_min_to_data)
-      zg_theory_min_to_data_plot = convert_hist_to_line_plot(zg_theory_min_to_data_hist)
+      zg_theory_min_to_data_plot = convert_hist_to_line_plot(zg_theory_min_to_data_hist, n_bins)
 
       zg_theory_max_to_data_hist = Hist(6 * n_bins, 0.0, 0.6)
       map(zg_theory_max_to_data_hist.Fill, data_plot_points_x, ratio_theory_max_to_data)
-      zg_theory_max_to_data_plot = convert_hist_to_line_plot(zg_theory_max_to_data_hist)
+      zg_theory_max_to_data_plot = convert_hist_to_line_plot(zg_theory_max_to_data_hist, n_bins)
 
       ax1.fill_between(zg_theory_max_to_data_plot[0], zg_theory_max_to_data_plot[1], zg_theory_min_to_data_plot[1], norm=1, where=np.less_equal(zg_theory_min_to_data_plot[1], zg_theory_max_to_data_plot[1]), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
       
@@ -969,11 +983,11 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
     if mc:
       zg_herwig_hist.Divide(zg_theory_line_hist)
-      zg_herwig_line_plot = convert_hist_to_line_plot(zg_herwig_hist)
+      zg_herwig_line_plot = convert_hist_to_line_plot(zg_herwig_hist, n_bins)
       plt.plot(zg_herwig_line_plot[0], zg_herwig_line_plot[1], linewidth=5, color='green')
 
       zg_pythia_hist.Divide(zg_theory_line_hist)
-      zg_pythia_line_plot = convert_hist_to_line_plot(zg_pythia_hist)
+      zg_pythia_line_plot = convert_hist_to_line_plot(zg_pythia_hist, n_bins)
       plt.plot(zg_pythia_line_plot[0], zg_pythia_line_plot[1], linewidth=5, color='blue')
 
     if data:
@@ -988,8 +1002,8 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
       zg_theory_min_hist.Divide(zg_theory_line_hist)
       zg_theory_max_hist.Divide(zg_theory_line_hist)
 
-      zg_theory_min_plot = convert_hist_to_line_plot(zg_theory_min_hist)
-      zg_theory_max_plot = convert_hist_to_line_plot(zg_theory_max_hist)
+      zg_theory_min_plot = convert_hist_to_line_plot(zg_theory_min_hist, n_bins)
+      zg_theory_max_plot = convert_hist_to_line_plot(zg_theory_max_hist, n_bins)
 
       zg_theory_min_line, = plt.plot(zg_theory_min_plot[0], zg_theory_min_plot[1], linewidth=0)
       zg_theory_max_line, = plt.plot(zg_theory_max_plot[0], zg_theory_max_plot[1], linewidth=0)
@@ -1000,7 +1014,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
       ax1.fill_between(x_max, y_max, y_min, norm=1, where=np.less_equal(y_min, y_max), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
 
       zg_theory_line_hist.Divide(zg_theory_line_hist)
-      zg_theory_line_plot = convert_hist_to_line_plot(zg_theory_line_hist)
+      zg_theory_line_plot = convert_hist_to_line_plot(zg_theory_line_hist, n_bins)
       plt.plot(zg_theory_line_plot[0], zg_theory_line_plot[1], linewidth=5, color='red')
 
   else:
@@ -1013,7 +1027,14 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   ax0.set_ylabel("$\displaystyle \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=80, rotation=0, labelpad=115, y=0.39)
   
   ax1.set_xlabel("$z_g$", fontsize=95)
-  ax1.set_ylabel("Ratio           \nto           \n" + ratio_denominator.capitalize() + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
+  
+  if ratio_denominator == "data":
+    label_pad = 135
+  else:
+    label_pad = 115
+
+  # ax1.set_ylabel("Ratio           \nto           \n" + ratio_denominator.capitalize() + "           ", fontsize=55, rotation=0, labelpad=250, y=0.31)
+  plt.ylabel("Ratio           \nto           \n" + ratio_denominator.capitalize() + "           ", fontsize=55, rotation=0, labelpad=label_pad, y=0.31, axes=ax1)
 
 
   # Legend.
@@ -1031,7 +1052,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   handles = [data_plot, (th_patch, th_line), pythia_line, herwig_line]
   labels = [data_label, theory_label, pythia_label, herwig_label]
 
-  first_legend = ax0.legend(handles, labels, fontsize=60, handler_map = {th_line : HandlerLine2D(marker_pad = 0), pythia_line : HandlerLine2D(marker_pad = 0), herwig_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1, bbox_to_anchor=[0.97, 0.98])
+  first_legend = ax0.legend(handles, labels, fontsize=60, handler_map = {th_line : HandlerLine2D(marker_pad = 0), pythia_line : HandlerLine2D(marker_pad = 0), herwig_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1, bbox_to_anchor=[0.90, 0.98])
   ax = ax0.add_artist(first_legend)
 
   for txt in first_legend.get_texts():
@@ -1041,8 +1062,8 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra, extra]
-  # labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
-  labels = ["", ""]
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+  # labels = ["", ""]
   ax0.legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.58])
 
 
@@ -1157,12 +1178,9 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
   plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
 
-  fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
-
-  ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.20, resample=1, dpi_cor=1), (0.12, 0.915), xycoords='axes fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
-
-  plt.gcf().text(0.31, 0.845, "Prelim. (20\%)", fontsize=50, weight='bold', color='#444444', multialignment='center')
+  plt.gcf().text(0.29, 0.885, "Prelim. (20\%)", fontsize=50, weight='bold', color='#444444', multialignment='center')
 
   plt.gcf().set_snap(1)
 
@@ -1237,11 +1255,12 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
   plt.legend(frameon=0)
 
   plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=55, rotation=0)
-
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=50.)
 
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
   plt.gcf().set_snap(True)
 
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
   plt.savefig("plots/trigger_efficiency/efficiency_curves_" + trigger_1 + ".pdf")
   # plt.show()
@@ -1251,18 +1270,96 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
 
 
 
+
+
+
+
+def plot_all_trigger_efficiency_curves():
+  
+  properties = parse_file_turn_on('./turn_on.dat')
+
+  pTs = properties['corrected_hardest_pts']
+  trigger_names = properties['trigger_names']
+  prescales = properties['prescales']
+
+  colors = ['magenta', 'blue', 'green', 'red', 'black']
+  expected_trigger_names = ["HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U" ]
+
+
+
+  cms_turn_on_pTs = [0, 0, 153, 114]
+
+
+  pt_hists = []
+  for j in range(0, len(expected_trigger_names)):
+    pt_hists.append(Hist(250, 0, 250, color=colors[j], title=expected_trigger_names[j][5:], markersize=1.0, linewidth=5))
+
+  for i in range(0, len(expected_trigger_names)):
+    for j in range(0, len(pTs)):
+      # The len thingy is to make sure trigger names like HLT_Jet15U_HcalNoiseFiltered_v3 are excluded.
+      if expected_trigger_names[i].replace("\\", "") in trigger_names[j]:
+        pt_hists[i].Fill(pTs[j], prescales[j])
+
+      
+  for i in range(0, len(pt_hists) - 1):
+    ratio_hist = pt_hists[i] / pt_hists[i + 1]
+    rplt.errorbar(ratio_hist)
+
+    # CMS Vertical line.
+    if cms_turn_on_pTs[i] != 0:
+      plt.plot([cms_turn_on_pTs[i], cms_turn_on_pTs[i]], [plt.gca().get_ylim()[0], 1.], color=colors[i], linewidth=5, linestyle="dashed")
+      plt.gca().annotate("CMS\n" + str(cms_turn_on_pTs[i]) + " GeV", xy=(cms_turn_on_pTs[i], 1.), xycoords='data', xytext=(-100, 250),  textcoords='offset points', color=colors[i], size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[i], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
+
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  plt.gcf().text(0.29, 0.885, "Prelim. (20\%)", fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_snap(1)
+
+  # Horizontal Line.
+  plt.plot(list(pt_hists[0].x()), [1] * len(list(pt_hists[0].x())), color="black", linewidth=5, linestyle="dashed")
+
+
+
+  plt.yscale('log')
+  plt.gca().set_ylim(plt.gca().get_ylim()[0], 1000)
+
+  plt.legend(frameon=0)
+
+  plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=55, rotation=0)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=50.)
+
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+  plt.gcf().set_snap(True)
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/all_efficiency_curves.pdf")
+  # plt.show()
+  plt.clf()
+
+
+
 # # Trigger Efficiency Curves Begin.
 
 # All Plots in the same one: 50U to 140U. Upto pT = 300 GeV. 
 
 # For turn-on curves, remove 180U. Also upper limit 0 to 300 GeV.
 
-# plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U", pT_upper_limit=200)
-# plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U", pT_upper_limit=300)
-# plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U", pT_upper_limit=350)
-# plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U", pT_upper_limit=800)
-# plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U", pT_upper_limit=800)
-# plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U", pT_upper_limit=1200)
+plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U", pT_upper_limit=200)
+plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U", pT_upper_limit=300)
+plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U", pT_upper_limit=350)
+plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U", pT_upper_limit=800)
+plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U", pT_upper_limit=800)
+plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U", pT_upper_limit=1200)
+
+
+plot_all_trigger_efficiency_curves()
 
 # # Trigger Efficiency Curves End.
 
@@ -1292,7 +1389,7 @@ plot_turn_on_curves()
 
 # # AK5 Distribution Begins.
 
-# plot_pts()
+plot_pts()
 
 # # AK5 Distribution Ends.
 
@@ -1310,21 +1407,21 @@ plot_turn_on_curves()
 
 plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
 
-# plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
-# plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
 
-# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
 
 # # zg_distribution Ends.
 
@@ -1338,16 +1435,16 @@ plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bin
 # # Charged zg Begins.
 
 plot_charged_and_all_zgs(150, '0.05', 'zg_05', n_bins=8, y_max_limit=18)
-# plot_charged_and_all_zgs(150, '0.1', 'zg_1', n_bins=8, y_max_limit=10)
-# plot_charged_and_all_zgs(150, '0.2', 'zg_2', n_bins=8, y_max_limit=10)
+plot_charged_and_all_zgs(150, '0.1', 'zg_1', n_bins=8, y_max_limit=10)
+plot_charged_and_all_zgs(150, '0.2', 'zg_2', n_bins=8, y_max_limit=10)
 
-# plot_charged_and_all_zgs(300, '0.05', 'zg_05', n_bins=4, y_max_limit=15)
-# plot_charged_and_all_zgs(300, '0.1', 'zg_1', n_bins=4, y_max_limit=15)
-# plot_charged_and_all_zgs(300, '0.2', 'zg_2', n_bins=4, y_max_limit=15)
+plot_charged_and_all_zgs(300, '0.05', 'zg_05', n_bins=4, y_max_limit=15)
+plot_charged_and_all_zgs(300, '0.1', 'zg_1', n_bins=4, y_max_limit=15)
+plot_charged_and_all_zgs(300, '0.2', 'zg_2', n_bins=4, y_max_limit=15)
 
-# plot_charged_and_all_zgs(600, '0.05', 'zg_05', n_bins=2, y_max_limit=15)
-# plot_charged_and_all_zgs(600, '0.1', 'zg_1', n_bins=2, y_max_limit=15)
-# plot_charged_and_all_zgs(600, '0.2', 'zg_2', n_bins=2, y_max_limit=15)
+plot_charged_and_all_zgs(600, '0.05', 'zg_05', n_bins=2, y_max_limit=15)
+plot_charged_and_all_zgs(600, '0.1', 'zg_1', n_bins=2, y_max_limit=15)
+plot_charged_and_all_zgs(600, '0.2', 'zg_2', n_bins=2, y_max_limit=15)
 
 # # Charged zg Ends.
 
@@ -1367,16 +1464,16 @@ plot_charged_and_all_zgs(150, '0.05', 'zg_05', n_bins=8, y_max_limit=18)
 
 
 plot_zg_pfc_pt_cut(150, '0.05', 'zg_05', n_bins=8, y_max_limit=18)
-# plot_zg_pfc_pt_cut(150, '0.1', 'zg_1', n_bins=8, y_max_limit=10)
-# plot_zg_pfc_pt_cut(150, '0.2', 'zg_2', n_bins=8, y_max_limit=10)
+plot_zg_pfc_pt_cut(150, '0.1', 'zg_1', n_bins=8, y_max_limit=10)
+plot_zg_pfc_pt_cut(150, '0.2', 'zg_2', n_bins=8, y_max_limit=10)
 
-# plot_zg_pfc_pt_cut(300, '0.05', 'zg_05', n_bins=4, y_max_limit=15)
-# plot_zg_pfc_pt_cut(300, '0.1', 'zg_1', n_bins=4, y_max_limit=15)
-# plot_zg_pfc_pt_cut(300, '0.2', 'zg_2', n_bins=4, y_max_limit=15)
+plot_zg_pfc_pt_cut(300, '0.05', 'zg_05', n_bins=4, y_max_limit=15)
+plot_zg_pfc_pt_cut(300, '0.1', 'zg_1', n_bins=4, y_max_limit=15)
+plot_zg_pfc_pt_cut(300, '0.2', 'zg_2', n_bins=4, y_max_limit=15)
 
-# plot_zg_pfc_pt_cut(600, '0.05', 'zg_05', n_bins=2, y_max_limit=15)
-# plot_zg_pfc_pt_cut(600, '0.1', 'zg_1', n_bins=2, y_max_limit=15)
-# plot_zg_pfc_pt_cut(600, '0.2', 'zg_2', n_bins=2, y_max_limit=15)
+plot_zg_pfc_pt_cut(600, '0.05', 'zg_05', n_bins=2, y_max_limit=15)
+plot_zg_pfc_pt_cut(600, '0.1', 'zg_1', n_bins=2, y_max_limit=15)
+plot_zg_pfc_pt_cut(600, '0.2', 'zg_2', n_bins=2, y_max_limit=15)
 
 
 
