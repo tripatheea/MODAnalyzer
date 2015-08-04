@@ -379,7 +379,7 @@ def plot_charged_and_all_zgs(pT_lower_cut, zg_cut, zg_filename, n_bins=10, y_max
   charged_zgs = properties[zg_filename[0:2] + "_charged_" + zg_filename[3: len(zg_filename)]]
   prescales = properties['prescales']
  
-  zg_hist = Hist(6 * n_bins, 0.0, 0.6, title="PF Candidates", markersize=1.0, color='black')
+  zg_hist = Hist(6 * n_bins, 0.0, 0.6, title="All PF Candidates", markersize=1.0, color='black')
   zg_charged_hist = Hist(6 * n_bins, 0.0, 0.6, title="Charged PFCs", markersize=1.0, color='red')
 
   bin_width_zg = (zg_hist.upperbound() - zg_hist.lowerbound()) / zg_hist.nbins()
@@ -401,7 +401,7 @@ def plot_charged_and_all_zgs(pT_lower_cut, zg_cut, zg_filename, n_bins=10, y_max
   plt.autoscale(True)
   plt.gca().set_ylim(0, y_max_limit)
 
-  legend = plt.legend(frameon=0, fontsize=60, bbox_to_anchor=[0.80, 0.98])
+  legend = plt.legend(frameon=0, fontsize=60, bbox_to_anchor=[0.86, 0.98])
   plt.gca().add_artist(legend)
 
   
@@ -446,13 +446,15 @@ def plot_turn_on_curves():
   trigger_names = properties['trigger_names']
   prescales = properties['prescales']
 
-  expected_trigger_names = ["HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U" ]
+  expected_trigger_names = ["HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U", "HLT\_Jet15U\_HcalNoiseFiltered" ]
+  labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15U\_HNF" ]
 
-  colors = ['red', 'blue', 'green', 'magenta']
+  colors = ['red', 'blue', 'green', 'magenta', 'black', 'orange']
+  colors = colors[::-1]
 
   pt_hists = []
   for i in range(0, len(expected_trigger_names)):
-    pt_hists.append(Hist(600, 0, 300, title=expected_trigger_names[i][5:], markersize=1.0, color=colors[i], linewidth=5))
+    pt_hists.append(Hist(60, 0, 300, title=labels[i], markersize=1.0, color=colors[i], linewidth=5))
 
   for i in range(0, len(pTs)):
     for j in range(0, len(expected_trigger_names)):
@@ -465,11 +467,23 @@ def plot_turn_on_curves():
   plt.autoscale(True)
   plt.yscale('log')
 
-  plt.gca().set_ylim(1, 10e6)
+  plt.gca().set_ylim(1, 10e10)
 
-  plt.legend(frameon=0)
-  plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
-  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=115.)
+  
+  # Legend.
+  handles, labels = plt.gca().get_legend_handles_labels()
+  first_legend = plt.gca().legend(handles[::-1], labels[::-1], fontsize=60,  frameon=0, borderpad=0.1, bbox_to_anchor=[0.97, 0.98])
+  ax = plt.gca().add_artist(first_legend)
+
+  # Info about R, pT_cut, etc.
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  handles = [extra]
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5} $"]
+  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.93, 0.50])
+
+
+  plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=95)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
 
   fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
 
@@ -522,32 +536,50 @@ def plot_pts():
   uncorrected_pt_hist.Scale(1.0 / (uncorrected_pt_hist.GetSumOfWeights() * bin_width_uncorrected))
   pythia_pt_hist.Scale(1.0 / (pythia_pt_hist.GetSumOfWeights() * bin_width_pythia))
   herwig_pt_hist.Scale(1.0 / (herwig_pt_hist.GetSumOfWeights() * bin_width_herwig))
+
   
   gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
 
   ax0 = plt.subplot(gs[0])
   ax1 = plt.subplot(gs[1])
 
-  rplt.errorbar(corrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=3, pickradius=5, elinewidth=3)
+  data_plot = rplt.errorbar(corrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=3, pickradius=5, elinewidth=3)
   rplt.errorbar(uncorrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=3, pickradius=5, elinewidth=3)
   rplt.hist(pythia_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
   rplt.hist(herwig_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
   
 
+  data_x_errors, data_y_errors = [], []
+  for x_segment in data_plot[2][0].get_segments():
+    data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+  for y_segment in data_plot[2][1].get_segments():
+    data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+
+  data_points_x = data_plot[0].get_xdata()
+  data_points_y = data_plot[0].get_ydata()
+
+
+
   ax0.autoscale(True)
   ax0.set_yscale('log')
 
-  legend = plt.legend(loc=1, frameon=0)
-  # ax0.add_artist(legend)
+
+  # Legends Begin.
+
+  legend = ax0.legend(loc=1, frameon=0, fontsize=60)
+  ax0.add_artist(legend)
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  labels = [r"$ \textrm{Anti - k_{T} : }~R = 0.5$"]
-  ax0.legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=49)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5}$"]
+  ax0.legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.91, 0.62])
 
-  ax0.set_ylim(10e-7, 10e-2)
+  # Legends End.
 
-  ax0.legend(frameon=0)
+
+
+
   ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
+  ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
   ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
 
   ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
@@ -558,15 +590,17 @@ def plot_pts():
   # Ratio Plot.
   pythia_pt_hist.Divide(corrected_pt_hist)
   herwig_pt_hist.Divide(corrected_pt_hist)
+  uncorrected_pt_hist.Divide(corrected_pt_hist)
   corrected_pt_hist.Divide(corrected_pt_hist)
 
   rplt.hist(pythia_pt_hist, axes=ax1, linewidth=5)
   rplt.hist(herwig_pt_hist, axes=ax1, linewidth=5)
   rplt.errorbar(corrected_pt_hist, axes=ax1, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
+  rplt.errorbar(uncorrected_pt_hist, axes=ax1, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
 
   ax1.autoscale(True)
   
-  ax0.set_ylim(10e-6, 10e-2)
+  ax0.set_ylim(10e-8, 10e-1)
   ax1.set_ylim(0., 2.)
 
 
@@ -1284,7 +1318,7 @@ def plot_all_trigger_efficiency_curves():
 
   colors = ['magenta', 'blue', 'green', 'red', 'black']
   expected_trigger_names = ["HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U" ]
-
+  labels = ["Jet140U / 100U", "Jet100U / 70U", "Jet70U / 50U", "Jet50U / 30U", "Jet30U / 15U" ]
 
 
   cms_turn_on_pTs = [0, 0, 153, 114]
@@ -1292,7 +1326,7 @@ def plot_all_trigger_efficiency_curves():
 
   pt_hists = []
   for j in range(0, len(expected_trigger_names)):
-    pt_hists.append(Hist(250, 0, 250, color=colors[j], title=expected_trigger_names[j][5:], markersize=1.0, linewidth=5))
+    pt_hists.append(Hist(60, 0, 300, color=colors[j], title=labels[j], markersize=1.0, linewidth=5))
 
   for i in range(0, len(expected_trigger_names)):
     for j in range(0, len(pTs)):
@@ -1328,9 +1362,22 @@ def plot_all_trigger_efficiency_curves():
   plt.yscale('log')
   plt.gca().set_ylim(plt.gca().get_ylim()[0], 1000)
 
-  plt.legend(frameon=0)
+  # Legend.
+  handles, labels = plt.gca().get_legend_handles_labels()
+  first_legend = plt.gca().legend(handles[::-1], labels[::-1], fontsize=60,  frameon=0, borderpad=0.1, bbox_to_anchor=[0.90, 0.98])
+  ax = plt.gca().add_artist(first_legend)
 
-  plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=55, rotation=0)
+  # Info about R, pT_cut, etc.
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  handles = [extra]
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5} $"]
+  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.825, 0.63])
+
+
+
+
+
+  plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=95, rotation=0)
   plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=50.)
 
 
@@ -1351,12 +1398,12 @@ def plot_all_trigger_efficiency_curves():
 
 # For turn-on curves, remove 180U. Also upper limit 0 to 300 GeV.
 
-plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U", pT_upper_limit=200)
-plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U", pT_upper_limit=300)
-plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U", pT_upper_limit=350)
-plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U", pT_upper_limit=800)
-plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U", pT_upper_limit=800)
-plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U", pT_upper_limit=1200)
+# plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U", pT_upper_limit=200)
+# plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U", pT_upper_limit=300)
+# plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U", pT_upper_limit=350)
+# plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U", pT_upper_limit=800)
+# plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U", pT_upper_limit=800)
+# plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U", pT_upper_limit=1200)
 
 
 # plot_all_trigger_efficiency_curves()
@@ -1405,23 +1452,23 @@ plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U", pT_upper_limit=1200
 
 # # zg_distribution Begins.
 
-plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
-plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
 
-plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
-plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
 
-plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
 
 # # zg_distribution Ends.
 
@@ -1478,3 +1525,5 @@ plot_charged_and_all_zgs(600, '0.2', 'zg_2', n_bins=2, y_max_limit=15)
 
 
 # # zg with PFC pT_cut Ends.
+
+
