@@ -447,9 +447,9 @@ def plot_turn_on_curves():
   prescales = properties['prescales']
 
   expected_trigger_names = ["HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U", "HLT\_Jet15U\_HcalNoiseFiltered" ]
-  labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15U\_HNF" ]
+  labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15U-HNF" ]
 
-  colors = ['red', 'blue', 'green', 'magenta', 'black', 'orange']
+  colors = ['orange', 'red', 'green', 'blue', 'magenta', 'black']
   colors = colors[::-1]
 
   pt_hists = []
@@ -461,8 +461,8 @@ def plot_turn_on_curves():
       if expected_trigger_names[j].replace("\\", "") in trigger_names[i]:
         pt_hists[j].Fill(pTs[i], prescales[i])
 
-  for k in range(0, len(pt_hists)):
-    rplt.errorbar(pt_hists[k])
+  for k in range(len(pt_hists) - 1, -1, -1):
+    rplt.errorbar(pt_hists[k], emptybins=False, ls='None', marker='o', markersize=8, capthick=3, pickradius=3, elinewidth=3)
 
   plt.autoscale(True)
   plt.yscale('log')
@@ -472,14 +472,14 @@ def plot_turn_on_curves():
   
   # Legend.
   handles, labels = plt.gca().get_legend_handles_labels()
-  first_legend = plt.gca().legend(handles[::-1], labels[::-1], fontsize=60,  frameon=0, borderpad=0.1, bbox_to_anchor=[0.97, 0.98])
+  first_legend = plt.gca().legend(handles, labels, fontsize=60,  frameon=0, borderpad=0.1, bbox_to_anchor=[0.97, 0.98])
   ax = plt.gca().add_artist(first_legend)
 
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra]
   labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5} $"]
-  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.93, 0.50])
+  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.935, 0.65])
 
 
   plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=95)
@@ -487,12 +487,12 @@ def plot_turn_on_curves():
 
   fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
-  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+  plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
-  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+  plt.gcf().set_size_inches(30, 30, forward=1)
 
   plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
@@ -544,7 +544,7 @@ def plot_pts():
   ax1 = plt.subplot(gs[1])
 
   data_plot = rplt.errorbar(corrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=3, pickradius=5, elinewidth=3)
-  rplt.errorbar(uncorrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=3, pickradius=5, elinewidth=3)
+  uncorrected_data_plot = rplt.errorbar(uncorrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=3, pickradius=5, elinewidth=3)
   rplt.hist(pythia_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
   rplt.hist(herwig_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
   
@@ -558,6 +558,37 @@ def plot_pts():
   data_points_x = data_plot[0].get_xdata()
   data_points_y = data_plot[0].get_ydata()
 
+  data_plot_points_x = []
+  data_plot_points_y = []
+  for i in range(0, len(data_points_x)):
+    data_plot_points_x.append(data_points_x[i])
+    data_plot_points_y.append(data_points_y[i])
+
+
+
+  uncorrected_data_x_errors, uncorrected_data_y_errors = [], []
+  for x_segment in uncorrected_data_plot[2][0].get_segments():
+    uncorrected_data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+  for y_segment in uncorrected_data_plot[2][1].get_segments():
+    uncorrected_data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+
+  uncorrected_data_points_x = uncorrected_data_plot[0].get_xdata()
+  uncorrected_data_points_y = uncorrected_data_plot[0].get_ydata()
+
+  uncorrected_data_plot_points_x = []
+  uncorrected_data_plot_points_y = []
+  for i in range(0, len(uncorrected_data_points_x)):
+    uncorrected_data_plot_points_x.append(uncorrected_data_points_x[i])
+    uncorrected_data_plot_points_y.append(uncorrected_data_points_y[i])
+
+
+
+
+  data_to_data_y_err = [(b / m) for b, m in zip(data_y_errors, data_plot_points_y)]
+  data_to_data_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(data_plot_points_y))]
+
+  uncorrected_to_corrected_y_err = [(b / m) for b, m in zip(uncorrected_data_y_errors, data_plot_points_y)]
+  uncorrected_to_corrected_x_err = [(b / m) for b, m in zip(uncorrected_data_x_errors, [1] * len(data_plot_points_y))]
 
 
   ax0.autoscale(True)
@@ -595,8 +626,9 @@ def plot_pts():
 
   rplt.hist(pythia_pt_hist, axes=ax1, linewidth=5)
   rplt.hist(herwig_pt_hist, axes=ax1, linewidth=5)
-  rplt.errorbar(corrected_pt_hist, axes=ax1, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
-  rplt.errorbar(uncorrected_pt_hist, axes=ax1, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
+  
+  rplt.errorbar(corrected_pt_hist, xerr=data_to_data_x_err, yerr=data_to_data_y_err, axes=ax1, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
+  rplt.errorbar(uncorrected_pt_hist, xerr=uncorrected_to_corrected_x_err, yerr=uncorrected_to_corrected_y_err, axes=ax1, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
 
   ax1.autoscale(True)
   
@@ -1316,17 +1348,21 @@ def plot_all_trigger_efficiency_curves():
   trigger_names = properties['trigger_names']
   prescales = properties['prescales']
 
-  colors = ['magenta', 'blue', 'green', 'red', 'black']
-  expected_trigger_names = ["HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U" ]
-  labels = ["Jet140U / 100U", "Jet100U / 70U", "Jet70U / 50U", "Jet50U / 30U", "Jet30U / 15U" ]
+
+  # colors = ['orange', 'red', 'green', 'blue', 'magenta', 'black']
+  # colors = colors[::-1]
 
 
-  cms_turn_on_pTs = [0, 0, 153, 114]
+  colors = ['black', 'magenta', 'blue', 'green', 'red', 'orange']
+  expected_trigger_names = ["HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U", "HLT\_Jet15U\_HcalNoiseFiltered" ]
+  labels = ["Jet140U / 100U", "Jet100U / 70U", "Jet70U / 50U", "Jet50U / 30U", "Jet30U / 15U\_HNF", "" ]
 
+  cms_turn_on_pTs = [0, 0, 153, 114, 84]
 
   pt_hists = []
   for j in range(0, len(expected_trigger_names)):
     pt_hists.append(Hist(60, 0, 300, color=colors[j], title=labels[j], markersize=1.0, linewidth=5))
+
 
   for i in range(0, len(expected_trigger_names)):
     for j in range(0, len(pTs)):
@@ -1335,22 +1371,26 @@ def plot_all_trigger_efficiency_curves():
         pt_hists[i].Fill(pTs[j], prescales[j])
 
       
+  ratio_hists = []
   for i in range(0, len(pt_hists) - 1):
-    ratio_hist = pt_hists[i] / pt_hists[i + 1]
-    rplt.errorbar(ratio_hist)
+    ratio_hists.append(pt_hists[i] / pt_hists[i + 1])
 
-    # CMS Vertical line.
+
+  for i in range(len(ratio_hists) - 1, -1, -1):
+    rplt.errorbar(ratio_hists[i], emptybins=False, ls='None', marker='o', markersize=8, capthick=3, pickradius=3, elinewidth=3)
+    
     if cms_turn_on_pTs[i] != 0:
-      plt.plot([cms_turn_on_pTs[i], cms_turn_on_pTs[i]], [plt.gca().get_ylim()[0], 1.], color=colors[i], linewidth=5, linestyle="dashed")
+      # plt.plot([cms_turn_on_pTs[i], cms_turn_on_pTs[i]], [plt.gca().get_ylim()[0], 1.], color=colors[i], linewidth=5, linestyle="dashed")
       plt.gca().annotate("CMS\n" + str(cms_turn_on_pTs[i]) + " GeV", xy=(cms_turn_on_pTs[i], 1.), xycoords='data', xytext=(-100, 250),  textcoords='offset points', color=colors[i], size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[i], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
 
 
   plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
-  plt.gcf().text(0.29, 0.885, "Prelim. (20\%)", fontsize=50, weight='bold', color='#444444', multialignment='center')
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
   plt.gcf().set_snap(1)
 
@@ -1358,20 +1398,19 @@ def plot_all_trigger_efficiency_curves():
   plt.plot(list(pt_hists[0].x()), [1] * len(list(pt_hists[0].x())), color="black", linewidth=5, linestyle="dashed")
 
 
-
   plt.yscale('log')
   plt.gca().set_ylim(plt.gca().get_ylim()[0], 1000)
 
   # Legend.
   handles, labels = plt.gca().get_legend_handles_labels()
-  first_legend = plt.gca().legend(handles[::-1], labels[::-1], fontsize=60,  frameon=0, borderpad=0.1, bbox_to_anchor=[0.90, 0.98])
+  first_legend = plt.gca().legend(handles, labels, fontsize=60,  frameon=0, borderpad=0.1, bbox_to_anchor=[0.90, 0.98])
   ax = plt.gca().add_artist(first_legend)
 
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra]
   labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5} $"]
-  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.825, 0.63])
+  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.77, 0.70])
 
 
 
@@ -1381,7 +1420,7 @@ def plot_all_trigger_efficiency_curves():
   plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=50.)
 
 
-  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+  plt.gcf().set_size_inches(30, 30, forward=1)
   plt.gcf().set_snap(True)
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
@@ -1406,7 +1445,7 @@ def plot_all_trigger_efficiency_curves():
 # plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U", pT_upper_limit=1200)
 
 
-# plot_all_trigger_efficiency_curves()
+plot_all_trigger_efficiency_curves()
 
 # # Trigger Efficiency Curves End.
 
@@ -1419,7 +1458,7 @@ def plot_all_trigger_efficiency_curves():
 
 # Triggers Turn-On Curve Begins.
 
-# plot_turn_on_curves()
+plot_turn_on_curves()
 
 # Triggers Turn-On Curve Ends.
 
@@ -1481,17 +1520,17 @@ def plot_all_trigger_efficiency_curves():
 
 # # Charged zg Begins.
 
-plot_charged_and_all_zgs(150, '0.05', 'zg_05', n_bins=8, y_max_limit=18)
-plot_charged_and_all_zgs(150, '0.1', 'zg_1', n_bins=8, y_max_limit=10)
-plot_charged_and_all_zgs(150, '0.2', 'zg_2', n_bins=8, y_max_limit=10)
+# plot_charged_and_all_zgs(150, '0.05', 'zg_05', n_bins=8, y_max_limit=18)
+# plot_charged_and_all_zgs(150, '0.1', 'zg_1', n_bins=8, y_max_limit=10)
+# plot_charged_and_all_zgs(150, '0.2', 'zg_2', n_bins=8, y_max_limit=10)
 
-plot_charged_and_all_zgs(300, '0.05', 'zg_05', n_bins=4, y_max_limit=15)
-plot_charged_and_all_zgs(300, '0.1', 'zg_1', n_bins=4, y_max_limit=15)
-plot_charged_and_all_zgs(300, '0.2', 'zg_2', n_bins=4, y_max_limit=15)
+# plot_charged_and_all_zgs(300, '0.05', 'zg_05', n_bins=4, y_max_limit=15)
+# plot_charged_and_all_zgs(300, '0.1', 'zg_1', n_bins=4, y_max_limit=15)
+# plot_charged_and_all_zgs(300, '0.2', 'zg_2', n_bins=4, y_max_limit=15)
 
-plot_charged_and_all_zgs(600, '0.05', 'zg_05', n_bins=2, y_max_limit=15)
-plot_charged_and_all_zgs(600, '0.1', 'zg_1', n_bins=2, y_max_limit=15)
-plot_charged_and_all_zgs(600, '0.2', 'zg_2', n_bins=2, y_max_limit=15)
+# plot_charged_and_all_zgs(600, '0.05', 'zg_05', n_bins=2, y_max_limit=15)
+# plot_charged_and_all_zgs(600, '0.1', 'zg_1', n_bins=2, y_max_limit=15)
+# plot_charged_and_all_zgs(600, '0.2', 'zg_2', n_bins=2, y_max_limit=15)
 
 # # Charged zg Ends.
 

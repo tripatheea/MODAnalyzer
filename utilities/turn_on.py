@@ -15,6 +15,8 @@ def run_turn_on(input_path, output_file):
 
   to_analyze.sort()
 
+  print to_analyze
+
   for f in to_analyze:
     call(['./bin/turn_on', input_path + f, output_file])
 
@@ -26,3 +28,6 @@ run_turn_on(input_path, output_file)
 end = time()
 
 print "Everything done in " + str(end - start) + " seconds!"
+
+
+# /media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/MOD/Apr21ReReco-v1/0000

@@ -18,7 +18,7 @@ def count_events(input_file, pt_cut):
   for line in lines:
     try:
       numbers = line.split()
-      if (float(numbers[3]) > pt_cut):
+      if (float(numbers[4]) > pt_cut):
         number_of_events += 1;
     except:
       pass

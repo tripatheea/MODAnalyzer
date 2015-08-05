@@ -1,5 +1,4 @@
-#include <iostream>
-#include <unordered_map>
+  xxxxxxxx
 #include <sstream>
 #include <fstream>
 #include <vector>
@@ -23,7 +22,7 @@ using namespace std;
 using namespace fastjet;
 using namespace contrib;
 
-void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number,  vector<double> cone_radii, vector<double> pt_cuts);
+void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number);
 
 int main(int argc, char * argv[]) {
 
@@ -68,7 +67,7 @@ int main(int argc, char * argv[]) {
       if( (event_serial_number % 100) == 0 )
          cout << "Processing event number " << event_serial_number << endl;
 
-      analyze_event(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
+      analyze_event(event_being_read, output_file, event_serial_number);
       
       event_being_read = MOD::Event();
       event_serial_number++;
@@ -82,7 +81,7 @@ int main(int argc, char * argv[]) {
 }
 
 
-void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
+void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number) {
 
    vector<MOD::Property> properties;
    
@@ -95,10 +94,12 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
          
          if (triggers[i].fired()) {
 
+            cout << "Tada" << endl;
+
             properties.push_back(MOD::Property("# Entry", "  Entry"));
 
-            // properties.push_back(MOD::Property("Event_Number", event_being_read.event_number()));
-            // properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
+            properties.push_back(MOD::Property("Event_Number", event_being_read.event_number()));
+            properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
 
             properties.push_back(MOD::Property("Cor_Hardest_pT", event_being_read.hardest_corrected_jet().pseudojet().pt()));   
             properties.push_back(MOD::Property("Prescale", triggers[i].prescale()));
