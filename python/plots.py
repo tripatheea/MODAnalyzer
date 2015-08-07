@@ -753,11 +753,7 @@ def plot_2d_hist():
   plt.savefig("plots/zg_2_vs_charged_zg_2.pdf")
   plt.clf()
 
-  for i in range(0, len(zgs[0])):
-    print str(zgs[0][i]) + ", " + str(charged_zgs[0][i]) + ", " + str(prescales[i])
-
-
-
+ 
 
 
 
@@ -1425,7 +1421,7 @@ def plot_all_trigger_efficiency_curves():
 
 
 
-plot_2d_hist()
+# plot_2d_hist()
 
 
 
@@ -1489,7 +1485,7 @@ plot_2d_hist()
 
 # # zg_distribution Begins.
 
-# plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
 # plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 # plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)

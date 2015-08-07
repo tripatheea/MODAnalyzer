@@ -52,11 +52,11 @@ This repository is concerned with steps (4) to (6) only. Steps (1) to (3) are ca
      python ./utilities/analyze.py /media/aashish/opendata/MIT_CMS/eos/opendata/cms/Run2010B/Jet/SKIM/Apr21ReReco-v1/0000/ ~/analyzed_data.dat
      ```
 
-  - Finally, we use the output file to produce plots using the Python script `python/plots.py`. This script uses [matplotlib](http://matplotlib.org/ "matplotlib") to produce the plots but feel free to explore the output file and use any plotting routine you want. If you run `python/plots.py`, it will produce plots as PDFs in a directory `plots`. It takes one argument- path to the output file produced in the previous step.
-  
-    ```
-    python ./python/plots.py ~/analyzed_data.dat
-    ```
+ - Finally, we use the output file to produce plots using the Python script `python/plots.py`. This script uses [matplotlib](http://matplotlib.org/ "matplotlib") to produce the plots but feel free to explore the output file and use any plotting routine you want. If you run `python/plots.py`, it will produce plots as PDFs in a directory `plots`. It takes one argument- path to the output file produced in the previous step.
+
+ ```
+ python ./python/plots.py ~/analyzed_data.dat
+ ```
 
 ## TODO
 - Talk to Sal about what the rapidity range is for AK5.
