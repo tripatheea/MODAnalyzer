@@ -100,6 +100,7 @@ int main(int argc, char * argv[]) {
 
 
 void skim(MOD::Event & event_being_read, ofstream & output_file) {
+
    if(event_being_read.assigned_trigger_fired()) {
       output_file << event_being_read.make_string();
    }
