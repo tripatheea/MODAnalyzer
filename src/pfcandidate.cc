@@ -4,8 +4,11 @@ using namespace std;
 using namespace fastjet;
 
 
-MOD::PFCandidate::PFCandidate(double px, double py, double pz, double energy, int pdgId) : _pdgId(pdgId), _pseudojet(PseudoJet(px, py, pz, energy)) {
+MOD::PFCandidate::PFCandidate(double px, double py, double pz, double energy, int pdgId) : _pdgId(pdgId) {
+  PseudoJet p = PseudoJet(px, py, pz, energy);
+  p.set_user_index(pdgId);
 
+  _pseudojet = p;
 }
 
 MOD::PFCandidate::PFCandidate(istringstream & input_stream) {
@@ -17,6 +20,8 @@ MOD::PFCandidate::PFCandidate(istringstream & input_stream) {
    input_stream >> tag >> px >> py >> pz >> energy >> pdgId;
 
    _pseudojet = PseudoJet(px, py, pz, energy);
+   _pseudojet.set_user_index(pdgId);
+
    _pdgId = pdgId;
 }
 

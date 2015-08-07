@@ -388,7 +388,8 @@ MOD::CalibratedJet MOD::Event::hardest_corrected_jet() {
       return cms_jets[0];
    }
    else {
-      throw runtime_error("No jet found!");
+      // throw runtime_error("No jet found!");
+      return MOD::CalibratedJet();
    }
 }
 
@@ -404,7 +405,8 @@ MOD::CalibratedJet MOD::Event::hardest_uncorrected_jet() {
       return cms_jets[0];
    }
    else {
-      throw runtime_error("No jet found!");
+      // throw runtime_error("No jet found!");
+      return MOD::CalibratedJet();
    }
 }
 

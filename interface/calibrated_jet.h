@@ -19,6 +19,8 @@ namespace MOD {
          CalibratedJet(std::istringstream & input_stream);
          CalibratedJet();
 
+         bool is_valid() const;
+
          fastjet::PseudoJet pseudojet() const;
          
          std::string algorithm() const;

@@ -1,4 +1,3 @@
-  xxxxxxxx
 #include <sstream>
 #include <fstream>
 #include <vector>
@@ -94,7 +93,6 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
          
          if (triggers[i].fired()) {
 
-            cout << "Tada" << endl;
 
             properties.push_back(MOD::Property("# Entry", "  Entry"));
 

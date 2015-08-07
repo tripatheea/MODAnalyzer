@@ -14,6 +14,9 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import matplotlib.patches as mpatches
 from matplotlib.legend_handler import HandlerLine2D
+from mpl_toolkits.mplot3d import axes3d
+from matplotlib import cm
+
 
 # RootPy
 from rootpy.plotting import Hist, HistStack, Legend
@@ -483,7 +486,7 @@ def plot_turn_on_curves():
 
 
   plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=95)
-  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
+  plt.ylabel('$\mathrm{Ratio}$', fontsize=75, rotation=0, labelpad=75.)
 
   fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
 
@@ -612,6 +615,8 @@ def plot_pts():
   ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
   ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
   ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
+  ax1.set_ylabel("Ratio           \nto           \n" + "Data" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
+
 
   ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
@@ -645,8 +650,7 @@ def plot_pts():
   ax1.xaxis.set_tick_params(width=5, length=20, labelsize=70)
   ax1.yaxis.set_tick_params(width=5, length=20, labelsize=70)
 
-  plt.ylabel("Ratio           \nto           \n" + "Data" + "           ", fontsize=55, rotation=0, labelpad=135, y=0.31, axes=ax1)
-
+  
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
@@ -704,65 +708,54 @@ def plot_hardest_pt_corresponding_triggers():
 
 def plot_2d_hist():
 
-
   pT_lower_cut = 150
   properties = parse_file(input_analysis_file, pT_lower_cut)
-
   zgs = [properties['zg_05'], properties['zg_1'], properties['zg_2']]
   charged_zgs = [properties['zg_charged_05'], properties['zg_charged_1'], properties['zg_charged_2']]
   prescales = properties['prescales']
 
   
-  H, xedges, yedges = np.histogram2d(zgs[0], charged_zgs[0], normed=1, range=[[0, 0.5], [0, 0.5]], weights=prescales, bins=100)
-   
-  # Mask zeros
+  H, xedges, yedges = np.histogram2d(charged_zgs[0], zgs[0], normed=1, range=[[0, 0.5], [0, 0.5]], weights=prescales, bins=25)
   Hmasked = np.ma.masked_where(H==0,H) # Mask pixels with a value of zero
-   
-  # Plot 2D histogram using pcolor
-  
   plt.pcolormesh(xedges,yedges,Hmasked)
-  plt.xlabel('Charged zg_05')
-  plt.ylabel('zg_05')
+  plt.xlabel('Charged zg\_05')
+  plt.ylabel('zg\_05')
   cbar = plt.colorbar()
-  cbar.ax.set_ylabel('Counts')
-
+  cbar.ax.set_ylabel('Counts')  
+  plt.gcf().set_size_inches(30, 30, forward=1)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
   plt.savefig("plots/zg_05_vs_charged_zg_05.pdf")
-  plt.show()
+  plt.clf()
 
-  H, xedges, yedges = np.histogram2d(zgs[1], charged_zgs[1], normed=1, range=[[0, 0.5], [0, 0.5]], weights=prescales, bins=100)
-   
-  # Mask zeros
+
+  H, xedges, yedges = np.histogram2d(charged_zgs[1], zgs[1], normed=1, range=[[0, 0.5], [0, 0.5]], weights=prescales, bins=25)
   Hmasked = np.ma.masked_where(H==0,H) # Mask pixels with a value of zero
-   
-  # Plot 2D histogram using pcolor
-  
   plt.pcolormesh(xedges,yedges,Hmasked)
-  plt.xlabel('Charged zg_1')
-  plt.ylabel('zg_1')
+  plt.xlabel('Charged zg\_1')
+  plt.ylabel('zg\_1')
   cbar = plt.colorbar()
   cbar.ax.set_ylabel('Counts')
-
+  plt.gcf().set_size_inches(30, 30, forward=1)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
   plt.savefig("plots/zg_1_vs_charged_zg_1.pdf")
-  plt.show()
+  plt.clf()
 
-  H, xedges, yedges = np.histogram2d(zgs[2], charged_zgs[2], normed=1, range=[[0, 0.5], [0, 0.5]], weights=prescales, bins=100)
-   
-  # Mask zeros
+
+  H, xedges, yedges = np.histogram2d(charged_zgs[2], zgs[2], normed=1, range=[[0, 0.5], [0, 0.5]], weights=prescales, bins=25)
   Hmasked = np.ma.masked_where(H==0,H) # Mask pixels with a value of zero
-   
-  # Plot 2D histogram using pcolor
-  
   plt.pcolormesh(xedges,yedges,Hmasked)
-  plt.xlabel('Charged zg_2')
-  plt.ylabel('zg_2')
+  plt.xlabel('Charged zg\_2')
+  plt.ylabel('zg\_2')
   cbar = plt.colorbar()
   cbar.ax.set_ylabel('Counts')
-
   fig = plt.gcf()
   fig.set_size_inches(20, 20, forward=1)
-
   plt.savefig("plots/zg_2_vs_charged_zg_2.pdf")
-  plt.show()
+  plt.clf()
+
+  for i in range(0, len(zgs[0])):
+    print str(zgs[0][i]) + ", " + str(charged_zgs[0][i]) + ", " + str(prescales[i])
+
 
 
 
@@ -1172,7 +1165,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  filename = "plots/zg/zg.cut." + str(zg_filename) + ".pt.cut." + str(pT_lower_cut) + ".ratio.over." + ratio_denominator + ".th." + str(theory) + ".mc." + str(mc) + ".data." + str(data) + ".pdf"
+  filename = "plots/zg/zg_cut_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
   
   print filename
 
@@ -1431,6 +1424,11 @@ def plot_all_trigger_efficiency_curves():
 
 
 
+
+plot_2d_hist()
+
+
+
 # # Trigger Efficiency Curves Begin.
 
 # All Plots in the same one: 50U to 140U. Upto pT = 300 GeV. 
@@ -1445,7 +1443,7 @@ def plot_all_trigger_efficiency_curves():
 # plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U", pT_upper_limit=1200)
 
 
-plot_all_trigger_efficiency_curves()
+# plot_all_trigger_efficiency_curves()
 
 # # Trigger Efficiency Curves End.
 
@@ -1458,7 +1456,7 @@ plot_all_trigger_efficiency_curves()
 
 # Triggers Turn-On Curve Begins.
 
-plot_turn_on_curves()
+# plot_turn_on_curves()
 
 # Triggers Turn-On Curve Ends.
 

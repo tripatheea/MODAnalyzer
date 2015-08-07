@@ -24,7 +24,13 @@ MOD::CalibratedJet::CalibratedJet(istringstream & input_stream) {
    _area = area;
 }
 
-MOD::CalibratedJet::CalibratedJet() {}
+MOD::CalibratedJet::CalibratedJet() {
+}
+
+bool MOD::CalibratedJet::is_valid() const {
+   return ( ! _algorithm.empty());
+}
+
 
 PseudoJet MOD::CalibratedJet::pseudojet() const {
    return _pseudojet;
