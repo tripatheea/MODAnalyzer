@@ -101,9 +101,22 @@ int main(int argc, char * argv[]) {
 
 void skim(MOD::Event & event_being_read, ofstream & output_file) {
 
-   if(event_being_read.assigned_trigger_fired()) {
-      output_file << event_being_read.make_string();
+   // Cluster the pfcandidates using Fastjet.
+   vector<PseudoJet> pfcandidates = event_being_read.pseudojets();
+   JetDefinition jet_def(antikt_algorithm, 0.50);
+   ClusterSequence cs(pfcandidates, jet_def);
+   vector<PseudoJet> fastjet_jets = cs.inclusive_jets(3.00);
+
+   
+   if (event_being_read.assigned_trigger_fired()) {
+      if (fastjet_jets.size() > 0) {
+         if (abs(sorted_by_pt(fastjet_jets)[0].rapidity()) < 2.0) {
+            output_file << event_being_read.make_string();
+         }
+      }
    }
+
+
 }
 
 bool jets_match(MOD::Event & event_being_read) {
@@ -125,10 +138,10 @@ bool jets_match(MOD::Event & event_being_read) {
       return false;
    }
 
+
    // Next, compare if fastjet_jets with cms_jets or not upto 10e-4 precision.
    
    unsigned max_number_of_jets =  max(fastjet_jets.size(), cms_jets.size());
-
   
    // First sort both vectors by px so that we can compare them one by one.
    sort(fastjet_jets.begin(), fastjet_jets.end(), pseudojets_compare);
@@ -137,6 +150,7 @@ bool jets_match(MOD::Event & event_being_read) {
    double tolerance = pow(10, -3);
    for (unsigned i = 0; i < max_number_of_jets; i++) {
       
+      // Next check if CMS AK5 jets match locally clustered FastJet AK5 jets within a certain precision. 
       
       if ( ( abs(fastjet_jets[i].px() - cms_jets[i].px()) > tolerance ) || ( abs(fastjet_jets[i].py() - cms_jets[i].py()) > tolerance ) || ( abs(fastjet_jets[i].pz() - cms_jets[i].pz()) > tolerance ) || ( abs(fastjet_jets[i].E() - cms_jets[i].E()) > tolerance ) ) {
          

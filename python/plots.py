@@ -21,6 +21,8 @@ from matplotlib import cm
 # RootPy
 from rootpy.plotting import Hist, HistStack, Legend
 import rootpy.plotting.root2matplotlib as rplt
+from rootpy.plotting import Hist2D
+
 
 # Stuff for calculating areas.
 from scipy.integrate import simps
@@ -210,7 +212,7 @@ def plot_dr():
     
     dr_hist.Scale(1.0 / dr_hist.GetSumOfWeights())
     
-    rplt.errorbar(dr_hist, xerr=False, emptybins=False)
+    rplt.errorbar(dr_hist, xerr=False, emptybins=False, markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
   plt.autoscale(True)
   # plt.xlim(0.0, 0.5)
@@ -243,7 +245,7 @@ def plot_mu():
     
     mu_hist.Scale(1.0 / mu_hist.GetSumOfWeights())
     
-    rplt.errorbar(mu_hist, xerr=False, emptybins=False)
+    rplt.errorbar(mu_hist, xerr=False, emptybins=False, markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
   plt.autoscale(True)
   # plt.xlim(0.00, 1)
@@ -285,7 +287,7 @@ def plot_charged_pt():
   if pdgid_hist.GetSumOfWeights() != 0:
     pdgid_hist.Scale(1.0 / pdgid_hist.GetSumOfWeights())
 
-  rplt.errorbar(pdgid_hist, xerr=False, emptybins=False)
+  rplt.errorbar(pdgid_hist, xerr=False, emptybins=False, markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
   plt.yscale('log')
 
@@ -333,9 +335,9 @@ def plot_zg_pfc_pt_cut(pT_lower_cut, zg_cut, zg_filename, n_bins=10, y_max_limit
   if zg_pfc_cut_5_hist.GetSumOfWeights() != 0:
     zg_pfc_cut_5_hist.Scale(1.0 / (zg_pfc_cut_5_hist.GetSumOfWeights() * bin_width_zg_pfc_cut_5))
   
-  rplt.errorbar(zg_hist, emptybins=False, ls='None', marker='o', markersize=8, capthick=3, pickradius=3, elinewidth=3)
-  rplt.errorbar(zg_pfc_cut_2_hist, emptybins=False, ls='None', marker='o', markersize=8, capthick=3, pickradius=3, elinewidth=3)
-  rplt.errorbar(zg_pfc_cut_5_hist, emptybins=False, ls='None', marker='o', markersize=8, capthick=3, pickradius=3, elinewidth=3)
+  rplt.errorbar(zg_hist, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.errorbar(zg_pfc_cut_2_hist, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.errorbar(zg_pfc_cut_5_hist, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
   
   plt.autoscale(True)
   plt.gca().set_ylim(0, y_max_limit)
@@ -398,8 +400,8 @@ def plot_charged_and_all_zgs(pT_lower_cut, zg_cut, zg_filename, n_bins=10, y_max
   if zg_charged_hist.GetSumOfWeights() != 0:
     zg_charged_hist.Scale(1.0 / (zg_charged_hist.GetSumOfWeights() * bin_width_zg_charged))
   
-  rplt.errorbar(zg_hist, emptybins=False, ls='None', marker='o', markersize=8, capthick=3, pickradius=3, elinewidth=3)
-  rplt.errorbar(zg_charged_hist, emptybins=False, ls='None', marker='o', markersize=8, capthick=3, pickradius=3, elinewidth=3)
+  rplt.errorbar(zg_hist, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.errorbar(zg_charged_hist, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
   
   plt.autoscale(True)
   plt.gca().set_ylim(0, y_max_limit)
@@ -465,7 +467,7 @@ def plot_turn_on_curves():
         pt_hists[j].Fill(pTs[i], prescales[i])
 
   for k in range(len(pt_hists) - 1, -1, -1):
-    rplt.errorbar(pt_hists[k], emptybins=False, ls='None', marker='o', markersize=8, capthick=3, pickradius=3, elinewidth=3)
+    rplt.errorbar(pt_hists[k], emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
   plt.autoscale(True)
   plt.yscale('log')
@@ -486,7 +488,7 @@ def plot_turn_on_curves():
 
 
   plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=95)
-  plt.ylabel('$\mathrm{Ratio}$', fontsize=75, rotation=0, labelpad=75.)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
 
   fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
 
@@ -546,10 +548,10 @@ def plot_pts():
   ax0 = plt.subplot(gs[0])
   ax1 = plt.subplot(gs[1])
 
-  data_plot = rplt.errorbar(corrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=3, pickradius=5, elinewidth=3)
-  uncorrected_data_plot = rplt.errorbar(uncorrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=3, pickradius=5, elinewidth=3)
-  rplt.hist(pythia_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
-  rplt.hist(herwig_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
+  data_plot = rplt.errorbar(corrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  uncorrected_data_plot = rplt.errorbar(uncorrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.hist(pythia_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.hist(herwig_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
   
 
   data_x_errors, data_y_errors = [], []
@@ -632,8 +634,8 @@ def plot_pts():
   rplt.hist(pythia_pt_hist, axes=ax1, linewidth=5)
   rplt.hist(herwig_pt_hist, axes=ax1, linewidth=5)
   
-  rplt.errorbar(corrected_pt_hist, xerr=data_to_data_x_err, yerr=data_to_data_y_err, axes=ax1, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
-  rplt.errorbar(uncorrected_pt_hist, xerr=uncorrected_to_corrected_x_err, yerr=uncorrected_to_corrected_y_err, axes=ax1, emptybins=False, marker='o', markersize=8, capthick=3, linewidth=5, pickradius=5, elinewidth=3)
+  rplt.errorbar(corrected_pt_hist, xerr=data_to_data_x_err, yerr=data_to_data_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.errorbar(uncorrected_pt_hist, xerr=uncorrected_to_corrected_x_err, yerr=uncorrected_to_corrected_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
   ax1.autoscale(True)
   
@@ -666,21 +668,22 @@ def plot_hardest_pt_corresponding_triggers():
   trigger_names = properties['trigger_names']
   prescales = properties['prescales']
 
-  expected_trigger_names = ["HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U", "HLT\_Jet15U"]
+  expected_trigger_names = ["HLT_Jet100U", "HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U", "HLT_Jet15U"]
+  labels = ["Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15U"]
 
-  colors = ['red', 'blue', 'pink', 'green']
+  colors = ['brown', 'red', 'blue', 'magenta', 'green']
 
   pt_hists = []
   for i in range(0, len(expected_trigger_names)):
-    pt_hists.append(Hist(50, 0, 1000, title=expected_trigger_names[i], markersize=1.0, color=colors[i], linewidth=5))
+    pt_hists.append(Hist(50, 0, 1000, title=labels[i], markersize=1.0, color=colors[i], linewidth=5))
 
   for i in range(0, len(pTs)):
     for j in range(0, len(expected_trigger_names)):
-      if expected_trigger_names[j].replace("\\", "") in trigger_names[i]:
+      if expected_trigger_names[j] in trigger_names[i]:
         pt_hists[j].Fill(pTs[i], prescales[i])
 
   for k in range(0, len(pt_hists)):
-    rplt.errorbar(pt_hists[k], marker='o', markersize=8, linewidth=3, capthick=3, pickradius=5, elinewidth=3)
+    rplt.errorbar(pt_hists[k], marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
   plt.yscale('log')
   plt.autoscale(True)
@@ -900,9 +903,9 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   
   if data:
     # data_plot, caplines, barlinecols
-    data_plot = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=8, pickradius=3, capthick=3, elinewidth=3, alpha=1.0)
+    data_plot = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
   else:
-    data_plot = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=8, pickradius=3, capthick=3, elinewidth=3, alpha=0.0)
+    data_plot = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=0.0)
 
 
   data_x_errors, data_y_errors = [], []
@@ -1002,7 +1005,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
       data_to_data_y_err = [(b / m) for b, m in zip(data_y_errors, data_plot_points_y)]
       data_to_data_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(data_plot_points_y))]
       
-      plt.errorbar(data_plot_points_x, ratio_data_to_data, xerr=data_to_data_x_err, yerr=data_to_data_y_err, ls='None', marker='o', markersize=8, linewidth=3, capthick=3, pickradius=5, elinewidth=3, color='black')
+      plt.errorbar(data_plot_points_x, ratio_data_to_data, xerr=data_to_data_x_err, yerr=data_to_data_y_err, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, color='black')
 
     if theory:
       ratio_theory_line_to_data = [m / n for m, n in zip(theory_extrapolated_line, data_plot_points_y)]
@@ -1050,7 +1053,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
       zg_data_to_th_y_err = [b / m for b, m in zip(data_y_errors, theory_extrapolated_line)]
       data_to_th_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(zg_data_to_th_y_err))]
 
-      plt.errorbar(data_plot_points_x, zg_data_to_th_y, xerr=data_to_th_x_err, yerr=zg_data_to_th_y_err, ls='None', capthick=3, marker='o', markersize=8, linewidth=3, pickradius=5, elinewidth=3, color='black')
+      plt.errorbar(data_plot_points_x, zg_data_to_th_y, xerr=data_to_th_x_err, yerr=zg_data_to_th_y_err, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, color='black')
    
     if theory:
       
@@ -1158,17 +1161,12 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   ax1.yaxis.set_tick_params(width=5, length=20, labelsize=70)
 
   fig.set_snap(True)
-
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
   filename = "plots/zg/zg_cut_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
   
-  print filename
-
   plt.savefig(filename)
-
   # plt.show()
-  
   plt.clf()
 
 
@@ -1211,8 +1209,8 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
 
   color = colors[expected_trigger_names.index(trigger_1.replace("_", "\_"))]
 
-  pt_hist_trigger_1 = Hist(2000, 0, pT_upper_limit, title=trigger_1.replace("_", "\_"), color=color, markersize=1.0, linewidth=5)
-  pt_hist_trigger_2 = Hist(2000, 0, pT_upper_limit, title=trigger_2.replace("_", "\_"), color=color, markersize=1.0, linewidth=5)
+  pt_hist_trigger_1 = Hist(500, 0, pT_upper_limit, title=trigger_1[4:], color=color, markersize=1.0, linewidth=5)
+  pt_hist_trigger_2 = Hist(500, 0, pT_upper_limit, title=trigger_2[4:], color=color, markersize=1.0, linewidth=5)
 
 
   for i in range(0, len(pTs)):
@@ -1228,7 +1226,7 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
   pt_hist_trigger_1.Divide(pt_hist_trigger_2)
 
 
-  rplt.errorbar(pt_hist_trigger_1, color=color)
+  rplt.errorbar(pt_hist_trigger_1, color=color,  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
   plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
@@ -1253,13 +1251,15 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
     lower_pT = 114
   elif trigger_1 == "HLT_Jet70U":
     lower_pT = 153
+  elif trigger_1 == "HLT_Jet100U":
+    lower_pT = 196
   else:
     lower_pT = 0
 
 
   if lower_pT != 0:
     # CMS Vertical line.
-    plt.plot([lower_pT, lower_pT], [plt.gca().get_ylim()[0], 1.], color="purple", linewidth=3, linestyle="dashed")
+    plt.plot([lower_pT, lower_pT], [plt.gca().get_ylim()[0], 1.], color=color, linewidth=3, linestyle="dashed")
 
 
 
@@ -1294,13 +1294,20 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
   #     break
 
 
-  # plt.plot([efficient_pt_x, efficient_pt_x], [plt.gca().get_ylim()[0], 1000], color="gray", linewidth=3, linestyle="dashed")
+
+  mod_efficient_pTs = [325, 260, 196, 153, 114, 84, 50, 32]
+  mod_efficient_pT = mod_efficient_pTs[expected_trigger_names.index(trigger_1.replace("_", "\_"))]
+
+
+
+
+  plt.plot([mod_efficient_pT, mod_efficient_pT], [plt.gca().get_ylim()[0], 1.], color="purple", linewidth=3, linestyle="dashed")
   
 
   if lower_pT != 0:
-    plt.gca().annotate("CMS: " + str(lower_pT) + " GeV", xy=(lower_pT, 1.), xycoords='data', xytext=(-100, 250),  textcoords='offset points', color="purple", size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor="purple", zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
+    plt.gca().annotate("CMS\n" + str(lower_pT) + " GeV", xy=(lower_pT, 1.), xycoords='data', xytext=(-100, 250),  textcoords='offset points', color=color, size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=color, zorder=9999, connectionstyle="angle3,angleA=0,angleB=90") )
   
-  # plt.gca().annotate("MOD: " + str(int(efficient_pt_x)) + " GeV", xy=(efficient_pt_x, efficient_pt_y), xycoords='data', xytext=(250, 200), textcoords='offset points', color="gray", size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor="gray", zorder=99, connectionstyle="angle3,angleA=45,angleB=-90") )
+  plt.gca().annotate("MOD\n" + str(int(mod_efficient_pT)) + " GeV", xy=(mod_efficient_pT, 1.), xycoords='data', xytext=(250, 200), textcoords='offset points', color="purple", size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor="purple", zorder=9999, connectionstyle="angle3,angleA=45,angleB=-90") )
 
 
 
@@ -1366,7 +1373,7 @@ def plot_all_trigger_efficiency_curves():
 
 
   for i in range(len(ratio_hists) - 1, -1, -1):
-    rplt.errorbar(ratio_hists[i], emptybins=False, ls='None', marker='o', markersize=8, capthick=3, pickradius=3, elinewidth=3)
+    rplt.errorbar(ratio_hists[i], emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
     
     if cms_turn_on_pTs[i] != 0:
       # plt.plot([cms_turn_on_pTs[i], cms_turn_on_pTs[i]], [plt.gca().get_ylim()[0], 1.], color=colors[i], linewidth=5, linestyle="dashed")
@@ -1406,7 +1413,7 @@ def plot_all_trigger_efficiency_curves():
 
 
   plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=95, rotation=0)
-  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=50.)
+  plt.ylabel('$\mathrm{Ratio}$', fontsize=75, rotation=0, labelpad=50.)
 
 
   plt.gcf().set_size_inches(30, 30, forward=1)
@@ -1420,6 +1427,65 @@ def plot_all_trigger_efficiency_curves():
 
 
 
+def plot_2d():
+
+  pT_lower_cut = 150
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+  zgs = [properties['zg_05'], properties['zg_1'], properties['zg_2']]
+  charged_zgs = [properties['zg_charged_05'], properties['zg_charged_1'], properties['zg_charged_2']]
+  prescales = properties['prescales']
+
+  zgs = zgs[0]
+  charged_zgs = charged_zgs[0]
+
+  H, xedges, yedges = np.histogram2d(zgs, charged_zgs, bins=25, weights=prescales, normed=1, range=[[0.05, 0.5], [0.05, 0.5]] )
+
+
+  H_normalized = []
+  for i in range(0, 25):
+    current_row = []
+    factor = sum(H[i])
+    for j in range(0, 25):
+      current_row.append(H[i][j] / factor)
+
+    H_normalized.append(current_row)
+
+
+  H_normalized = np.array(H_normalized)
+  H = H_normalized
+
+  H = np.rot90(H)
+  H = np.flipud(H)
+  
+  Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
+
+  plt.pcolormesh(xedges,yedges, Hmasked)
+
+  cbar = plt.colorbar()
+  cbar.ax.set_ylabel('Counts')
+
+  plt.xlabel('Charged $z_g$')
+  plt.ylabel('$z_g$')
+
+  plt.gcf().set_size_inches(30, 30, forward=1)
+  plt.gcf().set_snap(True)
+
+  
+
+  plt.savefig("test.pdf")
+
+  # plt.show()
+
+
+
+# plot_hardest_pt_corresponding_triggers()
+
+
+
+
+plot_2d()
+
+
 
 # plot_2d_hist()
 
@@ -1427,9 +1493,6 @@ def plot_all_trigger_efficiency_curves():
 
 # # Trigger Efficiency Curves Begin.
 
-# All Plots in the same one: 50U to 140U. Upto pT = 300 GeV. 
-
-# For turn-on curves, remove 180U. Also upper limit 0 to 300 GeV.
 
 # plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U", pT_upper_limit=200)
 # plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U", pT_upper_limit=300)
@@ -1463,10 +1526,6 @@ def plot_all_trigger_efficiency_curves():
 
 
 
-
-
-
-
 # # AK5 Distribution Begins.
 
 # plot_pts()
@@ -1485,7 +1544,7 @@ def plot_all_trigger_efficiency_curves():
 
 # # zg_distribution Begins.
 
-plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
 # plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 # plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
@@ -1539,8 +1598,6 @@ plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bin
 
 
 # # zg with PFC pT_cut Begins.
-
-# Everything, 2 GeV, 5 GeV. Same plots as charged. 
 
 
 # plot_zg_pfc_pt_cut(150, '0.05', 'zg_05', n_bins=8, y_max_limit=18)

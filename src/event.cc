@@ -155,6 +155,9 @@ const MOD::Trigger MOD::Event::trigger_by_name(string name) const {
    return Trigger();
 }
 
+const bool MOD::Event::trigger_exists(string trigger_name) const {
+   return trigger_by_name(trigger_name).is_valid();
+}
 
 const vector<MOD::Trigger> & MOD::Event::triggers() const {
    return _triggers;
@@ -301,19 +304,28 @@ void MOD::Event::set_assigned_trigger() {
    string trigger_to_use;
    string trigger;
 
-   if (hardest_pt_value > 153) {
+   if ( (hardest_pt_value > 325) && ( trigger_exists("HLT_Jet180U") || trigger_exists("HLT_Jet180U_v1") || trigger_exists("HLT_Jet180U_v2") || trigger_exists("HLT_Jet180U_v3") ) ) {
+      trigger = "HLT_Jet180U";
+   }
+   else if ( (hardest_pt_value > 260) && ( trigger_exists("HLT_Jet140U") || trigger_exists("HLT_Jet140U_v1") || trigger_exists("HLT_Jet140U_v2") || trigger_exists("HLT_Jet140U_v3") ) ) {
+      trigger = "HLT_Jet140U";
+   }
+   else if ( (hardest_pt_value > 196) && ( trigger_exists("HLT_Jet100U") || trigger_exists("HLT_Jet100U_v1") || trigger_exists("HLT_Jet100U_v2") || trigger_exists("HLT_Jet100U_v3") ) ) {
+      trigger = "HLT_Jet100U";
+   }
+   else if ( (hardest_pt_value > 153) && ( trigger_exists("HLT_Jet70U") || trigger_exists("HLT_Jet70U_v1") || trigger_exists("HLT_Jet70U_v2") || trigger_exists("HLT_Jet70U_v3") ) ) {
       trigger = "HLT_Jet70U";
    }
-   else if (hardest_pt_value > 114) {
+   else if ( (hardest_pt_value > 114) && ( trigger_exists("HLT_Jet50U") || trigger_exists("HLT_Jet50U_v1") || trigger_exists("HLT_Jet50U_v2") || trigger_exists("HLT_Jet50U_v3") ) ) {
       trigger = "HLT_Jet50U";
    }
-   else if (hardest_pt_value > 84) {
+   else if ( (hardest_pt_value > 84) && ( trigger_exists("HLT_Jet30U") || trigger_exists("HLT_Jet30U_v1") || trigger_exists("HLT_Jet30U_v2") || trigger_exists("HLT_Jet30U_v3") ) ) {
       trigger = "HLT_Jet30U";
    }
-   else if (hardest_pt_value > 56) {
+   else if ( (hardest_pt_value > 56) && ( trigger_exists("HLT_Jet15U") || trigger_exists("HLT_Jet15U_v1") || trigger_exists("HLT_Jet15U_v2") || trigger_exists("HLT_Jet15U_v3") ) ) {
       trigger = "HLT_Jet15U";
    }
-   else if (hardest_pt_value > 37) {
+   else if ( (hardest_pt_value > 37) && ( trigger_exists("HLT_L1Jet6U") || trigger_exists("HLT_L1Jet6U_v1") || trigger_exists("HLT_L1Jet6U_v2") || trigger_exists("HLT_L1Jet6U_v3") ) ) {
       trigger = "HLT_L1Jet6U";
    }
 

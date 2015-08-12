@@ -62,6 +62,7 @@ namespace MOD {
             void set_version(int version);
             void set_data_type(std::string a, std::string b);
             
+            const bool trigger_exists(std::string trigger_name) const;
             
 
             bool read_event(std::istream & data_stream);

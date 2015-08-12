@@ -15,8 +15,6 @@ def run_turn_on(input_path, output_file):
 
   to_analyze.sort()
 
-  print to_analyze
-
   for f in to_analyze:
     call(['./bin/turn_on', input_path + f, output_file])
 
