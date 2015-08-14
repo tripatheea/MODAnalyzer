@@ -111,6 +111,11 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
           properties['zg_charged_1'].append( float( numbers[34] ) )
           properties['zg_charged_2'].append( float( numbers[35] ) )
 
+          properties['pTs_after_SD'].append( float( numbers[36] ) )
+
+          properties['multiplicity_before_SD'].append( float( numbers[37] ) )
+          properties['multiplicity_after_SD'].append( float( numbers[38] ) )
+
     except:
       if len(numbers) != 0:
         # print "Some kind of error occured while parsing the given file!"
@@ -1479,6 +1484,135 @@ def plot_2d():
   # plt.show()
 
 
+def plot_hardest_pt_softdrop():
+  properties = parse_file(input_analysis_file, 150)
+
+  pTs_before_SD = properties['corrected_hardest_pts']
+  pTs_after_SD = properties['pTs_after_SD']  
+  prescales = properties['prescales']
+
+  
+  pT_before_SD_hist = Hist(150, 0, 1500, title='Before SoftDrop', markersize=3.0, color='black')
+  bin_width_before = (pT_before_SD_hist.upperbound() - pT_before_SD_hist.lowerbound()) / pT_before_SD_hist.nbins()
+
+  pT_after_SD_hist = Hist(150, 0, 1500, title='After SoftDrop', markersize=3.0, color='red')
+  bin_width_after = (pT_after_SD_hist.upperbound() - pT_after_SD_hist.lowerbound()) / pT_after_SD_hist.nbins()
+
+  map(pT_before_SD_hist.Fill, pTs_before_SD, prescales)
+  map(pT_after_SD_hist.Fill, pTs_after_SD, prescales)
+  
+  pT_before_SD_hist.Scale(1.0 / (pT_before_SD_hist.GetSumOfWeights() * bin_width_before))
+  pT_after_SD_hist.Scale(1.0 / (pT_after_SD_hist.GetSumOfWeights() * bin_width_after))
+  
+  pT_before_SD_plot = rplt.errorbar(pT_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  pT_after_SD_plot = rplt.errorbar(pT_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  
+  plt.yscale('log')
+
+  # Legends Begin.
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5}$"]
+  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.91, 0.62])
+
+  # Legends End.
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
+  
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.gca().autoscale(True)
+  plt.ylim(10e-8, 10e-1)
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/pT_SD_distribution.pdf")
+  # plt.show()
+  plt.clf()
+
+
+def plot_multiplicity_softdrop():
+  properties = parse_file(input_analysis_file, 150)
+
+  multi_before_SD = properties['multiplicity_before_SD']
+  multi_after_SD = properties['multiplicity_after_SD']  
+  prescales = properties['prescales']
+
+
+  multi_before_SD_hist = Hist(100, 0, 100, title='Before SoftDrop', markersize=3.0, color='black')
+  bin_width_before = (multi_before_SD_hist.upperbound() - multi_before_SD_hist.lowerbound()) / multi_before_SD_hist.nbins()
+
+  multi_after_SD_hist = Hist(100, 0, 100, title='After SoftDrop', markersize=3.0, color='red')
+  bin_width_after = (multi_after_SD_hist.upperbound() - multi_after_SD_hist.lowerbound()) / multi_after_SD_hist.nbins()
+
+  map(multi_before_SD_hist.Fill, multi_before_SD, prescales)
+  map(multi_after_SD_hist.Fill, multi_after_SD, prescales)
+  
+  multi_before_SD_hist.Scale(1.0 / (multi_before_SD_hist.GetSumOfWeights() * bin_width_before))
+  multi_after_SD_hist.Scale(1.0 / (multi_after_SD_hist.GetSumOfWeights() * bin_width_after))
+  
+  pT_before_SD_plot = rplt.errorbar(multi_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  pT_after_SD_plot = rplt.errorbar(multi_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  
+  # plt.yscale('log')
+
+  # Legends Begin.
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5}$"]
+  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.91, 0.62])
+
+  # Legends End.
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.xlabel('Jet Multiplicity', fontsize=75)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=25.)
+  
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.gca().autoscale(True)
+  plt.ylim(-0.01, 0.06)
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/multiplicity_SD_distribution.pdf")
+  # plt.show()
+  plt.clf()
+
+
+plot_multiplicity_softdrop()
+
+plot_hardest_pt_softdrop()
+
+
 
 # plot_hardest_pt_corresponding_triggers()
 
@@ -1496,15 +1630,15 @@ def plot_2d():
 # # Trigger Efficiency Curves Begin.
 
 
-plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U", pT_upper_limit=200)
-plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U", pT_upper_limit=300)
-plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U", pT_upper_limit=350)
-plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U", pT_upper_limit=800)
-plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U", pT_upper_limit=800)
-plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U", pT_upper_limit=1200)
+# plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U", pT_upper_limit=200)
+# plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U", pT_upper_limit=300)
+# plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U", pT_upper_limit=350)
+# plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U", pT_upper_limit=800)
+# plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U", pT_upper_limit=800)
+# plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U", pT_upper_limit=1200)
 
 
-plot_all_trigger_efficiency_curves()
+# plot_all_trigger_efficiency_curves()
 
 # # Trigger Efficiency Curves End.
 
