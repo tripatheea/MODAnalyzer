@@ -135,9 +135,9 @@ def parse_file_turn_on(input_file, pT_lower_cut = 0.00):
       
       if not numbers[0] == "#":
         if (float(numbers[1]) > pT_lower_cut):
-          properties['corrected_hardest_pts'].append( float( numbers[1] ) )
-          properties['prescales'].append( int( numbers[2] ) )
-          properties['trigger_names'].append(  numbers[3] )
+          properties['corrected_hardest_pts'].append( float( numbers[3] ) )
+          properties['prescales'].append( int( numbers[4] ) )
+          properties['trigger_names'].append(  numbers[5] )
 
     except:
       if len(numbers) != 0:
@@ -1199,6 +1199,7 @@ def parse_theory_file(input_file):
 def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
   
   properties = parse_file_turn_on('./turn_on.dat')
+  # properties = parse_file_turn_on('./trigger_proper_turn_on.dat')
 
   pTs = properties['corrected_hardest_pts']
   trigger_names = properties['trigger_names']
@@ -1339,6 +1340,7 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
 def plot_all_trigger_efficiency_curves():
   
   properties = parse_file_turn_on('./turn_on.dat')
+  # properties = parse_file_turn_on('./trigger_proper_turn_on.dat')
 
   pTs = properties['corrected_hardest_pts']
   trigger_names = properties['trigger_names']
@@ -1483,7 +1485,7 @@ def plot_2d():
 
 
 
-plot_2d()
+# plot_2d()
 
 
 
@@ -1494,15 +1496,15 @@ plot_2d()
 # # Trigger Efficiency Curves Begin.
 
 
-# plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U", pT_upper_limit=200)
-# plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U", pT_upper_limit=300)
-# plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U", pT_upper_limit=350)
-# plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U", pT_upper_limit=800)
-# plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U", pT_upper_limit=800)
-# plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U", pT_upper_limit=1200)
+plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U", pT_upper_limit=200)
+plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U", pT_upper_limit=300)
+plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U", pT_upper_limit=350)
+plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U", pT_upper_limit=800)
+plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U", pT_upper_limit=800)
+plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U", pT_upper_limit=1200)
 
 
-# plot_all_trigger_efficiency_curves()
+plot_all_trigger_efficiency_curves()
 
 # # Trigger Efficiency Curves End.
 

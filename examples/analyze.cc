@@ -328,37 +328,10 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    }
 
 
-   // Charged zg Stuff.
-
-   // vector<PseudoJet> all_charged_jets; 
-
-   // for (unsigned i = 0; i < ak5_jets.size(); i++) {
-
-   //    vector<PseudoJet> current_jet_charged_constituents;
-   //    vector<PseudoJet> current_jet_constituents = ak5_jets[i].constituents();
-
-   //    for (unsigned j = 0; j < current_jet_constituents.size(); j++) {
-   //       if ( (abs(current_jet_constituents[j].user_index()) == 211) || (abs(current_jet_constituents[j].user_index()) == 11) || (abs(current_jet_constituents[j].user_index()) == 13) ) {
-   //          current_jet_charged_constituents.push_back(current_jet_constituents[j]);
-   //       }
-   //    }
-
-   //    JetDefinition jet_def_charged(antikt_algorithm, 0.5);
-   //    ClusterSequence cs_charged(current_jet_charged_constituents, jet_def_charged);
-   //    vector<PseudoJet> ak5_jets_charged = sorted_by_pt(cs_charged.inclusive_jets(3.0));
-
-      
-
-   //    for (unsigned k = 0; k < ak5_jets_charged.size(); k++) {
-   //       all_charged_jets.push_back(ak5_jets_charged[k]);
-   //    }
-      
-   //    current_jet_charged_constituents.clear();         
-      
-   // }
 
 
-   if (ak5_jets.size() > 0) {
+
+   // if (ak5_jets.size() > 0) {
       vector<PseudoJet> hardest_jet_constituents = ak5_jets[0].constituents();
 
       vector<PseudoJet> hardest_jet_charged_constituents;
@@ -399,50 +372,40 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
          properties.push_back(MOD::Property("zg_charged_2", -1.00));  
       }
 
-   }
+   // }
 
 
-
-
-   /* OLD WAY OF FINDING charged_zg */
-
-   /* 
+   // Stuff before and after SoftDrop.
    
-   // Run AK5 clustering with FastJet to get zg value.
 
-   JetDefinition jet_def_charged(antikt_algorithm, 0.5);
-   ClusterSequence cs_charged(event_being_read.charged_pseudojets(), jet_def_charged);
-   vector<PseudoJet> ak5_jets_charged = sorted_by_pt(cs_charged.inclusive_jets(3.0));
+   // Hardest Jet pT before and after SoftDrop.
+   PseudoJet hardest_jet = ak5_jets[0];
+   double beta = 0;
+   SoftDrop soft_drop(beta, 0.05);
+   PseudoJet soft_drop_jet = soft_drop(hardest_jet);
+   properties.push_back(MOD::Property("pT_after_SD", soft_drop_jet.pt()));
 
-   if (ak5_jets_charged.size() > 0) {
-      PseudoJet hardest_jet_charged = ak5_jets_charged[0];
 
-      double beta_charged = 0;
+   properties.push_back( MOD::Property("multiplicity_before_SD", (int) ak5_jets.size()) );
 
-      SoftDrop soft_drop_charged(beta_charged, 0.05);
-      PseudoJet soft_drop_jet_charged = soft_drop_charged(hardest_jet_charged);
-      double zg_charged_05 = soft_drop_jet_charged.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_charged_05", zg_charged_05));
+   vector<PseudoJet> constituents_after_softdrop;
 
-      SoftDrop soft_drop_charged_2(beta_charged, 0.1);
-      PseudoJet soft_drop_jet_charged_2 = soft_drop_charged_2(hardest_jet_charged);
-      double zg_charged_1 = soft_drop_jet_charged_2.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_charged_1", zg_charged_1));  
+   for (unsigned i = 0; i < ak5_jets.size(); i++) {
+      PseudoJet current_softdrop_jet = soft_drop(ak5_jets[i]);
+      vector<PseudoJet> current_softdrop_jet_constituents = current_softdrop_jet.constituents();
 
-      SoftDrop soft_drop_charged_3(beta_charged, 0.2);
-      PseudoJet soft_drop_jet_charged_3 = soft_drop_charged_3(hardest_jet_charged);
-      double zg_charged_2 = soft_drop_jet_charged_3.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_charged_2", zg_charged_2));  
-   }
-   else {
-      properties.push_back(MOD::Property("zg_charged_05", -1.00));      
-      properties.push_back(MOD::Property("zg_charged_1", -1.00));      
-      properties.push_back(MOD::Property("zg_charged_2", -1.00));  
+      for (unsigned j = 0; j < current_softdrop_jet_constituents.size(); j++) {
+         constituents_after_softdrop.push_back(current_softdrop_jet_constituents[j]);
+      }
    }
 
-   */
+   // Now recluster all the constituents and record the multiplicity.
 
-   /* OLD WAY OF FINDING charged_zg ENDS */
+   JetDefinition jet_def_after_sd(antikt_algorithm, 0.5);
+   ClusterSequence cs_after_sd(constituents_after_softdrop, jet_def_after_sd);
+   properties.push_back( MOD::Property("multiplicity_after_SD", (int) cs_after_sd.inclusive_jets(3.0).size()) );
+
+
 
    string name;
    
