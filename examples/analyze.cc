@@ -52,6 +52,7 @@ int main(int argc, char * argv[]) {
    cout << "Input file: " << argv[1] << endl;
    cout << "Output file: " << argv[2] << endl;
    cout << "Number of events: ";
+
    if(argc == 3)
       cout << "ALL" << endl << endl;
    else
@@ -85,7 +86,6 @@ int main(int argc, char * argv[]) {
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
 
    
-   
    vector<MOD::Property> properties;
 
    properties.push_back(MOD::Property("# Entry", "  Entry"));
@@ -112,7 +112,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    ClusterSequence cs(event_being_read.pseudojets(), jet_def);
    vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
 
-   if (ak5_jets.size() > 0) {
+   if ((unsigned) ak5_jets.size() > 0) {
       PseudoJet hardest_jet = ak5_jets[0];
       // hardest_jet *= event_being_read.hardest_jet_JEC();
 
@@ -172,7 +172,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    ClusterSequence cs_pt_1(event_being_read.pseudojets(1.00), jet_def_pt_1);
    vector<PseudoJet> ak5_jets_pt_1 = sorted_by_pt(cs_pt_1.inclusive_jets(3.0));
 
-   if (ak5_jets_pt_1.size() > 0) {
+   if ((unsigned) ak5_jets_pt_1.size() > 0) {
       PseudoJet hardest_jet_pt_1 = ak5_jets_pt_1[0];
 
       double beta_pt_1 = 0;
@@ -205,7 +205,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    ClusterSequence cs_pt_2(event_being_read.pseudojets(2.00), jet_def_pt_2);
    vector<PseudoJet> ak5_jets_pt_2 = sorted_by_pt(cs_pt_2.inclusive_jets(3.0));
 
-   if (ak5_jets_pt_2.size() > 0) {
+   if ((unsigned) ak5_jets_pt_2.size() > 0) {
       PseudoJet hardest_jet_pt_2 = ak5_jets_pt_2[0];
 
       double beta_pt_2 = 0;
@@ -237,7 +237,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    ClusterSequence cs_pt_3(event_being_read.pseudojets(3.00), jet_def_pt_3);
    vector<PseudoJet> ak5_jets_pt_3 = sorted_by_pt(cs_pt_3.inclusive_jets(3.0));
 
-   if (ak5_jets_pt_3.size() > 0) {
+   if ((unsigned) ak5_jets_pt_3.size() > 0) {
       PseudoJet hardest_jet_pt_3 = ak5_jets_pt_3[0];
 
       double beta_pt_3 = 0;
@@ -269,7 +269,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    ClusterSequence cs_pt_5(event_being_read.pseudojets(5.00), jet_def_pt_5);
    vector<PseudoJet> ak5_jets_pt_5 = sorted_by_pt(cs_pt_5.inclusive_jets(3.0));
 
-   if (ak5_jets_pt_5.size() > 0) {
+   if ((unsigned) ak5_jets_pt_5.size() > 0) {
       PseudoJet hardest_jet_pt_5 = ak5_jets_pt_5[0];
 
       double beta_pt_5 = 0;
@@ -301,7 +301,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    ClusterSequence cs_pt_10(event_being_read.pseudojets(10.00), jet_def_pt_10);
    vector<PseudoJet> ak5_jets_pt_10 = sorted_by_pt(cs_pt_10.inclusive_jets(3.0));
 
-   if (ak5_jets_pt_10.size() > 0) {
+   if ((unsigned) ak5_jets_pt_10.size() > 0) {
       PseudoJet hardest_jet_pt_10 = ak5_jets_pt_10[0];
 
       double beta_pt_10 = 0;
@@ -331,7 +331,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
 
-   // if (ak5_jets.size() > 0) {
+   if ((unsigned) ak5_jets.size() > 0) {
       vector<PseudoJet> hardest_jet_constituents = ak5_jets[0].constituents();
 
       vector<PseudoJet> hardest_jet_charged_constituents;
@@ -372,7 +372,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
          properties.push_back(MOD::Property("zg_charged_2", -1.00));  
       }
 
-   // }
+   }
 
 
    // Stuff before and after SoftDrop.
@@ -385,26 +385,21 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    PseudoJet soft_drop_jet = soft_drop(hardest_jet);
    properties.push_back(MOD::Property("pT_after_SD", soft_drop_jet.pt()));
 
+   // Constituent multiplicity before and after SoftDrop.
 
-   properties.push_back( MOD::Property("multiplicity_before_SD", (int) ak5_jets.size()) );
+   properties.push_back( MOD::Property("multiplicity_before_SD", (int) hardest_jet.constituents().size()) );
+   properties.push_back( MOD::Property("multiplicity_after_SD", (int) soft_drop(hardest_jet).constituents().size()) );
+   
 
-   vector<PseudoJet> constituents_after_softdrop;
+   properties.push_back( MOD::Property("jec_uncertainty", event_being_read.hardest_corrected_jet().JEC_uncertainty()) );
 
-   for (unsigned i = 0; i < ak5_jets.size(); i++) {
-      PseudoJet current_softdrop_jet = soft_drop(ak5_jets[i]);
-      vector<PseudoJet> current_softdrop_jet_constituents = current_softdrop_jet.constituents();
+   // Must be "hardest_uncorrected_jet" because the corrected jet has a JEC set to 1.
+   properties.push_back( MOD::Property("jec", event_being_read.hardest_uncorrected_jet().JEC()) );
 
-      for (unsigned j = 0; j < current_softdrop_jet_constituents.size(); j++) {
-         constituents_after_softdrop.push_back(current_softdrop_jet_constituents[j]);
-      }
-   }
+   properties.push_back( MOD::Property("jet_mass_before_SD", hardest_jet.m()) );
+   properties.push_back( MOD::Property("jet_mass_after_SD", soft_drop(hardest_jet).m()) );
 
-   // Now recluster all the constituents and record the multiplicity.
-
-   JetDefinition jet_def_after_sd(antikt_algorithm, 0.5);
-   ClusterSequence cs_after_sd(constituents_after_softdrop, jet_def_after_sd);
-   properties.push_back( MOD::Property("multiplicity_after_SD", (int) cs_after_sd.inclusive_jets(3.0).size()) );
-
+   properties.push_back( MOD::Property("fractional_energy_loss", (hardest_jet.E() - soft_drop(hardest_jet).E()) / hardest_jet.E() ) );
 
 
    string name;

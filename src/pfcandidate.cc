@@ -39,11 +39,11 @@ int MOD::PFCandidate::pdgId() const {
 string MOD::PFCandidate::make_string() const {
    stringstream ss;
    ss << "  PFC"
-        << setw(14) << fixed << setprecision(8) << _pseudojet.px()
-        << setw(14) << fixed << setprecision(8) << _pseudojet.py()
-        << setw(14) << fixed << setprecision(8) << _pseudojet.pz()
-        << setw(14) << fixed << setprecision(8) << _pseudojet.E()
-        << setw(8) << noshowpos << _pdgId
+        << setw(20) << fixed << setprecision(8) << _pseudojet.px()
+        << setw(20) << fixed << setprecision(8) << _pseudojet.py()
+        << setw(20) << fixed << setprecision(8) << _pseudojet.pz()
+        << setw(20) << fixed << setprecision(8) << _pseudojet.E()
+        << setw(14) << noshowpos << _pdgId
         << endl;
 
    return ss.str();
@@ -51,7 +51,7 @@ string MOD::PFCandidate::make_string() const {
 
 string MOD::PFCandidate::make_header_string() const {
    stringstream ss;
-   ss << "# PFC" << "            px            py            pz        energy   pdgId" << endl;
+   ss << "# PFC" << "                  px                  py                  pz              energy         pdgId" << endl;
    return ss.str();
 }
 

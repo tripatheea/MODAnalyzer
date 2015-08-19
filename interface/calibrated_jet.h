@@ -14,8 +14,8 @@ namespace MOD {
    class CalibratedJet {
 
       public:
-         CalibratedJet(double px, double py, double pz, double energy, std::string algorithm, double JEC, double area);
-         CalibratedJet(fastjet::PseudoJet pseudojet, std::string algorithm, double JEC, double area);
+         CalibratedJet(double px, double py, double pz, double energy, std::string algorithm, double JEC, double JEC_uncertainty, double area);
+         CalibratedJet(fastjet::PseudoJet pseudojet, std::string algorithm, double JEC, double JEC_uncertainty, double area);
          CalibratedJet(std::istringstream & input_stream);
          CalibratedJet();
 
@@ -29,6 +29,8 @@ namespace MOD {
          std::string make_header_string() const;
 
          double JEC() const;
+         double JEC_uncertainty() const;
+
          double area() const;
 
          MOD::CalibratedJet corrected_jet();
@@ -42,6 +44,8 @@ namespace MOD {
          double _mass;
          std::string _algorithm;
          double _JEC;
+         double _JEC_uncertainty;
+
          double _area;
    };
 }

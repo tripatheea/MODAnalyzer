@@ -39,6 +39,8 @@ from matplotlib._png import read_png
 
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
+from scipy.stats import norm
+from scipy.stats import gamma
 
 
 from scipy.stats import binned_statistic
@@ -115,6 +117,14 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
 
           properties['multiplicity_before_SD'].append( float( numbers[37] ) )
           properties['multiplicity_after_SD'].append( float( numbers[38] ) )
+
+          properties['JEC_uncertainty'].append( float( numbers[39] ) )
+          properties['JEC'].append( float( numbers[40] ) )
+
+          properties['jet_mass_before_SD'].append( float( numbers[41] ) )
+          properties['jet_mass_after_SD'].append( float( numbers[42] ) )
+
+          properties['fractional_energy_loss'].append( float( numbers[43] ) )
 
     except:
       if len(numbers) != 0:
@@ -1546,18 +1556,17 @@ def plot_hardest_pt_softdrop():
   plt.clf()
 
 
-def plot_multiplicity_softdrop():
+def plot_constituent_multiplicity_softdrop():
   properties = parse_file(input_analysis_file, 150)
 
   multi_before_SD = properties['multiplicity_before_SD']
   multi_after_SD = properties['multiplicity_after_SD']  
   prescales = properties['prescales']
 
-
-  multi_before_SD_hist = Hist(100, 0, 100, title='Before SoftDrop', markersize=3.0, color='black')
+  multi_before_SD_hist = Hist(150, 0, 150, title='Before SoftDrop', markersize=3.0, color='black')
   bin_width_before = (multi_before_SD_hist.upperbound() - multi_before_SD_hist.lowerbound()) / multi_before_SD_hist.nbins()
 
-  multi_after_SD_hist = Hist(100, 0, 100, title='After SoftDrop', markersize=3.0, color='red')
+  multi_after_SD_hist = Hist(150, 0, 150, title='After SoftDrop', markersize=3.0, color='red')
   bin_width_after = (multi_after_SD_hist.upperbound() - multi_after_SD_hist.lowerbound()) / multi_after_SD_hist.nbins()
 
   map(multi_before_SD_hist.Fill, multi_before_SD, prescales)
@@ -1589,7 +1598,7 @@ def plot_multiplicity_softdrop():
 
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
-  plt.xlabel('Jet Multiplicity', fontsize=75)
+  plt.xlabel('Constituent Multiplicity', fontsize=75)
   plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=25.)
   
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
@@ -1603,14 +1612,290 @@ def plot_multiplicity_softdrop():
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  plt.savefig("plots/multiplicity_SD_distribution.pdf")
+  plt.savefig("plots/constituent_multiplicity_SD_distribution.pdf")
   # plt.show()
   plt.clf()
 
 
-plot_multiplicity_softdrop()
+def plot_2d_constitutent_mul_jec_uncertainty(multiplicity_type="before"):
 
-plot_hardest_pt_softdrop()
+  pT_lower_cut = 150
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+
+  multiplicity = properties['multiplicity_' + multiplicity_type + '_SD']
+  JEC_uncertainty = properties['JEC_uncertainty']
+  
+  prescales = properties['prescales']
+  
+  H, xedges, yedges = np.histogram2d(multiplicity, JEC_uncertainty, bins=25, weights=prescales, normed=1, range=[[min(multiplicity), max(multiplicity)], [0.7, 1.4]] )
+
+
+  H_normalized = []
+  for i in range(0, 25):
+    current_row = []
+    factor = sum(H[i])
+
+    if factor != 0:
+      for j in range(0, 25):
+        current_row.append(H[i][j] / factor)
+    else:
+      for j in range(0, 25):
+        current_row.append(0)
+
+    H_normalized.append(current_row)
+
+
+  H_normalized = np.array(H_normalized)
+  H = H_normalized
+
+  H = np.rot90(H)
+  H = np.flipud(H)
+  
+  Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
+
+  plt.pcolormesh(xedges,yedges, Hmasked)
+
+  cbar = plt.colorbar()
+  cbar.ax.set_ylabel('Counts')
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+
+  plt.xlabel('Constituent Multiplicity ' + multiplicity_type.capitalize() + ' SoftDrop', fontsize=65, labelpad=75.)
+  plt.ylabel('JEC\nUncer.', fontsize=65, labelpad=100., rotation=0)
+
+  plt.gcf().set_snap(True)
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/constituent_mul_jec_uncer_" + multiplicity_type + "_SD.pdf")
+
+  plt.clf()
+
+
+def plot_JEC_uncertainty():
+  pT_lower_cut = 150
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+
+  JEC_uncertainty = properties['JEC_uncertainty']
+  
+  prescales = properties['prescales']
+
+  plt.hist(JEC_uncertainty, weights=prescales, bins=100, label="JEC Uncertainty", normed=1, histtype='step', linewidth=5)
+
+  JEC_uncertainty_expanded = []
+  for i in range(0, len(JEC_uncertainty)):
+    for j in range(0, prescales[i]):
+      JEC_uncertainty_expanded.append(JEC_uncertainty[i])
+
+  mu, std = norm.fit(JEC_uncertainty_expanded)
+  xmin, xmax = plt.xlim()
+  x = np.linspace(xmin, xmax, 500)
+  p = norm.pdf(x, mu, std)
+  plt.plot(x, p, 'k', linewidth=5)
+
+  plt.xlabel('JEC Uncertainty', fontsize=75)
+  plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
+
+  plt.autoscale(1)
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = ["Fit Statistics\n" + "$\mu=" + str(mu.round(3)) + "$\n$" + "\sigma=" + str(std.round(3)) + "$"]
+  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.83, 0.75])
+
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/JEC_uncertainty.pdf")
+
+  plt.clf()
+
+def plot_JEC():
+  pT_lower_cut = 150
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+
+  JEC = properties['JEC']
+  
+  prescales = properties['prescales']
+
+  plt.hist(JEC, weights=prescales, bins=100, label="JEC Factor", normed=1, histtype='step', linewidth=5)
+
+
+  plt.xlabel('JEC Factor', fontsize=75)
+  plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
+
+  plt.autoscale(1)
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+  plt.gca().add_artist(legend)
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/JEC.pdf")
+
+  plt.clf()
+
+
+
+
+def plot_jet_mass_spectrum():
+  properties = parse_file(input_analysis_file, 150)
+
+  jet_mass_before_SD = properties['jet_mass_before_SD']
+  jet_mass_after_SD = properties['jet_mass_after_SD']  
+  prescales = properties['prescales']
+
+  jet_mass_before_SD_hist = Hist(150, 0, 150, title='Before SoftDrop', markersize=3.0, color='black')
+  bin_width_before = (jet_mass_before_SD_hist.upperbound() - jet_mass_before_SD_hist.lowerbound()) / jet_mass_before_SD_hist.nbins()
+
+  jet_mass_after_SD_hist = Hist(150, 0, 150, title='After SoftDrop', markersize=3.0, color='red')
+  bin_width_after = (jet_mass_after_SD_hist.upperbound() - jet_mass_after_SD_hist.lowerbound()) / jet_mass_after_SD_hist.nbins()
+
+  map(jet_mass_before_SD_hist.Fill, jet_mass_before_SD, prescales)
+  map(jet_mass_after_SD_hist.Fill, jet_mass_after_SD, prescales)
+  
+  jet_mass_before_SD_hist.Scale(1.0 / (jet_mass_before_SD_hist.GetSumOfWeights() * bin_width_before))
+  jet_mass_after_SD_hist.Scale(1.0 / (jet_mass_after_SD_hist.GetSumOfWeights() * bin_width_after))
+  
+  rplt.errorbar(jet_mass_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.errorbar(jet_mass_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  
+  # plt.yscale('log')
+
+  # Legends Begin.
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5}$"]
+  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.90, 0.75])
+
+  # Legends End.
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.xlabel('Jet Mass', fontsize=75)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=25.)
+  
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.gca().autoscale(True)
+  plt.ylim(-0.01, 0.07)
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/jet_mass_spectrum.pdf")
+  # plt.show()
+  plt.clf()
+
+
+
+
+def plot_fractional_energy_loss():
+  properties = parse_file(input_analysis_file, 150)
+
+  fractional_energy_loss = properties['fractional_energy_loss']
+  prescales = properties['prescales']
+
+  fractional_energy_loss_hist = Hist(150, 0, 0.5, title='Fractional Jet Energy Loss', markersize=3.0, color='black')
+  bin_width_before = (fractional_energy_loss_hist.upperbound() - fractional_energy_loss_hist.lowerbound()) / fractional_energy_loss_hist.nbins()
+
+  map(fractional_energy_loss_hist.Fill, fractional_energy_loss, prescales)
+ 
+  fractional_energy_loss_hist.Scale(1.0 / (fractional_energy_loss_hist.GetSumOfWeights() * bin_width_before))
+
+  rplt.errorbar(fractional_energy_loss_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  
+  # plt.yscale('log')
+
+  # Legends Begin.
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5}$"]
+  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.735, 0.82])
+
+  # Legends End.
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.xlabel('Fractional Energy Loss', fontsize=75)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=50.)
+  
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.gca().autoscale(True)
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/fractional_energy_loss.pdf")
+  # plt.show()
+  plt.clf()
+
+
+plot_jet_mass_spectrum()
+
+plot_fractional_energy_loss()
+
+
+# plot_JEC_uncertainty()
+# plot_JEC()
+
+
+# plot_2d_constitutent_mul_jec_uncertainty(multiplicity_type="before")
+# plot_2d_constitutent_mul_jec_uncertainty(multiplicity_type="after")
+
+# plot_constituent_multiplicity_softdrop()
+
+# plot_hardest_pt_softdrop()
 
 
 
