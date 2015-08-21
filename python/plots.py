@@ -2154,7 +2154,60 @@ def test2():
   # plt.hist(x, weights=y, bins=bins_linear, histtype='step', lw=5, normed=True)
 
   # plt.hist(x_logged, weights=y, bins=bins_linear_log_log, histtype='step', lw=5, normed=True)
-  plt.hist(x_logged, weights=y, bins=bins_linear_log, histtype='step', lw=5, normed=True)
+  
+  hist, bins = np.histogram(x_logged, weights=y, bins=bins_linear_log, normed=True)
+
+  # plt.hist(bins[:-1], weights=hist, histtype='step', bins=50, lw=5)
+
+  # plt.errorbar(bins[:-1], hist, xerr=True, yerr=True, marker="o", markersize=10, lw=0)
+  my_hist = Hist([0.05, 0.1, 0.2, 0.5], title="something", markersize=3, color='red')
+  my_hist_corrected = Hist([0.05, 0.1, 0.2, 0.5], title="something", markersize=3, color='blue')
+  
+  my_hist_crazy_binning = Hist([0.05, 0.1, 0.2, 0.4, 0.41, 0.42, 0.43, 0.44, 0.45, 0.46, 0.47, 0.48, 0.49, 0.5], title="something", markersize=3, color='green')
+
+  map(my_hist.Fill, x, prescales)
+  map(my_hist_corrected.Fill, x, prescales)
+  
+  map(my_hist_crazy_binning.Fill, x, prescales)
+
+
+  for i in range(0, my_hist_corrected.GetSize()):
+    bin_width = my_hist_corrected.GetXaxis().GetBinWidth(i)
+    old_bin_height =  my_hist_corrected.GetBinContent(i)
+    
+    new_height = old_bin_height / bin_width
+    my_hist_corrected.SetBinContent(i, new_height)
+
+    old_error = my_hist_corrected.GetBinError(i)
+    new_error = old_error / bin_width
+    my_hist_corrected.SetBinError(i, new_error)
+
+
+  for i in range(0, my_hist_crazy_binning.GetSize()):
+    bin_width = my_hist_crazy_binning.GetXaxis().GetBinWidth(i)
+    old_bin_height =  my_hist_crazy_binning.GetBinContent(i)
+    
+    new_height = old_bin_height / bin_width
+    my_hist_crazy_binning.SetBinContent(i, new_height)
+
+    old_error = my_hist_crazy_binning.GetBinError(i)
+    new_error = old_error / bin_width
+    my_hist_crazy_binning.SetBinError(i, new_error)
+
+
+  bin_width = (my_hist.upperbound() - my_hist.lowerbound()) / my_hist.nbins()
+  my_hist.Scale(1.0 / ( my_hist.GetSumOfWeights() * bin_width ))
+
+  bin_width_corrected = (my_hist_corrected.upperbound() - my_hist_corrected.lowerbound()) / my_hist_corrected.nbins()
+  my_hist_corrected.Scale(1.0 / ( my_hist_corrected.GetSumOfWeights() * bin_width ))
+
+  bin_width_crazy = (my_hist_crazy_binning.upperbound() - my_hist_crazy_binning.lowerbound()) / my_hist_crazy_binning.nbins()
+  my_hist_crazy_binning.Scale(1.0 / ( my_hist_crazy_binning.GetSumOfWeights() * bin_width ))
+
+  # rplt.errorbar(my_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=0.5)
+  rplt.errorbar(my_hist_corrected, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+  rplt.errorbar(my_hist_crazy_binning, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
 
 
 
