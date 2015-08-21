@@ -85,7 +85,8 @@ int main(int argc, char * argv[]) {
 
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
 
-   
+
+
    vector<MOD::Property> properties;
 
    properties.push_back(MOD::Property("# Entry", "  Entry"));
@@ -391,16 +392,21 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back( MOD::Property("multiplicity_after_SD", (int) soft_drop(hardest_jet).constituents().size()) );
    
 
-   properties.push_back( MOD::Property("jec_uncertainty", event_being_read.hardest_corrected_jet().JEC_uncertainty()) );
-
    // Must be "hardest_uncorrected_jet" because the corrected jet has a JEC set to 1.
    properties.push_back( MOD::Property("jec", event_being_read.hardest_uncorrected_jet().JEC()) );
+
+   properties.push_back( MOD::Property("jec_uncertainty", event_being_read.hardest_uncorrected_jet().JEC_uncertainty()) );
+   
+   properties.push_back( MOD::Property("jet_area", event_being_read.hardest_uncorrected_jet().area()) );
+
+   
 
    properties.push_back( MOD::Property("jet_mass_before_SD", hardest_jet.m()) );
    properties.push_back( MOD::Property("jet_mass_after_SD", soft_drop(hardest_jet).m()) );
 
    properties.push_back( MOD::Property("fractional_energy_loss", (hardest_jet.E() - soft_drop(hardest_jet).E()) / hardest_jet.E() ) );
 
+   
 
    string name;
    
@@ -425,6 +431,6 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    }
 
    output_file << endl;
-
+   
    
 }

@@ -1,6 +1,9 @@
 # /media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/analyzed.dat
 from __future__ import division
 
+from matplotlib.ticker import AutoMinorLocator
+from matplotlib.ticker import MultipleLocator
+
 from sets import Set
 
 import sys
@@ -118,13 +121,15 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
           properties['multiplicity_before_SD'].append( float( numbers[37] ) )
           properties['multiplicity_after_SD'].append( float( numbers[38] ) )
 
-          properties['JEC_uncertainty'].append( float( numbers[39] ) )
-          properties['JEC'].append( float( numbers[40] ) )
+          properties['JEC'].append( float( numbers[39] ) )
+          properties['JEC_uncertainty'].append( float( numbers[40] ) )
+          
+          properties['jet_area'].append( float( numbers[41] ) )
 
-          properties['jet_mass_before_SD'].append( float( numbers[41] ) )
-          properties['jet_mass_after_SD'].append( float( numbers[42] ) )
+          properties['jet_mass_before_SD'].append( float( numbers[42] ) )
+          properties['jet_mass_after_SD'].append( float( numbers[43] ) )
 
-          properties['fractional_energy_loss'].append( float( numbers[43] ) )
+          properties['fractional_energy_loss'].append( float( numbers[44] ) )
 
     except:
       if len(numbers) != 0:
@@ -136,6 +141,27 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
   return properties
 
 
+
+def log_bins(data, weights, number_of_bins=50):
+  
+  def drop_zeros(a_list):
+    return [i for i in a_list if i > 0]
+
+  min_value = math.log( min( drop_zeros(data) ), 10 )
+  max_value = math.log( max(data), 10 )
+
+  return np.histogram(data, weights=weights, bins=np.logspace(min_value, max_value, number_of_bins))
+
+
+def lin_bins(data, weights, number_of_bins=50):
+  
+  def drop_zeros(a_list):
+    return [i for i in a_list if i > 0]
+
+  min_value = min( drop_zeros(data) )
+  max_value = max(data)
+
+  return np.histogram(data, weights=weights, bins=np.linspace(min_value, max_value, number_of_bins))
 
 
 def parse_file_turn_on(input_file, pT_lower_cut = 0.00):
@@ -525,7 +551,8 @@ def plot_turn_on_curves():
   plt.clf()
 
 def plot_pts():
-  properties = parse_file(input_analysis_file, 150)
+  pT_lower_cut = 150
+  properties = parse_file(input_analysis_file, pT_lower_cut)
 
   pTs = properties['uncorrected_hardest_pts']
   corrected_pTs = properties['corrected_hardest_pts']
@@ -534,16 +561,16 @@ def plot_pts():
   herwig_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_herwig_pp2jj_150pTcut_7TeV.dat")
   pythia_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_pythia_pp2jj_150pTcut_7TeV.dat")
 
-  pythia_pt_hist = Hist(100, 0, 1000, title="Pythia 8.205", linewidth=5, markersize=5.0, color="blue")
+  pythia_pt_hist = Hist(1500, pT_lower_cut, 15000, title="Pythia 8.205", linewidth=5, markersize=5.0, color="blue")
   bin_width_pythia = (pythia_pt_hist.upperbound() - pythia_pt_hist.lowerbound()) / pythia_pt_hist.nbins()
 
-  herwig_pt_hist = Hist(100, 0, 1000, title="Herwig++ 2.6.3", linewidth=5, markersize=5.0, color="green")
+  herwig_pt_hist = Hist(1500, pT_lower_cut, 15000, title="Herwig++ 2.6.3", linewidth=5, markersize=5.0, color="green")
   bin_width_herwig = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
 
-  corrected_pt_hist = Hist(100, 0, 1000, title='Corrected', markersize=3.0, color='black')
+  corrected_pt_hist = Hist(1500, pT_lower_cut, 15000, title='Corrected', markersize=3.0, color='black')
   bin_width_corrected = (corrected_pt_hist.upperbound() - corrected_pt_hist.lowerbound()) / corrected_pt_hist.nbins()
 
-  uncorrected_pt_hist = Hist(100, 0, 1000, title='Uncorrected', markersize=3.0, color='orange')
+  uncorrected_pt_hist = Hist(1500, pT_lower_cut, 15000, title='Uncorrected', markersize=3.0, color='orange')
   bin_width_uncorrected = (uncorrected_pt_hist.upperbound() - uncorrected_pt_hist.lowerbound()) / uncorrected_pt_hist.nbins()
 
   map(uncorrected_pt_hist.Fill, pTs, prescales)
@@ -562,6 +589,26 @@ def plot_pts():
 
   ax0 = plt.subplot(gs[0])
   ax1 = plt.subplot(gs[1])
+
+
+
+  ax0.set_xscale('log')
+  # ax1.set_xscale('log')
+
+
+  ax0.set_yscale('log')
+
+  n_bins = 1000
+  b, a = log_bins(corrected_pTs, prescales, n_bins)
+  ax0.hist(a[:-1], weights=b, bins=n_bins)
+
+  ax0.set_xlim(0, 15000)
+
+  # ax0.autoscale(True)
+
+  plt.show()
+  plt.clf()
+
 
   data_plot = rplt.errorbar(corrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
   uncorrected_data_plot = rplt.errorbar(uncorrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
@@ -628,7 +675,6 @@ def plot_pts():
 
 
 
-
   ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
   ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
   ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
@@ -656,6 +702,9 @@ def plot_pts():
   
   ax0.set_ylim(10e-8, 10e-1)
   ax1.set_ylim(0., 2.)
+
+  ax0.set_xlim(10e1, 10e3)
+  ax1.set_xlim(10e1, 10e3)
 
 
   plt.gcf().set_size_inches(30, 30, forward=1)
@@ -1685,23 +1734,63 @@ def plot_JEC_uncertainty():
   properties = parse_file(input_analysis_file, pT_lower_cut)
 
   JEC_uncertainty = properties['JEC_uncertainty']
-  
   prescales = properties['prescales']
+
+
 
   plt.hist(JEC_uncertainty, weights=prescales, bins=100, label="JEC Uncertainty", normed=1, histtype='step', linewidth=5)
 
-  JEC_uncertainty_expanded = []
-  for i in range(0, len(JEC_uncertainty)):
-    for j in range(0, prescales[i]):
-      JEC_uncertainty_expanded.append(JEC_uncertainty[i])
 
-  mu, std = norm.fit(JEC_uncertainty_expanded)
+  plt.xlabel('JEC Uncertainty', fontsize=75)
+  plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=50.)
+
+  plt.autoscale(1)
+  plt.gca().set_ylim(0, 3000)
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+  plt.gca().add_artist(legend)
+
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/JEC_uncertainty.pdf")
+
+  plt.clf()
+
+
+def plot_jet_area():
+  pT_lower_cut = 150
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+
+  jet_area = properties['jet_area']
+  prescales = properties['prescales']
+
+
+  plt.hist(jet_area, weights=prescales, bins=100, label="JEC Uncertainty", normed=1, histtype='step', linewidth=5)
+
+  jet_area_expanded = []
+  for i in range(0, len(jet_area)):
+    for j in range(0, prescales[i]):
+      jet_area_expanded.append(jet_area[i])
+
+
+  mu, std = norm.fit(jet_area_expanded)
   xmin, xmax = plt.xlim()
   x = np.linspace(xmin, xmax, 500)
   p = norm.pdf(x, mu, std)
   plt.plot(x, p, 'k', linewidth=5)
 
-  plt.xlabel('JEC Uncertainty', fontsize=75)
+  plt.xlabel('Jet Area', fontsize=75)
   plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
 
   plt.autoscale(1)
@@ -1726,9 +1815,13 @@ def plot_JEC_uncertainty():
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  plt.savefig("plots/JEC_uncertainty.pdf")
+  plt.savefig("plots/jet_area.pdf")
 
   plt.clf()
+
+
+
+
 
 def plot_JEC():
   pT_lower_cut = 150
@@ -1762,69 +1855,6 @@ def plot_JEC():
 
   plt.savefig("plots/JEC.pdf")
 
-  plt.clf()
-
-
-
-
-def plot_jet_mass_spectrum():
-  properties = parse_file(input_analysis_file, 150)
-
-  jet_mass_before_SD = properties['jet_mass_before_SD']
-  jet_mass_after_SD = properties['jet_mass_after_SD']  
-  prescales = properties['prescales']
-
-  jet_mass_before_SD_hist = Hist(150, 0, 150, title='Before SoftDrop', markersize=3.0, color='black')
-  bin_width_before = (jet_mass_before_SD_hist.upperbound() - jet_mass_before_SD_hist.lowerbound()) / jet_mass_before_SD_hist.nbins()
-
-  jet_mass_after_SD_hist = Hist(150, 0, 150, title='After SoftDrop', markersize=3.0, color='red')
-  bin_width_after = (jet_mass_after_SD_hist.upperbound() - jet_mass_after_SD_hist.lowerbound()) / jet_mass_after_SD_hist.nbins()
-
-  map(jet_mass_before_SD_hist.Fill, jet_mass_before_SD, prescales)
-  map(jet_mass_after_SD_hist.Fill, jet_mass_after_SD, prescales)
-  
-  jet_mass_before_SD_hist.Scale(1.0 / (jet_mass_before_SD_hist.GetSumOfWeights() * bin_width_before))
-  jet_mass_after_SD_hist.Scale(1.0 / (jet_mass_after_SD_hist.GetSumOfWeights() * bin_width_after))
-  
-  rplt.errorbar(jet_mass_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-  rplt.errorbar(jet_mass_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-  
-  # plt.yscale('log')
-
-  # Legends Begin.
-
-  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
-  plt.gca().add_artist(legend)
-
-  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5}$"]
-  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.90, 0.75])
-
-  # Legends End.
-
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
-  plt.gca().add_artist(ab)
-  preliminary_text = "Prelim. (20\%)"
-  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
-
-  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
-
-  plt.xlabel('Jet Mass', fontsize=75)
-  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=25.)
-  
-  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
-
-  plt.gca().autoscale(True)
-  plt.ylim(-0.01, 0.07)
-
-  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
-
-
-  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
-
-  plt.savefig("plots/jet_mass_spectrum.pdf")
-  # plt.show()
   plt.clf()
 
 
@@ -1881,13 +1911,453 @@ def plot_fractional_energy_loss():
   plt.clf()
 
 
-plot_jet_mass_spectrum()
 
-plot_fractional_energy_loss()
+
+
+
+
+def plot_jet_mass_spectrum():
+  properties = parse_file(input_analysis_file, 150)
+
+  jet_mass_before_SD = properties['jet_mass_before_SD']
+  jet_mass_after_SD = properties['jet_mass_after_SD']  
+  prescales = properties['prescales']
+
+  jet_mass_before_SD_hist = Hist(150, 0, 150, title='Before SoftDrop', markersize=3.0, color='black')
+  bin_width_before = (jet_mass_before_SD_hist.upperbound() - jet_mass_before_SD_hist.lowerbound()) / jet_mass_before_SD_hist.nbins()
+
+  jet_mass_after_SD_hist = Hist(150, 0, 150, title='After SoftDrop', markersize=3.0, color='red')
+  bin_width_after = (jet_mass_after_SD_hist.upperbound() - jet_mass_after_SD_hist.lowerbound()) / jet_mass_after_SD_hist.nbins()
+
+  map(jet_mass_before_SD_hist.Fill, jet_mass_before_SD, prescales)
+  map(jet_mass_after_SD_hist.Fill, jet_mass_after_SD, prescales)
+  
+  jet_mass_before_SD_hist.Scale(1.0 / (jet_mass_before_SD_hist.GetSumOfWeights() * bin_width_before))
+  jet_mass_after_SD_hist.Scale(1.0 / (jet_mass_after_SD_hist.GetSumOfWeights() * bin_width_after))
+  
+  rplt.errorbar(jet_mass_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.errorbar(jet_mass_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+
+
+  
+
+  plt.autoscale(1)
+
+
+  # plt.yscale('log')
+
+  # Legends Begin.
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5}$"]
+  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.90, 0.75])
+
+  # # Legends End.
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.xlabel('Jet Mass', fontsize=75)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=25.)
+  
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.gca().autoscale(True)
+  plt.ylim(-0.01, 0.07)
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/jet_mass_spectrum.pdf")
+  # plt.show()
+  plt.clf()
+
+
+
+def plot_zg():
+  properties = parse_file(input_analysis_file, 150)
+
+  zgs = properties['zg_05'] 
+  prescales = properties['prescales']
+
+
+
+  # plt.gca().set_xscale('log')
+
+  n_bins = 100
+
+  b, a = log_bins(zgs, prescales, n_bins)
+
+  plt.hist(a[:-1], weights=b, bins=n_bins, normed=1)
+
+  plt.show()
+
+
+
+def plot_all_uncertainties():
+  f = open(input_analysis_file, 'r')
+  lines = f.read().split("\n")
+
+  data, prescales = [], []
+  for i in range(0, len(lines)):
+    a = lines[i].split()
+    data.append(float(a[0]))
+    prescales.append(int(a[1]))
+
+  plt.hist(data, weights=prescales, bins=500, normed=1)
+
+  plt.show()
+
+
+def logged_bin(data, weights, number_of_bins=50):
+  
+  def drop_zeros(a_list):
+    return [i for i in a_list if i > 0]
+
+  # min_value = min( drop_zeros(data) )
+  # max_value = max(data)
+
+  min_value = math.log( min( drop_zeros(data) ), 10 )
+  max_value = math.log( max(data), 10 )
+
+  return np.histogram(data, weights=weights, bins=np.logspace(min_value, max_value, number_of_bins))
+  # return np.histogram(data, weights=weights, bins=np.linspace(min_value, max_value, number_of_bins))
+
+
+
+def linear_bin(data, weights, number_of_bins=50):
+  
+  def drop_zeros(a_list):
+    return [i for i in a_list if i > 0]
+
+  min_value = min( drop_zeros(data) )
+  max_value = max(data)
+
+  return np.histogram(data, weights=weights, bins=np.linspace(min_value, max_value, number_of_bins))
+
+
+
+
+def test():
+
+  n_bins = 50
+
+  # x = np.arange(5, 10, 0.0001)
+  x = np.linspace(0, 2, 10000)
+  # y = np.reciprocal(x)
+
+  # x = np.log(x)
+
+  # hist, bins = logged_bin(x, y, 25)
+  # hist, bins = linear_bin(x, y, n_bins)
+
+  bins = [0, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.96, 0.97, 0.98, 0.99, 1, 2]
+
+  # hist, bins = np.histogram(x, bins=bins, density=True)
+
+
+  # plt.hist(bins[:-1], weights=hist)
+
+  plt.hist(x, bins=bins, normed=1)
+
+
+  # plt.hist(bins[:-1], weights=hist, bins=n_bins, color='orange', alpha=0.75, lw=5)
+  # plt.errorbar(bins[:-1], hist, lw=0, xerr=True, yerr=True, elinewidth=3, capsize=5, marker="o", markersize=5)
+
+
+  # plt.gca().set_xscale('log')
+
+  # plt.ylim(0, 8)
+
+  plt.autoscale()
+
+  plt.show()
+
+
+# test()
+
+def plot_zg_test():
+  properties = parse_file(input_analysis_file, 150)
+
+  zgs = properties['zg_02']
+  prescales = properties['prescales']
+
+  x = zgs
+  y = prescales
+
+  hist, bins = logged_bin(x, y, 25)
+
+  width = 0.7 * (bins[1] - bins[0])
+  center = (bins[:-1] + bins[1:]) / 2
+  # plt.bar(center, hist, align='center', width=width)
+
+  plt.hist(bins[:-1], weights=hist, color='orange', alpha=0.75, lw=5, bins=200)
+  
+  # plt.gca().set_xscale('log')
+
+  plt.autoscale()
+
+  plt.show()
+
+
+
+
+# plot_zg_test()
+
+def test2():
+  properties = parse_file(input_analysis_file, 150)
+
+  zgs = properties['zg_2'] 
+  prescales = properties['prescales']
+
+  zgs = np.linspace(0.05, 0.5, 50000)
+  prescales = np.reciprocal(zgs)
+
+
+
+
+  x, y = [], []
+  for i in range(0, len(zgs)):
+    if zgs[i] != 0:
+      x.append(zgs[i])
+      y.append(prescales[i])
+
+  
+  x_logged = np.log(x)
+
+ 
+
+
+  ################################################ MAIN CODE BELOW THIS LINE ###################################################
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  bins = np.logspace(math.log(0.05, math.e), math.log(0.5, math.e), 10, base=math.e)
+  bins_linear = np.linspace(0.05, 0.5, 50)
+
+  bins_linear_log = np.linspace(math.log(0.2, math.e), math.log(0.5, math.e), 50)
+  # bins_linear_log_log = np.logspace(-math.log(-math.log(0.05, math.e), math.e), -math.log(-math.log(0.5, math.e), math.e), 10, base=math.e)
+
+  
+  # plt.hist(x, weights=y, bins=bins, histtype='step', lw=5, normed=True)
+  # plt.hist(x, weights=y, bins=bins_linear, histtype='step', lw=5, normed=True)
+
+  # plt.hist(x_logged, weights=y, bins=bins_linear_log_log, histtype='step', lw=5, normed=True)
+  plt.hist(x_logged, weights=y, bins=bins_linear_log, histtype='step', lw=5, normed=True)
+
+
+
+  plt.locator_params(nbins=5)
+
+  plt.draw()  # This is important, because without this, pyplot won't "draw" the ticks, thereby making the xticks list empty.
+  xticks = [ tick.get_text().replace("$", "") for tick in plt.gca().get_xticklabels()]  
+  # xticks = [math.log(0.01, math.e), math.log(0.05, math.e), math.log(0.1, math.e), math.log(0.2, math.e), math.log(0.5, math.e), math.log(1, math.e)]
+
+  # print xticks
+  # v = [round(math.e**float(i), 2) if i != "" else "" for i in xticks]
+  # print v
+  v = [i if i != "" else "" for i in xticks]
+  plt.gca().xaxis.set_ticklabels( v )
+
+
+  # plt.gca().set_xscale('log')
+
+  # plt.gca().tick_params(axis='x', which='minor', bottom='off')
+  # plt.minorticks_on()
+
+  # minorLocator   = AutoMinorLocator()
+  minorLocator = MultipleLocator(0.01)
+  plt.gca().xaxis.set_minor_locator(minorLocator)
+
+
+  plt.tick_params(which='both', width=5)
+  plt.tick_params(which='major', length=30)
+  plt.tick_params(which='minor', length=10)
+
+  # Irrelevant stuff begin.
+
+
+  # legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+  # plt.gca().add_artist(legend)
+
+  # Info about R, pT_cut, etc.
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  handles = [extra, extra]
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(150) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(0.05) + "}$"]
+  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.58])
+
+  # Legends End.
+
+  # ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  # plt.gca().add_artist(ab)
+  # preliminary_text = "Prelim. (20\%)"
+  # plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  # plt.xlabel('$z_g$', fontsize=75)
+  # plt.ylabel('$\displaystyle \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$', fontsize=75, rotation=0, labelpad=115.)
+  
+  
+
+  plt.gca().autoscale(True)
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+
+  # plt.savefig("test_zg.pdf")
+
+
+  plt.show()  
+
+
+
+# test2()
+
+def test3():
+  properties = parse_file(input_analysis_file, 150)
+
+  pTs = properties['corrected_hardest_pts'] 
+  prescales = properties['prescales']
+
+  x, y = [], []
+  for i in range(0, len(pTs)):
+    if pTs[i] != 0:
+      x.append(pTs[i])
+      y.append(prescales[i])
+
+  
+  x_logged = np.log(x)
+
+  
+  plt.hist(x, weights=y, bins=50, histtype='step', lw=5, normed=1)
+  plt.savefig("test.pdf")
+
+  plt.clf()
+
+  plt.hist(x_logged, weights=y, bins=50, histtype='step', lw=5, normed=1)
+  plt.savefig("test_log.pdf")
+
+  plt.clf()
+
+  # plt.hist(x, weights=y, bins=50, histtype='step', lw=5)
+
+  # plt.draw()  # This is important, because without this, pyplot won't "draw" the ticks, thereby making the xticks list empty.
+  # xticks = [ tick.get_text().replace("$", "") for tick in plt.gca().get_xticklabels() ]
+
+  plt.clf()
+
+
+  ################################################ MAIN CODE BELOW THIS LINE ###################################################
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+
+
+  x_hist = Hist(50, math.log(150, math.e), math.log(10000, math.e), title='CMS Open Data', markersize=3.0, color='black')
+  # x_hist = Hist(50, 150, 10000, title='CMS Open Data', markersize=5.0, color='black')
+  
+  bin_width = (x_hist.upperbound() - x_hist.lowerbound()) / x_hist.nbins()
+  
+  map(x_hist.Fill, x_logged, y)
+  # map(x_hist.Fill, x, y)
+
+  x_hist.Scale(1.0 / (sum([abs(i) for i in x_logged]) * bin_width))
+  
+
+  # plt.x_hist(x_logged, weights=y, label="CMS Open Data", bins=50, histtype='step', lw=5, normed=1)
+  rplt.errorbar(x_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  plt.locator_params(nbins=5)
+
+  plt.draw()  # This is important, because without this, pyplot won't "draw" the ticks, thereby making the xticks list empty.
+  xticks = [ tick.get_text().replace("$", "") for tick in plt.gca().get_xticklabels()]  
+  xticks
+
+  v = [round(math.e**float(i), 2) if i != "" else "" for i in xticks]
+  # v = [i if i != "" else "" for i in xticks]
+  plt.gca().xaxis.set_ticklabels( v )
+
+
+
+
+  # Irrelevant stuff begin.
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+  plt.gca().add_artist(legend)
+
+  # Info about R, pT_cut, etc.
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  handles = [extra]
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(150) + "~\mathrm{GeV}}$"]
+  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.58])
+
+  # Legends End.
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+
+
+  
+  plt.xlabel('$p_T~(GeV)$', fontsize=75)
+  plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=50.)
+  
+  
+
+  plt.gca().autoscale(True)
+  # plt.gca().set_ylim(-0.001, 0.015)
+  # plt.gca().set_ylim(-0.1, 0.015)
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+
+  plt.savefig("test_matplotlib.pdf")
+
+
+
+
+# test()
+
+test2()
+
+
+# test3()
+
+# plot_all_uncertainties()
+
+
+# plot_zg()
+
+
+
+# plot_jet_mass_spectrum()
+
+# plot_fractional_energy_loss()
 
 
 # plot_JEC_uncertainty()
 # plot_JEC()
+
+# plot_jet_area()
 
 
 # plot_2d_constitutent_mul_jec_uncertainty(multiplicity_type="before")

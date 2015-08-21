@@ -17,12 +17,14 @@ MOD::CalibratedJet::CalibratedJet(istringstream & input_stream) {
    string tag;
    double px, py, pz, energy, JEC, JEC_uncertainty, area;
 
+
    input_stream >> tag >> px >> py >> pz >> energy >> JEC >> JEC_uncertainty >> area;
 
    _pseudojet = PseudoJet(px, py, pz, energy);
    _algorithm = tag;
    _JEC = JEC;
    _JEC_uncertainty = JEC_uncertainty;
+
    _area = area;
 }
 
@@ -78,7 +80,7 @@ string MOD::CalibratedJet::algorithm() const {
 MOD::CalibratedJet MOD::CalibratedJet::corrected_jet() {
   PseudoJet new_pseudojet = _pseudojet * _JEC;
 
-  MOD::CalibratedJet corrected_jet = MOD::CalibratedJet(new_pseudojet, _algorithm, 1.00, _area, 0.0);
+  MOD::CalibratedJet corrected_jet = MOD::CalibratedJet(new_pseudojet, _algorithm, 1.00, 5.00, _area);
   return corrected_jet;
 }
 
