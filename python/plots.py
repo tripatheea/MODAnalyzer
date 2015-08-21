@@ -2284,6 +2284,10 @@ def test3():
   pTs = properties['corrected_hardest_pts'] 
   prescales = properties['prescales']
 
+  print max(properties['uncorrected_hardest_pts'])
+  print max(properties['corrected_hardest_pts'])
+
+
   x, y = [], []
   for i in range(0, len(pTs)):
     if pTs[i] != 0:
@@ -2384,7 +2388,7 @@ def test3():
   plt.savefig("test_matplotlib.pdf")
 
 
-
+test3()
 
 # test()
 
