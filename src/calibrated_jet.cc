@@ -34,14 +34,6 @@ MOD::CalibratedJet::CalibratedJet(istringstream & input_stream) {
    _charged_multiplicity = charged_multiplicity;
    _charged_em_fraction = charged_em_fraction;
 
-   // double neutral_hadron_fraction;
-   // double neutral_em_fraction;
-   // int number_of_constituents;
-
-   // double charged_hadron_fraction;
-   // int charged_multiplicity;
-   // double charged_em_fraction;   
-
 }
 
 MOD::CalibratedJet::CalibratedJet() {
@@ -65,6 +57,12 @@ string MOD::CalibratedJet::make_string() const {
         << setw(20) << fixed << setprecision(8) << _pseudojet.E()
         << setw(20) << fixed << setprecision(8) << _JEC 
         << setw(20) << fixed << setprecision(8) << _area
+        << setw(20) << fixed << setprecision(8) << _neutral_hadron_fraction   
+        << setw(20) << fixed << setprecision(8) << _neutral_em_fraction   
+        << setw(20) << fixed << setprecision(8) << _number_of_constituents   
+        << setw(20) << fixed << setprecision(8) << _charged_hadron_fraction   
+        << setw(20) << fixed << setprecision(8) << _charged_multiplicity   
+        << setw(20) << fixed << setprecision(8) << _charged_em_fraction       
         << endl;
 
    return ss.str();
@@ -105,7 +103,7 @@ double MOD::CalibratedJet::charged_em_fraction() const {
 
 string MOD::CalibratedJet::make_header_string() const {
    stringstream ss;
-   ss << "# AK5" << "                  px                  py                  pz              energy                 jec    jec_uncertainity                area" << endl;
+   ss << "# AK5" << "                  px                  py                  pz              energy                 jec                area neutral_hadron_frac     neutral_em_frac  no_of_constituents charged_hadron_frac      charged_multip     charged_em_frac" << endl;
    return ss.str();
 }
 
