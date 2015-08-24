@@ -69,7 +69,8 @@ int main(int argc, char * argv[]) {
       if( (event_serial_number % 100) == 0 )
          cout << "Processing event number " << event_serial_number << endl;
 
-      analyze_event(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
+      // if (event_being_read.jet_quality_cut("loose"))
+         analyze_event(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
       
       event_being_read = MOD::Event();
       event_serial_number++;
@@ -394,7 +395,6 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    // Must be "hardest_uncorrected_jet" because the corrected jet has a JEC set to 1.
    properties.push_back( MOD::Property("jec", event_being_read.hardest_uncorrected_jet().JEC()) );
-
    
    properties.push_back( MOD::Property("jet_area", event_being_read.hardest_uncorrected_jet().area()) );
 

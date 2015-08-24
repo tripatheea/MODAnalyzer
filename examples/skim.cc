@@ -110,7 +110,7 @@ void skim(MOD::Event & event_being_read, ofstream & output_file) {
    
    if (event_being_read.assigned_trigger_fired()) {
       // if (fastjet_jets.size() > 0) {
-         if (abs(sorted_by_pt(fastjet_jets)[0].rapidity()) < 2.0) {
+         if (abs(sorted_by_pt(fastjet_jets)[0].rapidity()) < 3.0) {
             output_file << event_being_read.make_string();
          }
       // }

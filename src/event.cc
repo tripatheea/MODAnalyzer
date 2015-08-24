@@ -344,8 +344,6 @@ void MOD::Event::set_assigned_trigger() {
       trigger_to_use = trigger + "_v3";
    }
 
-
-
    _assigned_trigger_name = trigger_to_use;
    _assigned_trigger = trigger_by_name(trigger_to_use);
 }
@@ -443,14 +441,12 @@ bool MOD::Event::jet_quality_cut(string level) {
    // First, get the hardest jet.
    MOD::CalibratedJet hardest_jet = hardest_uncorrected_jet();
 
-   double neutral_hadron_fraction = hardest_jet.
-
    // Always require the number of constituents to be > 1.
-   if( pfjet.nConstituents() <= 1 )
+   if( hardest_jet.number_of_constituents() <= 1 )
       return false;
 
    // If the rapidity is less than 2.4, the conditions are the same for loose/medium/tight.
-   if ( abs(hardest_jet.pseudojet().eta()) < 2.4 ) {
+   if ( abs(hardest_jet.pseudojet().rapidity()) < 2.4 ) {
       if ( (hardest_jet.charged_hadron_fraction() <= 0) || (hardest_jet.charged_multiplicity() <= 0) || (hardest_jet.charged_em_fraction() >= 0.01) )
          return false;
    }
