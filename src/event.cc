@@ -441,11 +441,34 @@ MOD::PFCandidate MOD::Event::hardest_pfcandidate() {
 
 bool MOD::Event::jet_quality_cut(string level) {
    // First, get the hardest jet.
-   // MOD::CalibratedJet hardest_jet = hardest_uncorrected_jet();
+   MOD::CalibratedJet hardest_jet = hardest_uncorrected_jet();
 
-   
+   double neutral_hadron_fraction = hardest_jet.
 
-   return false;
+   // Always require the number of constituents to be > 1.
+   if( pfjet.nConstituents() <= 1 )
+      return false;
+
+   // If the rapidity is less than 2.4, the conditions are the same for loose/medium/tight.
+   if ( abs(hardest_jet.pseudojet().eta()) < 2.4 ) {
+      if ( (hardest_jet.charged_hadron_fraction() <= 0) || (hardest_jet.charged_multiplicity() <= 0) || (hardest_jet.charged_em_fraction() >= 0.01) )
+         return false;
+   }
+
+   if (level == "tight") {
+      if ( (hardest_jet.neutral_hadron_fraction() >= 0.10) || (hardest_jet.neutral_em_fraction() >= 0.10) )
+         return false;
+   }
+   else if (level == "medium") {
+      if ( (hardest_jet.neutral_hadron_fraction() >= 0.05) || (hardest_jet.neutral_em_fraction() >= 0.05) )
+         return false;
+   }
+   else {
+      if ( (hardest_jet.neutral_hadron_fraction() >= 0.01) || (hardest_jet.neutral_em_fraction() >= 0.01) )
+         return false;
+   }
+
+   return true;
 }
 
 namespace MOD {
