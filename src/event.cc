@@ -438,6 +438,16 @@ MOD::PFCandidate MOD::Event::hardest_pfcandidate() {
    }
 }
 
+
+bool MOD::Event::jet_quality_cut(string level) {
+   // First, get the hardest jet.
+   // MOD::CalibratedJet hardest_jet = hardest_uncorrected_jet();
+
+   
+
+   return false;
+}
+
 namespace MOD {
    ostream& operator<< (ostream& os, const Event& event) {
       os << event.make_string();

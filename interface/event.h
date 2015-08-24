@@ -75,6 +75,8 @@ namespace MOD {
 
             MOD::PFCandidate hardest_pfcandidate();
 
+            bool jet_quality_cut(std::string level);
+
             friend std::ostream& operator<< (std::ostream&, const Event&);
             
          private:

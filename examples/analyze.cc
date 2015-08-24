@@ -395,7 +395,6 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    // Must be "hardest_uncorrected_jet" because the corrected jet has a JEC set to 1.
    properties.push_back( MOD::Property("jec", event_being_read.hardest_uncorrected_jet().JEC()) );
 
-   properties.push_back( MOD::Property("jec_uncertainty", event_being_read.hardest_uncorrected_jet().JEC_uncertainty()) );
    
    properties.push_back( MOD::Property("jet_area", event_being_read.hardest_uncorrected_jet().area()) );
 
