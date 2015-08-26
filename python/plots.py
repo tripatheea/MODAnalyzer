@@ -2413,8 +2413,8 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
   ax0.autoscale(True)
   ax1.autoscale(True)
   
-  # ax0.set_xlim(math.log(0.5), math.log(0.00000005))
-  # ax1.set_xlim(math.log(zg_cut, math.e), math.log(0.5, math.e))
+  ax0.set_xlim(math.log(zg_cut, math.e), math.log(0.5, math.e))
+  ax1.set_xlim(math.log(zg_cut, math.e), math.log(0.5, math.e))
 
   if data:
     ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
@@ -2427,11 +2427,15 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
 
 
 
-
-
   x = np.linspace(math.log(0.05, math.e), math.log(0.5, math.e), 10)
   labels = [str(round(math.exp(i), 2)) for i in x]
   plt.xticks(x, labels)
+
+  # plt.gca().set_xticks(x, labels)
+  # plt.xticks(x, labels, axes=ax1)
+
+  a = [i.get_text() for i in plt.gca().xaxis.get_majorticklabels()]
+  ax0.set_xticklabels(a)
 
   
   plt.gcf().set_size_inches(30, 30, forward=1)
