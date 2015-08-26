@@ -2129,7 +2129,9 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
   def convert_hist_to_line_plot(hist, n_bins):
     a = []
     b = {}
-    bin_width = 0.6 / (6 * n_bins)
+    # bin_width = 0.6 / (6 * n_bins)
+    bin_width = (hist.upperbound() - hist.lowerbound()) / hist.nbins()
+
     for i in range(0, len(list(hist.x()))):
       a.append(round(list(hist.x())[i] - bin_width / 2., 4))
       a.append(round(list(hist.x())[i], 4))
@@ -2431,11 +2433,11 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
   labels = [str(round(math.exp(i), 2)) for i in x]
   plt.xticks(x, labels)
 
-  # plt.gca().set_xticks(x, labels)
+  # plt.gca().set_xticks(labels)
   # plt.xticks(x, labels, axes=ax1)
 
-  a = [i.get_text() for i in plt.gca().xaxis.get_majorticklabels()]
-  ax0.set_xticklabels(a)
+  
+
 
   
   plt.gcf().set_size_inches(30, 30, forward=1)
