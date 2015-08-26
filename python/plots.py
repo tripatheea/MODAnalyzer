@@ -76,6 +76,9 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
       
       if not numbers[0] == "#":
         if (float(numbers[4]) > pT_lower_cut) and (float(numbers[17]) > pfc_pT_cut):
+          properties['event_number'].append( float( numbers[1] ) )
+          properties['run_number'].append( float( numbers[2] ) )
+
           properties['uncorrected_hardest_pts'].append( float( numbers[3] ) )
           properties['corrected_hardest_pts'].append( float( numbers[4] ) )
           properties['prescales'].append( int( numbers[5] ) )
@@ -2015,6 +2018,437 @@ def plot_zg_test():
 
 
 
+def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
+  pfc_pT_cut = 0
+
+  zg_cut = float(zg_cut)
+
+  properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
+  properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
+  properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
+
+  zg_data = properties[zg_filename]
+  
+  zg_pythias = properties_pythia[zg_filename]
+  zg_herwigs = properties_herwig[zg_filename]
+
+  prescales = properties['prescales']
+
+  data_label = "CMS 2010 Open Data"
+  pythia_label = "Pythia 8.205" if mc else ""
+  herwig_label = "Herwig++ 2.6.3" if mc else ""
+  theory_label = "Theory (MLL)" if theory else ""
+
+  
+  gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
+
+ 
+  ax0 = plt.subplot(gs[0])
+  ax1 = plt.subplot(gs[1])
+
+  def pyplot_hist_to_plot(x, y):
+    a = []
+    b = []
+    for i in range(0, len(x[:-1])):
+      if y[i] != 0:
+        a.append(x[i])
+        b.append(y[i])
+    return a, b
+
+  
+  # plt.hist(x_logged, weights=y, bins=bins_linear_log, histtype='step', lw=5, normed=True)
+  # ax0.hist(theory_x_logged, weights=weighted_theory_y_line, bins=bins_linear_log, linewidth=5, histtype='step')
+
+  # Theory Plots Begin.
+  
+  points_th_gluon = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_gluon_pt" + str(pT_lower_cut) + "_zc" + str(zg_cut).replace(".", "") + ".dat")
+  points_th_quark = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_quark_pt" + str(pT_lower_cut) + "_zc" + str(zg_cut).replace(".", "") + ".dat")
+
+  points = defaultdict(list)
+
+  for x in points_th_gluon:
+    points[x] = [ points_th_gluon[x][0], points_th_gluon[x][1], points_th_gluon[x][2], points_th_gluon[x][3], points_th_gluon[x][4], points_th_gluon[x][5] ]
+    points[x].extend([ points_th_quark[x][0], points_th_quark[x][1], points_th_quark[x][2], points_th_quark[x][3], points_th_quark[x][4], points_th_quark[x][5] ])
+
+  keys = points.keys()
+  keys.sort()
+
+  theory_x = keys
+
+  y = []
+  for j in range(0, 6):
+    y.append([points[i][j] for i in keys])
+
+  # For each x, record three y's viz. max_y, min_y, line_y (i.e. e11 xmu=1).
+
+  theory_y_max = []
+  theory_y_min = []
+  theory_y_line = []
+  for i in range(0, len(theory_x)):
+    y_for_current_x = []
+    for j in range(0, 6):
+      y_for_current_x.append(y[j][i])
+
+    theory_y_min.append(min(y_for_current_x))
+    theory_y_line.append(y_for_current_x[1])
+    theory_y_max.append(max(y_for_current_x))
+    
+
+  bins_linear_log = np.linspace(math.log(0.05, math.e), math.log(0.5, math.e), 50)
+
+  log_theory_x = np.log(theory_x)
+  
+  y, x = np.histogram(log_theory_x, normed=True, weights=theory_y_line, bins=bins_linear_log)
+  a, b = pyplot_hist_to_plot(x, y)
+  ax0.plot(a, b, label=theory_label, color='red', lw=5)
+
+  print "SIMPSONS: " + str(simps(b, a))
+
+  c = [x / 3.41551922191 for x in b]
+
+  ax0.plot(a, c, color='purple')
+
+
+  if theory:
+    theory_x_logged = np.log(theory_x)
+
+    y, x = np.histogram(theory_x_logged, weights=theory_y_max, bins=bins_linear_log)
+    a, b = pyplot_hist_to_plot(x, y)
+    # ax0.plot(a, b, label=theory_label, lw=0)
+
+    
+    y, x = np.histogram(theory_x_logged, weights=theory_y_line, bins=bins_linear_log)
+    a, b = pyplot_hist_to_plot(x, y)
+    # ax0.plot(a, b, label=theory_label, color='red', lw=5)
+
+    y, x = np.histogram(theory_x_logged, weights=theory_y_min, bins=bins_linear_log)
+    a, b = pyplot_hist_to_plot(x, y)
+    # ax0.plot(a, b, label=theory_label, lw=0)
+
+
+    # ax0.fill_between(theory_x_logged, theory_y_max, theory_y_min, norm=1, where=np.less_equal(theory_y_min, theory_y_max), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
+
+  
+
+  
+  # Theory Plot Ends.
+
+  def convert_hist_to_line_plot(hist, n_bins):
+    a = []
+    b = {}
+    bin_width = 0.6 / (6 * n_bins)
+    for i in range(0, len(list(hist.x()))):
+      a.append(round(list(hist.x())[i] - bin_width / 2., 4))
+      a.append(round(list(hist.x())[i], 4))
+      a.append(round(list(hist.x())[i] + bin_width / 2., 4))
+
+      if round(list(hist.x())[i] - bin_width / 2., 4) not in b.keys():
+        b[round(list(hist.x())[i] - bin_width / 2., 4)] = [ list(hist.y())[i] ]
+      else:
+        b[round(list(hist.x())[i] - bin_width / 2., 4)].append( list(hist.y())[i] )
+      
+      if round(list(hist.x())[i], 4) not in b.keys():
+        b[round(list(hist.x())[i], 4)] = [ list(hist.y())[i] ]
+      else:
+        b[round(list(hist.x())[i], 4)].append( list(hist.y())[i] )
+
+      if round(list(hist.x())[i] + bin_width / 2., 4) not in b.keys():
+        b[round(list(hist.x())[i] + bin_width / 2., 4)] = [ list(hist.y())[i] ]
+      else:
+        b[round(list(hist.x())[i] + bin_width / 2., 4)].append( list(hist.y())[i] )
+
+    x = sorted(list(Set(a)))
+    a.sort()
+    
+    c = [b[x[i]] for i in range(0, len(x))]
+
+    y = [item for sublist in c for item in sublist]
+    
+    a_zero_removed = []
+    y_zero_removed = []
+    for i in range(0, len(a)):
+      if a[i] >= zg_cut and a[i] <= 0.5 and y[i] != 0.0:
+        a_zero_removed.append(a[i])
+        y_zero_removed.append(y[i])
+
+    return a_zero_removed, y_zero_removed
+
+  
+
+
+  
+  # Data Plot Begins.
+  log_zg_data = np.log(zg_data)
+
+  zg_data_hist = Hist(bins_linear_log, title=data_label, markersize=2.5, color='black')
+  bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
+
+  map(zg_data_hist.Fill, log_zg_data, prescales)
+  
+  zg_data_hist.Scale(1.0 / ( zg_data_hist.GetSumOfWeights() * bin_width_data ))
+
+  
+
+  
+  if data:
+    data_plot = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+  else:
+    data_plot = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=0.0)
+
+
+
+  
+  # data_x_errors, data_y_errors = [], []
+  # for x_segment in data_plot[2][0].get_segments():
+  #   data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+  # for y_segment in data_plot[2][1].get_segments():
+  #   data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+
+  # data_points_x = data_plot[0].get_xdata()
+  # data_points_y = data_plot[0].get_ydata()
+
+  # print sorted(data_points_x)
+
+
+
+  # Data Plots Ends.
+
+  
+  # Simulation Plots Begin. 
+  
+  # Pythia.
+
+  log_zg_pythias = np.log(zg_pythias)
+  y, x = np.histogram(log_zg_pythias, bins=bins_linear_log, normed=True)
+  a, b = pyplot_hist_to_plot(x, y)
+
+  if mc:
+    pythia_plot = ax0.hist(a, histtype='step', normed=True, weights=b, label=pythia_label, lw=5, color='blue')
+  else:
+    pythia_plot = ax0.hist(a, histtype='step', normed=True, weights=b, label=pythia_label, lw=0, color='blue')
+
+  # Pythia Ends.
+  
+  # Herwig. 
+  log_zg_herwigs = np.log(zg_herwigs)
+  y, x = np.histogram(log_zg_herwigs, bins=bins_linear_log, normed=True)
+  a, b = pyplot_hist_to_plot(x, y)
+  
+  if mc:
+    herwig_plot = ax0.hist(a, histtype='step', normed=True, weights=b, label=herwig_label, lw=5, color='green')
+  else:
+    herwig_plot = ax0.hist(a, histtype='step', normed=True, weights=b, label=herwig_label, lw=0, color='green')
+  
+  # Herwig Ends.
+
+  # Simulation Plots End.
+
+  
+  # Ratio-Over Plot Begins.
+
+
+  # Theory-Over-Data Plot.
+  
+
+  '''
+
+  data_plot_points_x = []
+  data_plot_points_y = []
+
+  for i in range(0, len(data_points_x)):
+    if float(data_points_x[i]) >= float(zg_cut):
+      data_plot_points_x.append(data_points_x[i])
+      data_plot_points_y.append(data_points_y[i])
+
+
+  theory_min_interpolate_function = interpolate.interp1d(theory_x, theory_y_min)
+  theory_line_interpolate_function = interpolate.interp1d(theory_x, theory_y_line)
+  theory_max_interpolate_function = interpolate.interp1d(theory_x, theory_y_max)
+
+  theory_extrapolated_min = theory_min_interpolate_function(data_plot_points_x)
+  theory_extrapolated_line = theory_line_interpolate_function(data_plot_points_x)
+  theory_extrapolated_max = theory_max_interpolate_function(data_plot_points_x)
+
+  if ratio_denominator == "data":
+
+    if mc:
+      zg_herwig_hist.Divide(zg_data_hist)
+      zg_herwig_line_plot = convert_hist_to_line_plot(zg_herwig_hist, n_bins)
+      plt.plot(zg_herwig_line_plot[0], zg_herwig_line_plot[1], linewidth=5, color='green')
+
+      zg_pythia_hist.Divide(zg_data_hist)
+      zg_pythia_line_plot = convert_hist_to_line_plot(zg_pythia_hist, n_bins)
+      plt.plot(zg_pythia_line_plot[0], zg_pythia_line_plot[1], linewidth=5, color='blue')
+
+    if data:
+      ratio_data_to_data = [None if n == 0 else m / n for m, n in zip(data_plot_points_y, data_plot_points_y)]
+      data_to_data_y_err = [(b / m) for b, m in zip(data_y_errors, data_plot_points_y)]
+      data_to_data_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(data_plot_points_y))]
+      
+      plt.errorbar(data_plot_points_x, ratio_data_to_data, xerr=data_to_data_x_err, yerr=data_to_data_y_err, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, color='black')
+
+    if theory:
+      ratio_theory_line_to_data = [m / n for m, n in zip(theory_extrapolated_line, data_plot_points_y)]
+      ratio_theory_min_to_data = [m / n for m, n in zip(theory_extrapolated_min, data_plot_points_y)]
+      ratio_theory_max_to_data = [m / n for m, n in zip(theory_extrapolated_max, data_plot_points_y)]
+
+      zg_theory_line_to_data_hist = Hist(6 * n_bins, 0.0, 0.6)
+      map(zg_theory_line_to_data_hist.Fill, data_plot_points_x, ratio_theory_line_to_data)
+      zg_theory_line_to_data_plot = convert_hist_to_line_plot(zg_theory_line_to_data_hist, n_bins)
+      plt.plot(zg_theory_line_to_data_plot[0], zg_theory_line_to_data_plot[1], linewidth=5, color='red')
+
+      zg_theory_min_to_data_hist = Hist(6 * n_bins, 0.0, 0.6)
+      map(zg_theory_min_to_data_hist.Fill, data_plot_points_x, ratio_theory_min_to_data)
+      zg_theory_min_to_data_plot = convert_hist_to_line_plot(zg_theory_min_to_data_hist, n_bins)
+
+      zg_theory_max_to_data_hist = Hist(6 * n_bins, 0.0, 0.6)
+      map(zg_theory_max_to_data_hist.Fill, data_plot_points_x, ratio_theory_max_to_data)
+      zg_theory_max_to_data_plot = convert_hist_to_line_plot(zg_theory_max_to_data_hist, n_bins)
+
+      ax1.fill_between(zg_theory_max_to_data_plot[0], zg_theory_max_to_data_plot[1], zg_theory_min_to_data_plot[1], norm=1, where=np.less_equal(zg_theory_min_to_data_plot[1], zg_theory_max_to_data_plot[1]), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
+      
+  elif ratio_denominator == "theory":
+
+    zg_theory_line_hist = Hist(6 * n_bins, 0.0, 0.6, color='red')
+    map(zg_theory_line_hist.Fill, data_plot_points_x, theory_extrapolated_line)
+
+    zg_theory_min_hist = Hist(6 * n_bins, 0.0, 0.6, color='pink')
+    map(zg_theory_min_hist.Fill, data_plot_points_x, theory_extrapolated_min)
+
+    zg_theory_max_hist = Hist(6 * n_bins, 0.0, 0.6, color='red')
+    map(zg_theory_max_hist.Fill, data_plot_points_x, theory_extrapolated_max)
+
+
+    if mc:
+      zg_herwig_hist.Divide(zg_theory_line_hist)
+      zg_herwig_line_plot = convert_hist_to_line_plot(zg_herwig_hist, n_bins)
+      plt.plot(zg_herwig_line_plot[0], zg_herwig_line_plot[1], linewidth=5, color='green')
+
+      zg_pythia_hist.Divide(zg_theory_line_hist)
+      zg_pythia_line_plot = convert_hist_to_line_plot(zg_pythia_hist, n_bins)
+      plt.plot(zg_pythia_line_plot[0], zg_pythia_line_plot[1], linewidth=5, color='blue')
+
+    if data:
+      zg_data_to_th_y = [b / m for b, m in zip(data_plot_points_y, theory_extrapolated_line)]
+      zg_data_to_th_y_err = [b / m for b, m in zip(data_y_errors, theory_extrapolated_line)]
+      data_to_th_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(zg_data_to_th_y_err))]
+
+      plt.errorbar(data_plot_points_x, zg_data_to_th_y, xerr=data_to_th_x_err, yerr=zg_data_to_th_y_err, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, color='black')
+   
+    if theory:
+      
+      zg_theory_min_hist.Divide(zg_theory_line_hist)
+      zg_theory_max_hist.Divide(zg_theory_line_hist)
+
+      zg_theory_min_plot = convert_hist_to_line_plot(zg_theory_min_hist, n_bins)
+      zg_theory_max_plot = convert_hist_to_line_plot(zg_theory_max_hist, n_bins)
+
+      zg_theory_min_line, = plt.plot(zg_theory_min_plot[0], zg_theory_min_plot[1], linewidth=0)
+      zg_theory_max_line, = plt.plot(zg_theory_max_plot[0], zg_theory_max_plot[1], linewidth=0)
+      
+      x_min, y_min = zg_theory_min_line.get_xdata(), zg_theory_min_line.get_ydata()
+      x_max, y_max = zg_theory_max_line.get_xdata(), zg_theory_max_line.get_ydata()
+
+      ax1.fill_between(x_max, y_max, y_min, norm=1, where=np.less_equal(y_min, y_max), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
+
+      zg_theory_line_hist.Divide(zg_theory_line_hist)
+      zg_theory_line_plot = convert_hist_to_line_plot(zg_theory_line_hist, n_bins)
+      plt.plot(zg_theory_line_plot[0], zg_theory_line_plot[1], linewidth=5, color='red')
+
+  else:
+    raise ValueError("Only 'theory' or 'data' are valid options for calculating ratios!")
+  '''
+
+  # Normalized-Over-Data Plot Ends.
+
+  ax0.set_xlabel("$z_g$", fontsize=95)
+  ax0.set_ylabel("$\displaystyle \\frac{z_g}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=80, rotation=0, labelpad=115, y=0.39)
+  
+  ax1.set_xlabel("$z_g$", fontsize=95)
+  
+  if ratio_denominator == "data":
+    label_pad = 135
+  else:
+    label_pad = 115
+
+  # ax1.set_ylabel("Ratio           \nto           \n" + ratio_denominator.capitalize() + "           ", fontsize=55, rotation=0, labelpad=250, y=0.31)
+  plt.ylabel("Ratio           \nto           \n" + ratio_denominator.capitalize() + "           ", fontsize=55, rotation=0, labelpad=label_pad, y=0.31, axes=ax1)
+
+
+  # Legend.
+
+  th_line, = ax0.plot(range(1), linewidth=5, color='red')
+  th_patch = mpatches.Patch(facecolor='pink', alpha=1.0, linewidth=0)
+
+  if mc:
+    pythia_line, = ax0.plot(range(1), linewidth=5, color='blue')
+    herwig_line, = ax0.plot(range(1), linewidth=5, color='green')
+  else:
+    pythia_line, = ax0.plot(range(1), linewidth=5, color='blue', alpha=0)
+    herwig_line, = ax0.plot(range(1), linewidth=5, color='green', alpha=0)
+
+  handles = [data_plot, (th_patch, th_line), pythia_line, herwig_line]
+  labels = [data_label, theory_label, pythia_label, herwig_label]
+
+  first_legend = ax0.legend(handles, labels, fontsize=60, handler_map = {th_line : HandlerLine2D(marker_pad = 0), pythia_line : HandlerLine2D(marker_pad = 0), herwig_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1, bbox_to_anchor=[0.90, 0.98])
+  ax = ax0.add_artist(first_legend)
+
+  for txt in first_legend.get_texts():
+    if ( not data) and txt.get_text() == data_label:
+      txt.set_color("white") 
+
+  # Info about R, pT_cut, etc.
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  handles = [extra, extra]
+  # labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+  # ax0.legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.58])
+
+
+  # Legend Ends.
+
+  ax0.autoscale(True)
+  ax1.autoscale(True)
+  
+  
+
+  fig = plt.gcf()
+
+  if data:
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+    plt.gca().add_artist(ab)
+    preliminary_text = "Prelim. (20\%)"
+    plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+  else:
+    preliminary_text = ""
+    plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+
+
+  
+  plt.gcf().set_size_inches(30, 30, forward=1)
+
+  ax0.xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  ax0.yaxis.set_tick_params(width=5, length=20, labelsize=70)
+
+  ax1.xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  ax1.yaxis.set_tick_params(width=5, length=20, labelsize=70)
+  
+
+  plt.gcf().set_snap(True)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  filename = "plots/log_zg/log_zg_cut_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+  
+  plt.savefig(filename)
+  # plt.show()
+  plt.clf()
+
+
+
+plot_log_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+
+
+
 def test2():
   properties = parse_file(input_analysis_file, 150)
 
@@ -2169,7 +2603,7 @@ def test2():
   '''
 
 
-test2()
+# test2()
 
 def plot_pts_variable_bin():
   pT_lower_cut = 150
@@ -2178,6 +2612,16 @@ def plot_pts_variable_bin():
   pTs = properties['uncorrected_hardest_pts']
   corrected_pTs = properties['corrected_hardest_pts']
   prescales = properties['prescales']
+
+  event_numbers = properties['event_number']
+  run_numbers = properties['run_number']
+
+  print max(pTs)
+
+  for i in range(0, len(pTs)):
+    if pTs[i] > 10000:
+      print int(event_numbers[i]), int(run_numbers[i])
+
 
   herwig_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_herwig_pp2jj_150pTcut_7TeV.dat")
   pythia_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_pythia_pp2jj_150pTcut_7TeV.dat")
@@ -2321,8 +2765,6 @@ def plot_pts_variable_bin():
   plt.savefig("plots/ak5_pt_distribution_var_bin.pdf")
   # plt.show()
   plt.clf()
-
-
 
 
 
