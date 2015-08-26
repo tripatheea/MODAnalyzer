@@ -2097,16 +2097,6 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
   bins_linear_log = np.linspace(math.log(0.05, math.e), math.log(0.5, math.e), 50)
 
   log_theory_x = np.log(theory_x)
-  
-  y, x = np.histogram(log_theory_x, normed=True, weights=theory_y_line, bins=bins_linear_log)
-  a, b = pyplot_hist_to_plot(x, y)
-  ax0.plot(a, b, label=theory_label, color='red', lw=5)
-
-  print "SIMPSONS: " + str(simps(b, a))
-
-  c = [x / 3.41551922191 for x in b]
-
-  ax0.plot(a, c, color='purple')
 
 
   if theory:
@@ -2114,19 +2104,22 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
 
     y, x = np.histogram(theory_x_logged, weights=theory_y_max, bins=bins_linear_log)
     a, b = pyplot_hist_to_plot(x, y)
-    # ax0.plot(a, b, label=theory_label, lw=0)
+    b_max = [x / simps(b, a) for x in b]
+    ax0.plot(a, b_max, label=theory_label, lw=0)
 
     
     y, x = np.histogram(theory_x_logged, weights=theory_y_line, bins=bins_linear_log)
     a, b = pyplot_hist_to_plot(x, y)
-    # ax0.plot(a, b, label=theory_label, color='red', lw=5)
+    b_line = [x / simps(b, a) for x in b]
+    ax0.plot(a, b_line, label=theory_label, color='red', lw=5)
 
     y, x = np.histogram(theory_x_logged, weights=theory_y_min, bins=bins_linear_log)
     a, b = pyplot_hist_to_plot(x, y)
-    # ax0.plot(a, b, label=theory_label, lw=0)
+    b_min = [x / simps(b, a) for x in b]
+    ax0.plot(a, b_min, label=theory_label, lw=0)
 
 
-    # ax0.fill_between(theory_x_logged, theory_y_max, theory_y_min, norm=1, where=np.less_equal(theory_y_min, theory_y_max), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
+    ax0.fill_between(a, b_max, b_min, norm=1, where=np.less_equal(b_min, b_max), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
 
   
 
@@ -2167,7 +2160,8 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
     a_zero_removed = []
     y_zero_removed = []
     for i in range(0, len(a)):
-      if a[i] >= zg_cut and a[i] <= 0.5 and y[i] != 0.0:
+      # if a[i] >= zg_cut and a[i] <= 0.5 and y[i] != 0.0:
+      if True:
         a_zero_removed.append(a[i])
         y_zero_removed.append(y[i])
 
@@ -2198,16 +2192,15 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
 
 
   
-  # data_x_errors, data_y_errors = [], []
-  # for x_segment in data_plot[2][0].get_segments():
-  #   data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
-  # for y_segment in data_plot[2][1].get_segments():
-  #   data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+  data_x_errors, data_y_errors = [], []
+  for x_segment in data_plot[2][0].get_segments():
+    data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+  for y_segment in data_plot[2][1].get_segments():
+    data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
 
-  # data_points_x = data_plot[0].get_xdata()
-  # data_points_y = data_plot[0].get_ydata()
+  data_points_x = data_plot[0].get_xdata()
+  data_points_y = data_plot[0].get_ydata()
 
-  # print sorted(data_points_x)
 
 
 
@@ -2221,6 +2214,8 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
   log_zg_pythias = np.log(zg_pythias)
   y, x = np.histogram(log_zg_pythias, bins=bins_linear_log, normed=True)
   a, b = pyplot_hist_to_plot(x, y)
+  log_zg_pythia_hist = Hist(bins_linear_log)
+  map(log_zg_pythia_hist.Fill, a, b)
 
   if mc:
     pythia_plot = ax0.hist(a, histtype='step', normed=True, weights=b, label=pythia_label, lw=5, color='blue')
@@ -2233,7 +2228,9 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
   log_zg_herwigs = np.log(zg_herwigs)
   y, x = np.histogram(log_zg_herwigs, bins=bins_linear_log, normed=True)
   a, b = pyplot_hist_to_plot(x, y)
-  
+  log_zg_herwig_hist = Hist(bins_linear_log)
+  map(log_zg_herwig_hist.Fill, a, b)
+
   if mc:
     herwig_plot = ax0.hist(a, histtype='step', normed=True, weights=b, label=herwig_label, lw=5, color='green')
   else:
@@ -2250,20 +2247,21 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
   # Theory-Over-Data Plot.
   
 
-  '''
+  
 
   data_plot_points_x = []
   data_plot_points_y = []
 
   for i in range(0, len(data_points_x)):
-    if float(data_points_x[i]) >= float(zg_cut):
+    # if float(data_points_x[i]) >= float(zg_cut):
+    if True:
       data_plot_points_x.append(data_points_x[i])
       data_plot_points_y.append(data_points_y[i])
 
 
-  theory_min_interpolate_function = interpolate.interp1d(theory_x, theory_y_min)
-  theory_line_interpolate_function = interpolate.interp1d(theory_x, theory_y_line)
-  theory_max_interpolate_function = interpolate.interp1d(theory_x, theory_y_max)
+  theory_min_interpolate_function = interpolate.interp1d(log_theory_x, theory_y_min)
+  theory_line_interpolate_function = interpolate.interp1d(log_theory_x, theory_y_line)
+  theory_max_interpolate_function = interpolate.interp1d(log_theory_x, theory_y_max)
 
   theory_extrapolated_min = theory_min_interpolate_function(data_plot_points_x)
   theory_extrapolated_line = theory_line_interpolate_function(data_plot_points_x)
@@ -2272,12 +2270,12 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
   if ratio_denominator == "data":
 
     if mc:
-      zg_herwig_hist.Divide(zg_data_hist)
-      zg_herwig_line_plot = convert_hist_to_line_plot(zg_herwig_hist, n_bins)
+      log_zg_herwig_hist.Divide(zg_data_hist)
+      zg_herwig_line_plot = convert_hist_to_line_plot(log_zg_herwig_hist, len(bins_linear_log))
       plt.plot(zg_herwig_line_plot[0], zg_herwig_line_plot[1], linewidth=5, color='green')
 
-      zg_pythia_hist.Divide(zg_data_hist)
-      zg_pythia_line_plot = convert_hist_to_line_plot(zg_pythia_hist, n_bins)
+      log_zg_pythia_hist.Divide(zg_data_hist)
+      zg_pythia_line_plot = convert_hist_to_line_plot(log_zg_pythia_hist, n_bins)
       plt.plot(zg_pythia_line_plot[0], zg_pythia_line_plot[1], linewidth=5, color='blue')
 
     if data:
@@ -2292,21 +2290,27 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
       ratio_theory_min_to_data = [m / n for m, n in zip(theory_extrapolated_min, data_plot_points_y)]
       ratio_theory_max_to_data = [m / n for m, n in zip(theory_extrapolated_max, data_plot_points_y)]
 
-      zg_theory_line_to_data_hist = Hist(6 * n_bins, 0.0, 0.6)
-      map(zg_theory_line_to_data_hist.Fill, data_plot_points_x, ratio_theory_line_to_data)
+
+      zg_theory_line_to_data_hist = Hist(bins_linear_log)
+      normalized_y_line = [x / simps(ratio_theory_line_to_data, data_plot_points_x) for x in ratio_theory_line_to_data]
+      map(zg_theory_line_to_data_hist.Fill, data_plot_points_x, normalized_y_line)
       zg_theory_line_to_data_plot = convert_hist_to_line_plot(zg_theory_line_to_data_hist, n_bins)
       plt.plot(zg_theory_line_to_data_plot[0], zg_theory_line_to_data_plot[1], linewidth=5, color='red')
 
-      zg_theory_min_to_data_hist = Hist(6 * n_bins, 0.0, 0.6)
-      map(zg_theory_min_to_data_hist.Fill, data_plot_points_x, ratio_theory_min_to_data)
+      zg_theory_min_to_data_hist = Hist(bins_linear_log)
+      normalized_y_min = [x / simps(ratio_theory_min_to_data, data_plot_points_x) for x in ratio_theory_min_to_data]
+      map(zg_theory_min_to_data_hist.Fill, data_plot_points_x, normalized_y_min)
       zg_theory_min_to_data_plot = convert_hist_to_line_plot(zg_theory_min_to_data_hist, n_bins)
 
-      zg_theory_max_to_data_hist = Hist(6 * n_bins, 0.0, 0.6)
-      map(zg_theory_max_to_data_hist.Fill, data_plot_points_x, ratio_theory_max_to_data)
+      zg_theory_max_to_data_hist = Hist(bins_linear_log)
+      normalized_y_max = [x / simps(ratio_theory_max_to_data, data_plot_points_x) for x in ratio_theory_max_to_data]
+      map(zg_theory_max_to_data_hist.Fill, data_plot_points_x, normalized_y_max)
       zg_theory_max_to_data_plot = convert_hist_to_line_plot(zg_theory_max_to_data_hist, n_bins)
 
       ax1.fill_between(zg_theory_max_to_data_plot[0], zg_theory_max_to_data_plot[1], zg_theory_min_to_data_plot[1], norm=1, where=np.less_equal(zg_theory_min_to_data_plot[1], zg_theory_max_to_data_plot[1]), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
-      
+  
+
+  '''    
   elif ratio_denominator == "theory":
 
     zg_theory_line_hist = Hist(6 * n_bins, 0.0, 0.6, color='red')
@@ -2409,9 +2413,8 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
   ax0.autoscale(True)
   ax1.autoscale(True)
   
-  
-
-  fig = plt.gcf()
+  ax0.set_xlim(-3.0, 0.0)
+  ax1.set_xlim(-3.0, 0.0)
 
   if data:
     ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
@@ -2445,7 +2448,7 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
 
 
 
-plot_log_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+plot_log_zg_th_mc_data(150, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
 
 
