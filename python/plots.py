@@ -122,14 +122,13 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
           properties['multiplicity_after_SD'].append( float( numbers[38] ) )
 
           properties['JEC'].append( float( numbers[39] ) )
-          properties['JEC_uncertainty'].append( float( numbers[40] ) )
           
-          properties['jet_area'].append( float( numbers[41] ) )
+          properties['jet_area'].append( float( numbers[40] ) )
 
-          properties['jet_mass_before_SD'].append( float( numbers[42] ) )
-          properties['jet_mass_after_SD'].append( float( numbers[43] ) )
+          properties['jet_mass_before_SD'].append( float( numbers[41] ) )
+          properties['jet_mass_after_SD'].append( float( numbers[42] ) )
 
-          properties['fractional_energy_loss'].append( float( numbers[44] ) )
+          properties['fractional_energy_loss'].append( float( numbers[43] ) )
 
     except:
       if len(numbers) != 0:
@@ -397,7 +396,7 @@ def plot_zg_pfc_pt_cut(pT_lower_cut, zg_cut, zg_filename, n_bins=10, y_max_limit
   plt.ylabel("$\displaystyle \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=80, rotation=0, labelpad=115, y=0.39)
   
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -461,7 +460,7 @@ def plot_charged_and_all_zgs(pT_lower_cut, zg_cut, zg_filename, n_bins=10, y_max
   plt.ylabel("$\displaystyle \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=80, rotation=0, labelpad=115, y=0.39)
   
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -531,9 +530,9 @@ def plot_turn_on_curves():
   plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=95)
   plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
 
-  fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
+  fn = get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -681,7 +680,7 @@ def plot_pts():
   ax1.set_ylabel("Ratio           \nto           \n" + "Data" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
 
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -758,7 +757,7 @@ def plot_hardest_pt_corresponding_triggers():
 
   plt.xlabel('$p_T \mathrm{(GeV)}$')
 
-  fn = get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
+  fn = get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
   ab = AnnotationBbox(OffsetImage(read_png(fn), zoom=0.15, resample=1, dpi_cor=1), (125, 30e7), frameon=0)
   plt.gca().add_artist(ab)
 
@@ -1205,7 +1204,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
   # 1 - ((1 - 0.895) * 21.429)/30
   if data:
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1296,7 +1295,7 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
   plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   plt.gcf().text(0.29, 0.885, "Prelim. (20\%)", fontsize=50, weight='bold', color='#444444', multialignment='center')
 
@@ -1449,7 +1448,7 @@ def plot_all_trigger_efficiency_curves():
   plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1579,7 +1578,7 @@ def plot_hardest_pt_softdrop():
 
   # Legends End.
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1640,7 +1639,7 @@ def plot_constituent_multiplicity_softdrop():
 
   # Legends End.
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1707,7 +1706,7 @@ def plot_2d_constitutent_mul_jec_uncertainty(multiplicity_type="before"):
   cbar = plt.colorbar()
   cbar.ax.set_ylabel('Counts')
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1747,7 +1746,7 @@ def plot_JEC_uncertainty():
   plt.autoscale(1)
   plt.gca().set_ylim(0, 3000)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1795,7 +1794,7 @@ def plot_jet_area():
 
   plt.autoscale(1)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1839,7 +1838,7 @@ def plot_JEC():
 
   plt.autoscale(1)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1888,7 +1887,7 @@ def plot_fractional_energy_loss():
 
   # Legends End.
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1939,9 +1938,6 @@ def plot_jet_mass_spectrum():
   rplt.errorbar(jet_mass_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
 
-
-  
-
   plt.autoscale(1)
 
 
@@ -1953,12 +1949,12 @@ def plot_jet_mass_spectrum():
   plt.gca().add_artist(legend)
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5}$"]
-  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.90, 0.75])
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~\eta < 3}$"]
+  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.75])
 
   # # Legends End.
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -2250,7 +2246,7 @@ def test2():
 
   # Legends End.
 
-  # ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  # ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   # plt.gca().add_artist(ab)
   # preliminary_text = "Prelim. (20\%)"
   # plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -2361,7 +2357,7 @@ def test3():
 
   # Legends End.
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/CMS/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -2388,11 +2384,11 @@ def test3():
   plt.savefig("test_matplotlib.pdf")
 
 
-test3()
+# test3()
 
 # test()
 
-test2()
+# test2()
 
 
 # test3()
@@ -2404,12 +2400,11 @@ test2()
 
 
 
-# plot_jet_mass_spectrum()
+plot_jet_mass_spectrum()
 
-# plot_fractional_energy_loss()
+plot_fractional_energy_loss()
 
 
-# plot_JEC_uncertainty()
 # plot_JEC()
 
 # plot_jet_area()
@@ -2418,9 +2413,9 @@ test2()
 # plot_2d_constitutent_mul_jec_uncertainty(multiplicity_type="before")
 # plot_2d_constitutent_mul_jec_uncertainty(multiplicity_type="after")
 
-# plot_constituent_multiplicity_softdrop()
+plot_constituent_multiplicity_softdrop()
 
-# plot_hardest_pt_softdrop()
+plot_hardest_pt_softdrop()
 
 
 
