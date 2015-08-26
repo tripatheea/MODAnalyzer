@@ -1687,107 +1687,6 @@ def plot_constituent_multiplicity_softdrop():
   plt.clf()
 
 
-def plot_2d_constitutent_mul_jec_uncertainty(multiplicity_type="before"):
-
-  pT_lower_cut = 150
-  properties = parse_file(input_analysis_file, pT_lower_cut)
-
-  multiplicity = properties['multiplicity_' + multiplicity_type + '_SD']
-  JEC_uncertainty = properties['JEC_uncertainty']
-  
-  prescales = properties['prescales']
-  
-  H, xedges, yedges = np.histogram2d(multiplicity, JEC_uncertainty, bins=25, weights=prescales, normed=1, range=[[min(multiplicity), max(multiplicity)], [0.7, 1.4]] )
-
-
-  H_normalized = []
-  for i in range(0, 25):
-    current_row = []
-    factor = sum(H[i])
-
-    if factor != 0:
-      for j in range(0, 25):
-        current_row.append(H[i][j] / factor)
-    else:
-      for j in range(0, 25):
-        current_row.append(0)
-
-    H_normalized.append(current_row)
-
-
-  H_normalized = np.array(H_normalized)
-  H = H_normalized
-
-  H = np.rot90(H)
-  H = np.flipud(H)
-  
-  Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
-
-  plt.pcolormesh(xedges,yedges, Hmasked)
-
-  cbar = plt.colorbar()
-  cbar.ax.set_ylabel('Counts')
-
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
-  plt.gca().add_artist(ab)
-  preliminary_text = "Prelim. (20\%)"
-  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
-
-  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
-
-
-  plt.xlabel('Constituent Multiplicity ' + multiplicity_type.capitalize() + ' SoftDrop', fontsize=65, labelpad=75.)
-  plt.ylabel('JEC\nUncer.', fontsize=65, labelpad=100., rotation=0)
-
-  plt.gcf().set_snap(True)
-
-  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
-
-  plt.savefig("plots/constituent_mul_jec_uncer_" + multiplicity_type + "_SD.pdf")
-
-  plt.clf()
-
-
-def plot_JEC_uncertainty():
-  pT_lower_cut = 150
-  properties = parse_file(input_analysis_file, pT_lower_cut)
-
-  JEC_uncertainty = properties['JEC_uncertainty']
-  prescales = properties['prescales']
-
-
-
-  plt.hist(JEC_uncertainty, weights=prescales, bins=100, label="JEC Uncertainty", normed=1, histtype='step', linewidth=5)
-
-
-  plt.xlabel('JEC Uncertainty', fontsize=75)
-  plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=50.)
-
-  plt.autoscale(1)
-  plt.gca().set_ylim(0, 3000)
-
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
-  plt.gca().add_artist(ab)
-  preliminary_text = "Prelim. (20\%)"
-  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
-
-  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
-
-
-  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
-  plt.gca().add_artist(legend)
-
-
-  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
-
-  plt.savefig("plots/JEC_uncertainty.pdf")
-
-  plt.clf()
-
 
 def plot_jet_area():
   pT_lower_cut = 150
@@ -2023,20 +1922,6 @@ def plot_zg():
 
 
 
-def plot_all_uncertainties():
-  f = open(input_analysis_file, 'r')
-  lines = f.read().split("\n")
-
-  data, prescales = [], []
-  for i in range(0, len(lines)):
-    a = lines[i].split()
-    data.append(float(a[0]))
-    prescales.append(int(a[1]))
-
-  plt.hist(data, weights=prescales, bins=500, normed=1)
-
-  plt.show()
-
 
 def logged_bin(data, weights, number_of_bins=50):
   
@@ -2129,9 +2014,7 @@ def plot_zg_test():
   plt.show()
 
 
-
-
-# plot_zg_test()
+plot_zg_test()
 
 def test2():
   properties = parse_file(input_analysis_file, 150)
@@ -2425,7 +2308,7 @@ def plot_pts_variable_bin():
   plt.clf()
 
 
-plot_pts_variable_bin()
+
 
 
 
@@ -2623,6 +2506,8 @@ def test3():
 # # AK5 Distribution Begins.
 
 # plot_pts()
+
+# plot_pts_variable_bin()
 
 # # AK5 Distribution Ends.
 
