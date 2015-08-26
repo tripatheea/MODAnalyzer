@@ -141,6 +141,28 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
 
 
 
+def normalize_hist(hist, variable_bin=False):
+
+  if variable_bin:
+    hist.Scale( 1.0 / hist.GetSumOfWeights() )
+
+    for i in range(0, hist.GetSize()):
+      bin_width = hist.GetXaxis().GetBinWidth(i)
+      old_bin_height =  hist.GetBinContent(i)
+      
+      new_height = old_bin_height / bin_width
+      hist.SetBinContent(i, new_height)
+
+      old_error = hist.GetBinError(i)
+      new_error = old_error / bin_width
+      hist.SetBinError(i, new_error)
+  else:
+    bin_width = (hist.upperbound() - hist.lowerbound()) / hist.nbins()
+    hist.Scale( 1.0 / ( hist.GetSumOfWeights() * bin_width ) )
+
+  return hist
+
+
 def log_bins(data, weights, number_of_bins=50):
   
   def drop_zeros(a_list):
@@ -2232,29 +2254,7 @@ def test2():
   plt.tick_params(which='major', length=30)
   plt.tick_params(which='minor', length=10)
 
-  # Irrelevant stuff begin.
 
-
-  # legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
-  # plt.gca().add_artist(legend)
-
-  # Info about R, pT_cut, etc.
-  # extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  # handles = [extra, extra]
-  # labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(150) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(0.05) + "}$"]
-  # plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.58])
-
-  # Legends End.
-
-  # ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
-  # plt.gca().add_artist(ab)
-  # preliminary_text = "Prelim. (20\%)"
-  # plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
-
-  # plt.xlabel('$z_g$', fontsize=75)
-  # plt.ylabel('$\displaystyle \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$', fontsize=75, rotation=0, labelpad=115.)
-  
-  
 
   plt.gca().autoscale(True)
 
@@ -2271,8 +2271,163 @@ def test2():
   plt.show()  
 
 
-
 # test2()
+
+def plot_pts_variable_bin():
+  pT_lower_cut = 150
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+
+  pTs = properties['uncorrected_hardest_pts']
+  corrected_pTs = properties['corrected_hardest_pts']
+  prescales = properties['prescales']
+
+  herwig_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_herwig_pp2jj_150pTcut_7TeV.dat")
+  pythia_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_pythia_pp2jj_150pTcut_7TeV.dat")
+
+  bins = [80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 340, 380, 420, 460, 500, 600, 700, 800, 900, 1000, 1250, 1500, 2000]
+
+  pythia_pt_hist = Hist(bins, title="Pythia 8.205", linewidth=5, markersize=5.0, color="blue")
+  herwig_pt_hist = Hist(bins, title="Herwig++ 2.6.3", linewidth=5, markersize=5.0, color="green")
+  corrected_pt_hist = Hist(bins, title='Corrected', markersize=3.0, color='black')
+  uncorrected_pt_hist = Hist(bins, title='Uncorrected', markersize=3.0, color='orange')
+
+  map(uncorrected_pt_hist.Fill, pTs, prescales)
+  map(corrected_pt_hist.Fill, corrected_pTs, prescales)
+  
+  map(pythia_pt_hist.Fill, pythia_pTs)
+  map(herwig_pt_hist.Fill, herwig_pTs)
+
+
+  corrected_pt_hist = normalize_hist(corrected_pt_hist)
+  uncorrected_pt_hist = normalize_hist(uncorrected_pt_hist)
+  pythia_pt_hist = normalize_hist(pythia_pt_hist)
+  herwig_pt_hist = normalize_hist(herwig_pt_hist)
+
+  
+  gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
+
+  ax0 = plt.subplot(gs[0])
+  ax1 = plt.subplot(gs[1])
+
+
+
+  ax0.set_yscale('log')
+
+  data_plot = rplt.errorbar(corrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  uncorrected_data_plot = rplt.errorbar(uncorrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.hist(pythia_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.hist(herwig_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  
+
+  data_x_errors, data_y_errors = [], []
+  for x_segment in data_plot[2][0].get_segments():
+    data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+  for y_segment in data_plot[2][1].get_segments():
+    data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+
+  data_points_x = data_plot[0].get_xdata()
+  data_points_y = data_plot[0].get_ydata()
+
+  data_plot_points_x = []
+  data_plot_points_y = []
+  for i in range(0, len(data_points_x)):
+    data_plot_points_x.append(data_points_x[i])
+    data_plot_points_y.append(data_points_y[i])
+
+
+
+  uncorrected_data_x_errors, uncorrected_data_y_errors = [], []
+  for x_segment in uncorrected_data_plot[2][0].get_segments():
+    uncorrected_data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+  for y_segment in uncorrected_data_plot[2][1].get_segments():
+    uncorrected_data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+
+  uncorrected_data_points_x = uncorrected_data_plot[0].get_xdata()
+  uncorrected_data_points_y = uncorrected_data_plot[0].get_ydata()
+
+  uncorrected_data_plot_points_x = []
+  uncorrected_data_plot_points_y = []
+  for i in range(0, len(uncorrected_data_points_x)):
+    uncorrected_data_plot_points_x.append(uncorrected_data_points_x[i])
+    uncorrected_data_plot_points_y.append(uncorrected_data_points_y[i])
+
+
+
+
+  data_to_data_y_err = [(b / m) for b, m in zip(data_y_errors, data_plot_points_y)]
+  data_to_data_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(data_plot_points_y))]
+
+  uncorrected_to_corrected_y_err = [(b / m) for b, m in zip(uncorrected_data_y_errors, data_plot_points_y)]
+  uncorrected_to_corrected_x_err = [(b / m) for b, m in zip(uncorrected_data_x_errors, [1] * len(data_plot_points_y))]
+
+
+  ax0.autoscale(True)
+  ax0.set_yscale('log')
+
+
+  # Legends Begin.
+
+  legend = ax0.legend(loc=1, frameon=0, fontsize=60)
+  ax0.add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5}$"]
+  ax0.legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.91, 0.62])
+
+  # Legends End.
+
+
+
+  ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
+  ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
+  ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
+  ax1.set_ylabel("Ratio           \nto           \n" + "Data" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
+
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  # Ratio Plot.
+  pythia_pt_hist.Divide(corrected_pt_hist)
+  herwig_pt_hist.Divide(corrected_pt_hist)
+  uncorrected_pt_hist.Divide(corrected_pt_hist)
+  corrected_pt_hist.Divide(corrected_pt_hist)
+
+  rplt.hist(pythia_pt_hist, axes=ax1, linewidth=5)
+  rplt.hist(herwig_pt_hist, axes=ax1, linewidth=5)
+  
+  rplt.errorbar(corrected_pt_hist, xerr=data_to_data_x_err, yerr=data_to_data_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.errorbar(uncorrected_pt_hist, xerr=uncorrected_to_corrected_x_err, yerr=uncorrected_to_corrected_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  ax1.autoscale(True)
+  
+  ax0.set_ylim(10e-8, 10e-1)
+  ax1.set_ylim(0., 2.)
+
+
+  plt.gcf().set_size_inches(30, 30, forward=1)
+
+
+  ax0.xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  ax0.yaxis.set_tick_params(width=5, length=20, labelsize=70)
+
+  ax1.xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  ax1.yaxis.set_tick_params(width=5, length=20, labelsize=70)
+
+  
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/ak5_pt_distribution_var_bin.pdf")
+  # plt.show()
+  plt.clf()
+
+
+plot_pts_variable_bin()
+
+
 
 def test3():
   properties = parse_file(input_analysis_file, 150)
@@ -2400,9 +2555,9 @@ def test3():
 
 
 
-plot_jet_mass_spectrum()
+# plot_jet_mass_spectrum()
 
-plot_fractional_energy_loss()
+# plot_fractional_energy_loss()
 
 
 # plot_JEC()
@@ -2410,12 +2565,10 @@ plot_fractional_energy_loss()
 # plot_jet_area()
 
 
-# plot_2d_constitutent_mul_jec_uncertainty(multiplicity_type="before")
-# plot_2d_constitutent_mul_jec_uncertainty(multiplicity_type="after")
 
-plot_constituent_multiplicity_softdrop()
+# plot_constituent_multiplicity_softdrop()
 
-plot_hardest_pt_softdrop()
+# plot_hardest_pt_softdrop()
 
 
 
