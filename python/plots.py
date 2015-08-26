@@ -2081,6 +2081,19 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
 
   # For each x, record three y's viz. max_y, min_y, line_y (i.e. e11 xmu=1).
 
+  weighted_ys = []
+  for i in range(0, len(y)):
+    area = simps(y[i], theory_x)
+    
+    weighted = []
+    for j in range(0, len(y[i])):
+      weighted.append( y[i][j] / area )
+    
+    weighted_ys.append(weighted)
+
+
+  y = weighted_ys
+
   theory_y_max = []
   theory_y_min = []
   theory_y_line = []
@@ -2303,11 +2316,14 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
       normalized_y_min = [x / simps(ratio_theory_min_to_data, data_plot_points_x) for x in ratio_theory_min_to_data]
       map(zg_theory_min_to_data_hist.Fill, data_plot_points_x, normalized_y_min)
       zg_theory_min_to_data_plot = convert_hist_to_line_plot(zg_theory_min_to_data_hist, n_bins)
+      # plt.plot(zg_theory_min_to_data_plot[0], zg_theory_min_to_data_plot[1], linewidth=5, color='orange')
 
       zg_theory_max_to_data_hist = Hist(bins_linear_log)
       normalized_y_max = [x / simps(ratio_theory_max_to_data, data_plot_points_x) for x in ratio_theory_max_to_data]
       map(zg_theory_max_to_data_hist.Fill, data_plot_points_x, normalized_y_max)
       zg_theory_max_to_data_plot = convert_hist_to_line_plot(zg_theory_max_to_data_hist, n_bins)
+      # plt.plot(zg_theory_max_to_data_plot[0], zg_theory_max_to_data_plot[1], linewidth=5, color='magenta')
+
 
       ax1.fill_between(zg_theory_max_to_data_plot[0], zg_theory_max_to_data_plot[1], zg_theory_min_to_data_plot[1], norm=1, where=np.less_equal(zg_theory_min_to_data_plot[1], zg_theory_max_to_data_plot[1]), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
   
@@ -2431,10 +2447,13 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
 
   x = np.linspace(math.log(0.05, math.e), math.log(0.5, math.e), 10)
   labels = [str(round(math.exp(i), 2)) for i in x]
+
+  plt.sca(ax0)
   plt.xticks(x, labels)
 
-  # plt.gca().set_xticks(labels)
-  # plt.xticks(x, labels, axes=ax1)
+  plt.sca(ax1)
+  plt.xticks(x, labels)
+  
 
   
 
