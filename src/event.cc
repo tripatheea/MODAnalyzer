@@ -441,30 +441,25 @@ bool MOD::Event::jet_quality_cut(string level) {
    // First, get the hardest jet.
    MOD::CalibratedJet hardest_jet = hardest_uncorrected_jet();
 
-   // Always require the number of constituents to be > 1.
-   if( hardest_jet.number_of_constituents() <= 1 )
-      return false;
-
-   // If the rapidity is less than 2.4, the conditions are the same for loose/medium/tight.
-   if ( abs(hardest_jet.pseudojet().rapidity()) < 2.4 ) {
-      if ( (hardest_jet.charged_hadron_fraction() <= 0) || (hardest_jet.charged_multiplicity() <= 0) || (hardest_jet.charged_em_fraction() >= 0.01) )
-         return false;
-   }
+   bool pass = false;
+   double cut_off = 0.99;
 
    if (level == "tight") {
-      if ( (hardest_jet.neutral_hadron_fraction() >= 0.10) || (hardest_jet.neutral_em_fraction() >= 0.10) )
-         return false;
+      cut_off = 0.90;
    }
    else if (level == "medium") {
-      if ( (hardest_jet.neutral_hadron_fraction() >= 0.05) || (hardest_jet.neutral_em_fraction() >= 0.05) )
-         return false;
-   }
-   else {
-      if ( (hardest_jet.neutral_hadron_fraction() >= 0.01) || (hardest_jet.neutral_em_fraction() >= 0.01) )
-         return false;
+      cut_off = 0.95;
    }
 
-   return true;
+   pass = ( hardest_jet.number_of_constituents() > 1 )     &&
+          ( hardest_jet.neutral_hadron_fraction() < cut_off ) && 
+          ( hardest_jet.neutral_em_fraction() < cut_off )     &&
+          ( 
+            ( abs(hardest_jet.pseudojet().eta()) >= 2.4 ) || 
+               ( hardest_jet.charged_em_fraction() < 0.99 && hardest_jet.charged_hadron_fraction() > 0 && hardest_jet.charged_multiplicity() > 0) ); 
+
+   return pass;
+
 }
 
 namespace MOD {

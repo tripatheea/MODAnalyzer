@@ -69,7 +69,7 @@ int main(int argc, char * argv[]) {
       if( (event_serial_number % 100) == 0 )
          cout << "Processing event number " << event_serial_number << endl;
 
-      // if (event_being_read.jet_quality_cut("loose"))
+      if (event_being_read.jet_quality_cut("loose"))
          analyze_event(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
       
       event_being_read = MOD::Event();
