@@ -2014,18 +2014,15 @@ def plot_zg_test():
   plt.show()
 
 
-plot_zg_test()
 
 def test2():
   properties = parse_file(input_analysis_file, 150)
 
-  zgs = properties['zg_2'] 
+  zgs = properties['zg_05'] 
   prescales = properties['prescales']
 
   zgs = np.linspace(0.05, 0.5, 50000)
   prescales = np.reciprocal(zgs)
-
-
 
 
   x, y = [], []
@@ -2044,23 +2041,39 @@ def test2():
 
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
-  bins = np.logspace(math.log(0.05, math.e), math.log(0.5, math.e), 10, base=math.e)
-  bins_linear = np.linspace(0.05, 0.5, 50)
-
-  bins_linear_log = np.linspace(math.log(0.2, math.e), math.log(0.5, math.e), 50)
-  # bins_linear_log_log = np.logspace(-math.log(-math.log(0.05, math.e), math.e), -math.log(-math.log(0.5, math.e), math.e), 10, base=math.e)
+  bins_log = np.logspace(math.log(0.05, math.e), math.log(0.5, math.e), 10, base=math.e)
+  # bins_linear = np.linspace(0.05, 0.5, 5)
+  bins_linear_log = np.linspace(math.log(0.05, math.e), math.log(0.5, math.e), 50)
 
   
-  # plt.hist(x, weights=y, bins=bins, histtype='step', lw=5, normed=True)
+  # plt.hist(x, weights=y, bins=bins_log, histtype='step', lw=5, normed=True)
   # plt.hist(x, weights=y, bins=bins_linear, histtype='step', lw=5, normed=True)
+  # plt.hist(x, weights=y, bins=bins_linear_log, histtype='step', lw=5, normed=True)
 
-  # plt.hist(x_logged, weights=y, bins=bins_linear_log_log, histtype='step', lw=5, normed=True)
+  plt.hist(x_logged, weights=y, bins=bins_linear_log, histtype='step', lw=5, normed=True)
+
   
-  hist, bins = np.histogram(x_logged, weights=y, bins=bins_linear_log, normed=True)
+
+  # This is an attempt to use numpy binning before using pyplot to plot.
+  # But that was attempted because of a misunderstanding that numpy would deal with "variable bins" correctly.
+  # But in actuality, we don't have to deal with variable bins for log(zg) anyway.
+
+  # hist, bins = np.histogram(x_logged, weights=y, bins=bins_linear_log, normed=True)
 
   # plt.hist(bins[:-1], weights=hist, histtype='step', bins=50, lw=5)
 
   # plt.errorbar(bins[:-1], hist, xerr=True, yerr=True, marker="o", markersize=10, lw=0)
+  
+
+
+
+  plt.show()
+
+  plt.clf()
+
+
+  '''
+
   my_hist = Hist([0.05, 0.1, 0.2, 0.5], title="something", markersize=3, color='red')
 
   my_hist_corrected = Hist([0.05, 0.1, 0.2, 0.5], title="something", markersize=3, color='blue')
@@ -2153,8 +2166,10 @@ def test2():
 
   plt.show()  
 
+  '''
 
-# test2()
+
+test2()
 
 def plot_pts_variable_bin():
   pT_lower_cut = 150
