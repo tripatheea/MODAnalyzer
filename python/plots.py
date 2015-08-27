@@ -369,9 +369,9 @@ def plot_charged_pt():
   plt.show()
 
 
-def plot_zg_pfc_pt_cut(pT_lower_cut, zg_cut, zg_filename, n_bins=10, y_max_limit=20):
+def plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=10, y_max_limit=20):
 
-  properties = parse_file(input_analysis_file, pT_lower_cut)
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
 
   zgs = properties[zg_filename]
   zg_pfc_cut_2 = properties[zg_filename + '_pt_2']
@@ -408,14 +408,14 @@ def plot_zg_pfc_pt_cut(pT_lower_cut, zg_cut, zg_filename, n_bins=10, y_max_limit
   plt.autoscale(True)
   plt.gca().set_ylim(0, y_max_limit)
 
-  legend = plt.legend(frameon=0, fontsize=60, bbox_to_anchor=[0.935, 0.98])
+  legend = plt.legend(frameon=0, fontsize=60, bbox_to_anchor=[1.0, 0.98])
   plt.gca().add_artist(legend)
 
   
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  handles = [extra, extra]
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
-  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.60])
+  handles = [extra, extra, extra]
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<3$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.97, 0.60])
 
 
   plt.xlabel("$z_g$", fontsize=95)
@@ -437,74 +437,11 @@ def plot_zg_pfc_pt_cut(pT_lower_cut, zg_cut, zg_filename, n_bins=10, y_max_limit
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  plt.savefig("plots/soft_cut/" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + ".pdf")
+  print "softcut/" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + ".pdf"
+
+  plt.savefig("plots/softcut/" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + ".pdf")
   # plt.show()
   plt.clf()
-
-
-def plot_charged_and_all_zgs(pT_lower_cut, zg_cut, zg_filename, n_bins=10, y_max_limit=20):
-
-  properties = parse_file(input_analysis_file, pT_lower_cut)
-
-  zgs = properties[zg_filename]
-  charged_zgs = properties[zg_filename[0:2] + "_charged_" + zg_filename[3: len(zg_filename)]]
-  prescales = properties['prescales']
- 
-  zg_hist = Hist(6 * n_bins, 0.0, 0.6, title="All PF Candidates", markersize=1.0, color='black')
-  zg_charged_hist = Hist(6 * n_bins, 0.0, 0.6, title="Charged PFCs", markersize=1.0, color='red')
-
-  bin_width_zg = (zg_hist.upperbound() - zg_hist.lowerbound()) / zg_hist.nbins()
-  bin_width_zg_charged = (zg_charged_hist.upperbound() - zg_charged_hist.lowerbound()) / zg_charged_hist.nbins()
-
-
-  map(zg_hist.Fill, zgs, prescales)
-  map(zg_charged_hist.Fill, charged_zgs, prescales)
-
-  if zg_hist.GetSumOfWeights() != 0:
-    zg_hist.Scale(1.0 / (zg_hist.GetSumOfWeights() * bin_width_zg))
-
-  if zg_charged_hist.GetSumOfWeights() != 0:
-    zg_charged_hist.Scale(1.0 / (zg_charged_hist.GetSumOfWeights() * bin_width_zg_charged))
-  
-  rplt.errorbar(zg_hist, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-  rplt.errorbar(zg_charged_hist, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-  
-  plt.autoscale(True)
-  plt.gca().set_ylim(0, y_max_limit)
-
-  legend = plt.legend(frameon=0, fontsize=60, bbox_to_anchor=[0.86, 0.98])
-  plt.gca().add_artist(legend)
-
-  
-  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  handles = [extra, extra]
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
-  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.70])
-
-
-  plt.xlabel("$z_g$", fontsize=95)
-  plt.ylabel("$\displaystyle \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=80, rotation=0, labelpad=115, y=0.39)
-  
-
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
-  plt.gca().add_artist(ab)
-  preliminary_text = "Prelim. (20\%)"
-  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
-
-  plt.gca().set_ylim(0, y_max_limit)
-  plt.gca().set_xlim(0.0, 0.6)
-
-  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
-
-  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
-
-  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
-
-  plt.savefig("plots/charged_zg/charged_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + ".pdf")
-  # plt.show()
-  plt.clf()
-
 
 
 
@@ -677,11 +614,11 @@ def plot_2d_hist():
 
 
 
-def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=20000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
+def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
 
   zg_cut = float(zg_cut)
 
-  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
   properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
   properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
@@ -1085,6 +1022,7 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=20000, zg_cut='0.05', zg_f
   fig.set_snap(True)
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
+  print "Writint out zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
   filename = "plots/zg/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
   
   plt.savefig(filename)
@@ -1497,6 +1435,75 @@ def plot_jet_area():
   plt.clf()
 
 
+
+
+
+def plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=10, y_max_limit=20):
+
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+
+  zgs = properties[zg_filename]
+  charged_zgs = properties[zg_filename[0:2] + "_charged_" + zg_filename[3: len(zg_filename)]]
+  prescales = properties['prescales']
+ 
+  zg_hist = Hist(6 * n_bins, 0.0, 0.6, title="All PF Candidates", markersize=1.0, color='black')
+  zg_charged_hist = Hist(6 * n_bins, 0.0, 0.6, title="Charged PFCs", markersize=1.0, color='red')
+
+  bin_width_zg = (zg_hist.upperbound() - zg_hist.lowerbound()) / zg_hist.nbins()
+  bin_width_zg_charged = (zg_charged_hist.upperbound() - zg_charged_hist.lowerbound()) / zg_charged_hist.nbins()
+
+
+  map(zg_hist.Fill, zgs, prescales)
+  map(zg_charged_hist.Fill, charged_zgs, prescales)
+
+  if zg_hist.GetSumOfWeights() != 0:
+    zg_hist.Scale(1.0 / (zg_hist.GetSumOfWeights() * bin_width_zg))
+
+  if zg_charged_hist.GetSumOfWeights() != 0:
+    zg_charged_hist.Scale(1.0 / (zg_charged_hist.GetSumOfWeights() * bin_width_zg_charged))
+  
+  rplt.errorbar(zg_hist, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.errorbar(zg_charged_hist, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  
+  
+  legend = plt.legend(frameon=0, fontsize=60, bbox_to_anchor=[0.95, 0.98])
+  plt.gca().add_artist(legend)
+
+  
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  handles = [extra, extra, extra]
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<3$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+
+  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.65])
+
+
+  plt.xlabel("$z_g$", fontsize=95)
+  plt.ylabel("$\displaystyle \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=80, rotation=0, labelpad=115, y=0.39)
+  
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gca().set_ylim(0, y_max_limit)
+  plt.gca().set_xlim(0.0, 0.6)
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.5))
+
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  print "Writing out charged_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + ".pdf"
+
+  plt.savefig("plots/zg_charged/charged_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + ".pdf")
+  # plt.show()
+  plt.clf()
 
 
 
@@ -2970,25 +2977,59 @@ def test3():
 
 
 
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=300, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=300, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=300, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=300, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=300, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=300, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
 
 
-plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=600, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=600, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=600, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
 
-plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=20000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=20000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=20000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
 
+
+
+
+# # Charged zg Begins.
+
+# plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=8, y_max_limit=14)
+# plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=8, y_max_limit=10)
+# plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=8, y_max_limit=10)
+
+# plot_charged_and_all_zgs(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=4, y_max_limit=15)
+# plot_charged_and_all_zgs(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=4, y_max_limit=15)
+# plot_charged_and_all_zgs(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=4, y_max_limit=15)
+
+# plot_charged_and_all_zgs(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=2, y_max_limit=15)
+# plot_charged_and_all_zgs(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=2, y_max_limit=15)
+# plot_charged_and_all_zgs(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=2, y_max_limit=15)
+
+
+
+# plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=8, y_max_limit=18)
+# plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=8, y_max_limit=10)
+# plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=8, y_max_limit=10)
+
+# plot_zg_pfc_pt_cut(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=4, y_max_limit=15)
+# plot_zg_pfc_pt_cut(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=4, y_max_limit=15)
+# plot_zg_pfc_pt_cut(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=4, y_max_limit=15)
+
+# plot_zg_pfc_pt_cut(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=2, y_max_limit=15)
+# plot_zg_pfc_pt_cut(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=2, y_max_limit=15)
+# plot_zg_pfc_pt_cut(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=2, y_max_limit=15)
+
+
+
+plot_JEC()
 
 
 
