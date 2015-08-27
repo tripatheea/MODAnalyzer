@@ -62,7 +62,7 @@ plt.rc('font', family='serif', size=43)
 
 
 
-def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
+def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00, pT_upper_cut = 20000.00):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
 
@@ -75,7 +75,7 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
       numbers = line.split()
       
       if not numbers[0] == "#":
-        if (float(numbers[4]) > pT_lower_cut) and (float(numbers[17]) > pfc_pT_cut):
+        if (float(numbers[4]) > pT_lower_cut) and (float(numbers[17]) > pfc_pT_cut) and (float(numbers[4]) < pT_upper_cut):
           properties['event_number'].append( float( numbers[1] ) )
           properties['run_number'].append( float( numbers[2] ) )
 
@@ -235,7 +235,7 @@ def parse_mc_pt_file(input_file, pT_lower_cut = 0.00):
   return pTs
 
     
-def parse_mc_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00):
+def parse_mc_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00, pT_upper_cut=20000):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
 
@@ -575,7 +575,7 @@ def plot_turn_on_curves():
   plt.clf()
 
 def plot_pts():
-  pT_lower_cut = 150
+  pT_lower_cut = 100
   properties = parse_file(input_analysis_file, pT_lower_cut)
 
   pTs = properties['uncorrected_hardest_pts']
@@ -615,23 +615,6 @@ def plot_pts():
   ax1 = plt.subplot(gs[1])
 
 
-
-  ax0.set_xscale('log')
-  # ax1.set_xscale('log')
-
-
-  ax0.set_yscale('log')
-
-  n_bins = 1000
-  b, a = log_bins(corrected_pTs, prescales, n_bins)
-  ax0.hist(a[:-1], weights=b, bins=n_bins)
-
-  ax0.set_xlim(0, 15000)
-
-  # ax0.autoscale(True)
-
-  plt.show()
-  plt.clf()
 
 
   data_plot = rplt.errorbar(corrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
@@ -727,8 +710,8 @@ def plot_pts():
   ax0.set_ylim(10e-8, 10e-1)
   ax1.set_ylim(0., 2.)
 
-  ax0.set_xlim(10e1, 10e3)
-  ax1.set_xlim(10e1, 10e3)
+  ax0.set_xlim(100, 2000)
+  ax1.set_xlim(100, 2000)
 
 
   plt.gcf().set_size_inches(30, 30, forward=1)
@@ -1567,14 +1550,113 @@ def plot_2d():
   # plt.show()
 
 
-def plot_hardest_pt_softdrop():
-  properties = parse_file(input_analysis_file, 150)
+def plot_JEC():
+  pT_lower_cut = 100
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+
+  JEC = properties['JEC']
+  
+  prescales = properties['prescales']
+
+  plt.hist(JEC, weights=prescales, bins=100, label="JEC Factor", normed=1, histtype='step', linewidth=5)
+
+
+  plt.xlabel('JEC Factor', fontsize=75)
+  plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
+
+  plt.autoscale(True)
+
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+  plt.gca().add_artist(legend)
+
+  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/JEC.pdf")
+
+  plt.clf()
+
+
+
+
+
+
+def plot_jet_area():
+  pT_lower_cut = 100
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+
+  jet_area = properties['jet_area']
+  prescales = properties['prescales']
+
+
+  plt.hist(jet_area, weights=prescales, bins=100, label="Jet Area", normed=1, histtype='step', linewidth=5)
+
+  jet_area_expanded = []
+  for i in range(0, len(jet_area)):
+    for j in range(0, prescales[i]):
+      jet_area_expanded.append(jet_area[i])
+
+
+  mu, std = norm.fit(jet_area_expanded)
+  xmin, xmax = plt.xlim()
+  x = np.linspace(xmin, xmax, 500)
+  p = norm.pdf(x, mu, std)
+  plt.plot(x, p, 'k', linewidth=5)
+
+  plt.autoscale(True)
+  plt.gca().set_ylim(0., 1.1 * plt.gca().get_ylim()[1])
+
+  plt.plot([ math.pi*(0.5**2), math.pi*(0.5**2) ], [ plt.gca().get_ylim()[0], plt.gca().get_ylim()[1] ], color='red', linewidth=5, linestyle="dashed")
+  # plt.gca().annotate("$\pi \cdot 0.5^2$", xy=(math.pi*(0.5**2), 20.), xycoords='data', color='red', xytext=(0.9, 20), size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor='red', zorder=99) )
+
+  plt.xlabel('Jet Area', fontsize=75)
+  plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = ["Fit Statistics\n" + "$\mu=" + str(mu.round(3)) + "$\n$" + "\sigma=" + str(std.round(3)) + "$"]
+  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.80])
+
+
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(1))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/jet_area.pdf")
+
+  plt.clf()
+
+
+
+
+def plot_hardest_pt_softdrop(pT_lower_cut=100, pT_upper_cut=20000):
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
   pTs_before_SD = properties['corrected_hardest_pts']
   pTs_after_SD = properties['pTs_after_SD']  
   prescales = properties['prescales']
 
-  
   pT_before_SD_hist = Hist(150, 0, 1500, title='Before SoftDrop', markersize=3.0, color='black')
   bin_width_before = (pT_before_SD_hist.upperbound() - pT_before_SD_hist.lowerbound()) / pT_before_SD_hist.nbins()
 
@@ -1594,12 +1676,15 @@ def plot_hardest_pt_softdrop():
 
   # Legends Begin.
 
-  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.89, 1.0])
   plt.gca().add_artist(legend)
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5}$"]
-  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.91, 0.62])
+  if pT_upper_cut != 20000:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<3$", r"$" + str(pT_lower_cut) + " < p_{T} < " + str(pT_upper_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  else:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<3$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.70])
 
   # Legends End.
 
@@ -1611,26 +1696,42 @@ def plot_hardest_pt_softdrop():
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
   plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
-  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
   
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
   plt.gca().autoscale(True)
-  plt.ylim(10e-8, 10e-1)
+  # plt.ylim(10e-9, 10e-1)
+  # plt.gca().set_ylim(0., 1.5 * plt.gca().get_ylim()[1])
 
-  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+  if ((pT_lower_cut == 100 and pT_upper_cut == 200)):
+    plt.ylim(10e-5, 10e-1)
+  elif ((pT_lower_cut == 200 and pT_upper_cut == 400)):
+    plt.ylim(10e-6, 10e-1)
+    # plt.xlim(100, 600)
+  elif ((pT_lower_cut == 400 and pT_upper_cut == 20000)):
+    plt.ylim(10e-6, 10e-2)
+  elif ((pT_lower_cut == 100 and pT_upper_cut == 20000)):
+    plt.ylim(10e-9, 10e-1)
 
+
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(50))
+  # plt.gca().yaxis.set_minor_locator(MultipleLocator(50))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  plt.savefig("plots/pT_SD_distribution.pdf")
+  print "Printing fractional energy loss with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+  plt.savefig("plots/hardest_pt_softdrop/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
   # plt.show()
   plt.clf()
 
 
-def plot_constituent_multiplicity_softdrop():
-  properties = parse_file(input_analysis_file, 150)
+
+def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000):
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
   multi_before_SD = properties['multiplicity_before_SD']
   multi_after_SD = properties['multiplicity_after_SD']  
@@ -1655,12 +1756,15 @@ def plot_constituent_multiplicity_softdrop():
 
   # Legends Begin.
 
-  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.89, 1.0])
   plt.gca().add_artist(legend)
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5}$"]
-  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.91, 0.62])
+  if pT_upper_cut != 20000:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<3$", r"$" + str(pT_lower_cut) + " < p_{T} < " + str(pT_upper_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  else:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<3$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.70])
 
   # Legends End.
 
@@ -1672,119 +1776,32 @@ def plot_constituent_multiplicity_softdrop():
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
   plt.xlabel('Constituent Multiplicity', fontsize=75)
-  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=25.)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
   
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
   plt.gca().autoscale(True)
-  plt.ylim(-0.01, 0.06)
+  plt.gca().set_ylim(0., 1.1 * plt.gca().get_ylim()[1])
 
-  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
-
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(5))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.001))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  plt.savefig("plots/constituent_multiplicity_SD_distribution.pdf")
+  print "Printing fractional energy loss with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+  plt.savefig("plots/constituent_multiplicity_softdrop/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
   # plt.show()
   plt.clf()
 
 
 
-def plot_jet_area():
-  pT_lower_cut = 150
-  properties = parse_file(input_analysis_file, pT_lower_cut)
-
-  jet_area = properties['jet_area']
-  prescales = properties['prescales']
 
 
-  plt.hist(jet_area, weights=prescales, bins=100, label="JEC Uncertainty", normed=1, histtype='step', linewidth=5)
-
-  jet_area_expanded = []
-  for i in range(0, len(jet_area)):
-    for j in range(0, prescales[i]):
-      jet_area_expanded.append(jet_area[i])
-
-
-  mu, std = norm.fit(jet_area_expanded)
-  xmin, xmax = plt.xlim()
-  x = np.linspace(xmin, xmax, 500)
-  p = norm.pdf(x, mu, std)
-  plt.plot(x, p, 'k', linewidth=5)
-
-  plt.xlabel('Jet Area', fontsize=75)
-  plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
-
-  plt.autoscale(1)
-
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
-  plt.gca().add_artist(ab)
-  preliminary_text = "Prelim. (20\%)"
-  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
-
-  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
-
-
-  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
-  plt.gca().add_artist(legend)
-
-  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  labels = ["Fit Statistics\n" + "$\mu=" + str(mu.round(3)) + "$\n$" + "\sigma=" + str(std.round(3)) + "$"]
-  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.83, 0.75])
-
-
-  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
-
-  plt.savefig("plots/jet_area.pdf")
-
-  plt.clf()
-
-
-
-
-
-def plot_JEC():
-  pT_lower_cut = 150
-  properties = parse_file(input_analysis_file, pT_lower_cut)
-
-  JEC = properties['JEC']
-  
-  prescales = properties['prescales']
-
-  plt.hist(JEC, weights=prescales, bins=100, label="JEC Factor", normed=1, histtype='step', linewidth=5)
-
-
-  plt.xlabel('JEC Factor', fontsize=75)
-  plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
-
-  plt.autoscale(1)
-
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
-  plt.gca().add_artist(ab)
-  preliminary_text = "Prelim. (20\%)"
-  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
-
-  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
-
-  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
-  plt.gca().add_artist(legend)
-
-  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
-
-  plt.savefig("plots/JEC.pdf")
-
-  plt.clf()
-
-
-
-
-def plot_fractional_energy_loss():
-  properties = parse_file(input_analysis_file, 150)
+def plot_fractional_energy_loss(pT_lower_cut=100, pT_upper_cut=20000):
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
   fractional_energy_loss = properties['fractional_energy_loss']
   prescales = properties['prescales']
@@ -1806,8 +1823,11 @@ def plot_fractional_energy_loss():
   plt.gca().add_artist(legend)
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5}$"]
-  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.735, 0.82])
+  if pT_upper_cut != 20000:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<3$", r"$" + str(pT_lower_cut) + " < p_{T} < " + str(pT_upper_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  else:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<3$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.93, 0.75])
 
   # Legends End.
 
@@ -1817,19 +1837,23 @@ def plot_fractional_energy_loss():
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
   plt.xlabel('Fractional Energy Loss', fontsize=75)
-  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=50.)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
   
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
   plt.gca().autoscale(True)
+  plt.gca().set_ylim(0., plt.gca().get_ylim()[1])
 
-  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
-
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(0.01))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(2))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  plt.savefig("plots/fractional_energy_loss.pdf")
+  print "Printing fractional energy loss with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+  plt.savefig("plots/fractional_energy_loss/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
   # plt.show()
   plt.clf()
 
@@ -1839,8 +1863,8 @@ def plot_fractional_energy_loss():
 
 
 
-def plot_jet_mass_spectrum():
-  properties = parse_file(input_analysis_file, 150)
+def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
   jet_mass_before_SD = properties['jet_mass_before_SD']
   jet_mass_after_SD = properties['jet_mass_after_SD']  
@@ -1861,20 +1885,20 @@ def plot_jet_mass_spectrum():
   rplt.errorbar(jet_mass_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
   rplt.errorbar(jet_mass_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-
-  plt.autoscale(1)
-
-
-  # plt.yscale('log')
-
   # Legends Begin.
 
-  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.89, 1.0])
   plt.gca().add_artist(legend)
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~\eta < 3}$"]
-  plt.gca().legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.75])
+  
+  if pT_upper_cut != 20000:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<3$", r"$" + str(pT_lower_cut) + " < p_{T} < " + str(pT_upper_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  else:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<3$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  
+
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.69])
 
   # # Legends End.
 
@@ -1886,20 +1910,23 @@ def plot_jet_mass_spectrum():
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
   plt.xlabel('Jet Mass', fontsize=75)
-  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=25.)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
   
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(5))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.005))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
   plt.gca().autoscale(True)
-  plt.ylim(-0.01, 0.07)
-
-  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
-
+  plt.gca().set_ylim(0., plt.gca().get_ylim()[1] * 1.2)
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  plt.savefig("plots/jet_mass_spectrum.pdf")
+  print "Printing jet mass spectrum with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+  plt.savefig("plots/jet_mass_spectrum/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
   # plt.show()
   plt.clf()
 
@@ -2018,14 +2045,14 @@ def plot_zg_test():
 
 
 
-def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
+def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5, pT_upper_cut=20000):
   pfc_pT_cut = 0
 
   zg_cut = float(zg_cut)
 
-  properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
-  properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
-  properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
+  properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut, pT_upper_cut)
+  properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut, pT_upper_cut)
+  properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut, pT_upper_cut)
 
   zg_data = properties[zg_filename]
   
@@ -2433,8 +2460,8 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
 
 
 
-plot_log_zg_th_mc_data(150, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
-plot_log_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+# plot_log_zg_th_mc_data(150, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+# plot_log_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
 
 
@@ -2595,7 +2622,7 @@ def test2():
 # test2()
 
 def plot_pts_variable_bin():
-  pT_lower_cut = 150
+  pT_lower_cut = 100
   properties = parse_file(input_analysis_file, pT_lower_cut)
 
   pTs = properties['uncorrected_hardest_pts']
@@ -2868,23 +2895,42 @@ def test3():
   plt.savefig("test_matplotlib.pdf")
 
 
-# test3()
-
-# test()
-
-# test2()
 
 
-# test3()
-
-# plot_all_uncertainties()
 
 
-# plot_zg()
-
-
+# Version 3 Begins Here.
 
 # plot_jet_mass_spectrum()
+# plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=200)
+# plot_jet_mass_spectrum(pT_lower_cut=200, pT_upper_cut=400)
+# plot_jet_mass_spectrum(pT_lower_cut=400)
+
+
+# plot_fractional_energy_loss()
+# plot_fractional_energy_loss(pT_lower_cut=100, pT_upper_cut=200)
+# plot_fractional_energy_loss(pT_lower_cut=200, pT_upper_cut=400)
+# plot_fractional_energy_loss(pT_lower_cut=400)
+
+# plot_constituent_multiplicity_softdrop()
+# plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=200)
+# plot_constituent_multiplicity_softdrop(pT_lower_cut=200, pT_upper_cut=400)
+# plot_constituent_multiplicity_softdrop(pT_lower_cut=400)
+
+# plot_jet_area()
+
+plot_hardest_pt_softdrop()
+plot_hardest_pt_softdrop(pT_lower_cut=100, pT_upper_cut=200)
+plot_hardest_pt_softdrop(pT_lower_cut=200, pT_upper_cut=400)
+plot_hardest_pt_softdrop(pT_lower_cut=400)
+
+
+
+# Version 3 Ends Here.
+
+
+
+
 
 # plot_fractional_energy_loss()
 
