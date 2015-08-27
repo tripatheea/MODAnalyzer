@@ -215,7 +215,7 @@ def parse_file_turn_on(input_file, pT_lower_cut = 0.00):
 
 
 
-def parse_mc_pt_file(input_file, pT_lower_cut = 0.00):
+def parse_mc_pt_file(input_file, pT_lower_cut=100., pT_upper_cut=20000.):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
 
@@ -224,7 +224,8 @@ def parse_mc_pt_file(input_file, pT_lower_cut = 0.00):
   for line in lines:
     try:
       numbers = line.split()
-      pTs.append( float( numbers[0] ) )
+      if (float(numbers[0]) > pT_lower_cut and float(numbers[0]) < pT_upper_cut):
+        pTs.append( float( numbers[0] ) )
     except:
       if len(numbers) != 0:
         # print "Some kind of error occured while parsing the given file!"
@@ -574,163 +575,6 @@ def plot_turn_on_curves():
   # plt.show()
   plt.clf()
 
-def plot_pts():
-  pT_lower_cut = 100
-  properties = parse_file(input_analysis_file, pT_lower_cut)
-
-  pTs = properties['uncorrected_hardest_pts']
-  corrected_pTs = properties['corrected_hardest_pts']
-  prescales = properties['prescales']
-
-  herwig_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_herwig_pp2jj_150pTcut_7TeV.dat")
-  pythia_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_pythia_pp2jj_150pTcut_7TeV.dat")
-
-  pythia_pt_hist = Hist(1500, pT_lower_cut, 15000, title="Pythia 8.205", linewidth=5, markersize=5.0, color="blue")
-  bin_width_pythia = (pythia_pt_hist.upperbound() - pythia_pt_hist.lowerbound()) / pythia_pt_hist.nbins()
-
-  herwig_pt_hist = Hist(1500, pT_lower_cut, 15000, title="Herwig++ 2.6.3", linewidth=5, markersize=5.0, color="green")
-  bin_width_herwig = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
-
-  corrected_pt_hist = Hist(1500, pT_lower_cut, 15000, title='Corrected', markersize=3.0, color='black')
-  bin_width_corrected = (corrected_pt_hist.upperbound() - corrected_pt_hist.lowerbound()) / corrected_pt_hist.nbins()
-
-  uncorrected_pt_hist = Hist(1500, pT_lower_cut, 15000, title='Uncorrected', markersize=3.0, color='orange')
-  bin_width_uncorrected = (uncorrected_pt_hist.upperbound() - uncorrected_pt_hist.lowerbound()) / uncorrected_pt_hist.nbins()
-
-  map(uncorrected_pt_hist.Fill, pTs, prescales)
-  map(corrected_pt_hist.Fill, corrected_pTs, prescales)
-  
-  map(pythia_pt_hist.Fill, pythia_pTs)
-  map(herwig_pt_hist.Fill, herwig_pTs)
-
-  corrected_pt_hist.Scale(1.0 / (corrected_pt_hist.GetSumOfWeights() * bin_width_corrected))
-  uncorrected_pt_hist.Scale(1.0 / (uncorrected_pt_hist.GetSumOfWeights() * bin_width_uncorrected))
-  pythia_pt_hist.Scale(1.0 / (pythia_pt_hist.GetSumOfWeights() * bin_width_pythia))
-  herwig_pt_hist.Scale(1.0 / (herwig_pt_hist.GetSumOfWeights() * bin_width_herwig))
-
-  
-  gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
-
-  ax0 = plt.subplot(gs[0])
-  ax1 = plt.subplot(gs[1])
-
-
-
-
-  data_plot = rplt.errorbar(corrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-  uncorrected_data_plot = rplt.errorbar(uncorrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-  rplt.hist(pythia_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-  rplt.hist(herwig_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-  
-
-  data_x_errors, data_y_errors = [], []
-  for x_segment in data_plot[2][0].get_segments():
-    data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
-  for y_segment in data_plot[2][1].get_segments():
-    data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
-
-  data_points_x = data_plot[0].get_xdata()
-  data_points_y = data_plot[0].get_ydata()
-
-  data_plot_points_x = []
-  data_plot_points_y = []
-  for i in range(0, len(data_points_x)):
-    data_plot_points_x.append(data_points_x[i])
-    data_plot_points_y.append(data_points_y[i])
-
-
-
-  uncorrected_data_x_errors, uncorrected_data_y_errors = [], []
-  for x_segment in uncorrected_data_plot[2][0].get_segments():
-    uncorrected_data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
-  for y_segment in uncorrected_data_plot[2][1].get_segments():
-    uncorrected_data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
-
-  uncorrected_data_points_x = uncorrected_data_plot[0].get_xdata()
-  uncorrected_data_points_y = uncorrected_data_plot[0].get_ydata()
-
-  uncorrected_data_plot_points_x = []
-  uncorrected_data_plot_points_y = []
-  for i in range(0, len(uncorrected_data_points_x)):
-    uncorrected_data_plot_points_x.append(uncorrected_data_points_x[i])
-    uncorrected_data_plot_points_y.append(uncorrected_data_points_y[i])
-
-
-
-
-  data_to_data_y_err = [(b / m) for b, m in zip(data_y_errors, data_plot_points_y)]
-  data_to_data_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(data_plot_points_y))]
-
-  uncorrected_to_corrected_y_err = [(b / m) for b, m in zip(uncorrected_data_y_errors, data_plot_points_y)]
-  uncorrected_to_corrected_x_err = [(b / m) for b, m in zip(uncorrected_data_x_errors, [1] * len(data_plot_points_y))]
-
-
-  ax0.autoscale(True)
-  ax0.set_yscale('log')
-
-
-  # Legends Begin.
-
-  legend = ax0.legend(loc=1, frameon=0, fontsize=60)
-  ax0.add_artist(legend)
-
-  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5}$"]
-  ax0.legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.91, 0.62])
-
-  # Legends End.
-
-
-
-  ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
-  ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
-  ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
-  ax1.set_ylabel("Ratio           \nto           \n" + "Data" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
-
-
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
-  plt.gca().add_artist(ab)
-  preliminary_text = "Prelim. (20\%)"
-  plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
-
-  # Ratio Plot.
-  pythia_pt_hist.Divide(corrected_pt_hist)
-  herwig_pt_hist.Divide(corrected_pt_hist)
-  uncorrected_pt_hist.Divide(corrected_pt_hist)
-  corrected_pt_hist.Divide(corrected_pt_hist)
-
-  rplt.hist(pythia_pt_hist, axes=ax1, linewidth=5)
-  rplt.hist(herwig_pt_hist, axes=ax1, linewidth=5)
-  
-  rplt.errorbar(corrected_pt_hist, xerr=data_to_data_x_err, yerr=data_to_data_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-  rplt.errorbar(uncorrected_pt_hist, xerr=uncorrected_to_corrected_x_err, yerr=uncorrected_to_corrected_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-
-  ax1.autoscale(True)
-  
-  ax0.set_ylim(10e-8, 10e-1)
-  ax1.set_ylim(0., 2.)
-
-  ax0.set_xlim(100, 2000)
-  ax1.set_xlim(100, 2000)
-
-
-  plt.gcf().set_size_inches(30, 30, forward=1)
-
-
-  ax0.xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  ax0.yaxis.set_tick_params(width=5, length=20, labelsize=70)
-
-  ax1.xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  ax1.yaxis.set_tick_params(width=5, length=20, labelsize=70)
-
-  
-
-  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
-
-  plt.savefig("plots/ak5_pt_distribution.pdf")
-  # plt.show()
-  plt.clf()
-
 
 def plot_hardest_pt_corresponding_triggers():
   properties = parse_file(input_analysis_file)
@@ -833,14 +677,13 @@ def plot_2d_hist():
 
 
 
-def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
-  pfc_pT_cut = 0
+def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=20000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
 
   zg_cut = float(zg_cut)
 
-  properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut)
-  properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
-  properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut)
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+  properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+  properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
   zg_data = properties[zg_filename]
   
@@ -1040,9 +883,6 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
   # Theory-Over-Data Plot.
   
-
-  
-
   data_plot_points_x = []
   data_plot_points_y = []
 
@@ -1181,7 +1021,7 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   handles = [data_plot, (th_patch, th_line), pythia_line, herwig_line]
   labels = [data_label, theory_label, pythia_label, herwig_label]
 
-  first_legend = ax0.legend(handles, labels, fontsize=60, handler_map = {th_line : HandlerLine2D(marker_pad = 0), pythia_line : HandlerLine2D(marker_pad = 0), herwig_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1, bbox_to_anchor=[0.90, 0.98])
+  first_legend = ax0.legend(handles, labels, fontsize=60, handler_map = {th_line : HandlerLine2D(marker_pad = 0), pythia_line : HandlerLine2D(marker_pad = 0), herwig_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1, bbox_to_anchor=[0.97, 0.98])
   ax = ax0.add_artist(first_legend)
 
   for txt in first_legend.get_texts():
@@ -1190,10 +1030,15 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
 
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  handles = [extra, extra]
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
-  # labels = ["", ""]
-  ax0.legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.58])
+  
+  if pT_upper_cut != 20000:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<3$", r"$" + str(pT_lower_cut) + " < p_{T} < " + str(pT_upper_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+  else:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<3$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+
+  # labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+  
+  ax0.legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.97, 0.52])
 
 
   # Legend Ends.
@@ -1225,16 +1070,22 @@ def plot_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="the
   fig = plt.gcf()
   fig.set_size_inches(30, 30, forward=1)
 
-  ax0.xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  ax0.yaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.sca(ax0)
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.5))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
 
-  ax1.xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  ax1.yaxis.set_tick_params(width=5, length=20, labelsize=70)
+  plt.sca(ax1)
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
 
   fig.set_snap(True)
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  filename = "plots/zg/zg_cut_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+  filename = "plots/zg/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
   
   plt.savefig(filename)
   # plt.show()
@@ -1588,8 +1439,6 @@ def plot_JEC():
 
 
 
-
-
 def plot_jet_area():
   pT_lower_cut = 100
   properties = parse_file(input_analysis_file, pT_lower_cut)
@@ -1645,6 +1494,192 @@ def plot_jet_area():
 
   plt.savefig("plots/jet_area.pdf")
 
+  plt.clf()
+
+
+
+
+
+def plot_pts(pT_lower_cut=150, pT_upper_cut=20000):
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
+  pTs = properties['uncorrected_hardest_pts']
+  corrected_pTs = properties['corrected_hardest_pts']
+  prescales = properties['prescales']
+
+  herwig_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_herwig_pp2jj_150pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+  pythia_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_pythia_pp2jj_150pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
+
+  pythia_pt_hist = Hist(300, pT_lower_cut, 1500, title="Pythia 8.205", linewidth=5, markersize=5.0, color="blue")
+  bin_width_pythia = (pythia_pt_hist.upperbound() - pythia_pt_hist.lowerbound()) / pythia_pt_hist.nbins()
+
+  herwig_pt_hist = Hist(300, pT_lower_cut, 1500, title="Herwig++ 2.6.3", linewidth=5, markersize=5.0, color="green")
+  bin_width_herwig = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
+
+  corrected_pt_hist = Hist(300, pT_lower_cut, 1500, title='Corrected', markersize=3.0, color='black')
+  bin_width_corrected = (corrected_pt_hist.upperbound() - corrected_pt_hist.lowerbound()) / corrected_pt_hist.nbins()
+
+  uncorrected_pt_hist = Hist(300, pT_lower_cut, 1500, title='Uncorrected', markersize=3.0, color='orange')
+  bin_width_uncorrected = (uncorrected_pt_hist.upperbound() - uncorrected_pt_hist.lowerbound()) / uncorrected_pt_hist.nbins()
+
+  map(uncorrected_pt_hist.Fill, pTs, prescales)
+  map(corrected_pt_hist.Fill, corrected_pTs, prescales)
+  
+  map(pythia_pt_hist.Fill, pythia_pTs)
+  map(herwig_pt_hist.Fill, herwig_pTs)
+
+  corrected_pt_hist.Scale(1.0 / (corrected_pt_hist.GetSumOfWeights() * bin_width_corrected))
+  uncorrected_pt_hist.Scale(1.0 / (uncorrected_pt_hist.GetSumOfWeights() * bin_width_uncorrected))
+  pythia_pt_hist.Scale(1.0 / (pythia_pt_hist.GetSumOfWeights() * bin_width_pythia))
+  herwig_pt_hist.Scale(1.0 / (herwig_pt_hist.GetSumOfWeights() * bin_width_herwig))
+
+  
+  gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
+
+  ax0 = plt.subplot(gs[0])
+  ax1 = plt.subplot(gs[1])
+
+
+
+
+  data_plot = rplt.errorbar(corrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  uncorrected_data_plot = rplt.errorbar(uncorrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.hist(pythia_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.hist(herwig_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  
+
+  data_x_errors, data_y_errors = [], []
+  for x_segment in data_plot[2][0].get_segments():
+    data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+  for y_segment in data_plot[2][1].get_segments():
+    data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+
+  data_points_x = data_plot[0].get_xdata()
+  data_points_y = data_plot[0].get_ydata()
+
+  data_plot_points_x = []
+  data_plot_points_y = []
+  for i in range(0, len(data_points_x)):
+    data_plot_points_x.append(data_points_x[i])
+    data_plot_points_y.append(data_points_y[i])
+
+
+
+  uncorrected_data_x_errors, uncorrected_data_y_errors = [], []
+  for x_segment in uncorrected_data_plot[2][0].get_segments():
+    uncorrected_data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+  for y_segment in uncorrected_data_plot[2][1].get_segments():
+    uncorrected_data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+
+  uncorrected_data_points_x = uncorrected_data_plot[0].get_xdata()
+  uncorrected_data_points_y = uncorrected_data_plot[0].get_ydata()
+
+  uncorrected_data_plot_points_x = []
+  uncorrected_data_plot_points_y = []
+  for i in range(0, len(uncorrected_data_points_x)):
+    uncorrected_data_plot_points_x.append(uncorrected_data_points_x[i])
+    uncorrected_data_plot_points_y.append(uncorrected_data_points_y[i])
+
+
+
+
+  data_to_data_y_err = [(b / m) for b, m in zip(data_y_errors, data_plot_points_y)]
+  data_to_data_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(data_plot_points_y))]
+
+  uncorrected_to_corrected_y_err = [(b / m) for b, m in zip(uncorrected_data_y_errors, data_plot_points_y)]
+  uncorrected_to_corrected_x_err = [(b / m) for b, m in zip(uncorrected_data_x_errors, [1] * len(data_plot_points_y))]
+
+
+  # Legends Begin.
+
+  legend = ax0.legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.95, 1.0])
+  ax0.add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  if pT_upper_cut != 20000:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<3$", r"$" + str(pT_lower_cut) + " < p_{T} < " + str(pT_upper_cut) + "~\mathrm{GeV}$"]
+  else:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<3$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+  ax0.legend([extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.57])
+
+  # Legends End.
+
+
+
+  ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
+  ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
+  ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
+  ax1.set_ylabel("Ratio           \nto           \n" + "Data" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
+
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  # Ratio Plot.
+  pythia_pt_hist.Divide(corrected_pt_hist)
+  herwig_pt_hist.Divide(corrected_pt_hist)
+  uncorrected_pt_hist.Divide(corrected_pt_hist)
+  corrected_pt_hist.Divide(corrected_pt_hist)
+
+  rplt.hist(pythia_pt_hist, axes=ax1, linewidth=5)
+  rplt.hist(herwig_pt_hist, axes=ax1, linewidth=5)
+  
+  rplt.errorbar(corrected_pt_hist, xerr=data_to_data_x_err, yerr=data_to_data_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.errorbar(uncorrected_pt_hist, xerr=uncorrected_to_corrected_x_err, yerr=uncorrected_to_corrected_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  ax0.set_yscale('log')
+
+  ax0.autoscale(True)
+  ax1.autoscale(True)
+  
+  ax1.set_ylim(0., 2.)
+
+
+
+  if ((pT_lower_cut == 150 and pT_upper_cut == 250)):
+    ax0.set_xlim(150, 250)
+    ax1.set_xlim(150, 250)
+    ax0.set_ylim(10e-4, 10e-2)
+    pT_minor_ticks = 5
+  elif ((pT_lower_cut == 250 and pT_upper_cut == 500)):
+    ax0.set_xlim(250, 500)
+    ax1.set_xlim(250, 500)
+    ax0.set_ylim(10e-5, 10e-2)
+    pT_minor_ticks = 10
+  elif ((pT_lower_cut == 500 and pT_upper_cut == 20000)):
+    ax0.set_xlim(500, 1500)
+    ax1.set_xlim(500, 1500)
+    ax0.set_ylim(0.0005, 0.05)
+    pT_minor_ticks = 50
+  elif ((pT_lower_cut == 150 and pT_upper_cut == 20000)):
+    ax0.set_xlim(150, 1500)
+    ax1.set_xlim(150, 1500)
+    ax0.set_ylim(10e-8, 10e-2)
+    pT_minor_ticks = 50
+
+
+  plt.gcf().set_size_inches(30, 30, forward=1)
+
+  plt.sca(ax0)
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(pT_minor_ticks))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
+  plt.sca(ax1)
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(pT_minor_ticks))
+  # plt.gca().yaxis.set_minor_locator(MultipleLocator(50))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  print "Printing fractional energy loss with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+  plt.savefig("plots/pT_distribution/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
+  # plt.show()
   plt.clf()
 
 
@@ -2622,7 +2657,7 @@ def test2():
 # test2()
 
 def plot_pts_variable_bin():
-  pT_lower_cut = 100
+  pT_lower_cut = 150
   properties = parse_file(input_analysis_file, pT_lower_cut)
 
   pTs = properties['uncorrected_hardest_pts']
@@ -2632,11 +2667,11 @@ def plot_pts_variable_bin():
   event_numbers = properties['event_number']
   run_numbers = properties['run_number']
 
-  print max(pTs)
+  # print max(pTs)
 
-  for i in range(0, len(pTs)):
-    if pTs[i] > 10000:
-      print int(event_numbers[i]), int(run_numbers[i])
+  # for i in range(0, len(pTs)):
+  #   if pTs[i] > 10000:
+  #     print int(event_numbers[i]), int(run_numbers[i])
 
 
   herwig_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_herwig_pp2jj_150pTcut_7TeV.dat")
@@ -2667,9 +2702,6 @@ def plot_pts_variable_bin():
   ax0 = plt.subplot(gs[0])
   ax1 = plt.subplot(gs[1])
 
-
-
-  ax0.set_yscale('log')
 
   data_plot = rplt.errorbar(corrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
   uncorrected_data_plot = rplt.errorbar(uncorrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
@@ -2725,12 +2757,12 @@ def plot_pts_variable_bin():
 
   # Legends Begin.
 
-  legend = ax0.legend(loc=1, frameon=0, fontsize=60)
+  legend = ax0.legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.98, 1.0])
   ax0.add_artist(legend)
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5}$"]
-  ax0.legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.91, 0.62])
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<3$", r"$p_{T} > 150~\mathrm{GeV}$"]
+  ax0.legend([extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[1.0, 0.62])
 
   # Legends End.
 
@@ -2768,17 +2800,20 @@ def plot_pts_variable_bin():
   plt.gcf().set_size_inches(30, 30, forward=1)
 
 
-  ax0.xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  ax0.yaxis.set_tick_params(width=5, length=20, labelsize=70)
-
-  ax1.xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  ax1.yaxis.set_tick_params(width=5, length=20, labelsize=70)
-
+  plt.sca(ax0)
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(100))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
   
+  plt.sca(ax1)
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(100))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  plt.savefig("plots/ak5_pt_distribution_var_bin.pdf")
+  plt.savefig("plots/pT_distribution_var_bin.pdf")
   # plt.show()
   plt.clf()
 
@@ -2919,10 +2954,41 @@ def test3():
 
 # plot_jet_area()
 
-plot_hardest_pt_softdrop()
-plot_hardest_pt_softdrop(pT_lower_cut=100, pT_upper_cut=200)
-plot_hardest_pt_softdrop(pT_lower_cut=200, pT_upper_cut=400)
-plot_hardest_pt_softdrop(pT_lower_cut=400)
+# plot_hardest_pt_softdrop()
+# plot_hardest_pt_softdrop(pT_lower_cut=100, pT_upper_cut=200)
+# plot_hardest_pt_softdrop(pT_lower_cut=200, pT_upper_cut=400)
+# plot_hardest_pt_softdrop(pT_lower_cut=400)
+
+
+# plot_pts()
+# plot_pts(pT_lower_cut=150, pT_upper_cut=300)
+# plot_pts(pT_lower_cut=300, pT_upper_cut=600)
+# plot_pts(pT_lower_cut=600)
+
+
+# plot_pts_variable_bin()
+
+
+
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=300, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=300, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=300, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=300, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=300, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=300, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+
+
+
+plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=600, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=600, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=600, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+
+plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=20000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=20000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=20000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+
 
 
 
