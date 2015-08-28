@@ -2087,7 +2087,7 @@ def plot_zg_test():
 
 
 
-def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5, pT_upper_cut=20000):
+def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
   pfc_pT_cut = 0
 
   zg_cut = float(zg_cut)
@@ -2227,8 +2227,8 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
     a_zero_removed = []
     y_zero_removed = []
     for i in range(0, len(a)):
-      # if a[i] >= zg_cut and a[i] <= 0.5 and y[i] != 0.0:
-      if True:
+      if a[i] >= math.log(zg_cut, math.e) and a[i] <= math.log(0.5, math.e) and y[i] != 0.0:
+      # if True:
         a_zero_removed.append(a[i])
         y_zero_removed.append(y[i])
 
@@ -2298,15 +2298,20 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
   data_plot_points_y = []
 
   for i in range(0, len(data_points_x)):
-    # if float(data_points_x[i]) >= float(zg_cut):
-    if True:
+    if float(data_points_x[i]) >= float(math.log(zg_cut, math.e)):
+    # if True:
       data_plot_points_x.append(data_points_x[i])
       data_plot_points_y.append(data_points_y[i])
 
 
-  theory_min_interpolate_function = interpolate.interp1d(log_theory_x, theory_y_min)
-  theory_line_interpolate_function = interpolate.interp1d(log_theory_x, theory_y_line)
-  theory_max_interpolate_function = interpolate.interp1d(log_theory_x, theory_y_max)
+
+
+  theory_min_interpolate_function = interpolate.interp1d(log_theory_x, theory_y_min, bounds_error=False, fill_value=1.)
+  theory_line_interpolate_function = interpolate.interp1d(log_theory_x, theory_y_line, bounds_error=False, fill_value=1.)
+  theory_max_interpolate_function = interpolate.interp1d(log_theory_x, theory_y_max, bounds_error=False, fill_value=1.)
+
+
+  data_plot_points_x = sorted(data_plot_points_x, reverse=True)
 
   theory_extrapolated_min = theory_min_interpolate_function(data_plot_points_x)
   theory_extrapolated_line = theory_line_interpolate_function(data_plot_points_x)
@@ -2458,8 +2463,8 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
   ax0.autoscale(True)
   ax1.autoscale(True)
   
-  ax0.set_xlim(math.log(zg_cut, math.e), math.log(0.5, math.e))
-  ax1.set_xlim(math.log(zg_cut, math.e), math.log(0.5, math.e))
+  ax0.set_xlim(math.log(float(zg_cut), math.e), math.log(0.5, math.e))
+  ax1.set_xlim(math.log(float(zg_cut), math.e), math.log(0.5, math.e))
 
   if data:
     ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
@@ -2494,16 +2499,12 @@ def plot_log_zg_th_mc_data(pT_lower_cut, zg_cut, zg_filename, ratio_denominator=
   plt.gcf().set_snap(True)
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
+  print "Writing log_zg_cut_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
   filename = "plots/log_zg/log_zg_cut_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
   
   plt.savefig(filename)
   # plt.show()
   plt.clf()
-
-
-
-# plot_log_zg_th_mc_data(150, '0.05', 'zg_05', 'data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
-# plot_log_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
 
 
@@ -2674,10 +2675,10 @@ def plot_pts_variable_bin():
   event_numbers = properties['event_number']
   run_numbers = properties['run_number']
 
-  # print max(pTs)
+  print max(pTs)
 
   # for i in range(0, len(pTs)):
-  #   if pTs[i] > 10000:
+    # if pTs[i] > 10000:
   #     print int(event_numbers[i]), int(run_numbers[i])
 
 
@@ -2941,30 +2942,39 @@ def test3():
 
 
 
+
+
+
+
+
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=250, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+
+
+
 # Version 3 Begins Here.
 
-# plot_jet_mass_spectrum()
-# plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=200)
-# plot_jet_mass_spectrum(pT_lower_cut=200, pT_upper_cut=400)
-# plot_jet_mass_spectrum(pT_lower_cut=400)
+plot_jet_mass_spectrum()
+plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=200)
+plot_jet_mass_spectrum(pT_lower_cut=200, pT_upper_cut=400)
+plot_jet_mass_spectrum(pT_lower_cut=400)
 
 
-# plot_fractional_energy_loss()
-# plot_fractional_energy_loss(pT_lower_cut=100, pT_upper_cut=200)
-# plot_fractional_energy_loss(pT_lower_cut=200, pT_upper_cut=400)
-# plot_fractional_energy_loss(pT_lower_cut=400)
+plot_fractional_energy_loss()
+plot_fractional_energy_loss(pT_lower_cut=100, pT_upper_cut=200)
+plot_fractional_energy_loss(pT_lower_cut=200, pT_upper_cut=400)
+plot_fractional_energy_loss(pT_lower_cut=400)
 
-# plot_constituent_multiplicity_softdrop()
-# plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=200)
-# plot_constituent_multiplicity_softdrop(pT_lower_cut=200, pT_upper_cut=400)
-# plot_constituent_multiplicity_softdrop(pT_lower_cut=400)
+plot_constituent_multiplicity_softdrop()
+plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=200)
+plot_constituent_multiplicity_softdrop(pT_lower_cut=200, pT_upper_cut=400)
+plot_constituent_multiplicity_softdrop(pT_lower_cut=400)
 
-# plot_jet_area()
+plot_jet_area()
 
-# plot_hardest_pt_softdrop()
-# plot_hardest_pt_softdrop(pT_lower_cut=100, pT_upper_cut=200)
-# plot_hardest_pt_softdrop(pT_lower_cut=200, pT_upper_cut=400)
-# plot_hardest_pt_softdrop(pT_lower_cut=400)
+plot_hardest_pt_softdrop()
+plot_hardest_pt_softdrop(pT_lower_cut=100, pT_upper_cut=200)
+plot_hardest_pt_softdrop(pT_lower_cut=200, pT_upper_cut=400)
+plot_hardest_pt_softdrop(pT_lower_cut=400)
 
 
 plot_pts()
@@ -3000,6 +3010,31 @@ plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filena
 
 
 
+
+plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+
+plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+
+plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+
+
+plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+
+plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+
+
+
+
+
+
+
 plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=8, y_max_limit=14)
 plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=8, y_max_limit=10)
 plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=8, y_max_limit=10)
@@ -3029,6 +3064,7 @@ plot_zg_pfc_pt_cut(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filena
 
 
 plot_JEC()
+
 
 
 

@@ -442,21 +442,21 @@ bool MOD::Event::jet_quality_cut(string level) {
    MOD::CalibratedJet hardest_jet = hardest_uncorrected_jet();
 
    bool pass = false;
-   double cut_off = 0.99999999;
+   double cut_off = 0.99;
 
    if (level == "tight") {
-      cut_off = 0.90000000;
+      cut_off = 0.90;
    }
    else if (level == "medium") {
-      cut_off = 0.95000000;
+      cut_off = 0.95;
    }
 
    pass = ( hardest_jet.number_of_constituents() > 1 )     &&
           ( hardest_jet.neutral_hadron_fraction() < cut_off ) && 
           ( hardest_jet.neutral_em_fraction() < cut_off )     &&
           ( 
-            ( abs(hardest_jet.pseudojet().eta()) >= 2.40000000 ) || 
-               ( hardest_jet.charged_em_fraction() < 0.99999999 && hardest_jet.charged_hadron_fraction() > 0 && hardest_jet.charged_multiplicity() > 0) ); 
+            ( abs(hardest_jet.pseudojet().eta()) >= 2.4 ) || 
+               ( hardest_jet.charged_em_fraction() < 0.99 && hardest_jet.charged_hadron_fraction() > 0.00 && hardest_jet.charged_multiplicity() > 0) ); 
 
    return pass;
 
