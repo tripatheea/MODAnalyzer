@@ -25,6 +25,9 @@ using namespace contrib;
 
 void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number,  vector<double> cone_radii, vector<double> pt_cuts);
 
+double calculate_rho(double R, double m, double pT);
+
+
 int main(int argc, char * argv[]) {
 
    auto start = std::chrono::steady_clock::now();
@@ -88,6 +91,16 @@ int main(int argc, char * argv[]) {
 }
 
 
+
+
+
+
+double calculate_rho(double R, double m, double pT) {
+   return m * m / (pT * pT * R * R);
+}
+
+
+
 void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
 
 
@@ -96,20 +109,9 @@ void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int
 
    properties.push_back(MOD::Property("# Entry", "  Entry"));
 
-   properties.push_back(MOD::Property("Event_Number", event_being_read.event_number()));
-   properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
-   
-
-   MOD::CalibratedJet hardest_corrected_jet = event_being_read.hardest_corrected_jet();
-   MOD::CalibratedJet hardest_uncorrected_jet = event_being_read.hardest_uncorrected_jet();
-
-   // PseudoJet corrected_hardest_pseudojet = hardest_jet.pseudojet() * hardest_jet.JEC();
-
-   properties.push_back(MOD::Property("Uncor_Hardest_pT", hardest_uncorrected_jet.pseudojet().pt()));
    properties.push_back(MOD::Property("Cor_Hardest_pT", hardest_corrected_jet.pseudojet().pt()));
 
    properties.push_back(MOD::Property("Prescale", event_being_read.assigned_trigger_prescale()));
-   properties.push_back(MOD::Property("Trigger_Name", event_being_read.assigned_trigger_name()));
 
 
    // Run AK5 clustering with FastJet to get zg value.
@@ -120,17 +122,48 @@ void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int
 
    if ((unsigned) ak5_jets.size() > 0) {
       PseudoJet hardest_jet = ak5_jets[0];
-      // hardest_jet *= event_being_read.hardest_jet_JEC();
 
       double beta = 0;
 
-      SoftDrop soft_drop(beta, 0.05);
-      PseudoJet soft_drop_jet = soft_drop(hardest_jet);
-      double zg_05 = soft_drop_jet.structure_of<SoftDrop>().symmetry();
-      
+      SoftDrop soft_drop_05(beta, 0.05);
+      PseudoJet soft_drop_jet_05 = soft_drop_05(hardest_jet);
+      properties.push_back(MOD::Property("rho_05", calculate_rho(0.5, soft_drop_jet_05.m(), soft_drop_jet_05.pt())));
 
-      
-      // properties.push_back(MOD::Property("zg_05", zg_05));
+      SoftDrop soft_drop_10(beta, 0.10);
+      PseudoJet soft_drop_jet_10 = soft_drop_10(hardest_jet);
+      properties.push_back(MOD::Property("rho_10", calculate_rho(0.5, soft_drop_jet_10.m(), soft_drop_jet_10.pt())));
+
+      SoftDrop soft_drop_15(beta, 0.15);
+      PseudoJet soft_drop_jet_15 = soft_drop_15(hardest_jet);
+      properties.push_back(MOD::Property("rho_15", calculate_rho(0.5, soft_drop_jet_15.m(), soft_drop_jet_15.pt())));
+
+      SoftDrop soft_drop_20(beta, 0.20);
+      PseudoJet soft_drop_jet_20 = soft_drop_20(hardest_jet);
+      properties.push_back(MOD::Property("rho_20", calculate_rho(0.5, soft_drop_jet_20.m(), soft_drop_jet_20.pt())));
+
+      SoftDrop soft_drop_25(beta, 0.25);
+      PseudoJet soft_drop_jet_25 = soft_drop_25(hardest_jet);
+      properties.push_back(MOD::Property("rho_25", calculate_rho(0.5, soft_drop_jet_25.m(), soft_drop_jet_25.pt())));
+
+      SoftDrop soft_drop_30(beta, 0.30);
+      PseudoJet soft_drop_jet_30 = soft_drop_30(hardest_jet);
+      properties.push_back(MOD::Property("rho_30", calculate_rho(0.5, soft_drop_jet_30.m(), soft_drop_jet_30.pt())));
+
+      SoftDrop soft_drop_35(beta, 0.35);
+      PseudoJet soft_drop_jet_35 = soft_drop_35(hardest_jet);
+      properties.push_back(MOD::Property("rho_35", calculate_rho(0.5, soft_drop_jet_35.m(), soft_drop_jet_35.pt())));
+
+      SoftDrop soft_drop_40(beta, 0.40);
+      PseudoJet soft_drop_jet_40 = soft_drop_40(hardest_jet);
+      properties.push_back(MOD::Property("rho_40", calculate_rho(0.5, soft_drop_jet_40.m(), soft_drop_jet_40.pt())));
+
+      SoftDrop soft_drop_45(beta, 0.45);
+      PseudoJet soft_drop_jet_45 = soft_drop_45(hardest_jet);
+      properties.push_back(MOD::Property("rho_45", calculate_rho(0.5, soft_drop_jet_45.m(), soft_drop_jet_45.pt())));
+
+      SoftDrop soft_drop_50(beta, 0.50);
+      PseudoJet soft_drop_jet_50 = soft_drop_50(hardest_jet);
+      properties.push_back(MOD::Property("rho_50", calculate_rho(0.5, soft_drop_jet_50.m(), soft_drop_jet_50.pt())));
 
    }
   
