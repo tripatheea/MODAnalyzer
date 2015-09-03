@@ -64,7 +64,7 @@ plt.rc('font', family='serif', size=43)
 
 
 
-def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00, pT_upper_cut = 20000.00):
+def parse_file(input_file, pT_lower_cut = 0.00):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
 
@@ -76,19 +76,34 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00, pT_upper_cut 
     try:
       numbers = line.split()
       
-      if not numbers[0] == "#":
-        properties['prescales'].append( float( numbers[1] ) )
+      if not numbers[0] == "#" and numbers[1] > pT_lower_cut:
+        properties['corrected_hardest_pT'].append( float( numbers[1] ) )
 
-        properties['rho_05'].append( float( numbers[2] ) )
+        properties['prescales'].append( float( numbers[2] ) )
+        
+
         properties['rho_10'].append( float( numbers[3] ) )
-        properties['rho_15'].append( float( numbers[4] ) )
-        properties['rho_20'].append( float( numbers[5] ) )
-        properties['rho_25'].append( float( numbers[6] ) )
-        properties['rho_30'].append( float( numbers[7] ) )
-        properties['rho_35'].append( float( numbers[8] ) )
-        properties['rho_40'].append( float( numbers[9] ) )
-        properties['rho_45'].append( float( numbers[10] ) )
-        properties['rho_50'].append( float( numbers[11] ) )
+        properties['zg_10'].append( float( numbers[4] ) )
+        properties['rho_11'].append( float( numbers[5] ) )
+        properties['zg_11'].append( float( numbers[6] ) )
+        properties['rho_12'].append( float( numbers[7] ) )
+        properties['zg_12'].append( float( numbers[8] ) )
+        properties['rho_13'].append( float( numbers[9] ) )
+        properties['zg_13'].append( float( numbers[10] ) )
+        properties['rho_14'].append( float( numbers[11] ) )
+        properties['zg_14'].append( float( numbers[12] ) )
+        properties['rho_15'].append( float( numbers[13] ) )
+        properties['zg_15'].append( float( numbers[14] ) )
+        properties['rho_16'].append( float( numbers[15] ) )
+        properties['zg_16'].append( float( numbers[16] ) )
+        properties['rho_17'].append( float( numbers[17] ) )
+        properties['zg_17'].append( float( numbers[18] ) )
+        properties['rho_18'].append( float( numbers[19] ) )
+        properties['zg_18'].append( float( numbers[20] ) )
+        properties['rho_19'].append( float( numbers[21] ) )
+        properties['zg_19'].append( float( numbers[22] ) )
+        properties['rho_20'].append( float( numbers[23] ) )
+        properties['zg_20'].append( float( numbers[24] ) )
         
 
     except:
@@ -124,22 +139,23 @@ def plot_rho():
 
   prescales = properties['prescales']
   
-  rho = {}
+  rho, weights = defaultdict(list), defaultdict(list)
+  # cutoffs = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50]
+  # cutoffs = ['0.10', '0.11', '0.12', '0.13', '0.14', '0.15', '0.16', '0.17', '0.18', '0.19', '0.20']
+  cutoffs = ['0.13', '0.14', '0.15', '0.16']
 
-  rho['rho_05'] = properties['rho_05']
-  rho['rho_10'] = properties['rho_10']
-  rho['rho_15'] = properties['rho_15']
-  rho['rho_20'] = properties['rho_20']
-  rho['rho_25'] = properties['rho_25']
-  rho['rho_30'] = properties['rho_30']
-  rho['rho_35'] = properties['rho_35']
-  rho['rho_40'] = properties['rho_40']
-  rho['rho_45'] = properties['rho_45']
-  rho['rho_50'] = properties['rho_50']
+  for cutoff in cutoffs:
+    for i in range(0, len(properties['zg_' + str(cutoff).replace('.', '')[1:]])):
+      if properties[ 'zg_' + str(cutoff).replace('.', '')[1:] ][i] > float(cutoff):  
+        rho[str(cutoff)].append(properties['rho_' + str(cutoff).replace('.', '')[1:]][i])
+        weights[str(cutoff)].append(prescales[i])
+  
 
+  logged_rho = defaultdict(list)
   for r in rho:
-    rho[r] = np.log(rho[r])
-    plt.hist(rho[r], label="z\_cut=0." + str(r)[4:], normed=1, histtype='step', lw=5, bins=200)
+    logged_rho[r] = np.log(rho[r])
+    
+    plt.hist(logged_rho[r], weights=weights[r], label="z\_cut=" + str(r), normed=1, histtype='step', lw=5, bins=50)
 
   plt.autoscale(True)
   # plt.gca().set_ylim(0, 10)
@@ -168,8 +184,75 @@ def plot_rho():
   
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+  
   plt.savefig("plots/rho.pdf")
+  plt.clf()
 
 
 
 plot_rho()
+
+
+# def plot_rho_weird():
+#   pT_lower_cut = 100
+#   properties = parse_file(input_analysis_file, pT_lower_cut)
+
+#   prescales = properties['prescales']
+  
+#   rho = {}
+
+#   # rho['rho_05'] = properties['rho_05']
+#   rho['rho_10'] = properties['rho_10']
+#   # rho['rho_15'] = properties['rho_15']
+#   # rho['rho_20'] = properties['rho_20']
+#   # rho['rho_25'] = properties['rho_25']
+#   # rho['rho_30'] = properties['rho_30']
+#   # rho['rho_35'] = properties['rho_35']
+#   # rho['rho_40'] = properties['rho_40']
+#   # rho['rho_45'] = properties['rho_45']
+#   # rho['rho_50'] = properties['rho_50']
+
+#   for r in rho:
+#     x, y = [], []
+#     for i in range(0, len(rho[r])):
+#       if properties['zg_10'][i] > 0.10:
+#         x.append(rho[r][i])
+#         y.append(prescales[i])
+    
+#     rho[r] = x
+
+#     rho[r] = np.log(rho[r])
+#     plt.hist(rho[r], label="z\_cut=0." + str(r)[4:], normed=1, histtype='step', lw=5, bins=200)
+
+#   plt.autoscale(True)
+#   # plt.gca().set_ylim(0, 10)
+
+#   plt.legend(loc=2)
+
+#   plt.gca().set_xlabel("$\\rho = m^2 / (p_T^2~R^2)$", fontsize=75, labelpad=50)
+
+
+#   plt.gcf().set_size_inches(30, 30, forward=1)
+
+#   plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
+#   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
+
+ 
+#   # plt.gca().xaxis.set_minor_locator(MultipleLocator(5))
+#   plt.gca().yaxis.set_minor_locator(MultipleLocator(0.05))
+#   plt.tick_params(which='major', width=5, length=25, labelsize=70)
+#   plt.tick_params(which='minor', width=3, length=15)
+
+
+#   # x = np.linspace(math.log(0.000000000001, math.e), math.log(0.5, math.e), 10)
+#   # labels = [str(round(math.exp(i), 4)) for i in x]
+#   # plt.xticks(x, labels)
+
+  
+#   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+#   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+#   plt.savefig("plots/rho.pdf")
+
+
+
+# plot_rho_weird()
