@@ -134,6 +134,8 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00, pT_upper_cut 
           properties['jet_mass_after_SD'].append( float( numbers[42] ) )
 
           properties['fractional_energy_loss'].append( float( numbers[43] ) )
+          
+          properties['eta'].append( float( numbers[44] ) )
 
     except:
       if len(numbers) != 0:
@@ -202,6 +204,7 @@ def parse_file_turn_on(input_file, pT_lower_cut = 0.00):
       
       if not numbers[0] == "#":
         if (float(numbers[1]) > pT_lower_cut):
+          properties['event_number'].append( float( numbers[1] ) )
           properties['corrected_hardest_pts'].append( float( numbers[3] ) )
           properties['prescales'].append( int( numbers[4] ) )
           properties['trigger_names'].append(  numbers[5] )
@@ -433,6 +436,13 @@ def plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
   plt.gca().set_xlim(0.0, 0.6)
 
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+  
+
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.5))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
 
   plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
@@ -450,7 +460,7 @@ def plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 def plot_turn_on_curves():
   # properties = parse_file_turn_on(input_analysis_file)
   
-  properties = parse_file_turn_on('./turn_on.dat')
+  properties = parse_file_turn_on('/home/aashish/turn_on.dat')
 
   pTs = properties['corrected_hardest_pts']
   trigger_names = properties['trigger_names']
@@ -969,7 +979,7 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   
   if pT_upper_cut != 10000:
-    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} \in \[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "\]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
   else:
     labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 
@@ -1058,8 +1068,10 @@ def parse_theory_file(input_file):
 
 def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
   
-  properties = parse_file_turn_on('./turn_on.dat')
+  properties = parse_file_turn_on('/home/aashish/turn_on.dat')
   # properties = parse_file_turn_on('./trigger_proper_turn_on.dat')
+
+  event_numbers = properties['event_number']
 
   pTs = properties['corrected_hardest_pts']
   trigger_names = properties['trigger_names']
@@ -1072,6 +1084,34 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
 
   pt_hist_trigger_1 = Hist(500, 0, pT_upper_limit, title=trigger_1[4:], color=color, markersize=1.0, linewidth=5)
   pt_hist_trigger_2 = Hist(500, 0, pT_upper_limit, title=trigger_2[4:], color=color, markersize=1.0, linewidth=5)
+
+
+
+  # trigger_names_proper = defaultdict(list)
+  # pTs_proper = defaultdict(list)
+  # prescales_proper = defaultdict(list)
+
+  # for i in range(0, len(trigger_names)):
+  #   trigger_names_proper[event_numbers[i]].append(trigger_names[i])
+  #   pTs_proper[event_numbers[i]].append(pTs[i])
+  #   prescales_proper[event_numbers[i]].append(prescales[i])
+
+  # for event_number in trigger_names_proper:
+  #   if trigger_1 in trigger_names_proper[event_number] and trigger_2 in trigger_names_proper[event_number]:
+      
+  #     for i in range(0, len(trigger_names_proper[event_number])):
+  #       if trigger_1 in trigger_names_proper[event_number][i]:
+  #         trigger_1_index = i
+
+  #     for i in range(0, len(trigger_names_proper[event_number])):
+  #       if trigger_2 in trigger_names_proper[event_number][i]:
+  #         trigger_2_index = i
+
+  #     print pTs[trigger_1_index]
+
+  #     pt_hist_trigger_1.Fill(pTs[trigger_1_index], prescales[trigger_1_index])
+  #     pt_hist_trigger_2.Fill(pTs[trigger_2_index], prescales[trigger_2_index])
+
 
 
   for i in range(0, len(pTs)):
@@ -1156,19 +1196,19 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
 
 
 
-  mod_efficient_pTs = [325, 260, 196, 153, 114, 84, 50, 32]
-  mod_efficient_pT = mod_efficient_pTs[expected_trigger_names.index(trigger_1.replace("_", "\_"))]
+  # mod_efficient_pTs = [325, 260, 196, 153, 114, 84, 50, 32]
+  # mod_efficient_pT = mod_efficient_pTs[expected_trigger_names.index(trigger_1.replace("_", "\_"))]
 
 
 
 
-  plt.plot([mod_efficient_pT, mod_efficient_pT], [plt.gca().get_ylim()[0], 1.], color="purple", linewidth=3, linestyle="dashed")
+  # plt.plot([mod_efficient_pT, mod_efficient_pT], [plt.gca().get_ylim()[0], 1.], color="purple", linewidth=3, linestyle="dashed")
   
 
-  if lower_pT != 0:
-    plt.gca().annotate("CMS\n" + str(lower_pT) + " GeV", xy=(lower_pT, 1.), xycoords='data', xytext=(-100, 250),  textcoords='offset points', color=color, size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=color, zorder=9999, connectionstyle="angle3,angleA=0,angleB=90") )
+  # if lower_pT != 0:
+  #   plt.gca().annotate("CMS\n" + str(lower_pT) + " GeV", xy=(lower_pT, 1.), xycoords='data', xytext=(-100, 250),  textcoords='offset points', color=color, size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=color, zorder=9999, connectionstyle="angle3,angleA=0,angleB=90") )
   
-  plt.gca().annotate("MOD\n" + str(int(mod_efficient_pT)) + " GeV", xy=(mod_efficient_pT, 1.), xycoords='data', xytext=(250, 200), textcoords='offset points', color="purple", size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor="purple", zorder=9999, connectionstyle="angle3,angleA=45,angleB=-90") )
+  # plt.gca().annotate("MOD\n" + str(int(mod_efficient_pT)) + " GeV", xy=(mod_efficient_pT, 1.), xycoords='data', xytext=(250, 200), textcoords='offset points', color="purple", size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor="purple", zorder=9999, connectionstyle="angle3,angleA=45,angleB=-90") )
 
 
 
@@ -1196,7 +1236,7 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
 
 def plot_all_trigger_efficiency_curves():
   
-  properties = parse_file_turn_on('./turn_on.dat')
+  properties = parse_file_turn_on('/home/aashish/turn_on.dat')
   # properties = parse_file_turn_on('./trigger_proper_turn_on.dat')
 
   pTs = properties['corrected_hardest_pts']
@@ -1272,7 +1312,7 @@ def plot_all_trigger_efficiency_curves():
 
 
   plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=95, rotation=0)
-  plt.ylabel('$\mathrm{Ratio}$', fontsize=75, rotation=0, labelpad=50.)
+  plt.ylabel('$\mathrm{Ratio}$', fontsize=55, rotation=0, labelpad=50.)
 
 
   plt.gcf().set_size_inches(30, 30, forward=1)
@@ -1334,6 +1374,60 @@ def plot_2d():
   plt.savefig("test.pdf")
 
   # plt.show()
+
+
+
+
+def plot_jec_eta_2d():
+
+  pT_lower_cut = 150
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+  eta = properties['eta']
+  jec = properties['JEC']
+  prescales = properties['prescales']
+
+
+  H, xedges, yedges = np.histogram2d(eta, jec, bins=25, weights=prescales, normed=1, range=[[-2.4, 2.4], [0.90, 1.2]] )
+
+
+  H_normalized = []
+  for i in range(0, 25):
+    current_row = []
+    factor = sum(H[i])
+    for j in range(0, 25):
+      current_row.append(H[i][j] / factor)
+
+    H_normalized.append(current_row)
+
+
+  H_normalized = np.array(H_normalized)
+  H = H_normalized
+
+  H = np.rot90(H)
+  H = np.flipud(H)
+  
+  Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
+
+  plt.pcolormesh(xedges,yedges, Hmasked)
+
+  cbar = plt.colorbar()
+  cbar.ax.set_ylabel('Counts')
+
+  plt.xlabel('$\eta$', fontsize=50)
+  plt.ylabel('JEC', fontsize=50, rotation=0, labelpad=75)
+
+  plt.gcf().set_size_inches(30, 30, forward=1)
+  plt.gcf().set_snap(True)
+
+  
+
+  plt.savefig("plots/jec_eta_2d.pdf")
+
+  # plt.show()
+
+
+
+
 
 
 def plot_JEC():
@@ -1602,7 +1696,7 @@ def plot_pts(pT_lower_cut=150, pT_upper_cut=10000):
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   if pT_upper_cut != 10000:
-    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$" + str(pT_lower_cut) + " < p_{T} < " + str(pT_upper_cut) + "~\mathrm{GeV}$"]
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$"]
   else:
     labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
   ax0.legend([extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.57])
@@ -1720,7 +1814,7 @@ def plot_hardest_pt_softdrop(pT_lower_cut=100, pT_upper_cut=20000):
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   if pT_upper_cut != 20000:
-    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$" + str(pT_lower_cut) + " < p_{T} < " + str(pT_upper_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
   else:
     labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
   plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.70])
@@ -1800,7 +1894,7 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   if pT_upper_cut != 20000:
-    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in\[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "\]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
   else:
     labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
   plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.70])
@@ -1815,7 +1909,7 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
   plt.xlabel('Constituent Multiplicity', fontsize=75)
-  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=55, rotation=0, labelpad=75.)
   
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
@@ -1823,7 +1917,7 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
   plt.gca().set_ylim(0., 1.1 * plt.gca().get_ylim()[1])
 
   plt.gca().xaxis.set_minor_locator(MultipleLocator(5))
-  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.001))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.002))
   plt.tick_params(which='major', width=5, length=25, labelsize=70)
   plt.tick_params(which='minor', width=3, length=15)
 
@@ -1863,7 +1957,7 @@ def plot_fractional_energy_loss(pT_lower_cut=100, pT_upper_cut=20000):
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   if pT_upper_cut != 20000:
-    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in\[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "\]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
   else:
     labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
   plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.93, 0.75])
@@ -1932,7 +2026,7 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   
   if pT_upper_cut != 20000:
-    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in\[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "\]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
   else:
     labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
   
@@ -2277,9 +2371,9 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   # Having bins=48 removes the center kink.
 
   if mc:
-    pythia_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=6*n_bins, label=pythia_label, lw=5, color='blue')
+    pythia_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=44, label=pythia_label, lw=5, color='blue')
   else:
-    pythia_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=6*n_bins, label=pythia_label, lw=0, color='blue')
+    pythia_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=44, label=pythia_label, lw=0, color='blue')
 
   # Pythia Ends.
   
@@ -2293,9 +2387,9 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   # print sorted([math.e**i for i in log_zg_herwigs])
 
   if mc:
-    herwig_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=6*n_bins, label=herwig_label, lw=5, color='green')
+    herwig_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=44, label=herwig_label, lw=5, color='green')
   else:
-    herwig_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=6*n_bins, label=herwig_label, lw=0, color='green')
+    herwig_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=44, label=herwig_label, lw=0, color='green')
   
   # Herwig Ends.
 
@@ -2518,7 +2612,7 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
 
   x = x
   # ax0.xaxis.set_minor_locator(FixedLocator(x))
-  ax0.xaxis.set_minor_locator(LogLocator(base=math.e))
+  # ax0.xaxis.set_minor_locator(LogLocator(base=math.e))
 
 
   plt.gcf().set_snap(True)
@@ -2978,68 +3072,68 @@ def test3():
 
 # Version 3 Begins Here.
 
-plot_jet_mass_spectrum()
-plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=200)
-plot_jet_mass_spectrum(pT_lower_cut=200, pT_upper_cut=400)
-plot_jet_mass_spectrum(pT_lower_cut=400)
+# plot_jet_mass_spectrum()
+# plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=200)
+# plot_jet_mass_spectrum(pT_lower_cut=200, pT_upper_cut=400)
+# plot_jet_mass_spectrum(pT_lower_cut=400)
 
 
-plot_fractional_energy_loss()
-plot_fractional_energy_loss(pT_lower_cut=100, pT_upper_cut=200)
-plot_fractional_energy_loss(pT_lower_cut=200, pT_upper_cut=400)
-plot_fractional_energy_loss(pT_lower_cut=400)
+# plot_fractional_energy_loss()
+# plot_fractional_energy_loss(pT_lower_cut=100, pT_upper_cut=200)
+# plot_fractional_energy_loss(pT_lower_cut=200, pT_upper_cut=400)
+# plot_fractional_energy_loss(pT_lower_cut=400)
 
-plot_constituent_multiplicity_softdrop()
-plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=200)
-plot_constituent_multiplicity_softdrop(pT_lower_cut=200, pT_upper_cut=400)
-plot_constituent_multiplicity_softdrop(pT_lower_cut=400)
+# plot_constituent_multiplicity_softdrop()
+# plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=200)
+# plot_constituent_multiplicity_softdrop(pT_lower_cut=200, pT_upper_cut=400)
+# plot_constituent_multiplicity_softdrop(pT_lower_cut=400)
 
-plot_jet_area()
+# plot_jet_area()
 
-plot_hardest_pt_softdrop()
-# plot_hardest_pt_softdrop(pT_lower_cut=100, pT_upper_cut=200)
-# plot_hardest_pt_softdrop(pT_lower_cut=200, pT_upper_cut=400)
-# plot_hardest_pt_softdrop(pT_lower_cut=400)
-
-
-plot_pts()
-# plot_pts(pT_lower_cut=150, pT_upper_cut=250)
-# plot_pts(pT_lower_cut=250, pT_upper_cut=500)
-# plot_pts(pT_lower_cut=500)
+# plot_hardest_pt_softdrop()
+# # plot_hardest_pt_softdrop(pT_lower_cut=100, pT_upper_cut=200)
+# # plot_hardest_pt_softdrop(pT_lower_cut=200, pT_upper_cut=400)
+# # plot_hardest_pt_softdrop(pT_lower_cut=400)
 
 
-plot_pts_variable_bin()
+# plot_pts()
+# # plot_pts(pT_lower_cut=150, pT_upper_cut=250)
+# # plot_pts(pT_lower_cut=250, pT_upper_cut=500)
+# # plot_pts(pT_lower_cut=500)
 
 
-
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
-
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_pts_variable_bin()
 
 
 
-plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
-plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
 
 
+# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+
+# plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
 
 
 
 
+# plot_jec_eta_2d()
 
 
-# plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+
+
+plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 # plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 # plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
@@ -3070,37 +3164,49 @@ plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filena
 
 
 
-plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=8, y_max_limit=14)
-plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=8, y_max_limit=10)
-plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=8, y_max_limit=10)
+# plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=8, y_max_limit=14)
+# plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=8, y_max_limit=10)
+# plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=8, y_max_limit=10)
 
-plot_charged_and_all_zgs(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=4, y_max_limit=15)
-plot_charged_and_all_zgs(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=4, y_max_limit=15)
-plot_charged_and_all_zgs(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=4, y_max_limit=15)
+# plot_charged_and_all_zgs(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=4, y_max_limit=15)
+# plot_charged_and_all_zgs(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=4, y_max_limit=15)
+# plot_charged_and_all_zgs(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=4, y_max_limit=15)
 
-plot_charged_and_all_zgs(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=2, y_max_limit=15)
-plot_charged_and_all_zgs(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=2, y_max_limit=15)
-plot_charged_and_all_zgs(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=2, y_max_limit=15)
-
-
-
-plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=8, y_max_limit=18)
-plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=8, y_max_limit=10)
-plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=8, y_max_limit=10)
-
-plot_zg_pfc_pt_cut(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=4, y_max_limit=15)
-plot_zg_pfc_pt_cut(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=4, y_max_limit=15)
-plot_zg_pfc_pt_cut(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=4, y_max_limit=15)
-
-plot_zg_pfc_pt_cut(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=2, y_max_limit=15)
-plot_zg_pfc_pt_cut(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=2, y_max_limit=15)
-plot_zg_pfc_pt_cut(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=2, y_max_limit=15)
+# plot_charged_and_all_zgs(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=2, y_max_limit=15)
+# plot_charged_and_all_zgs(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=2, y_max_limit=15)
+# plot_charged_and_all_zgs(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=2, y_max_limit=15)
 
 
 
-plot_JEC()
+# plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=8, y_max_limit=18)
+# plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=8, y_max_limit=10)
+# plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=8, y_max_limit=10)
+
+# plot_zg_pfc_pt_cut(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=4, y_max_limit=15)
+# plot_zg_pfc_pt_cut(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=4, y_max_limit=15)
+# plot_zg_pfc_pt_cut(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=4, y_max_limit=15)
+
+# plot_zg_pfc_pt_cut(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', n_bins=2, y_max_limit=15)
+# plot_zg_pfc_pt_cut(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', n_bins=2, y_max_limit=15)
+# plot_zg_pfc_pt_cut(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', n_bins=2, y_max_limit=15)
 
 
+
+# plot_JEC()
+
+
+# plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U", pT_upper_limit=200)
+# plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U", pT_upper_limit=300)
+# plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U", pT_upper_limit=350)
+# plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U", pT_upper_limit=800)
+# plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U", pT_upper_limit=800)
+# plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U", pT_upper_limit=1200)
+
+
+# plot_all_trigger_efficiency_curves()
+
+
+# plot_turn_on_curves()
 
 
 # Version 3 Ends Here.

@@ -408,6 +408,8 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back( MOD::Property("jet_mass_after_SD", soft_drop(hardest_jet).m()) );
 
    properties.push_back( MOD::Property("fractional_energy_loss", (hardest_jet.E() - soft_drop(hardest_jet).E()) / hardest_jet.E() ) );
+   
+   properties.push_back( MOD::Property("hardest_eta", hardest_jet.eta()) );
 
    
 
