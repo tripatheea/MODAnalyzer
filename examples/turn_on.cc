@@ -67,6 +67,7 @@ int main(int argc, char * argv[]) {
          cout << "Processing event number " << event_serial_number << endl;
 
       if (event_being_read.jet_quality_cut("loose") && abs(event_being_read.hardest_corrected_jet().pseudojet().eta()) < 2.4) {
+      // if (abs(event_being_read.hardest_corrected_jet().pseudojet().eta()) < 2.4) {
          analyze_event(event_being_read, output_file, event_serial_number);   
       }
       
@@ -112,6 +113,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
                   properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
 
                   properties.push_back(MOD::Property("Cor_Hardest_pT", event_being_read.hardest_corrected_jet().pseudojet().pt()));   
+                  // properties.push_back(MOD::Property("Cor_Hardest_pT", event_being_read.hardest_uncorrected_jet().pseudojet().pt()));   
                   properties.push_back(MOD::Property("Prescale", triggers[i].prescale()));
                   properties.push_back(MOD::Property("Trigger_Name", triggers[i].name()));         
              

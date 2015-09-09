@@ -460,7 +460,8 @@ def plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 def plot_turn_on_curves():
   # properties = parse_file_turn_on(input_analysis_file)
   
-  properties = parse_file_turn_on('/home/aashish/turn_on.dat')
+  # properties = parse_file_turn_on('/home/aashish/turn_on.dat')
+  properties = parse_file_turn_on('/home/aashish/turn_on_friday.dat')
 
   pTs = properties['corrected_hardest_pts']
   trigger_names = properties['trigger_names']
@@ -2244,42 +2245,51 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
       weighted.append( y[i][j] / area )    
     weighted_ys.append(weighted)
 
-  y = weighted_ys
+  # y = weighted_ys
 
   theory_y_max = []
   theory_y_min = []
   theory_y_line = []
+  
+  # theory_y_0, theory_y_1, theory_y_2, theory_y_3, theory_y_4, theory_y_5 = [], [], [], [], [], []
+  # theory_y = [[], [], [], [], [], []]
+
   for i in range(0, len(theory_x)):
     y_for_current_x = []
     for j in range(0, 6):
       y_for_current_x.append(y[j][i])
+      # theory_y[i].append(theory_x[i] * y[j][i])
 
     theory_y_min.append(theory_x[i] * min(y_for_current_x))
     theory_y_line.append(theory_x[i] * y_for_current_x[1])
     theory_y_max.append(theory_x[i] * max(y_for_current_x))
-  
+    
+
+  # theory_y_line = theory_y[1]
+  # theory_y_mk
+
+
   bins_linear_log = np.linspace(math.log(zg_cut, math.e), math.log(0.6, math.e), n_bins * 6)
   log_theory_x = np.log(theory_x)
 
   if theory:
 
     y, x = np.histogram(log_theory_x, weights=theory_y_max, bins=bins_linear_log)
-    a, b = pyplot_hist_to_plot(x, y)
-    b_max = [x / simps(b, a) for x in b]
-    ax0.plot(a, b_max, label=theory_label, color='magenta', lw=0)
+    a_max, b_max = pyplot_hist_to_plot(x, y)
+    ax0.plot(a_max, b_max, label=theory_label, lw=0)
     
     y, x = np.histogram(log_theory_x, weights=theory_y_line, bins=bins_linear_log)
-    a, b = pyplot_hist_to_plot(x, y)
-    b_line = [x / simps(b, a) for x in b]
-    ax0.plot(a, b_line, label=theory_label, color='red', lw=5)
+    a_line, b_line = pyplot_hist_to_plot(x, y)
+    ax0.plot(a_line, b_line, label=theory_label, lw=5, color='red')
 
     y, x = np.histogram(log_theory_x, weights=theory_y_min, bins=bins_linear_log)
-    a, b = pyplot_hist_to_plot(x, y)
-    b_min = [x / simps(b, a) for x in b]
-    ax0.plot(a, b_min, label=theory_label, color='brown', lw=0)
+    a_min, b_min = pyplot_hist_to_plot(x, y)
+    ax0.plot(a_min, b_min, label=theory_label, lw=0)
 
-    ax0.fill_between(a, b_max, b_min, norm=1, where=np.less_equal(b_min, b_max), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
+
+    ax0.fill_between(a_line, b_max, b_min, norm=1, where=np.less_equal(b_min, b_max), facecolor='red', interpolate=True, alpha=0.4, linewidth=0.0)
   
+
 
 
   # Theory Plot Ends.
@@ -2416,9 +2426,6 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   theory_min_interpolate_function = interpolate.interp1d(log_theory_x, theory_y_min)
   theory_line_interpolate_function = interpolate.interp1d(log_theory_x, theory_y_line)
   theory_max_interpolate_function = interpolate.interp1d(log_theory_x, theory_y_max)
-
-
-  # data_plot_points_x = sorted(data_plot_points_x, reverse=True)
 
   theory_extrapolated_min = theory_min_interpolate_function(data_plot_points_x)
   theory_extrapolated_line = theory_line_interpolate_function(data_plot_points_x)

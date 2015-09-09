@@ -42,6 +42,8 @@ namespace MOD {
 
          MOD::CalibratedJet corrected_jet();
 
+         bool jet_quality_cut(std::string level);
+
          friend std::ostream& operator<< (std::ostream&, const CalibratedJet&);
 
          bool operator<(const CalibratedJet& rhs) const;

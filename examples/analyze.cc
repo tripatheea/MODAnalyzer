@@ -69,12 +69,7 @@ int main(int argc, char * argv[]) {
       if( (event_serial_number % 100) == 0 )
          cout << "Processing event number " << event_serial_number << endl;
 
-      if (event_being_read.jet_quality_cut("loose") && abs(event_being_read.hardest_corrected_jet().pseudojet().eta()) < 2.4) {
-         analyze_event(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
-      }
-      else {
-         // cout << "I reject this one!" << endl;
-      }
+      analyze_event(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
       
       event_being_read = MOD::Event();
       event_serial_number++;
@@ -90,7 +85,11 @@ int main(int argc, char * argv[]) {
 
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
 
-
+   // First, "correct" the jets.
+   event_being_read.apply_jet_quality_cuts("loose");
+   event_being_read.apply_jet_energy_corrections();
+   event_being_read.apply_eta_cut(2.4);
+   
 
    vector<MOD::Property> properties;
 

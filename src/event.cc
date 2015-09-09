@@ -436,31 +436,58 @@ MOD::PFCandidate MOD::Event::hardest_pfcandidate() {
    }
 }
 
+void MOD::Event::apply_jet_quality_cuts(string quality_level) {
+   vector<MOD::CalibratedJet> jets = _uncorrected_calibrated_jets;
 
-bool MOD::Event::jet_quality_cut(string level) {
-   // First, get the hardest jet.
-   MOD::CalibratedJet hardest_jet = hardest_uncorrected_jet();
+   vector<MOD::CalibratedJet> quality_jets;
 
-   bool pass = false;
-   double cut_off = 0.99;
-
-   if (level == "tight") {
-      cut_off = 0.90;
-   }
-   else if (level == "medium") {
-      cut_off = 0.95;
+   for (unsigned i = 0; i < jets.size(); i++) {
+      if (jets[i].jet_quality_cut(quality_level))
+         quality_jets.push_back(jets[i]);
    }
 
-   pass = ( hardest_jet.number_of_constituents() > 1 )     &&
-          ( hardest_jet.neutral_hadron_fraction() < cut_off ) && 
-          ( hardest_jet.neutral_em_fraction() < cut_off )     &&
-          ( 
-            ( abs(hardest_jet.pseudojet().eta()) >= 2.4 ) || 
-               ( hardest_jet.charged_em_fraction() < 0.99 && hardest_jet.charged_hadron_fraction() > 0.00 && hardest_jet.charged_multiplicity() > 0) ); 
-
-   return pass;
-
+   _calibrated_jets = quality_jets;
 }
+
+void MOD::Event::apply_jet_energy_corrections() {
+
+   vector<MOD::CalibratedJet> jets = _calibrated_jets;
+
+   vector<MOD::CalibratedJet> jec_corrected_jets;
+
+   for (unsigned i = 0; i < jets.size(); i++) {
+      jec_corrected_jets.push_back(jets[i].corrected_jet());
+   }
+
+   _calibrated_jets = jec_corrected_jets;
+  
+}
+
+void MOD::Event::apply_eta_cut(double eta_cut) {
+   vector<MOD::CalibratedJet> jets = _calibrated_jets;
+
+   vector<MOD::CalibratedJet> jets_with_eta_cut;
+
+   for (unsigned i = 0; i < jets.size(); i++) {
+      if ( abs(jets[i].pseudojet().eta()) < eta_cut ) {
+         jets_with_eta_cut.push_back(jets[i]);
+      }
+   }
+
+   _calibrated_jets = jets_with_eta_cut;
+}
+
+MOD::CalibratedJet MOD::Event::hardest_jet() {
+   vector<MOD::CalibratedJet> jets = _calibrated_jets;
+
+   if ( jets.size() > 0 ) {
+      sort(jets.begin(), jets.end());
+      return jets[0];   
+   } 
+   
+   return CalibratedJet(); 
+}
+
 
 namespace MOD {
    ostream& operator<< (ostream& os, const Event& event) {

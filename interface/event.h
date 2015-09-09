@@ -75,7 +75,11 @@ namespace MOD {
 
             MOD::PFCandidate hardest_pfcandidate();
 
-            bool jet_quality_cut(std::string level);
+            void apply_jet_quality_cuts(std::string quality_level);
+            void apply_jet_energy_corrections();
+            void apply_eta_cut(double eta_cut);
+            MOD::CalibratedJet hardest_jet();
+
 
             friend std::ostream& operator<< (std::ostream&, const Event&);
             
@@ -107,6 +111,10 @@ namespace MOD {
 
             std::vector<CalibratedJet> _uncorrected_calibrated_jets;
             std::vector<fastjet::PseudoJet> _uncorrected_calibrated_pseudojets;
+
+
+
+            std::vector<CalibratedJet> _calibrated_jets;
 
             void set_assigned_trigger();
             void set_hardest_pt();

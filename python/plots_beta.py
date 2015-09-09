@@ -76,7 +76,7 @@ def parse_file(input_file, pT_lower_cut = 0.00):
     try:
       numbers = line.split()
       
-      if not numbers[0] == "#" and numbers[1] > pT_lower_cut:
+      if not numbers[0] == "#" and float(numbers[1]) > pT_lower_cut:
         properties['corrected_hardest_pT'].append( float( numbers[1] ) )
 
         properties['prescales'].append( float( numbers[2] ) )
@@ -133,8 +133,7 @@ def calculate_distribution(y_cut, f):
 
 
 
-def plot_rho():
-  pT_lower_cut = 100
+def plot_rho(pT_lower_cut=150):
   properties = parse_file(input_analysis_file, pT_lower_cut)
 
   prescales = properties['prescales']
@@ -160,7 +159,14 @@ def plot_rho():
   plt.autoscale(True)
   # plt.gca().set_ylim(0, 10)
 
-  plt.legend(loc=2)
+  legend = plt.legend(loc=2, frameon=0)
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  plt.gca().legend([extra], [r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"], loc=6, frameon=0, fontsize=60)
+
+
+
 
   plt.gca().set_xlabel("$\\rho = m^2 / (p_T^2~R^2)$", fontsize=75, labelpad=50)
 
@@ -181,16 +187,25 @@ def plot_rho():
   # labels = [str(round(math.exp(i), 4)) for i in x]
   # plt.xticks(x, labels)
 
+
+  
+
+
+
   
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
   
-  plt.savefig("plots/rho.pdf")
+  plt.savefig("plots/rho/rho_" + str(pT_lower_cut) + ".pdf")
   plt.clf()
 
 
 
-plot_rho()
+plot_rho(pT_lower_cut=100)
+plot_rho(pT_lower_cut=150)
+plot_rho(pT_lower_cut=200)
+plot_rho(pT_lower_cut=250)
+plot_rho(pT_lower_cut=300)
 
 
 # def plot_rho_weird():

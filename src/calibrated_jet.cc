@@ -118,6 +118,36 @@ MOD::CalibratedJet MOD::CalibratedJet::corrected_jet() {
   return corrected_jet;
 }
 
+bool MOD::CalibratedJet::jet_quality_cut(string level) {
+
+   bool pass = false;
+   double cut_off = 0.99;
+
+   if (level == "tight") {
+      cut_off = 0.90;
+   }
+   else if (level == "medium") {
+      cut_off = 0.95;
+   }
+   else if (level == "loose") {
+    cut_off = 0.99;
+   }
+   else {
+    throw std::runtime_error("Invalid level for jet quality cut! Only 'loose', 'medium' and 'tight' are accepted.");
+   }
+
+   pass = ( number_of_constituents() > 1 )     &&
+          ( neutral_hadron_fraction() < cut_off ) && 
+          ( neutral_em_fraction() < cut_off )     &&
+          ( 
+            ( abs(pseudojet().eta()) >= 2.4 ) || 
+               ( charged_em_fraction() < 0.99 && charged_hadron_fraction() > 0.00 && charged_multiplicity() > 0) ); 
+
+   return pass;
+
+}
+
+
 
 bool MOD::CalibratedJet::operator < (const MOD::CalibratedJet& j1) const {
   if (pseudojet().pt() > j1.pseudojet().pt())
