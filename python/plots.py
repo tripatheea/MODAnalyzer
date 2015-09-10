@@ -46,7 +46,7 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 from scipy.stats import norm
 from scipy.stats import gamma
-
+from scipy import arange, array, exp
 
 from scipy.stats import binned_statistic
 
@@ -840,9 +840,9 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
       data_plot_points_y.append(data_points_y[i])
 
 
-  theory_min_interpolate_function = interpolate.interp1d(theory_x, theory_y_min)
-  theory_line_interpolate_function = interpolate.interp1d(theory_x, theory_y_line)
-  theory_max_interpolate_function = interpolate.interp1d(theory_x, theory_y_max)
+  theory_min_interpolate_function = extrap1d(interpolate.interp1d(theory_x, theory_y_min))
+  theory_line_interpolate_function = extrap1d(interpolate.interp1d(theory_x, theory_y_line))
+  theory_max_interpolate_function = extrap1d(interpolate.interp1d(theory_x, theory_y_max))
 
   theory_extrapolated_min = theory_min_interpolate_function(data_plot_points_x)
   theory_extrapolated_line = theory_line_interpolate_function(data_plot_points_x)
@@ -1034,7 +1034,7 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
   print "Writint out zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
-  filename = "plots/zg/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+  filename = "plots/Version 3/zg/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
   
   plt.savefig(filename)
   # plt.show()
@@ -2257,6 +2257,23 @@ def plot_zg_test():
   plt.show()
 
 
+def extrap1d(interpolator):
+    xs = interpolator.x
+    ys = interpolator.y
+
+    def pointwise(x):
+        if x < xs[0]:
+            return ys[0]+(x-xs[0])*(ys[1]-ys[0])/(xs[1]-xs[0])
+        elif x > xs[-1]:
+            return ys[-1]+(x-xs[-1])*(ys[-1]-ys[-2])/(xs[-1]-xs[-2])
+        else:
+            return interpolator(x)
+
+    def ufunclike(xs):
+        return array(map(pointwise, array(xs)))
+
+    return ufunclike
+
 
 def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
   pfc_pT_cut = 0
@@ -2289,7 +2306,8 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
     b = []
     for i in range(0, len(x[:-1])):
       # if y[i] != 0 or math.exp(x[i]) >= 0.5:
-      if y[i] != 0:
+      # if y[i] != 0:
+      if True:
         a.append(x[i])
         b.append(y[i])
 
@@ -2310,6 +2328,8 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   keys.sort()
 
   theory_x = keys
+  bins_linear_log = np.linspace(math.log(zg_cut, math.e), math.log(0.6, math.e), n_bins * 6)
+  log_theory_x = np.log(theory_x)
 
   y = []
   for j in range(0, 6):
@@ -2340,34 +2360,18 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
     theory_y_min.append(theory_x[i] * min(y_for_current_x))
     theory_y_line.append(theory_x[i] * y_for_current_x[1])
     theory_y_max.append(theory_x[i] * max(y_for_current_x))
-    
-
-
-
-  bins_linear_log = np.linspace(math.log(zg_cut, math.e), math.log(0.6, math.e), n_bins * 6)
-  log_theory_x = np.log(theory_x)
+  
 
   if theory:
 
-    y, x = np.histogram(log_theory_x, weights=theory_y_max, bins=bins_linear_log)
-    a_max, b_max = pyplot_hist_to_plot(x, y)
-    ax0.plot(a_max, b_max, label=theory_label, lw=0)
-    
-    y, x = np.histogram(log_theory_x, weights=theory_y_line, bins=bins_linear_log)
-    a_line, b_line = pyplot_hist_to_plot(x, y)
-    ax0.plot(a_line, b_line, label=theory_label, lw=5, color='red')
+    ax0.plot(log_theory_x, theory_y_max, label=theory_label, lw=0, color='red')
+    ax0.plot(log_theory_x, theory_y_line, label=theory_label, lw=5, color='red')
+    ax0.plot(log_theory_x, theory_y_min, label=theory_label, lw=0, color='red')
 
-    y, x = np.histogram(log_theory_x, weights=theory_y_min, bins=bins_linear_log)
-    a_min, b_min = pyplot_hist_to_plot(x, y)
-    ax0.plot(a_min, b_min, label=theory_label, lw=0)
-
-
-    ax0.fill_between(a_line, b_max, b_min, norm=1, where=np.less_equal(b_min, b_max), facecolor='red', interpolate=True, alpha=0.3, linewidth=0.0)
+    ax0.fill_between(log_theory_x, theory_y_max, theory_y_min, norm=1, where=np.less_equal(theory_y_min, theory_y_max), facecolor='red', interpolate=True, alpha=0.3, linewidth=0.0)
   
 
-
-
-  # Theory Plot Ends.
+  # Theory Plot Ends.  
 
   def convert_hist_to_line_plot(hist, n_bins):
     a = []
@@ -2413,11 +2417,6 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
 
   # Data Plot Begins.
   log_zg_data = np.log(zg_data)
-  updated_prescales = []
-  for i in range(0, len(zg_data)):
-  	updated_prescales.append(prescales[i] * zg_data[i])
-
-  # prescales = updated_prescales
 
   zg_data_hist = Hist(bins_linear_log, title=data_label, markersize=2.5, color='black')
   bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
@@ -2440,7 +2439,28 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   data_points_x = data_plot[0].get_xdata()
   data_points_y = data_plot[0].get_ydata()
 
+  data_plot_points_x = []
+  data_plot_points_y = []
+
+  for i in range(0, len(data_points_x)):
+    if float(data_points_x[i]) >= float(math.log(zg_cut, math.e)):
+      data_plot_points_x.append(data_points_x[i])
+      data_plot_points_y.append(data_points_y[i])
+
+
+  theory_min_interpolate_function = extrap1d(interpolate.interp1d(log_theory_x, theory_y_min))
+  theory_line_interpolate_function = extrap1d(interpolate.interp1d(log_theory_x, theory_y_line))
+  theory_max_interpolate_function = extrap1d(interpolate.interp1d(log_theory_x, theory_y_max))
+
+  theory_extrapolated_min = theory_min_interpolate_function(data_plot_points_x)
+  theory_extrapolated_line = theory_line_interpolate_function(data_plot_points_x)
+  theory_extrapolated_max = theory_max_interpolate_function(data_plot_points_x)
+
+
+
   # Data Plots Ends.
+
+
 
   # Simulation Plots Begin. 
   
@@ -2450,15 +2470,14 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   a, b = pyplot_hist_to_plot(x, y)
   log_zg_pythia_hist = Hist(bins_linear_log)
   map(log_zg_pythia_hist.Fill, a, b)
-
-
-
-  # Having bins=48 removes the center kink.
+  pythia_line_plot = convert_hist_to_line_plot(log_zg_pythia_hist, len(bins_linear_log))
 
   if mc:
-    pythia_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=44, label=pythia_label, lw=5, color='blue')
+    pythia_plot = ax0.plot(pythia_line_plot[0], pythia_line_plot[1], label=pythia_label, color='blue', lw=5)
+    # pythia_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=44, label=pythia_label, lw=5, color='blue')
   else:
-    pythia_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=44, label=pythia_label, lw=0, color='blue')
+    pythia_plot = ax0.plot(pythia_line_plot[0], pythia_line_plot[1], label=pythia_label, color='blue', lw=0)
+    # pythia_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=44, label=pythia_label, lw=0, color='blue')
 
   # Pythia Ends.
   
@@ -2468,14 +2487,16 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   a, b = pyplot_hist_to_plot(x, y)
   log_zg_herwig_hist = Hist(bins_linear_log)
   map(log_zg_herwig_hist.Fill, a, b)
-
-  # print sorted([math.e**i for i in log_zg_herwigs])
+  herwig_line_plot = convert_hist_to_line_plot(log_zg_herwig_hist, len(bins_linear_log))
 
   if mc:
-    herwig_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=44, label=herwig_label, lw=5, color='green')
+    herwig_plot = ax0.plot(herwig_line_plot[0], herwig_line_plot[1], color='green', lw=5)
+    # herwig_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=44, label=herwig_label, lw=5, color='green')
   else:
-    herwig_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=44, label=herwig_label, lw=0, color='green')
+    herwig_plot = ax0.plot(herwig_line_plot[0], herwig_line_plot[1], lw=0)
+    # herwig_plot = ax0.hist(a, histtype='step', normed=True, weights=b, bins=44, label=herwig_label, lw=0, color='green')
   
+
   # Herwig Ends.
 
   # Simulation Plots End.
@@ -2487,25 +2508,10 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
 
   # Theory-Over-Data Plot.
   
-  data_plot_points_x = []
-  data_plot_points_y = []
-
-  for i in range(0, len(data_points_x)):
-    if float(data_points_x[i]) >= float(math.log(zg_cut, math.e)):
-      data_plot_points_x.append(data_points_x[i])
-      data_plot_points_y.append(data_points_y[i])
 
 
 
-
-  theory_min_interpolate_function = interpolate.interp1d(log_theory_x, theory_y_min)
-  theory_line_interpolate_function = interpolate.interp1d(log_theory_x, theory_y_line)
-  theory_max_interpolate_function = interpolate.interp1d(log_theory_x, theory_y_max)
-
-  theory_extrapolated_min = theory_min_interpolate_function(data_plot_points_x)
-  theory_extrapolated_line = theory_line_interpolate_function(data_plot_points_x)
-  theory_extrapolated_max = theory_max_interpolate_function(data_plot_points_x)
-
+  
 
   if ratio_denominator == "data":
 
@@ -2689,10 +2695,9 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   plt.sca(ax0)
   plt.xticks(x, labels)
 
-  # plt.sca(ax1)
-  # plt.xticks(x, labels)
+  plt.sca(ax1)
+  plt.xticks(x, labels)
 
-  x = x
   # ax0.xaxis.set_minor_locator(FixedLocator(x))
   # ax0.xaxis.set_minor_locator(LogLocator(base=math.e))
 
@@ -2701,7 +2706,7 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
   print "Writing log_zg_cut_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
-  filename = "plots/log_zg/log_zg_cut_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+  filename = "plots/Version 3/log_zg/log_zg_cut_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
   
   plt.savefig(filename)
   # plt.show()
@@ -3215,31 +3220,31 @@ def test3():
 
 
 
-# plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
-# plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-# plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
-# plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
 
-# plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
 
 
 
-# plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
-# plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-# plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
-# plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
 
-# plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
 
 
 
@@ -3303,7 +3308,7 @@ def test3():
 
 
 
-plot_constituent_multiplicity_softdrop_multiple_jet_correction_level()
+# plot_constituent_multiplicity_softdrop_multiple_jet_correction_level()
 
 
 
