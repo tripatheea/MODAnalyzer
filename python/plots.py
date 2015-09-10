@@ -707,7 +707,7 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
     ax0.plot(theory_x, weighted_theory_y_min, alpha=0.0, color='red')
 
 
-    ax0.fill_between(theory_x, theory_y_max, theory_y_min, norm=1, where=np.less_equal(theory_y_min, theory_y_max), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
+    ax0.fill_between(theory_x, theory_y_max, theory_y_min, norm=1, where=np.less_equal(theory_y_min, theory_y_max), facecolor='red', interpolate=True, alpha=0.3, linewidth=0.0)
 
 
   # Theory Plot Ends.
@@ -884,7 +884,7 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
       map(zg_theory_max_to_data_hist.Fill, data_plot_points_x, ratio_theory_max_to_data)
       zg_theory_max_to_data_plot = convert_hist_to_line_plot(zg_theory_max_to_data_hist, n_bins)
 
-      ax1.fill_between(zg_theory_max_to_data_plot[0], zg_theory_max_to_data_plot[1], zg_theory_min_to_data_plot[1], norm=1, where=np.less_equal(zg_theory_min_to_data_plot[1], zg_theory_max_to_data_plot[1]), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
+      ax1.fill_between(zg_theory_max_to_data_plot[0], zg_theory_max_to_data_plot[1], zg_theory_min_to_data_plot[1], norm=1, where=np.less_equal(zg_theory_min_to_data_plot[1], zg_theory_max_to_data_plot[1]), facecolor='red', interpolate=True, alpha=0.3, linewidth=0.0)
       
   elif ratio_denominator == "theory":
 
@@ -928,7 +928,7 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
       x_min, y_min = zg_theory_min_line.get_xdata(), zg_theory_min_line.get_ydata()
       x_max, y_max = zg_theory_max_line.get_xdata(), zg_theory_max_line.get_ydata()
 
-      ax1.fill_between(x_max, y_max, y_min, norm=1, where=np.less_equal(y_min, y_max), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
+      ax1.fill_between(x_max, y_max, y_min, norm=1, where=np.less_equal(y_min, y_max), facecolor='red', interpolate=True, alpha=0.3, linewidth=0.0)
 
       zg_theory_line_hist.Divide(zg_theory_line_hist)
       zg_theory_line_plot = convert_hist_to_line_plot(zg_theory_line_hist, n_bins)
@@ -957,7 +957,7 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
   # Legend.
 
   th_line, = ax0.plot(range(1), linewidth=5, color='red')
-  th_patch = mpatches.Patch(facecolor='pink', alpha=1.0, linewidth=0)
+  th_patch = mpatches.Patch(facecolor='red', alpha=0.3, linewidth=5, edgecolor='red')
 
   if mc:
     pythia_line, = ax0.plot(range(1), linewidth=5, color=zg_pythia_hist.GetLineColor())
@@ -1933,6 +1933,85 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
 
 
 
+def plot_constituent_multiplicity_softdrop_multiple_jet_correction_level(pT_lower_cut=100, pT_upper_cut=20000):
+  
+  loose_file = '/home/aashish/analyzed_loose.dat'
+  tight_file = '/home/aashish/analyzed_tight.dat'
+
+  files = [loose_file, tight_file]
+  titles = [ ["Before SoftDrop (Loose)", "After SoftDrop (Loose)"], ["Before SoftDrop (Tight)", "Before SoftDrop (Tight)"]]
+  colors = [['red', 'green'], ['blue', 'magenta']]
+
+  for i in range(0, len(files)):
+
+    properties = parse_file(files[i], pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
+    multi_before_SD = properties['multiplicity_before_SD']
+    multi_after_SD = properties['multiplicity_after_SD']  
+    prescales = properties['prescales']
+
+    multi_before_SD_hist = Hist(150, 0, 150, title=titles[i][0], markersize=3.0, color=colors[i][0])
+    bin_width_before = (multi_before_SD_hist.upperbound() - multi_before_SD_hist.lowerbound()) / multi_before_SD_hist.nbins()
+
+    multi_after_SD_hist = Hist(150, 0, 150, title=titles[i][1], markersize=3.0, color=colors[i][1])
+    bin_width_after = (multi_after_SD_hist.upperbound() - multi_after_SD_hist.lowerbound()) / multi_after_SD_hist.nbins()
+
+    map(multi_before_SD_hist.Fill, multi_before_SD, prescales)
+    map(multi_after_SD_hist.Fill, multi_after_SD, prescales)
+    
+    multi_before_SD_hist.Scale(1.0 / (multi_before_SD_hist.GetSumOfWeights() * bin_width_before))
+    multi_after_SD_hist.Scale(1.0 / (multi_after_SD_hist.GetSumOfWeights() * bin_width_after))
+    
+    pT_before_SD_plot = rplt.errorbar(multi_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    pT_after_SD_plot = rplt.errorbar(multi_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  
+
+
+
+  # Legends Begin.
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.00, 1.0])
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  if pT_upper_cut != 20000:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  else:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.30])
+
+  # Legends End.
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.xlabel('Constituent Multiplicity', fontsize=75)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=55, rotation=0, labelpad=75.)
+  
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.gca().autoscale(True)
+  plt.gca().set_ylim(0., 1.1 * plt.gca().get_ylim()[1])
+
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(5))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.002))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  print "Printing fractional energy loss with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+  plt.savefig("plots/constituent_multiplicity_softdrop/multiple_correction_level_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
+  # plt.show()
+  plt.clf()
+
 
 def plot_fractional_energy_loss(pT_lower_cut=100, pT_upper_cut=20000):
   properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
@@ -2251,22 +2330,18 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   theory_y_min = []
   theory_y_line = []
   
-  # theory_y_0, theory_y_1, theory_y_2, theory_y_3, theory_y_4, theory_y_5 = [], [], [], [], [], []
-  # theory_y = [[], [], [], [], [], []]
+
 
   for i in range(0, len(theory_x)):
     y_for_current_x = []
     for j in range(0, 6):
       y_for_current_x.append(y[j][i])
-      # theory_y[i].append(theory_x[i] * y[j][i])
 
     theory_y_min.append(theory_x[i] * min(y_for_current_x))
     theory_y_line.append(theory_x[i] * y_for_current_x[1])
     theory_y_max.append(theory_x[i] * max(y_for_current_x))
     
 
-  # theory_y_line = theory_y[1]
-  # theory_y_mk
 
 
   bins_linear_log = np.linspace(math.log(zg_cut, math.e), math.log(0.6, math.e), n_bins * 6)
@@ -2287,7 +2362,7 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
     ax0.plot(a_min, b_min, label=theory_label, lw=0)
 
 
-    ax0.fill_between(a_line, b_max, b_min, norm=1, where=np.less_equal(b_min, b_max), facecolor='red', interpolate=True, alpha=0.4, linewidth=0.0)
+    ax0.fill_between(a_line, b_max, b_min, norm=1, where=np.less_equal(b_min, b_max), facecolor='red', interpolate=True, alpha=0.3, linewidth=0.0)
   
 
 
@@ -2471,7 +2546,7 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
       zg_theory_max_to_data_plot = convert_hist_to_line_plot(zg_theory_max_to_data_hist, n_bins)
       plt.plot(zg_theory_max_to_data_plot[0], zg_theory_max_to_data_plot[1], linewidth=0, color='magenta')
 
-      ax1.fill_between(zg_theory_max_to_data_plot[0], zg_theory_max_to_data_plot[1], zg_theory_min_to_data_plot[1], where=np.less_equal(zg_theory_min_to_data_plot[1], zg_theory_max_to_data_plot[1]), facecolor='red', interpolate=True, alpha=0.5, linewidth=0.0)
+      ax1.fill_between(zg_theory_max_to_data_plot[0], zg_theory_max_to_data_plot[1], zg_theory_min_to_data_plot[1], where=np.less_equal(zg_theory_min_to_data_plot[1], zg_theory_max_to_data_plot[1]), facecolor='red', interpolate=True, alpha=0.3, linewidth=0.0)
   
   elif ratio_denominator == "theory":
 
@@ -2517,7 +2592,7 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
       x_min, y_min = zg_theory_min_line.get_xdata(), zg_theory_min_line.get_ydata()
       x_max, y_max = zg_theory_max_line.get_xdata(), zg_theory_max_line.get_ydata()
 
-      ax1.fill_between(x_max, y_max, y_min, norm=1, where=np.less_equal(y_min, y_max), facecolor='red', interpolate=True, alpha=0.2, linewidth=0.0)
+      ax1.fill_between(x_max, y_max, y_min, norm=1, where=np.less_equal(y_min, y_max), facecolor='red', interpolate=True, alpha=0.3, linewidth=0.0)
 
       zg_theory_line_hist.Divide(zg_theory_line_hist)
       zg_theory_line_plot = convert_hist_to_line_plot(zg_theory_line_hist, n_bins)
@@ -2544,7 +2619,7 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   # Legend.
 
   th_line, = ax0.plot(range(1), linewidth=5, color='red')
-  th_patch = mpatches.Patch(facecolor='pink', alpha=1.0, linewidth=0)
+  th_patch = mpatches.Patch(facecolor='red', alpha=0.3, linewidth=5, edgecolor='red')
 
   if mc:
     pythia_line, = ax0.plot(range(1), linewidth=5, color='blue')
@@ -3140,7 +3215,7 @@ def test3():
 
 
 
-plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+# plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 # plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 # plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
@@ -3228,7 +3303,7 @@ plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 
 
 
-
+plot_constituent_multiplicity_softdrop_multiple_jet_correction_level()
 
 
 
