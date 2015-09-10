@@ -1,9 +1,6 @@
 import os
 from subprocess import call
 
-
-
-
 def copy_file_to_output_directory(output_directory, filename, source_timestamp):
   if os.path.exists(output_directory + "/" + filename):
     stat = os.stat(output_directory + "/" + filename)
@@ -28,7 +25,6 @@ def get_stuff_to_sync(input_directory, output_directory):
   return {'files': files_to_sync, 'directories': directories_to_sync}
 
 
-
 def sync_files(input_directory, output_directory):
   things_to_sync = get_stuff_to_sync(input_directory, output_directory)
 
@@ -38,7 +34,7 @@ def sync_files(input_directory, output_directory):
   print files
   print
   print dirs
-  
+
   for f in files:
     call(["cp", "-pr", f, output_directory + "/"])
 

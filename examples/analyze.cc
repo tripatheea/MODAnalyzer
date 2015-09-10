@@ -69,6 +69,10 @@ int main(int argc, char * argv[]) {
       if( (event_serial_number % 100) == 0 )
          cout << "Processing event number " << event_serial_number << endl;
 
+
+      // Write out version info in the output file for the "syncing plots" thing to work (as it needs to figure out which directory to put things into).
+      output_file << "%" << " Version " << event_being_read.version();
+
       analyze_event(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
       
       event_being_read = MOD::Event();
