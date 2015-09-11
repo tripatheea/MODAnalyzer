@@ -90,7 +90,7 @@ int main(int argc, char * argv[]) {
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
 
    // First, "correct" the jets.
-   event_being_read.apply_jet_quality_cuts("tight");
+   event_being_read.apply_jet_quality_cuts("loose");
 
    MOD::CalibratedJet hardest_uncorrected_jet = event_being_read.hardest_jet();
 
@@ -370,6 +370,16 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back( MOD::Property("fractional_energy_loss", (hardest_jet.E() - soft_drop(hardest_jet).E()) / hardest_jet.E() ) );
    
    properties.push_back( MOD::Property("hardest_eta", hardest_jet.eta()) );
+
+
+   // Jet mass and multiplicity before and after SD for charged particles only.
+   PseudoJet hardest_jet_charged = ak5_jet_with_charged_particles_only[0];
+
+   properties.push_back( MOD::Property("charged_multi_before_SD", (int) hardest_jet_charged.constituents().size()) );
+   properties.push_back( MOD::Property("charged_multi_after_SD", (int) soft_drop(hardest_jet_charged).constituents().size()) );
+
+   properties.push_back( MOD::Property("charged_jet_mass_before_SD", hardest_jet_charged.m()) );
+   properties.push_back( MOD::Property("charged_jet_mass_after_SD", soft_drop(hardest_jet_charged).m()) );
 
    
 

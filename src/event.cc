@@ -275,7 +275,7 @@ void MOD::Event::set_assigned_trigger() {
    // First, figure out what the hardest pT is.
    MOD::Event * duplicate_of_current_event = new MOD::Event(_run_number, _event_number, _version, _data_type, _condition, _triggers, _particles, _pseudojets, _CMS_jets, _CMS_pseudojets);
 
-   duplicate_of_current_event->apply_jet_quality_cuts("tight");
+   duplicate_of_current_event->apply_jet_quality_cuts("loose");
    duplicate_of_current_event->apply_jet_energy_corrections();
    duplicate_of_current_event->apply_eta_cut(2.4);
 

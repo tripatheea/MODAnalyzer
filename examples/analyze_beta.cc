@@ -105,7 +105,7 @@ double calculate_rho(double R, double m, double pT) {
 void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
 
    // First, "correct" the jets.
-   event_being_read.apply_jet_quality_cuts("loose");
+   // event_being_read.apply_jet_quality_cuts("loose");
 
    MOD::CalibratedJet hardest_uncorrected_jet = event_being_read.hardest_jet();
 
