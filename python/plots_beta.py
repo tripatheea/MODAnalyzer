@@ -1,6 +1,8 @@
 # /media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/analyzed.dat
 from __future__ import division
 
+from subprocess import call
+
 from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import MultipleLocator
 from matplotlib.ticker import FixedLocator
@@ -22,6 +24,7 @@ from matplotlib.legend_handler import HandlerLine2D
 from mpl_toolkits.mplot3d import axes3d
 from matplotlib import cm
 
+from collections import defaultdict
 
 # RootPy
 from rootpy.plotting import Hist, HistStack, Legend
@@ -62,6 +65,17 @@ mpl.rcParams['text.latex.preamble'] = [r'\boldmath']
 
 plt.rc('font', family='serif', size=43)
 
+def get_version(input_file):
+
+  f = open(input_file, 'r')
+  lines = f.read().split("\n")
+
+  properties = defaultdict(list)
+
+  for line in lines:
+    numbers = line.split()
+    if numbers[0] == "%":
+      return numbers[1] + " " + numbers[2] 
 
 
 def parse_file(input_file, pT_lower_cut = 0.00):
@@ -196,7 +210,8 @@ def plot_rho(pT_lower_cut=150):
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
   
-  plt.savefig("plots/rho/rho_" + str(pT_lower_cut) + ".pdf")
+  # plt.savefig("plots/" + get_version(input_analysis_file) + "/rho/rho_" + str(pT_lower_cut) + ".pdf")
+  plt.savefig("plots/" + "Version 3" + "/rho/rho_" + str(pT_lower_cut) + ".pdf")
   plt.clf()
 
 
@@ -208,66 +223,4 @@ plot_rho(pT_lower_cut=250)
 plot_rho(pT_lower_cut=300)
 
 
-# def plot_rho_weird():
-#   pT_lower_cut = 100
-#   properties = parse_file(input_analysis_file, pT_lower_cut)
-
-#   prescales = properties['prescales']
-  
-#   rho = {}
-
-#   # rho['rho_05'] = properties['rho_05']
-#   rho['rho_10'] = properties['rho_10']
-#   # rho['rho_15'] = properties['rho_15']
-#   # rho['rho_20'] = properties['rho_20']
-#   # rho['rho_25'] = properties['rho_25']
-#   # rho['rho_30'] = properties['rho_30']
-#   # rho['rho_35'] = properties['rho_35']
-#   # rho['rho_40'] = properties['rho_40']
-#   # rho['rho_45'] = properties['rho_45']
-#   # rho['rho_50'] = properties['rho_50']
-
-#   for r in rho:
-#     x, y = [], []
-#     for i in range(0, len(rho[r])):
-#       if properties['zg_10'][i] > 0.10:
-#         x.append(rho[r][i])
-#         y.append(prescales[i])
-    
-#     rho[r] = x
-
-#     rho[r] = np.log(rho[r])
-#     plt.hist(rho[r], label="z\_cut=0." + str(r)[4:], normed=1, histtype='step', lw=5, bins=200)
-
-#   plt.autoscale(True)
-#   # plt.gca().set_ylim(0, 10)
-
-#   plt.legend(loc=2)
-
-#   plt.gca().set_xlabel("$\\rho = m^2 / (p_T^2~R^2)$", fontsize=75, labelpad=50)
-
-
-#   plt.gcf().set_size_inches(30, 30, forward=1)
-
-#   plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
-#   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
-
- 
-#   # plt.gca().xaxis.set_minor_locator(MultipleLocator(5))
-#   plt.gca().yaxis.set_minor_locator(MultipleLocator(0.05))
-#   plt.tick_params(which='major', width=5, length=25, labelsize=70)
-#   plt.tick_params(which='minor', width=3, length=15)
-
-
-#   # x = np.linspace(math.log(0.000000000001, math.e), math.log(0.5, math.e), 10)
-#   # labels = [str(round(math.exp(i), 4)) for i in x]
-#   # plt.xticks(x, labels)
-
-  
-#   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
-#   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
-#   plt.savefig("plots/rho.pdf")
-
-
-
-# plot_rho_weird()
+call(["python", "/home/aashish/root/macros/MODAnalyzer/utilities/sync_plots.py"])

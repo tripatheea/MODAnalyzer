@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 
 def get_version(input_file):
 
@@ -8,12 +9,9 @@ def get_version(input_file):
   properties = defaultdict(list)
 
   for line in lines:
-    try:
-      numbers = line.split()
-      
-      if not numbers[0] == "#":
-        if (float(numbers[4]) > pT_lower_cut) and (float(numbers[17]) > pfc_pT_cut) and (float(numbers[4]) < pT_upper_cut):
-          properties['event_number'].append( float( numbers[1] ) )
-          properties['run_number'].append( float( numbers[2] ) )
+    numbers = line.split()
+    if numbers[0] == "%":
+      return numbers[1] + " " + numbers[2] 
 
-          properties['uncorrected_hardest_pts'].append( float( numbers[3] ) )
+
+print get_version("/home/aashish/analyzed_loose.dat")

@@ -24,7 +24,8 @@ _OBJ =calibrated_jet event fractional_jet_multiplicity pfcandidate trigger prope
 OBJ  =$(patsubst %,$(OBJDIR)/%,$(_OBJ:=.o))
 
 
-_EXEC=skim analyze validate turn_on analyze_beta
+#_EXEC=skim analyze validate turn_on analyze_beta
+_EXEC=analyze_beta analyze turn_on
 EXEC=$(patsubst %,$(EXECDIR)/%,$(_EXEC:=.o))
 BIN=$(patsubst %,$(BINDIR)/%,$(_EXEC))
 

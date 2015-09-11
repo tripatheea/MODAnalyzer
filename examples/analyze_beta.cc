@@ -72,12 +72,13 @@ int main(int argc, char * argv[]) {
       if( (event_serial_number % 100) == 0 )
          cout << "Processing event number " << event_serial_number << endl;
 
-      if (event_being_read.jet_quality_cut("loose") && abs(event_being_read.hardest_corrected_jet().pseudojet().eta()) < 2.4) {
-         analyze_qcd_beta(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
-      }
-      else {
-         // cout << "I reject this one!" << endl;
-      }
+      
+      // Write out version info in the output file for the "syncing plots" thing to work (as it needs to figure out which directory to put things into).
+      if (event_serial_number == 1)
+         output_file << "%" << " Version " << event_being_read.version() << endl;
+
+      analyze_qcd_beta(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
+      
       
       event_being_read = MOD::Event();
       event_serial_number++;
@@ -103,16 +104,21 @@ double calculate_rho(double R, double m, double pT) {
 
 void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
 
+   // First, "correct" the jets.
+   event_being_read.apply_jet_quality_cuts("loose");
+
+   MOD::CalibratedJet hardest_uncorrected_jet = event_being_read.hardest_jet();
+
+   event_being_read.apply_jet_energy_corrections();
+   event_being_read.apply_eta_cut(2.4);
+
+   MOD::CalibratedJet hardest_corrected_jet = event_being_read.hardest_jet();
 
 
    vector<MOD::Property> properties;
 
    properties.push_back(MOD::Property("# Entry", "  Entry"));
-
-   MOD::CalibratedJet hardest_corrected_jet = event_being_read.hardest_corrected_jet();
-
    properties.push_back(MOD::Property("Cor_Hardest_pT", hardest_corrected_jet.pseudojet().pt()));
-
    properties.push_back(MOD::Property("Prescale", event_being_read.assigned_trigger_prescale()));
 
 

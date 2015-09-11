@@ -3,9 +3,17 @@
 using namespace std;
 using namespace fastjet;
 
-MOD::Event::Event(int run_number, int Event_number, int lumi_block, double inst_lumi) : _run_number(run_number), _event_number(Event_number), _hardest_corrected_pt(std::numeric_limits<double>::max()), _hardest_uncorrected_pt(std::numeric_limits<double>::max()) {}
+MOD::Event::Event(int run_number, int event_number, int lumi_block, double inst_lumi) : _run_number(run_number), _event_number(event_number) {}
 
-MOD::Event::Event() :  _hardest_corrected_pt(std::numeric_limits<double>::max()), _hardest_uncorrected_pt(std::numeric_limits<double>::max()) {}
+MOD::Event::Event(int run_number, int event_number, int version, std::pair<std::string, std::string> data_type, MOD::Condition condition, vector<MOD::Trigger> triggers, vector<MOD::PFCandidate> particles, vector<fastjet::PseudoJet> pseudojets, vector<MOD::CalibratedJet> CMS_jets, vector<fastjet::PseudoJet> CMS_pseudojets) : 
+_run_number(run_number), _event_number(event_number),  _version(version), _data_type(data_type), _condition(condition), _triggers(triggers), _particles(particles), _pseudojets(pseudojets), _CMS_jets(CMS_jets), _CMS_pseudojets(CMS_pseudojets) 
+{}
+
+
+//  
+
+
+MOD::Event::Event() {}
 
 int MOD::Event::event_number() const {
    return _event_number;
@@ -84,35 +92,15 @@ const vector<MOD::PFCandidate> MOD::Event::charged_particles() const {
    return charged_particles;
 }
 
-const vector<MOD::CalibratedJet> MOD::Event::corrected_calibrated_jets() const {
-   
-   vector<MOD::CalibratedJet> corrected_jets;
-   vector<MOD::CalibratedJet> jets = corrected_calibrated_jets();
 
-   for (unsigned i = 0; i < jets.size(); i++) {
-      corrected_jets.push_back(jets[i].corrected_jet());
-   }
 
-   return corrected_jets;
+
+const vector<MOD::CalibratedJet> & MOD::Event::CMS_jets() const {
+   return _CMS_jets;
 }
 
-const vector<fastjet::PseudoJet> MOD::Event::corrected_calibrated_pseudojets() const {
-   vector<fastjet::PseudoJet> corrected_psuedojets;
-   vector<MOD::CalibratedJet> jets = corrected_calibrated_jets();
-
-   for (unsigned i = 0; i < jets.size(); i++) {
-      corrected_psuedojets.push_back(jets[i].corrected_jet().pseudojet());
-   }
-
-   return corrected_psuedojets;
-}
-
-const vector<PseudoJet> & MOD::Event::uncorrected_calibrated_pseudojets() const {
-   return _uncorrected_calibrated_pseudojets;
-}
-
-const vector<MOD::CalibratedJet> & MOD::Event::uncorrected_calibrated_jets() const {
-   return _uncorrected_calibrated_jets;
+const vector<fastjet::PseudoJet> & MOD::Event::CMS_pseudojets() const {
+   return _CMS_pseudojets;
 }
 
 
@@ -129,14 +117,12 @@ void MOD::Event::add_conditions(istringstream & input_stream) {
    _condition = new_condition;
 }
 
-void MOD::Event::add_calibrated_jet(istringstream & input_stream) {
+void MOD::Event::add_CMS_jet(istringstream & input_stream) {
    MOD::CalibratedJet new_jet(input_stream);
 
-   _uncorrected_calibrated_jets.push_back(new_jet);
-   _uncorrected_calibrated_pseudojets.push_back(new_jet.pseudojet());      
+   _CMS_jets.push_back(new_jet);
+   _CMS_pseudojets.push_back(new_jet.pseudojet());      
    
-   _corrected_calibrated_jets.push_back(new_jet.corrected_jet());
-   _corrected_calibrated_pseudojets.push_back(new_jet.JEC() * new_jet.pseudojet());      
 }
 
 void MOD::Event::add_trigger(istringstream & input_stream) {
@@ -182,10 +168,10 @@ string MOD::Event::make_string() const {
    }
 
    // Next, write out AK5 calibrated jets.
-   for(unsigned int i = 0; i < _uncorrected_calibrated_jets.size(); i++) {
+   for(unsigned int i = 0; i < _CMS_jets.size(); i++) {
       if (i == 0)
-         file_to_write << _uncorrected_calibrated_jets[i].make_header_string();
-      file_to_write << _uncorrected_calibrated_jets[i];
+         file_to_write << _CMS_jets[i].make_header_string();
+      file_to_write << _CMS_jets[i];
    }
    
    // Finally, write out all particles.
@@ -200,13 +186,6 @@ string MOD::Event::make_string() const {
    return file_to_write.str();
 }
 
-double MOD::Event::hardest_corrected_pt() const {
-   return _hardest_corrected_pt;
-}
-
-double MOD::Event::hardest_uncorrected_pt() const {
-   return _hardest_uncorrected_pt;
-}
 
 bool MOD::Event::read_event(istream & data_stream) {
    string line;
@@ -238,7 +217,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "AK5") {
          try {
-            add_calibrated_jet(stream);
+            add_CMS_jet(stream);
          }
          catch (exception& e) {
             throw runtime_error("Invalid file format AK5! Something's wrong with the way jets have been written.");
@@ -292,11 +271,16 @@ int MOD::Event::assigned_trigger_prescale() const {
 }
 
 void MOD::Event::set_assigned_trigger() {
-   double hardest_pt_value = hardest_corrected_pt();
 
-   if (hardest_pt_value == std::numeric_limits<double>::max()) {
-      throw runtime_error("You need to set _trigger_hardest_pt before trying to retrieve assigned_trigger_name.");
-   }
+   // First, figure out what the hardest pT is.
+   MOD::Event * duplicate_of_current_event = new MOD::Event(_run_number, _event_number, _version, _data_type, _condition, _triggers, _particles, _pseudojets, _CMS_jets, _CMS_pseudojets);
+
+   duplicate_of_current_event->apply_jet_quality_cuts("tight");
+   duplicate_of_current_event->apply_jet_energy_corrections();
+   duplicate_of_current_event->apply_eta_cut(2.4);
+
+   double hardest_pt_value = duplicate_of_current_event->hardest_jet().pseudojet().pt();
+
 
    // Next, lookup which trigger to use based on the pt value of the hardest jet.
 
@@ -348,77 +332,23 @@ void MOD::Event::set_assigned_trigger() {
    _assigned_trigger = trigger_by_name(trigger_to_use);
 }
 
-void MOD::Event::set_hardest_pt() {
-   // Set the hardest pt of the AK5 jets.
-
-   // Just use the jets we read from the data file.
-
-   vector<PseudoJet> corrected_clustered_jets = _corrected_calibrated_pseudojets;
-   
-   double corrected_hardest_pt_value = 0.0;
-   for (unsigned int i = 0; i < corrected_clustered_jets.size(); i++) {
-      if (corrected_hardest_pt_value < corrected_clustered_jets[i].pt()) {
-         corrected_hardest_pt_value = corrected_clustered_jets[i].pt();
-      }
-   }
-
-   _hardest_corrected_pt = corrected_hardest_pt_value;
-
-   // Uncorrected Jets.
-
-   vector<PseudoJet> uncorrected_clustered_jets = _uncorrected_calibrated_pseudojets;
-   
-   double uncorrected_hardest_pt_value = 0.0;
-   for (unsigned int i = 0; i < uncorrected_clustered_jets.size(); i++) {
-      if (uncorrected_hardest_pt_value < uncorrected_clustered_jets[i].pt()) {
-         uncorrected_hardest_pt_value = uncorrected_clustered_jets[i].pt();
-      }
-   }
-
-   _hardest_uncorrected_pt = uncorrected_hardest_pt_value;
-
-}
 
 void MOD::Event::establish_properties() {
-   set_hardest_pt();
    set_assigned_trigger();
+
+   // Cluster PFCandidates into AK5 Jets ourselves.
+   // vector<PseudoJet> pfcandidates = pseudojets();
+
+   // JetDefinition jet_def(antikt_algorithm, 0.5);
+   // ClusterSequence cs(event_being_read.pseudojets(), jet_def);
+   // vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
+
+   // _calibrated_pseudojets = ak5_jets;
 }
 
 
 
-MOD::CalibratedJet MOD::Event::hardest_corrected_jet() {
-   // Get CMS Jets.
-   vector<MOD::CalibratedJet> cms_jets = _corrected_calibrated_jets;
-   
-   if (cms_jets.size() > 0) {
-      // Sort by pT.
-      sort(cms_jets.begin(), cms_jets.end());
 
-      // Return the first element.
-      return cms_jets[0];
-   }
-   else {
-      // throw runtime_error("No jet found!");
-      return MOD::CalibratedJet();
-   }
-}
-
-MOD::CalibratedJet MOD::Event::hardest_uncorrected_jet() {
-   // Get CMS Jets.
-   vector<MOD::CalibratedJet> cms_jets = _uncorrected_calibrated_jets;
-   
-   if (cms_jets.size() > 0) {
-      // Sort by pT.
-      sort(cms_jets.begin(), cms_jets.end());
-
-      // Return the first element.
-      return cms_jets[0];
-   }
-   else {
-      // throw runtime_error("No jet found!");
-      return MOD::CalibratedJet();
-   }
-}
 
 MOD::PFCandidate MOD::Event::hardest_pfcandidate() {
    // Get PFCandidates.
@@ -437,7 +367,7 @@ MOD::PFCandidate MOD::Event::hardest_pfcandidate() {
 }
 
 void MOD::Event::apply_jet_quality_cuts(string quality_level) {
-   vector<MOD::CalibratedJet> jets = _uncorrected_calibrated_jets;
+   vector<MOD::CalibratedJet> jets = _CMS_jets;
 
    vector<MOD::CalibratedJet> quality_jets;
 
@@ -446,12 +376,12 @@ void MOD::Event::apply_jet_quality_cuts(string quality_level) {
          quality_jets.push_back(jets[i]);
    }
 
-   _calibrated_jets = quality_jets;
+   _CMS_jets = quality_jets;
 }
 
 void MOD::Event::apply_jet_energy_corrections() {
 
-   vector<MOD::CalibratedJet> jets = _calibrated_jets;
+   vector<MOD::CalibratedJet> jets = _CMS_jets;
 
    vector<MOD::CalibratedJet> jec_corrected_jets;
 
@@ -459,12 +389,12 @@ void MOD::Event::apply_jet_energy_corrections() {
       jec_corrected_jets.push_back(jets[i].corrected_jet());
    }
 
-   _calibrated_jets = jec_corrected_jets;
+   _CMS_jets = jec_corrected_jets;
   
 }
 
 void MOD::Event::apply_eta_cut(double eta_cut) {
-   vector<MOD::CalibratedJet> jets = _calibrated_jets;
+   vector<MOD::CalibratedJet> jets = _CMS_jets;
 
    vector<MOD::CalibratedJet> jets_with_eta_cut;
 
@@ -474,11 +404,11 @@ void MOD::Event::apply_eta_cut(double eta_cut) {
       }
    }
 
-   _calibrated_jets = jets_with_eta_cut;
+   _CMS_jets = jets_with_eta_cut;
 }
 
 MOD::CalibratedJet MOD::Event::hardest_jet() {
-   vector<MOD::CalibratedJet> jets = _calibrated_jets;
+   vector<MOD::CalibratedJet> jets = _CMS_jets;
 
    if ( jets.size() > 0 ) {
       sort(jets.begin(), jets.end());

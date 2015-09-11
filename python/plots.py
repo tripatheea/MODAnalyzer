@@ -1,6 +1,8 @@
 # /media/aashish/opendata/eos/opendata/cms/Run2010B/Jet/analyzed.dat
 from __future__ import division
 
+from subprocess import call
+
 from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import MultipleLocator
 from matplotlib.ticker import FixedLocator
@@ -62,6 +64,17 @@ mpl.rcParams['text.latex.preamble'] = [r'\boldmath']
 
 plt.rc('font', family='serif', size=43)
 
+def get_version(input_file):
+
+  f = open(input_file, 'r')
+  lines = f.read().split("\n")
+
+  properties = defaultdict(list)
+
+  for line in lines:
+    numbers = line.split()
+    if numbers[0] == "%":
+      return numbers[1] + " " + numbers[2] 
 
 
 def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00, pT_upper_cut = 20000.00):
@@ -451,7 +464,7 @@ def plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 
   print "softcut/" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + ".pdf"
 
-  plt.savefig("plots/softcut/" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + ".pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/softcut/" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + ".pdf")
   # plt.show()
   plt.clf()
 
@@ -460,8 +473,7 @@ def plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 def plot_turn_on_curves():
   # properties = parse_file_turn_on(input_analysis_file)
   
-  # properties = parse_file_turn_on('/home/aashish/turn_on.dat')
-  properties = parse_file_turn_on('/home/aashish/turn_on_friday.dat')
+  properties = parse_file_turn_on('/home/aashish/turn_on.dat')
 
   pTs = properties['corrected_hardest_pts']
   trigger_names = properties['trigger_names']
@@ -521,7 +533,7 @@ def plot_turn_on_curves():
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
 
-  plt.savefig("plots/turn_on_curves.pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/turn_on_curves.pdf")
   # plt.show()
   plt.clf()
 
@@ -568,7 +580,7 @@ def plot_hardest_pt_corresponding_triggers():
 
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
-  plt.savefig("plots/hardest_pt_corresponding_triggers.pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/hardest_pt_corresponding_triggers.pdf")
   # plt.show()
   plt.clf()
 
@@ -1033,8 +1045,8 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
   fig.set_snap(True)
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  print "Writint out zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
-  filename = "plots/Version 3/zg/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+  print "Writing out zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+  filename = "plots/" + get_version(input_analysis_file) + "/zg/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
   
   plt.savefig(filename)
   # plt.show()
@@ -1226,7 +1238,7 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  plt.savefig("plots/trigger_efficiency/efficiency_curves_" + trigger_1 + ".pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/trigger_efficiency/efficiency_curves_" + trigger_1 + ".pdf")
   # plt.show()
   plt.clf()
 
@@ -1321,7 +1333,7 @@ def plot_all_trigger_efficiency_curves():
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  plt.savefig("plots/all_efficiency_curves.pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/all_efficiency_curves.pdf")
   # plt.show()
   plt.clf()
 
@@ -1422,10 +1434,10 @@ def plot_jec_eta_2d():
 
   
 
-  plt.savefig("plots/jec_eta_2d.pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/jec_eta_2d.pdf")
 
   # plt.show()
-
+  plt.clf()
 
 
 
@@ -1462,7 +1474,7 @@ def plot_JEC():
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  plt.savefig("plots/JEC.pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/JEC.pdf")
 
   plt.clf()
 
@@ -1522,7 +1534,7 @@ def plot_jet_area():
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  plt.savefig("plots/jet_area.pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/jet_area.pdf")
 
   plt.clf()
 
@@ -1593,7 +1605,7 @@ def plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05'
 
   print "Writing out charged_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + ".pdf"
 
-  plt.savefig("plots/zg_charged/charged_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + ".pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/zg_charged/charged_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + ".pdf")
   # plt.show()
   plt.clf()
 
@@ -1777,7 +1789,7 @@ def plot_pts(pT_lower_cut=150, pT_upper_cut=10000):
 
   print "Printing fractional energy loss with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
 
-  plt.savefig("plots/pT_distribution/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/pT_distribution/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
   # plt.show()
   plt.clf()
 
@@ -1858,7 +1870,7 @@ def plot_hardest_pt_softdrop(pT_lower_cut=100, pT_upper_cut=20000):
 
   print "Printing fractional energy loss with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
 
-  plt.savefig("plots/hardest_pt_softdrop/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/hardest_pt_softdrop/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
   # plt.show()
   plt.clf()
 
@@ -1926,7 +1938,7 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
 
   print "Printing fractional energy loss with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
 
-  plt.savefig("plots/constituent_multiplicity_softdrop/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/constituent_multiplicity_softdrop/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
   # plt.show()
   plt.clf()
 
@@ -1936,11 +1948,12 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
 def plot_constituent_multiplicity_softdrop_multiple_jet_correction_level(pT_lower_cut=100, pT_upper_cut=20000):
   
   loose_file = '/home/aashish/analyzed_loose.dat'
+  medium_file = '/home/aashish/analyzed_medium.dat'
   tight_file = '/home/aashish/analyzed_tight.dat'
 
-  files = [loose_file, tight_file]
-  titles = [ ["Before SoftDrop (Loose)", "After SoftDrop (Loose)"], ["Before SoftDrop (Tight)", "Before SoftDrop (Tight)"]]
-  colors = [['red', 'green'], ['blue', 'magenta']]
+  files = [loose_file, medium_file, tight_file]
+  titles = [ ["Before SoftDrop (Loose)", "After SoftDrop (Loose)"], ["Before SoftDrop (Medium)", "After SoftDrop (Medium)"], ["Before SoftDrop (Tight)", "Before SoftDrop (Tight)"]]
+  colors = [['red', 'green'], ['gray', 'orange'], ['blue', 'magenta']]
 
   for i in range(0, len(files)):
 
@@ -1962,8 +1975,8 @@ def plot_constituent_multiplicity_softdrop_multiple_jet_correction_level(pT_lowe
     multi_before_SD_hist.Scale(1.0 / (multi_before_SD_hist.GetSumOfWeights() * bin_width_before))
     multi_after_SD_hist.Scale(1.0 / (multi_after_SD_hist.GetSumOfWeights() * bin_width_after))
     
-    pT_before_SD_plot = rplt.errorbar(multi_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-    pT_after_SD_plot = rplt.errorbar(multi_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    pT_before_SD_plot = rplt.errorbar(multi_before_SD_hist, alpha=0.5, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    pT_after_SD_plot = rplt.errorbar(multi_after_SD_hist, alpha=0.5, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
   
 
 
@@ -2008,7 +2021,7 @@ def plot_constituent_multiplicity_softdrop_multiple_jet_correction_level(pT_lowe
 
   print "Printing fractional energy loss with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
 
-  plt.savefig("plots/constituent_multiplicity_softdrop/multiple_correction_level_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/constituent_multiplicity_softdrop/multiple_correction_level_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
   # plt.show()
   plt.clf()
 
@@ -2019,16 +2032,17 @@ def plot_fractional_energy_loss(pT_lower_cut=100, pT_upper_cut=20000):
   fractional_energy_loss = properties['fractional_energy_loss']
   prescales = properties['prescales']
 
-  fractional_energy_loss_hist = Hist(150, 0, 0.5, title='Fractional Jet Energy Loss', markersize=3.0, color='black')
+  log_fractional_energy_loss = np.log(fractional_energy_loss)
+  bins_linear_log = np.linspace(math.log(0.005, math.e), math.log(0.5, math.e), 150)
+
+  fractional_energy_loss_hist = Hist(bins_linear_log, title='Fractional Jet Energy Loss', markersize=3.0, color='black')
   bin_width_before = (fractional_energy_loss_hist.upperbound() - fractional_energy_loss_hist.lowerbound()) / fractional_energy_loss_hist.nbins()
 
-  map(fractional_energy_loss_hist.Fill, fractional_energy_loss, prescales)
+  map(fractional_energy_loss_hist.Fill, log_fractional_energy_loss, prescales)
  
   fractional_energy_loss_hist.Scale(1.0 / (fractional_energy_loss_hist.GetSumOfWeights() * bin_width_before))
 
   rplt.errorbar(fractional_energy_loss_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-  
-  # plt.yscale('log')
 
   # Legends Begin.
 
@@ -2055,9 +2069,14 @@ def plot_fractional_energy_loss(pT_lower_cut=100, pT_upper_cut=20000):
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
   plt.gca().autoscale(True)
-  plt.gca().set_ylim(0., plt.gca().get_ylim()[1])
+  plt.gca().set_ylim(0., plt.gca().get_ylim()[1] * 1.5)
 
-  plt.gca().xaxis.set_minor_locator(MultipleLocator(0.01))
+  x = np.linspace(math.log(0.005, math.e), math.log(0.5, math.e), 5)
+  labels = [str(round(math.exp(i), 2)) for i in x]
+  plt.xticks(x, labels)
+
+
+  # plt.gca().xaxis.set_minor_locator(MultipleLocator(0.01))
   plt.gca().yaxis.set_minor_locator(MultipleLocator(2))
   plt.tick_params(which='major', width=5, length=25, labelsize=70)
   plt.tick_params(which='minor', width=3, length=15)
@@ -2066,7 +2085,7 @@ def plot_fractional_energy_loss(pT_lower_cut=100, pT_upper_cut=20000):
 
   print "Printing fractional energy loss with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
 
-  plt.savefig("plots/fractional_energy_loss/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/fractional_energy_loss/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
   # plt.show()
   plt.clf()
 
@@ -2139,7 +2158,7 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
 
   print "Printing jet mass spectrum with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
 
-  plt.savefig("plots/jet_mass_spectrum/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/jet_mass_spectrum/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
   # plt.show()
   plt.clf()
 
@@ -2328,7 +2347,7 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   keys.sort()
 
   theory_x = keys
-  bins_linear_log = np.linspace(math.log(zg_cut, math.e), math.log(0.6, math.e), n_bins * 6)
+  bins_linear_log = np.linspace(math.log(zg_cut, math.e), math.log(0.5, math.e), n_bins * 5)
   log_theory_x = np.log(theory_x)
 
   y = []
@@ -2350,8 +2369,6 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   theory_y_min = []
   theory_y_line = []
   
-
-
   for i in range(0, len(theory_x)):
     y_for_current_x = []
     for j in range(0, 6):
@@ -2409,7 +2426,7 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
     a_zero_removed = []
     y_zero_removed = []
     for i in range(0, len(a)):
-      if a[i] >= math.log(zg_cut, math.e) and a[i] <= math.log(0.6, math.e) and y[i] != 0.0:
+      if round(float(a[i]), 4) >= round(math.log(zg_cut, math.e), 4) and round(float(a[i]), 4) <= round(math.log(0.5, math.e), 4):
         a_zero_removed.append(a[i])
         y_zero_removed.append(y[i])
 
@@ -2422,6 +2439,7 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
   map(zg_data_hist.Fill, log_zg_data, prescales)
   zg_data_hist.Scale(1.0 / ( zg_data_hist.GetSumOfWeights() * bin_width_data ))
+
 
   if data:
     data_plot = rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, axes=ax0, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
@@ -2443,7 +2461,7 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   data_plot_points_y = []
 
   for i in range(0, len(data_points_x)):
-    if float(data_points_x[i]) >= float(math.log(zg_cut, math.e)):
+    if (float(data_points_x[i]) >= float(math.log(zg_cut, math.e))):
       data_plot_points_x.append(data_points_x[i])
       data_plot_points_y.append(data_points_y[i])
 
@@ -2659,6 +2677,9 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   ax0.set_xlim(math.log(float(zg_cut), math.e), math.log(0.6, math.e))
   ax1.set_xlim(math.log(float(zg_cut), math.e), math.log(0.6, math.e))
 
+  ax0.set_ylim(0.6 * min(data_plot_points_y), 1.7 * max(data_plot_points_y))
+  ax1.set_ylim(1.0 - y_limit_ratio_plot, 1.0 + y_limit_ratio_plot)
+
   if data:
     ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
@@ -2669,9 +2690,6 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
     plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 
- 
-
-  ax0.set_ylim(0, 1.6)
   
   plt.gcf().set_size_inches(30, 30, forward=1)
 
@@ -2688,8 +2706,13 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   plt.tick_params(which='major', width=5, length=25, labelsize=70)
   plt.tick_params(which='minor', width=3, length=15)
 
+  plt.sca(ax1)
+  if y_limit_ratio_plot < 1:
+    plt.gca().yaxis.set_major_locator(MultipleLocator(0.2))
+  else:
+    plt.gca().yaxis.set_major_locator(MultipleLocator(0.5))
 
-  x = np.linspace(math.log(zg_cut, math.e), math.log(0.5, math.e), 10)
+  x = np.linspace(math.log(zg_cut, math.e), math.log(0.5, math.e), 6)
   labels = [str(round(math.exp(i), 2)) for i in x]
 
   plt.sca(ax0)
@@ -2713,162 +2736,6 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   plt.clf()
 
 
-
-def test2():
-  properties = parse_file(input_analysis_file, 150)
-
-  zgs = properties['zg_05'] 
-  prescales = properties['prescales']
-
-  zgs = np.linspace(0.05, 0.5, 50000)
-  prescales = np.reciprocal(zgs)
-
-
-  x, y = [], []
-  for i in range(0, len(zgs)):
-    if zgs[i] != 0:
-      x.append(zgs[i])
-      y.append(prescales[i])
-
-  
-  x_logged = np.log(x)
-
- 
-
-
-  ################################################ MAIN CODE BELOW THIS LINE ###################################################
-
-  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
-
-  bins_log = np.logspace(math.log(0.05, math.e), math.log(0.5, math.e), 10, base=math.e)
-  # bins_linear = np.linspace(0.05, 0.5, 5)
-  bins_linear_log = np.linspace(math.log(0.05, math.e), math.log(0.5, math.e), 50)
-
-  
-  # plt.hist(x, weights=y, bins=bins_log, histtype='step', lw=5, normed=True)
-  # plt.hist(x, weights=y, bins=bins_linear, histtype='step', lw=5, normed=True)
-  # plt.hist(x, weights=y, bins=bins_linear_log, histtype='step', lw=5, normed=True)
-
-  plt.hist(x_logged, weights=y, bins=bins_linear_log, histtype='step', lw=5, normed=True)
-
-  
-
-  # This is an attempt to use numpy binning before using pyplot to plot.
-  # But that was attempted because of a misunderstanding that numpy would deal with "variable bins" correctly.
-  # But in actuality, we don't have to deal with variable bins for log(zg) anyway.
-
-  # hist, bins = np.histogram(x_logged, weights=y, bins=bins_linear_log, normed=True)
-
-  # plt.hist(bins[:-1], weights=hist, histtype='step', bins=50, lw=5)
-
-  # plt.errorbar(bins[:-1], hist, xerr=True, yerr=True, marker="o", markersize=10, lw=0)
-  
-
-
-
-  plt.show()
-
-  plt.clf()
-
-
-  '''
-
-  my_hist = Hist([0.05, 0.1, 0.2, 0.5], title="something", markersize=3, color='red')
-
-  my_hist_corrected = Hist([0.05, 0.1, 0.2, 0.5], title="something", markersize=3, color='blue')
-  my_hist_crazy_binning = Hist([0.05, 0.1, 0.2, 0.4, 0.41, 0.42, 0.43, 0.44, 0.45, 0.46, 0.47, 0.48, 0.49, 0.5], title="something", markersize=3, color='green')
-  my_hist_uniform_binning = Hist([0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5], title="something", markersize=3, color='magenta')
-
-  map(my_hist.Fill, x, prescales)
-  map(my_hist_corrected.Fill, x, prescales)
-  
-  map(my_hist_crazy_binning.Fill, x, prescales)
-  map(my_hist_uniform_binning.Fill, x, prescales)
-
-
-  def norm_hist(hist):
-    bin_width = (hist.upperbound() - hist.lowerbound()) / hist.nbins()
-    hist.Scale(1.0 / ( hist.GetSumOfWeights() ))
-
-    for i in range(0, hist.GetSize()):
-      bin_width = hist.GetXaxis().GetBinWidth(i)
-      old_bin_height =  hist.GetBinContent(i)
-      
-      new_height = old_bin_height / bin_width
-      hist.SetBinContent(i, new_height)
-
-      old_error = hist.GetBinError(i)
-      new_error = old_error / bin_width
-      hist.SetBinError(i, new_error)
-
-    return hist
-
-  
-
-  bin_width = (my_hist.upperbound() - my_hist.lowerbound()) / my_hist.nbins()
-  my_hist.Scale(1.0 / ( my_hist.GetSumOfWeights() * bin_width ))
-
-  my_hist_corrected = norm_hist(my_hist_corrected)
-  my_hist_crazy_binning = norm_hist(my_hist_crazy_binning)
-  my_hist_uniform_binning = norm_hist(my_hist_uniform_binning)
-
-  # rplt.errorbar(my_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=0.5)
-  rplt.errorbar(my_hist_corrected, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
-  rplt.errorbar(my_hist_crazy_binning, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
-  rplt.errorbar(my_hist_uniform_binning, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
-
-
-
-  plt.legend()
-
-
-  plt.locator_params(nbins=5)
-
-  plt.draw()  # This is important, because without this, pyplot won't "draw" the ticks, thereby making the xticks list empty.
-  xticks = [ tick.get_text().replace("$", "") for tick in plt.gca().get_xticklabels()]  
-  # xticks = [math.log(0.01, math.e), math.log(0.05, math.e), math.log(0.1, math.e), math.log(0.2, math.e), math.log(0.5, math.e), math.log(1, math.e)]
-
-  # print xticks
-  # v = [round(math.e**float(i), 2) if i != "" else "" for i in xticks]
-  # print v
-  v = [i if i != "" else "" for i in xticks]
-  plt.gca().xaxis.set_ticklabels( v )
-
-
-  # plt.gca().set_xscale('log')
-
-  # plt.gca().tick_params(axis='x', which='minor', bottom='off')
-  # plt.minorticks_on()
-
-  # minorLocator   = AutoMinorLocator()
-  minorLocator = MultipleLocator(0.01)
-  plt.gca().xaxis.set_minor_locator(minorLocator)
-
-
-  plt.tick_params(which='both', width=5)
-  plt.tick_params(which='major', length=30)
-  plt.tick_params(which='minor', length=10)
-
-
-
-  plt.gca().autoscale(True)
-
-  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
-
-
-  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
-
-
-  # plt.savefig("test_zg.pdf")
-
-
-  plt.show()  
-
-  '''
-
-
-# test2()
 
 def plot_pts_variable_bin():
   pT_lower_cut = 150
@@ -3027,133 +2894,17 @@ def plot_pts_variable_bin():
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  plt.savefig("plots/pT_distribution_var_bin.pdf")
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/pT_distribution_var_bin.pdf")
   # plt.show()
   plt.clf()
 
 
 
 
-def test3():
-  properties = parse_file(input_analysis_file, 150)
-
-  pTs = properties['corrected_hardest_pts'] 
-  prescales = properties['prescales']
-
-  print max(properties['uncorrected_hardest_pts'])
-  print max(properties['corrected_hardest_pts'])
-
-
-  x, y = [], []
-  for i in range(0, len(pTs)):
-    if pTs[i] != 0:
-      x.append(pTs[i])
-      y.append(prescales[i])
-
-  
-  x_logged = np.log(x)
-
-  
-  plt.hist(x, weights=y, bins=50, histtype='step', lw=5, normed=1)
-  plt.savefig("test.pdf")
-
-  plt.clf()
-
-  plt.hist(x_logged, weights=y, bins=50, histtype='step', lw=5, normed=1)
-  plt.savefig("test_log.pdf")
-
-  plt.clf()
-
-  # plt.hist(x, weights=y, bins=50, histtype='step', lw=5)
-
-  # plt.draw()  # This is important, because without this, pyplot won't "draw" the ticks, thereby making the xticks list empty.
-  # xticks = [ tick.get_text().replace("$", "") for tick in plt.gca().get_xticklabels() ]
-
-  plt.clf()
-
-
-  ################################################ MAIN CODE BELOW THIS LINE ###################################################
-
-  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
-
-
-
-  x_hist = Hist(50, math.log(150, math.e), math.log(10000, math.e), title='CMS Open Data', markersize=3.0, color='black')
-  # x_hist = Hist(50, 150, 10000, title='CMS Open Data', markersize=5.0, color='black')
-  
-  bin_width = (x_hist.upperbound() - x_hist.lowerbound()) / x_hist.nbins()
-  
-  map(x_hist.Fill, x_logged, y)
-  # map(x_hist.Fill, x, y)
-
-  x_hist.Scale(1.0 / (sum([abs(i) for i in x_logged]) * bin_width))
-  
-
-  # plt.x_hist(x_logged, weights=y, label="CMS Open Data", bins=50, histtype='step', lw=5, normed=1)
-  rplt.errorbar(x_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-  plt.locator_params(nbins=5)
-
-  plt.draw()  # This is important, because without this, pyplot won't "draw" the ticks, thereby making the xticks list empty.
-  xticks = [ tick.get_text().replace("$", "") for tick in plt.gca().get_xticklabels()]  
-  xticks
-
-  v = [round(math.e**float(i), 2) if i != "" else "" for i in xticks]
-  # v = [i if i != "" else "" for i in xticks]
-  plt.gca().xaxis.set_ticklabels( v )
 
 
 
 
-  # Irrelevant stuff begin.
-
-  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
-  plt.gca().add_artist(legend)
-
-  # Info about R, pT_cut, etc.
-  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  handles = [extra]
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(150) + "~\mathrm{GeV}}$"]
-  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.58])
-
-  # Legends End.
-
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
-  plt.gca().add_artist(ab)
-  preliminary_text = "Prelim. (20\%)"
-  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
-
-
-
-  
-  plt.xlabel('$p_T~(GeV)$', fontsize=75)
-  plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=50.)
-  
-  
-
-  plt.gca().autoscale(True)
-  # plt.gca().set_ylim(-0.001, 0.015)
-  # plt.gca().set_ylim(-0.1, 0.015)
-
-  plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
-  plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
-
-
-  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
-
-
-  plt.savefig("test_matplotlib.pdf")
-
-
-
-
-
-
-
-
-
-
-
-# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=250, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
 
 
@@ -3178,18 +2929,16 @@ def test3():
 # plot_jet_area()
 
 # plot_hardest_pt_softdrop()
-# # plot_hardest_pt_softdrop(pT_lower_cut=100, pT_upper_cut=200)
-# # plot_hardest_pt_softdrop(pT_lower_cut=200, pT_upper_cut=400)
-# # plot_hardest_pt_softdrop(pT_lower_cut=400)
-
 
 # plot_pts()
-# # plot_pts(pT_lower_cut=150, pT_upper_cut=250)
-# # plot_pts(pT_lower_cut=250, pT_upper_cut=500)
-# # plot_pts(pT_lower_cut=500)
-
 
 # plot_pts_variable_bin()
+
+# plot_jec_eta_2d()
+
+# plot_JEC()
+
+# plot_hardest_pt_corresponding_triggers()
 
 
 
@@ -3215,35 +2964,35 @@ def test3():
 
 
 
-# plot_jec_eta_2d()
 
 
 
 
-plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+
+plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.6)
 plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
-plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=0.7)
+plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=0.5)
+plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=0.5)
 
 plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=0.5)
 plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
 
 
 
-plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.6)
 plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 plot_log_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
-plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=0.7)
+plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=0.5)
+plot_log_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=0.5)
 
 plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=0.5)
 plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
 
 
@@ -3279,9 +3028,6 @@ plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_fi
 
 
 
-# plot_JEC()
-
-
 # plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U", pT_upper_limit=200)
 # plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U", pT_upper_limit=300)
 # plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U", pT_upper_limit=350)
@@ -3297,11 +3043,6 @@ plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_fi
 
 
 # Version 3 Ends Here.
-
-
-
-
-
 
 
 
@@ -3474,3 +3215,4 @@ plot_log_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_fi
 # # zg with PFC pT_cut Ends.
 
 
+call(["python", "/home/aashish/root/macros/MODAnalyzer/utilities/sync_plots.py"])

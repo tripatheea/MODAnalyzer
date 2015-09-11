@@ -66,11 +66,7 @@ int main(int argc, char * argv[]) {
       if( (event_serial_number % 1000) == 0 )
          cout << "Processing event number " << event_serial_number << endl;
 
-      if (event_being_read.jet_quality_cut("loose") && abs(event_being_read.hardest_corrected_jet().pseudojet().eta()) < 2.4) {
-      // if (abs(event_being_read.hardest_corrected_jet().pseudojet().eta()) < 2.4) {
-         analyze_event(event_being_read, output_file, event_serial_number);   
-      }
-      
+      analyze_event(event_being_read, output_file, event_serial_number);
       
       event_being_read = MOD::Event();
       event_serial_number++;
@@ -88,70 +84,74 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    vector<MOD::Property> properties;
    
-   vector<fastjet::PseudoJet> jets = event_being_read.pseudojets();
+   // First, "correct" the jets.
+   event_being_read.apply_jet_quality_cuts("loose");
 
-   vector<MOD::Trigger> triggers = event_being_read.triggers();
-   
+   MOD::CalibratedJet hardest_uncorrected_jet = event_being_read.hardest_jet();
 
-   // Cluster the pfcandidates using Fastjet.
-   JetDefinition jet_def(antikt_algorithm, 0.50);
-   ClusterSequence cs(jets, jet_def);
-   vector<PseudoJet> fastjet_jets = cs.inclusive_jets(3.00);
+   event_being_read.apply_jet_energy_corrections();
+   event_being_read.apply_eta_cut(2.4);
 
-   
-  
-   if (fastjet_jets.size() > 0) {
-         try {
-            for (unsigned i = 0; i < triggers.size(); i++) {
-               
-               if (triggers[i].fired()) {
+   MOD::CalibratedJet hardest_corrected_jet = event_being_read.hardest_jet();
 
-
-                  properties.push_back(MOD::Property("# Entry", "  Entry"));
-
-                  properties.push_back(MOD::Property("Event_Number", event_being_read.event_number()));
-                  properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
-
-                  properties.push_back(MOD::Property("Cor_Hardest_pT", event_being_read.hardest_corrected_jet().pseudojet().pt()));   
-                  // properties.push_back(MOD::Property("Cor_Hardest_pT", event_being_read.hardest_uncorrected_jet().pseudojet().pt()));   
-                  properties.push_back(MOD::Property("Prescale", triggers[i].prescale()));
-                  properties.push_back(MOD::Property("Trigger_Name", triggers[i].name()));         
-             
-                  string name;
-         
-                  int padding = 40;
-
-                  if (event_serial_number == 1) {
-                     for (unsigned p = 0; p < properties.size(); p++) {
-                        
-                        if (p > 0)
-                           output_file << setw(padding);
-                        
-                        output_file << properties[p].name();
-                     }
-
-                     output_file << endl;
-                  }
-
-                  for (unsigned q = 0; q < properties.size(); q++) {
-                     if (q > 0)
-                        output_file << setw(padding);
-                     output_file << properties[q];
-                  }
-
-                  output_file << endl;
-
-                  properties.clear();
-
-               }
-            }
-         }
-         catch (exception& e) {
-         }   
+   if (event_being_read.CMS_jets().size() == 0) {
+      return;
    }
 
 
-      
+   vector<MOD::Trigger> triggers = event_being_read.triggers();
+
+  
+   try {
+      for (unsigned i = 0; i < triggers.size(); i++) {
+         
+         if (triggers[i].fired()) {
+
+
+            properties.push_back(MOD::Property("# Entry", "  Entry"));
+
+            properties.push_back(MOD::Property("Event_Number", event_being_read.event_number()));
+            properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
+
+            properties.push_back(MOD::Property("Cor_Hardest_pT", hardest_corrected_jet.pseudojet().pt()));   
+            properties.push_back(MOD::Property("Prescale", triggers[i].prescale()));
+            properties.push_back(MOD::Property("Trigger_Name", triggers[i].name()));         
+       
+            string name;
+   
+            int padding = 40;
+
+            if (event_serial_number == 1) {
+               for (unsigned p = 0; p < properties.size(); p++) {
+                  
+                  if (p > 0)
+                     output_file << setw(padding);
+                  
+                  output_file << properties[p].name();
+               }
+
+               output_file << endl;
+            }
+
+            for (unsigned q = 0; q < properties.size(); q++) {
+               if (q > 0)
+                  output_file << setw(padding);
+               output_file << properties[q];
+            }
+
+            output_file << endl;
+
+            properties.clear();
+
+         }
+      }
+   }
+   catch (exception& e) {
+
+   }   
+
+
+   
    
 
    

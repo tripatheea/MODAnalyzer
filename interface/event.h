@@ -22,6 +22,7 @@ namespace MOD {
          public:
             Event(int, int, int, double);
             Event();
+            Event(int run_number, int Event_number, int version, std::pair<std::string, std::string> data_type, MOD::Condition condition, std::vector<MOD::Trigger> triggers, std::vector<MOD::PFCandidate> particles, std::vector<fastjet::PseudoJet> pseudojets, std::vector<MOD::CalibratedJet> CMS_jets, std::vector<fastjet::PseudoJet> CMS_pseudojets);
 
             int event_number() const;
             int run_number() const;
@@ -29,22 +30,17 @@ namespace MOD {
             int version() const;
             std::pair<std::string, std::string> data_type() const;
 
-            double hardest_corrected_pt() const;
-            double hardest_uncorrected_pt() const;
 
             const std::vector<PFCandidate> & particles() const;
             const std::vector<PFCandidate> charged_particles() const;
 
+            const std::vector<MOD::CalibratedJet> & CMS_jets() const;
+            const std::vector<fastjet::PseudoJet> & CMS_pseudojets() const;
 
             const std::vector<Trigger> & triggers() const;
             const std::vector<fastjet::PseudoJet> pseudojets(double pt_cut = 0.00) const;
             const std::vector<fastjet::PseudoJet> charged_pseudojets(double pt_cut = 0.00) const;
 
-            const std::vector<CalibratedJet> corrected_calibrated_jets() const;          
-            const std::vector<fastjet::PseudoJet> corrected_calibrated_pseudojets() const;
-
-            const std::vector<CalibratedJet> & uncorrected_calibrated_jets() const;          
-            const std::vector<fastjet::PseudoJet> & uncorrected_calibrated_pseudojets() const;
 
             std::string make_string() const;
             std::string assigned_trigger_name() const;
@@ -54,7 +50,7 @@ namespace MOD {
 
             void add_conditions(std::istringstream & input_stream); 
             void add_particle(std::istringstream & input_stream);
-            void add_calibrated_jet(std::istringstream & input_stream);
+            void add_CMS_jet(std::istringstream & input_stream);
             void add_trigger(std::istringstream & input_stream);
             
             void set_event_number(int event_number);
@@ -70,8 +66,6 @@ namespace MOD {
 
             int assigned_trigger_prescale() const;
 
-            MOD::CalibratedJet hardest_corrected_jet();
-            MOD::CalibratedJet hardest_uncorrected_jet();
 
             MOD::PFCandidate hardest_pfcandidate();
 
@@ -80,17 +74,13 @@ namespace MOD {
             void apply_eta_cut(double eta_cut);
             MOD::CalibratedJet hardest_jet();
 
+            std::vector<MOD::CalibratedJet> calibrated_jets() const;
+
 
             friend std::ostream& operator<< (std::ostream&, const Event&);
             
          private:
             int _run_number, _event_number;
-
-
-            
-
-            double _hardest_corrected_pt;
-            double _hardest_uncorrected_pt;
 
             
             int _version;
@@ -102,19 +92,17 @@ namespace MOD {
 
             Condition _condition;
 
-            std::vector<Trigger> _triggers;
-            std::vector<PFCandidate> _particles;
+            std::vector<MOD::Trigger> _triggers;
+            std::vector<MOD::PFCandidate> _particles;
             std::vector<fastjet::PseudoJet> _pseudojets;
 
-            std::vector<CalibratedJet> _corrected_calibrated_jets;
-            std::vector<fastjet::PseudoJet> _corrected_calibrated_pseudojets;
-
-            std::vector<CalibratedJet> _uncorrected_calibrated_jets;
-            std::vector<fastjet::PseudoJet> _uncorrected_calibrated_pseudojets;
+            std::vector<MOD::CalibratedJet> _CMS_jets;
+            std::vector<fastjet::PseudoJet> _CMS_pseudojets;
 
 
 
-            std::vector<CalibratedJet> _calibrated_jets;
+            // std::vector<MOD::CalibratedJet> _calibrated_jets;          // These are the jets we actually use.
+            // std::vector<fastjet::PseudoJet> _calibrated_pseudojets;    // These are provided by  
 
             void set_assigned_trigger();
             void set_hardest_pt();

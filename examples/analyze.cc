@@ -69,9 +69,9 @@ int main(int argc, char * argv[]) {
       if( (event_serial_number % 100) == 0 )
          cout << "Processing event number " << event_serial_number << endl;
 
-
       // Write out version info in the output file for the "syncing plots" thing to work (as it needs to figure out which directory to put things into).
-      output_file << "%" << " Version " << event_being_read.version();
+      if (event_serial_number == 1)
+         output_file << "%" << " Version " << event_being_read.version() << endl;
 
       analyze_event(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
       
@@ -90,9 +90,18 @@ int main(int argc, char * argv[]) {
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
 
    // First, "correct" the jets.
-   event_being_read.apply_jet_quality_cuts("loose");
+   event_being_read.apply_jet_quality_cuts("tight");
+
+   MOD::CalibratedJet hardest_uncorrected_jet = event_being_read.hardest_jet();
+
    event_being_read.apply_jet_energy_corrections();
    event_being_read.apply_eta_cut(2.4);
+
+   MOD::CalibratedJet hardest_corrected_jet = event_being_read.hardest_jet();
+
+   if (event_being_read.CMS_jets().size() == 0) {
+      return;
+   }
    
 
    vector<MOD::Property> properties;
@@ -103,10 +112,6 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
    
 
-   MOD::CalibratedJet hardest_corrected_jet = event_being_read.hardest_corrected_jet();
-   MOD::CalibratedJet hardest_uncorrected_jet = event_being_read.hardest_uncorrected_jet();
-
-   // PseudoJet corrected_hardest_pseudojet = hardest_jet.pseudojet() * hardest_jet.JEC();
 
    properties.push_back(MOD::Property("Uncor_Hardest_pT", hardest_uncorrected_jet.pseudojet().pt()));
    properties.push_back(MOD::Property("Cor_Hardest_pT", hardest_corrected_jet.pseudojet().pt()));
@@ -121,53 +126,39 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    ClusterSequence cs(event_being_read.pseudojets(), jet_def);
    vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
 
-   if ((unsigned) ak5_jets.size() > 0) {
-      PseudoJet hardest_jet = ak5_jets[0];
-      // hardest_jet *= event_being_read.hardest_jet_JEC();
 
-      double beta = 0;
+   PseudoJet hardest_jet = ak5_jets[0];
+   // hardest_jet *= event_being_read.hardest_jet_JEC();
 
-      SoftDrop soft_drop(beta, 0.05);
-      PseudoJet soft_drop_jet = soft_drop(hardest_jet);
-      double zg_05 = soft_drop_jet.structure_of<SoftDrop>().symmetry();
-      double dr_05 = soft_drop_jet.structure_of<SoftDrop>().delta_R();
-      double mu_05 = soft_drop_jet.structure_of<SoftDrop>().mu();
-      properties.push_back(MOD::Property("zg_05", zg_05));
-      properties.push_back(MOD::Property("dr_05", dr_05));
-      properties.push_back(MOD::Property("mu_05", mu_05));
+   double beta = 0;
 
-      SoftDrop soft_drop_1(beta, 0.1);
-      PseudoJet soft_drop_jet_1 = soft_drop_1(hardest_jet);
-      double zg_1 = soft_drop_jet_1.structure_of<SoftDrop>().symmetry();
-      double dr_1 = soft_drop_jet_1.structure_of<SoftDrop>().delta_R();
-      double mu_1 = soft_drop_jet_1.structure_of<SoftDrop>().mu();
-      properties.push_back(MOD::Property("zg_1", zg_1));  
-      properties.push_back(MOD::Property("dr_1", dr_1));  
-      properties.push_back(MOD::Property("mu_1", mu_1));  
+   SoftDrop soft_drop(beta, 0.05);
+   PseudoJet soft_drop_jet = soft_drop(hardest_jet);
+   double zg_05 = soft_drop_jet.structure_of<SoftDrop>().symmetry();
+   double dr_05 = soft_drop_jet.structure_of<SoftDrop>().delta_R();
+   double mu_05 = soft_drop_jet.structure_of<SoftDrop>().mu();
+   properties.push_back(MOD::Property("zg_05", zg_05));
+   properties.push_back(MOD::Property("dr_05", dr_05));
+   properties.push_back(MOD::Property("mu_05", mu_05));
 
-      SoftDrop soft_drop_2(beta, 0.2);
-      PseudoJet soft_drop_jet_2 = soft_drop_2(hardest_jet);
-      double zg_2 = soft_drop_jet_2.structure_of<SoftDrop>().symmetry();
-      double dr_2 = soft_drop_jet_2.structure_of<SoftDrop>().delta_R();
-      double mu_2 = soft_drop_jet_2.structure_of<SoftDrop>().mu();
-      properties.push_back(MOD::Property("zg_2", zg_2));  
-      properties.push_back(MOD::Property("dr_2", dr_2));  
-      properties.push_back(MOD::Property("mu_2", mu_2));  
-   }
-   else {
+   SoftDrop soft_drop_1(beta, 0.1);
+   PseudoJet soft_drop_jet_1 = soft_drop_1(hardest_jet);
+   double zg_1 = soft_drop_jet_1.structure_of<SoftDrop>().symmetry();
+   double dr_1 = soft_drop_jet_1.structure_of<SoftDrop>().delta_R();
+   double mu_1 = soft_drop_jet_1.structure_of<SoftDrop>().mu();
+   properties.push_back(MOD::Property("zg_1", zg_1));  
+   properties.push_back(MOD::Property("dr_1", dr_1));  
+   properties.push_back(MOD::Property("mu_1", mu_1));  
 
-      properties.push_back(MOD::Property("zg_05", -1.00));      
-      properties.push_back(MOD::Property("zg_1", -1.00));      
-      properties.push_back(MOD::Property("zg_2", -1.00));  
+   SoftDrop soft_drop_2(beta, 0.2);
+   PseudoJet soft_drop_jet_2 = soft_drop_2(hardest_jet);
+   double zg_2 = soft_drop_jet_2.structure_of<SoftDrop>().symmetry();
+   double dr_2 = soft_drop_jet_2.structure_of<SoftDrop>().delta_R();
+   double mu_2 = soft_drop_jet_2.structure_of<SoftDrop>().mu();
+   properties.push_back(MOD::Property("zg_2", zg_2));  
+   properties.push_back(MOD::Property("dr_2", dr_2));  
+   properties.push_back(MOD::Property("mu_2", mu_2));  
 
-      properties.push_back(MOD::Property("dr_05", -1.00));      
-      properties.push_back(MOD::Property("dr_1", -1.00));      
-      properties.push_back(MOD::Property("dr_2", -1.00));        
-
-      properties.push_back(MOD::Property("mu_05", -1.00));      
-      properties.push_back(MOD::Property("mu_1", -1.00));      
-      properties.push_back(MOD::Property("mu_2", -1.00));  
-   }
 
    properties.push_back(MOD::Property("Hardest_PFC_pdgId", event_being_read.hardest_pfcandidate().pdgId()));
    properties.push_back(MOD::Property("Hardest_PFC_pT", event_being_read.hardest_pfcandidate().pseudojet().pt()));
@@ -181,31 +172,26 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    ClusterSequence cs_pt_1(event_being_read.pseudojets(1.00), jet_def_pt_1);
    vector<PseudoJet> ak5_jets_pt_1 = sorted_by_pt(cs_pt_1.inclusive_jets(3.0));
 
-   if ((unsigned) ak5_jets_pt_1.size() > 0) {
-      PseudoJet hardest_jet_pt_1 = ak5_jets_pt_1[0];
 
-      double beta_pt_1 = 0;
+   PseudoJet hardest_jet_pt_1 = ak5_jets_pt_1[0];
 
-      SoftDrop soft_drop_pt_1(beta_pt_1, 0.05);
-      PseudoJet soft_drop_jet_pt_1 = soft_drop_pt_1(hardest_jet_pt_1);
-      double zg_05_pt_1 = soft_drop_jet_pt_1.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_05_pt_1", zg_05_pt_1));
+   double beta_pt_1 = 0;
 
-      SoftDrop soft_drop_pt_1_1(beta_pt_1, 0.1);
-      PseudoJet soft_drop_jet_pt_1_1 = soft_drop_pt_1_1(hardest_jet_pt_1);
-      double zg_1_pt_1 = soft_drop_jet_pt_1_1.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_1_pt_1", zg_1_pt_1));  
+   SoftDrop soft_drop_pt_1(beta_pt_1, 0.05);
+   PseudoJet soft_drop_jet_pt_1 = soft_drop_pt_1(hardest_jet_pt_1);
+   double zg_05_pt_1 = soft_drop_jet_pt_1.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_05_pt_1", zg_05_pt_1));
 
-      SoftDrop soft_drop_pt_1_2(beta_pt_1, 0.2);
-      PseudoJet soft_drop_jet_pt_1_2 = soft_drop_pt_1_2(hardest_jet_pt_1);
-      double zg_2_pt_1 = soft_drop_jet_pt_1_2.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_2_pt_1", zg_2_pt_1));  
-   }
-   else {
-      properties.push_back(MOD::Property("zg_05_pt_1", -1.00));      
-      properties.push_back(MOD::Property("zg_1_pt_1", -1.00));      
-      properties.push_back(MOD::Property("zg_2_pt_1", -1.00));  
-   }
+   SoftDrop soft_drop_pt_1_1(beta_pt_1, 0.1);
+   PseudoJet soft_drop_jet_pt_1_1 = soft_drop_pt_1_1(hardest_jet_pt_1);
+   double zg_1_pt_1 = soft_drop_jet_pt_1_1.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_1_pt_1", zg_1_pt_1));  
+
+   SoftDrop soft_drop_pt_1_2(beta_pt_1, 0.2);
+   PseudoJet soft_drop_jet_pt_1_2 = soft_drop_pt_1_2(hardest_jet_pt_1);
+   double zg_2_pt_1 = soft_drop_jet_pt_1_2.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_2_pt_1", zg_2_pt_1));  
+
 
 
    // Run AK5 clustering with FastJet to get zg value.
@@ -214,31 +200,25 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    ClusterSequence cs_pt_2(event_being_read.pseudojets(2.00), jet_def_pt_2);
    vector<PseudoJet> ak5_jets_pt_2 = sorted_by_pt(cs_pt_2.inclusive_jets(3.0));
 
-   if ((unsigned) ak5_jets_pt_2.size() > 0) {
-      PseudoJet hardest_jet_pt_2 = ak5_jets_pt_2[0];
+   PseudoJet hardest_jet_pt_2 = ak5_jets_pt_2[0];
 
-      double beta_pt_2 = 0;
+   double beta_pt_2 = 0;
 
-      SoftDrop soft_drop_pt_2(beta_pt_2, 0.05);
-      PseudoJet soft_drop_jet_pt_2 = soft_drop_pt_2(hardest_jet_pt_2);
-      double zg_05_pt_2 = soft_drop_jet_pt_2.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_05_pt_2", zg_05_pt_2));
+   SoftDrop soft_drop_pt_2(beta_pt_2, 0.05);
+   PseudoJet soft_drop_jet_pt_2 = soft_drop_pt_2(hardest_jet_pt_2);
+   double zg_05_pt_2 = soft_drop_jet_pt_2.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_05_pt_2", zg_05_pt_2));
 
-      SoftDrop soft_drop_pt_2_1(beta_pt_2, 0.1);
-      PseudoJet soft_drop_jet_pt_2_1 = soft_drop_pt_2_1(hardest_jet_pt_2);
-      double zg_1_pt_2 = soft_drop_jet_pt_2_1.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_1_pt_2", zg_1_pt_2));  
+   SoftDrop soft_drop_pt_2_1(beta_pt_2, 0.1);
+   PseudoJet soft_drop_jet_pt_2_1 = soft_drop_pt_2_1(hardest_jet_pt_2);
+   double zg_1_pt_2 = soft_drop_jet_pt_2_1.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_1_pt_2", zg_1_pt_2));  
 
-      SoftDrop soft_drop_pt_2_2(beta_pt_2, 0.2);
-      PseudoJet soft_drop_jet_pt_2_2 = soft_drop_pt_2_2(hardest_jet_pt_2);
-      double zg_2_pt_2 = soft_drop_jet_pt_2_2.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_2_pt_2", zg_2_pt_2));  
-   }
-   else {
-      properties.push_back(MOD::Property("zg_05_pt_2", -1.00));      
-      properties.push_back(MOD::Property("zg_1_pt_2", -1.00));      
-      properties.push_back(MOD::Property("zg_2_pt_2", -1.00));  
-   }
+   SoftDrop soft_drop_pt_2_2(beta_pt_2, 0.2);
+   PseudoJet soft_drop_jet_pt_2_2 = soft_drop_pt_2_2(hardest_jet_pt_2);
+   double zg_2_pt_2 = soft_drop_jet_pt_2_2.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_2_pt_2", zg_2_pt_2));  
+
 
    // Run AK5 clustering with FastJet to get zg value.
 
@@ -246,31 +226,24 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    ClusterSequence cs_pt_3(event_being_read.pseudojets(3.00), jet_def_pt_3);
    vector<PseudoJet> ak5_jets_pt_3 = sorted_by_pt(cs_pt_3.inclusive_jets(3.0));
 
-   if ((unsigned) ak5_jets_pt_3.size() > 0) {
-      PseudoJet hardest_jet_pt_3 = ak5_jets_pt_3[0];
+   PseudoJet hardest_jet_pt_3 = ak5_jets_pt_3[0];
 
-      double beta_pt_3 = 0;
+   double beta_pt_3 = 0;
 
-      SoftDrop soft_drop_pt_3(beta_pt_3, 0.05);
-      PseudoJet soft_drop_jet_pt_3 = soft_drop_pt_3(hardest_jet_pt_3);
-      double zg_05_pt_3 = soft_drop_jet_pt_3.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_05_pt_3", zg_05_pt_3));
+   SoftDrop soft_drop_pt_3(beta_pt_3, 0.05);
+   PseudoJet soft_drop_jet_pt_3 = soft_drop_pt_3(hardest_jet_pt_3);
+   double zg_05_pt_3 = soft_drop_jet_pt_3.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_05_pt_3", zg_05_pt_3));
 
-      SoftDrop soft_drop_pt_3_1(beta_pt_3, 0.1);
-      PseudoJet soft_drop_jet_pt_3_1 = soft_drop_pt_3_1(hardest_jet_pt_3);
-      double zg_1_pt_3 = soft_drop_jet_pt_3_1.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_1_pt_3", zg_1_pt_3));  
+   SoftDrop soft_drop_pt_3_1(beta_pt_3, 0.1);
+   PseudoJet soft_drop_jet_pt_3_1 = soft_drop_pt_3_1(hardest_jet_pt_3);
+   double zg_1_pt_3 = soft_drop_jet_pt_3_1.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_1_pt_3", zg_1_pt_3));  
 
-      SoftDrop soft_drop_pt_3_2(beta_pt_3, 0.2);
-      PseudoJet soft_drop_jet_pt_3_2 = soft_drop_pt_3_2(hardest_jet_pt_3);
-      double zg_2_pt_3 = soft_drop_jet_pt_3_2.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_2_pt_3", zg_2_pt_3));  
-   }
-   else {
-      properties.push_back(MOD::Property("zg_05_pt_3", -1.00));      
-      properties.push_back(MOD::Property("zg_1_pt_3", -1.00));      
-      properties.push_back(MOD::Property("zg_2_pt_3", -1.00));  
-   }
+   SoftDrop soft_drop_pt_3_2(beta_pt_3, 0.2);
+   PseudoJet soft_drop_jet_pt_3_2 = soft_drop_pt_3_2(hardest_jet_pt_3);
+   double zg_2_pt_3 = soft_drop_jet_pt_3_2.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_2_pt_3", zg_2_pt_3));  
 
    // Run AK5 clustering with FastJet to get zg value.
 
@@ -278,31 +251,26 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    ClusterSequence cs_pt_5(event_being_read.pseudojets(5.00), jet_def_pt_5);
    vector<PseudoJet> ak5_jets_pt_5 = sorted_by_pt(cs_pt_5.inclusive_jets(3.0));
 
-   if ((unsigned) ak5_jets_pt_5.size() > 0) {
-      PseudoJet hardest_jet_pt_5 = ak5_jets_pt_5[0];
 
-      double beta_pt_5 = 0;
+   PseudoJet hardest_jet_pt_5 = ak5_jets_pt_5[0];
 
-      SoftDrop soft_drop_pt_5(beta_pt_5, 0.05);
-      PseudoJet soft_drop_jet_pt_5 = soft_drop_pt_5(hardest_jet_pt_5);
-      double zg_05_pt_5 = soft_drop_jet_pt_5.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_05_pt_5", zg_05_pt_5));
+   double beta_pt_5 = 0;
 
-      SoftDrop soft_drop_pt_5_1(beta_pt_5, 0.1);
-      PseudoJet soft_drop_jet_pt_5_1 = soft_drop_pt_5_1(hardest_jet_pt_5);
-      double zg_1_pt_5 = soft_drop_jet_pt_5_1.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_1_pt_5", zg_1_pt_5));  
+   SoftDrop soft_drop_pt_5(beta_pt_5, 0.05);
+   PseudoJet soft_drop_jet_pt_5 = soft_drop_pt_5(hardest_jet_pt_5);
+   double zg_05_pt_5 = soft_drop_jet_pt_5.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_05_pt_5", zg_05_pt_5));
 
-      SoftDrop soft_drop_pt_5_2(beta_pt_5, 0.2);
-      PseudoJet soft_drop_jet_pt_5_2 = soft_drop_pt_5_2(hardest_jet_pt_5);
-      double zg_2_pt_5 = soft_drop_jet_pt_5_2.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_2_pt_5", zg_2_pt_5));  
-   }
-   else {
-      properties.push_back(MOD::Property("zg_05_pt_5", -1.00));      
-      properties.push_back(MOD::Property("zg_1_pt_5", -1.00));      
-      properties.push_back(MOD::Property("zg_2_pt_5", -1.00));  
-   }
+   SoftDrop soft_drop_pt_5_1(beta_pt_5, 0.1);
+   PseudoJet soft_drop_jet_pt_5_1 = soft_drop_pt_5_1(hardest_jet_pt_5);
+   double zg_1_pt_5 = soft_drop_jet_pt_5_1.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_1_pt_5", zg_1_pt_5));  
+
+   SoftDrop soft_drop_pt_5_2(beta_pt_5, 0.2);
+   PseudoJet soft_drop_jet_pt_5_2 = soft_drop_pt_5_2(hardest_jet_pt_5);
+   double zg_2_pt_5 = soft_drop_jet_pt_5_2.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_2_pt_5", zg_2_pt_5));  
+
 
    // Run AK5 clustering with FastJet to get zg value.
 
@@ -310,88 +278,77 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    ClusterSequence cs_pt_10(event_being_read.pseudojets(10.00), jet_def_pt_10);
    vector<PseudoJet> ak5_jets_pt_10 = sorted_by_pt(cs_pt_10.inclusive_jets(3.0));
 
-   if ((unsigned) ak5_jets_pt_10.size() > 0) {
-      PseudoJet hardest_jet_pt_10 = ak5_jets_pt_10[0];
 
-      double beta_pt_10 = 0;
+   PseudoJet hardest_jet_pt_10 = ak5_jets_pt_10[0];
 
-      SoftDrop soft_drop_pt_10(beta_pt_10, 0.05);
-      PseudoJet soft_drop_jet_pt_10 = soft_drop_pt_10(hardest_jet_pt_10);
-      double zg_05_pt_10 = soft_drop_jet_pt_10.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_05_pt_10", zg_05_pt_10));
+   double beta_pt_10 = 0;
 
-      SoftDrop soft_drop_pt_10_1(beta_pt_10, 0.1);
-      PseudoJet soft_drop_jet_pt_10_1 = soft_drop_pt_10_1(hardest_jet_pt_10);
-      double zg_1_pt_10 = soft_drop_jet_pt_10_1.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_1_pt_10", zg_1_pt_10));  
+   SoftDrop soft_drop_pt_10(beta_pt_10, 0.05);
+   PseudoJet soft_drop_jet_pt_10 = soft_drop_pt_10(hardest_jet_pt_10);
+   double zg_05_pt_10 = soft_drop_jet_pt_10.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_05_pt_10", zg_05_pt_10));
 
-      SoftDrop soft_drop_pt_10_2(beta_pt_10, 0.2);
-      PseudoJet soft_drop_jet_pt_10_2 = soft_drop_pt_10_2(hardest_jet_pt_10);
-      double zg_2_pt_10 = soft_drop_jet_pt_10_2.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_2_pt_10", zg_2_pt_10));  
+   SoftDrop soft_drop_pt_10_1(beta_pt_10, 0.1);
+   PseudoJet soft_drop_jet_pt_10_1 = soft_drop_pt_10_1(hardest_jet_pt_10);
+   double zg_1_pt_10 = soft_drop_jet_pt_10_1.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_1_pt_10", zg_1_pt_10));  
+
+   SoftDrop soft_drop_pt_10_2(beta_pt_10, 0.2);
+   PseudoJet soft_drop_jet_pt_10_2 = soft_drop_pt_10_2(hardest_jet_pt_10);
+   double zg_2_pt_10 = soft_drop_jet_pt_10_2.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_2_pt_10", zg_2_pt_10));  
+
+
+
+
+
+   vector<PseudoJet> hardest_jet_constituents = ak5_jets[0].constituents();
+
+   vector<PseudoJet> hardest_jet_charged_constituents;
+
+   for (unsigned i = 0; i < hardest_jet_constituents.size(); i++) {
+      if ( (abs(hardest_jet_constituents[i].user_index()) == 211) || (abs(hardest_jet_constituents[i].user_index()) == 11) || (abs(hardest_jet_constituents[i].user_index()) == 13) ) {
+         hardest_jet_charged_constituents.push_back(hardest_jet_constituents[i]);
+      }
+   }
+
+   JetDefinition jet_def_charged(aachen_algorithm, 1000);
+   ClusterSequence cs_charged(hardest_jet_charged_constituents, jet_def_charged);
+   vector<PseudoJet> ak5_jet_with_charged_particles_only = sorted_by_pt(cs_charged.inclusive_jets(3.0));
+
+   if (ak5_jet_with_charged_particles_only.size() > 0) {
+      PseudoJet hardest_jet_charged = ak5_jet_with_charged_particles_only[0];
+
+      double beta_charged = 0;
+
+      SoftDrop soft_drop_charged(beta_charged, 0.05);
+      PseudoJet soft_drop_jet_charged = soft_drop_charged(hardest_jet_charged);
+      double zg_charged_05 = soft_drop_jet_charged.structure_of<SoftDrop>().symmetry();
+      properties.push_back(MOD::Property("zg_charged_05", zg_charged_05));
+
+      SoftDrop soft_drop_charged_2(beta_charged, 0.1);
+      PseudoJet soft_drop_jet_charged_2 = soft_drop_charged_2(hardest_jet_charged);
+      double zg_charged_1 = soft_drop_jet_charged_2.structure_of<SoftDrop>().symmetry();
+      properties.push_back(MOD::Property("zg_charged_1", zg_charged_1));  
+
+      SoftDrop soft_drop_charged_3(beta_charged, 0.2);
+      PseudoJet soft_drop_jet_charged_3 = soft_drop_charged_3(hardest_jet_charged);
+      double zg_charged_2 = soft_drop_jet_charged_3.structure_of<SoftDrop>().symmetry();
+      properties.push_back(MOD::Property("zg_charged_2", zg_charged_2));  
    }
    else {
-      properties.push_back(MOD::Property("zg_05_pt_10", -1.00));      
-      properties.push_back(MOD::Property("zg_1_pt_10", -1.00));      
-      properties.push_back(MOD::Property("zg_2_pt_10", -1.00));  
+      properties.push_back(MOD::Property("zg_charged_05", -1.00));      
+      properties.push_back(MOD::Property("zg_charged_1", -1.00));      
+      properties.push_back(MOD::Property("zg_charged_2", -1.00));  
    }
 
 
-
-
-
-   if ((unsigned) ak5_jets.size() > 0) {
-      vector<PseudoJet> hardest_jet_constituents = ak5_jets[0].constituents();
-
-      vector<PseudoJet> hardest_jet_charged_constituents;
-
-      for (unsigned i = 0; i < hardest_jet_constituents.size(); i++) {
-         if ( (abs(hardest_jet_constituents[i].user_index()) == 211) || (abs(hardest_jet_constituents[i].user_index()) == 11) || (abs(hardest_jet_constituents[i].user_index()) == 13) ) {
-            hardest_jet_charged_constituents.push_back(hardest_jet_constituents[i]);
-         }
-      }
-
-      JetDefinition jet_def_charged(aachen_algorithm, 1000);
-      ClusterSequence cs_charged(hardest_jet_charged_constituents, jet_def_charged);
-      vector<PseudoJet> ak5_jet_with_charged_particles_only = sorted_by_pt(cs_charged.inclusive_jets(3.0));
-
-      if (ak5_jet_with_charged_particles_only.size() > 0) {
-         PseudoJet hardest_jet_charged = ak5_jet_with_charged_particles_only[0];
-
-         double beta_charged = 0;
-
-         SoftDrop soft_drop_charged(beta_charged, 0.05);
-         PseudoJet soft_drop_jet_charged = soft_drop_charged(hardest_jet_charged);
-         double zg_charged_05 = soft_drop_jet_charged.structure_of<SoftDrop>().symmetry();
-         properties.push_back(MOD::Property("zg_charged_05", zg_charged_05));
-
-         SoftDrop soft_drop_charged_2(beta_charged, 0.1);
-         PseudoJet soft_drop_jet_charged_2 = soft_drop_charged_2(hardest_jet_charged);
-         double zg_charged_1 = soft_drop_jet_charged_2.structure_of<SoftDrop>().symmetry();
-         properties.push_back(MOD::Property("zg_charged_1", zg_charged_1));  
-
-         SoftDrop soft_drop_charged_3(beta_charged, 0.2);
-         PseudoJet soft_drop_jet_charged_3 = soft_drop_charged_3(hardest_jet_charged);
-         double zg_charged_2 = soft_drop_jet_charged_3.structure_of<SoftDrop>().symmetry();
-         properties.push_back(MOD::Property("zg_charged_2", zg_charged_2));  
-      }
-      else {
-         properties.push_back(MOD::Property("zg_charged_05", -1.00));      
-         properties.push_back(MOD::Property("zg_charged_1", -1.00));      
-         properties.push_back(MOD::Property("zg_charged_2", -1.00));  
-      }
-
-   }
 
 
    // Stuff before and after SoftDrop.
    
 
    // Hardest Jet pT before and after SoftDrop.
-   PseudoJet hardest_jet = ak5_jets[0];
-   double beta = 0;
-   SoftDrop soft_drop(beta, 0.05);
-   PseudoJet soft_drop_jet = soft_drop(hardest_jet);
    properties.push_back(MOD::Property("pT_after_SD", soft_drop_jet.pt()));
 
    // Constituent multiplicity before and after SoftDrop.
@@ -401,9 +358,9 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    
 
    // Must be "hardest_uncorrected_jet" because the corrected jet has a JEC set to 1.
-   properties.push_back( MOD::Property("jec", event_being_read.hardest_uncorrected_jet().JEC()) );
+   properties.push_back( MOD::Property("jec", hardest_uncorrected_jet.JEC()) );
    
-   properties.push_back( MOD::Property("jet_area", event_being_read.hardest_uncorrected_jet().area()) );
+   properties.push_back( MOD::Property("jet_area", hardest_uncorrected_jet.area()) );
 
    
 
