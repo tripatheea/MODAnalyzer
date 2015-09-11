@@ -1628,16 +1628,16 @@ def plot_pts(pT_lower_cut=150, pT_upper_cut=10000):
   pythia_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_pythia_pp2jj_150pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
 
-  pythia_pt_hist = Hist(300, pT_lower_cut, 1500, title="Pythia 8.205", linewidth=5, markersize=5.0, color="blue")
+  pythia_pt_hist = Hist(100, pT_lower_cut, 1000, title="Pythia 8.205", linewidth=5, markersize=5.0, color="blue")
   bin_width_pythia = (pythia_pt_hist.upperbound() - pythia_pt_hist.lowerbound()) / pythia_pt_hist.nbins()
 
-  herwig_pt_hist = Hist(300, pT_lower_cut, 1500, title="Herwig++ 2.6.3", linewidth=5, markersize=5.0, color="green")
+  herwig_pt_hist = Hist(100, pT_lower_cut, 1000, title="Herwig++ 2.6.3", linewidth=5, markersize=5.0, color="green")
   bin_width_herwig = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
 
-  corrected_pt_hist = Hist(300, pT_lower_cut, 1500, title='Corrected', markersize=3.0, color='black')
+  corrected_pt_hist = Hist(100, pT_lower_cut, 1000, title='Corrected', markersize=3.0, color='black')
   bin_width_corrected = (corrected_pt_hist.upperbound() - corrected_pt_hist.lowerbound()) / corrected_pt_hist.nbins()
 
-  uncorrected_pt_hist = Hist(300, pT_lower_cut, 1500, title='Uncorrected', markersize=3.0, color='orange')
+  uncorrected_pt_hist = Hist(100, pT_lower_cut, 1000, title='Uncorrected', markersize=3.0, color='orange')
   bin_width_uncorrected = (uncorrected_pt_hist.upperbound() - uncorrected_pt_hist.lowerbound()) / uncorrected_pt_hist.nbins()
 
   map(uncorrected_pt_hist.Fill, pTs, prescales)
@@ -1772,8 +1772,8 @@ def plot_pts(pT_lower_cut=150, pT_upper_cut=10000):
     ax0.set_ylim(0.0005, 0.05)
     pT_minor_ticks = 50
   elif ((pT_lower_cut == 150 and pT_upper_cut == 10000)):
-    ax0.set_xlim(150, 1500)
-    ax1.set_xlim(150, 1500)
+    ax0.set_xlim(150, 1000)
+    ax1.set_xlim(150, 1000)
     ax0.set_ylim(10e-8, 10e-2)
     pT_minor_ticks = 50
 
@@ -3088,9 +3088,9 @@ def plot_pts_variable_bin():
 
 # plot_hardest_pt_softdrop()
 
-# plot_pts()
+plot_pts()
 
-plot_pts_variable_bin()
+# plot_pts_variable_bin()
 
 # plot_jec_eta_2d()
 
