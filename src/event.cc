@@ -103,6 +103,10 @@ const vector<fastjet::PseudoJet> & MOD::Event::CMS_pseudojets() const {
    return _CMS_pseudojets;
 }
 
+const vector<fastjet::PseudoJet> & MOD::Event::fastjet_pseudojets() const {
+   return _fastjet_pseudojets;
+}
+
 
 void MOD::Event::add_particle(istringstream & input_stream) {
    MOD::PFCandidate new_particle(input_stream);
@@ -418,6 +422,59 @@ MOD::CalibratedJet MOD::Event::hardest_jet(bool quality_cut, bool jec, bool eta,
    }
 
    return CalibratedJet();
+}
+
+
+PseudoJet MOD::Event::get_hardest_fastjet_jet(bool quality_cut, bool eta, string quality_cut_level, double eta_cut, double PFC_pT_cut) const {
+   // Firstly, check if there are jets. 
+   if ( _CMS_jets.size() == 0 )
+      return PseudoJet();
+
+
+   // Cluster PFCandidates using FastJet.
+   JetDefinition jet_def(antikt_algorithm, 0.5);
+   ClusterSequence cs(event_being_read.pseudojets(PFC_pT_cut), jet_def);
+   vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(3.0));
+
+
+   // Get the hardest CMS jet (this is without constituents).
+
+   // Note that we've set (bool) jec to be always False. This is for two reason:
+   //    a) Once we've applied JEC factors, CMS jets will no longer match FastJet jets, 
+   //    b) Internally, JEC corrected jets have JEC factor set to 1.00. Since the whole point of doing this is to use the JEC factor of the hardest CMS jet to the corresponding FastJet jet, we don't want that. 
+   MOD::CalibratedJet hardest_CMS_jet = hardest_jet(quality_cut, false, eta, quality_cut_level, eta_cut);
+
+   // Loop through all FastJet pseudojets, calculating delta R for each one.
+   vector<double> delta_Rs;
+   for (unsigned i = 0; i < fastjet_jets.size(); i++) {
+      delta_Rs.push_back( hardest_CMS_jet.pseudojet().delta_R(fastjet_jets[i]) );
+   }
+   
+   // Find the index of the fastjet jet that has the lowest delta R. This will be the jet that's "closest" to the CMS jet. 
+   unsigned index = -1;
+   double delta_R = 0;
+   for (unsigned i = 0; i < delta_Rs.size(); i++) {
+      if (delta_Rs[i] <= delta_R) {
+         delta_R = delta_Rs[i];
+         index = i;
+      }
+   }
+
+   if (index >= 0) {
+      // We now have the corresponding "hardest" FastJet jet.
+      PseudoJet hardest_fastjet_jet = fastjet_jets[index];
+
+      // Now, just apply the corresponding JEC factor.
+      PseudoJet hardest_corrected_fastjet_jet = hardest_CMS_jet.JEC() * hardest_fastjet_jet;
+
+      return hardest_corrected_fastjet_jet;   
+   }
+   else {
+      return PseudoJet();
+   }
+   
+
+
 }
 
 

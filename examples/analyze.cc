@@ -116,13 +116,14 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    // Run AK5 clustering with FastJet to get zg value.
 
-   JetDefinition jet_def(antikt_algorithm, 0.5);
-   ClusterSequence cs(event_being_read.pseudojets(), jet_def);
-   vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
+   // JetDefinition jet_def(antikt_algorithm, 0.5);
+   // ClusterSequence cs(event_being_read.pseudojets(), jet_def);
+   // vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
 
 
-   PseudoJet hardest_jet = ak5_jets[0];
-   // hardest_jet *= event_being_read.hardest_jet_JEC();
+   // PseudoJet hardest_jet = ak5_jets[0];
+   // // hardest_jet *= event_being_read.hardest_jet_JEC();
+   PseudoJet hardest_jet_fo
 
    double beta = 0;
 

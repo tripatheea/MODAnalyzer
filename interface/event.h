@@ -15,6 +15,8 @@
 #include "calibrated_jet.h"
 #include "condition.h"
 
+
+
 namespace MOD {
 
       class Event {
@@ -30,18 +32,16 @@ namespace MOD {
             int version() const;
             std::pair<std::string, std::string> data_type() const;
 
-
             const std::vector<PFCandidate> & particles() const;
             const std::vector<PFCandidate> charged_particles() const;
 
             const std::vector<MOD::CalibratedJet> & CMS_jets() const;
             const std::vector<fastjet::PseudoJet> & CMS_pseudojets() const;
-            const std::vector<fastjet::PseudoJet> & fastjet_jets() const;
+            const std::vector<fastjet::PseudoJet> & fastjet_pseudojets() const;
 
             const std::vector<Trigger> & triggers() const;
             const std::vector<fastjet::PseudoJet> pseudojets(double pt_cut = 0.00) const;
             const std::vector<fastjet::PseudoJet> charged_pseudojets(double pt_cut = 0.00) const;
-
 
             std::string make_string() const;
             std::string assigned_trigger_name() const;
@@ -60,16 +60,19 @@ namespace MOD {
             void set_data_type(std::string a, std::string b);
             
             const bool trigger_exists(std::string trigger_name) const;
-            
             bool read_event(std::istream & data_stream);
             bool assigned_trigger_fired() const;
 
             int assigned_trigger_prescale() const;
 
-
             MOD::PFCandidate hardest_pfcandidate();
 
-            MOD::CalibratedJet hardest_jet(bool quality_cut, bool jec, bool eta, std::string quality_cut_level, double eta_cut) const;           // This returns hardest CMS Jet after doing all the corrections.
+            MOD::CalibratedJet hardest_jet(bool quality_cut, bool jec, bool eta, std::string quality_cut_level, double eta_cut) const;
+
+
+            // This method returns the hardest jet as clustered by Fastjet.
+            // This method is important because unlike a jet returned by the hardest_jet() method, this one actually consists of the jet's constituents (important, for example, for caluclating zg.).
+            fastjet::PseudoJet get_hardest_fastjet_jet(bool quality_cut, bool jec, bool eta, std::string quality_cut_level, double eta_cut) const;
 
             friend std::ostream& operator<< (std::ostream&, const Event&);
             
