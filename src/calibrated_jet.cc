@@ -51,18 +51,18 @@ PseudoJet MOD::CalibratedJet::pseudojet() const {
 string MOD::CalibratedJet::make_string() const {
    stringstream ss;
    ss << "  " << _algorithm
-        << setw(20) << fixed << setprecision(8) << _pseudojet.px()
-        << setw(20) << fixed << setprecision(8) << _pseudojet.py()
-        << setw(20) << fixed << setprecision(8) << _pseudojet.pz()
-        << setw(20) << fixed << setprecision(8) << _pseudojet.E()
-        << setw(20) << fixed << setprecision(8) << _JEC 
-        << setw(20) << fixed << setprecision(8) << _area
-        << setw(20) << fixed << setprecision(8) << _neutral_hadron_fraction   
-        << setw(20) << fixed << setprecision(8) << _neutral_em_fraction   
-        << setw(20) << fixed << setprecision(8) << _number_of_constituents   
-        << setw(20) << fixed << setprecision(8) << _charged_hadron_fraction   
-        << setw(20) << fixed << setprecision(8) << _charged_multiplicity   
-        << setw(20) << fixed << setprecision(8) << _charged_em_fraction       
+        << setw(16) << fixed << setprecision(8) << _pseudojet.px()
+        << setw(16) << fixed << setprecision(8) << _pseudojet.py()
+        << setw(16) << fixed << setprecision(8) << _pseudojet.pz()
+        << setw(16) << fixed << setprecision(8) << _pseudojet.E()
+        << setw(16) << fixed << setprecision(8) << _JEC 
+        << setw(16) << fixed << setprecision(8) << _area
+        << setw(16) << fixed << setprecision(8) << _neutral_hadron_fraction   
+        << setw(16) << fixed << setprecision(8) << _neutral_em_fraction   
+        << setw(16) << fixed << setprecision(8) << _number_of_constituents   
+        << setw(16) << fixed << setprecision(8) << _charged_hadron_fraction   
+        << setw(16) << fixed << setprecision(8) << _charged_multiplicity   
+        << setw(16) << fixed << setprecision(8) << _charged_em_fraction       
         << endl;
 
    return ss.str();
@@ -103,7 +103,7 @@ double MOD::CalibratedJet::charged_em_fraction() const {
 
 string MOD::CalibratedJet::make_header_string() const {
    stringstream ss;
-   ss << "# AK5" << "                  px                  py                  pz              energy                 jec                area neutral_hadron_frac     neutral_em_frac  no_of_constituents charged_hadron_frac      charged_multip     charged_em_frac" << endl;
+   ss << "# AK5" << "              px              py              pz          energy             jec            area    neu_had_frac     neu_em_frac     no_of_const   chrg_had_frac     chrg_multip    chrg_em_frac" << endl;
    return ss.str();
 }
 

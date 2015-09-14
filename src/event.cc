@@ -255,6 +255,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
    }
 
+   cout << "I AM THROWING IT" << endl;
    return false;
 }
 
@@ -416,26 +417,25 @@ MOD::CalibratedJet MOD::Event::hardest_jet(bool quality_cut, bool jec, bool eta,
       processed_jets = apply_eta_cut(processed_jets, eta_cut);
    
    // Finally, sort the jets and return the hardest one.
-   if (processed_jets.size() > 0) {
+   // if (processed_jets.size() > 0) {
       sort(processed_jets.begin(), processed_jets.end());
       return processed_jets[0];
-   }
+   // }
 
-   return CalibratedJet();
+   // cout << "blank jet" << endl;
+
+   // return CalibratedJet();
 }
 
 
-PseudoJet MOD::Event::get_hardest_fastjet_jet(bool quality_cut, bool eta, string quality_cut_level, double eta_cut, double PFC_pT_cut) const {
-   // Firstly, check if there are jets. 
-   if ( _CMS_jets.size() == 0 )
-      return PseudoJet();
+
+vector<PseudoJet> MOD::Event::hardest_corrected_fastjet_jet_constituents(bool quality_cut, bool eta, string quality_cut_level, double eta_cut, double PFC_pT_cut) const {
 
 
    // Cluster PFCandidates using FastJet.
    JetDefinition jet_def(antikt_algorithm, 0.5);
-   ClusterSequence cs(event_being_read.pseudojets(PFC_pT_cut), jet_def);
+   ClusterSequence cs(pseudojets(PFC_pT_cut), jet_def);
    vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(3.0));
-
 
    // Get the hardest CMS jet (this is without constituents).
 
@@ -451,8 +451,8 @@ PseudoJet MOD::Event::get_hardest_fastjet_jet(bool quality_cut, bool eta, string
    }
    
    // Find the index of the fastjet jet that has the lowest delta R. This will be the jet that's "closest" to the CMS jet. 
-   unsigned index = -1;
-   double delta_R = 0;
+   int index = -1;
+   double delta_R = std::numeric_limits<double>::max();
    for (unsigned i = 0; i < delta_Rs.size(); i++) {
       if (delta_Rs[i] <= delta_R) {
          delta_R = delta_Rs[i];
@@ -460,18 +460,20 @@ PseudoJet MOD::Event::get_hardest_fastjet_jet(bool quality_cut, bool eta, string
       }
    }
 
-   if (index >= 0) {
+   // if (index >= 0) {
       // We now have the corresponding "hardest" FastJet jet.
       PseudoJet hardest_fastjet_jet = fastjet_jets[index];
 
       // Now, just apply the corresponding JEC factor.
-      PseudoJet hardest_corrected_fastjet_jet = hardest_CMS_jet.JEC() * hardest_fastjet_jet;
+      // PseudoJet hardest_corrected_fastjet_jet = hardest_CMS_jet.JEC() * hardest_fastjet_jet;
+      PseudoJet hardest_corrected_fastjet_jet = hardest_fastjet_jet;
 
-      return hardest_corrected_fastjet_jet;   
-   }
-   else {
-      return PseudoJet();
-   }
+      return hardest_corrected_fastjet_jet.constituents();   
+   // }
+   // else {
+      // cout << "EMPTY INDEX" << endl;
+      // return vector<PseudoJet>();
+   // }
    
 
 

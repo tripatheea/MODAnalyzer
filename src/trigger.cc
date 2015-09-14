@@ -42,9 +42,9 @@ string MOD::Trigger::make_string() const {
    stringstream ss;
    ss << "  Trig" 
         << setw(34) <<  _name 
-        << setw(12) << _prescales.first 
-        << setw(12) << _prescales.second 
-        << setw(8) << _fired
+        << setw(8) << _prescales.first 
+        << setw(8) << _prescales.second 
+        << setw(4) << _fired
         << endl;
 
    return ss.str();
@@ -52,7 +52,7 @@ string MOD::Trigger::make_string() const {
 
 string MOD::Trigger::make_header_string() const {
    stringstream ss;
-   ss << "# Trig                              Name  Prescale_1  Prescale_2  Fired?" << endl;
+   ss << "# Trig                              Name   Pre_1   Pre_2 Fir" << endl;
    return ss.str();
 }
 
