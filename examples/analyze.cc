@@ -89,15 +89,9 @@ int main(int argc, char * argv[]) {
 
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
 
-   // First, "correct" the jets.
-   event_being_read.apply_jet_quality_cuts("loose");
 
-   MOD::CalibratedJet hardest_uncorrected_jet = event_being_read.hardest_jet();
-
-   event_being_read.apply_jet_energy_corrections();
-   event_being_read.apply_eta_cut(2.4);
-
-   MOD::CalibratedJet hardest_corrected_jet = event_being_read.hardest_jet();
+   MOD::CalibratedJet hardest_uncorrected_jet = event_being_read.hardest_jet(true, false, true, "loose", 2.4);
+   MOD::CalibratedJet hardest_corrected_jet = event_being_read.hardest_jet(true, true, true, "loose", 2.4);
 
    if (event_being_read.CMS_jets().size() == 0) {
       return;

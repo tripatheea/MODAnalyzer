@@ -100,19 +100,9 @@ int main(int argc, char * argv[]) {
 
 
 void skim(MOD::Event & event_being_read, ofstream & output_file) {
-
-   // Cluster the pfcandidates using Fastjet.
-   vector<PseudoJet> pfcandidates = event_being_read.pseudojets();
-   JetDefinition jet_def(antikt_algorithm, 0.50);
-   ClusterSequence cs(pfcandidates, jet_def);
-   vector<PseudoJet> fastjet_jets = cs.inclusive_jets(3.00);
-
    
-   if (event_being_read.assigned_trigger_fired()) {
+   if (event_being_read.assigned_trigger_fired())
       output_file << event_being_read.make_string();
-   }
-
-
 }
 
 bool jets_match(MOD::Event & event_being_read) {
@@ -120,7 +110,7 @@ bool jets_match(MOD::Event & event_being_read) {
    double pt_cut = 3.00;
    double cone_radius = 0.5;
    
-   vector<PseudoJet> cms_jets = event_being_read.uncorrected_calibrated_pseudojets();
+   vector<PseudoJet> cms_jets = event_being_read.CMS_pseudojets();
    vector<PseudoJet> pfcandidates = event_being_read.pseudojets();
 
    // Cluster the pfcandidates using Fastjet.
@@ -153,7 +143,10 @@ bool jets_match(MOD::Event & event_being_read) {
          cerr << endl << fixed << setprecision(5) << "FastJet: " <<  fastjet_jets[i].px() << "   " << fastjet_jets[i].py() << "   " << fastjet_jets[i].pz() << "   " << fastjet_jets[i].E() << endl;
          cerr         << fixed << setprecision(5) << "CMS:     " << cms_jets[i].px() << "   " << cms_jets[i].py() << "   " << cms_jets[i].pz() << "   " << cms_jets[i].E() << endl;
          
-         if( ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().px() - cms_jets[i].px()) < tolerance ) || ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().py() - cms_jets[i].py()) < tolerance ) || ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().pz() - cms_jets[i].pz()) < tolerance ) || ( abs(event_being_read.hardest_uncorrected_jet().pseudojet().E() - cms_jets[i].E()) < tolerance ) ) {
+         // Jet quality level set to blank and eta_cut set to 0.0 because they're not going to be used anyway plus this will break the output if there's an error in the code somewhere making it easier to debug.
+         MOD::CalibratedJet hardest_uncorrected_jet = event_being_read.hardest_jet(false, false, false, "", 0.0);
+
+         if( ( abs(hardest_uncorrected_jet.pseudojet().px() - cms_jets[i].px()) < tolerance ) || ( abs(hardest_uncorrected_jet.pseudojet().py() - cms_jets[i].py()) < tolerance ) || ( abs(hardest_uncorrected_jet.pseudojet().pz() - cms_jets[i].pz()) < tolerance ) || ( abs(hardest_uncorrected_jet.pseudojet().E() - cms_jets[i].E()) < tolerance ) ) {
             cerr << "This error is with the hardest jet!" << endl;
          }
 

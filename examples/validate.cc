@@ -89,7 +89,7 @@ bool jets_match(MOD::Event & event_being_read) {
    double pt_cut = 3.00;
    double cone_radius = 0.5;
    
-   vector<PseudoJet> cms_jets = event_being_read.uncorrected_calibrated_pseudojets();
+   vector<PseudoJet> cms_jets = event_being_read.CMS_pseudojets();
    vector<PseudoJet> pfcandidates = event_being_read.pseudojets();
 
    // Cluster the pfcandidates using Fastjet.
@@ -140,7 +140,7 @@ bool write_jets(MOD::Event & event_being_read, ofstream cms_output_file, ofstrea
    double pt_cut = 3.00;
    double cone_radius = 0.5;
     
-   vector<PseudoJet> cms_jets = event_being_read.uncorrected_calibrated_pseudojets();
+   vector<PseudoJet> cms_jets = event_being_read.CMS_pseudojets();
    
    // First sort the jets by px so that we can compare them one by one.
    sort(cms_jets.begin(), cms_jets.end(), pseudojets_compare);

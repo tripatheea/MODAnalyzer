@@ -36,6 +36,7 @@ namespace MOD {
 
             const std::vector<MOD::CalibratedJet> & CMS_jets() const;
             const std::vector<fastjet::PseudoJet> & CMS_pseudojets() const;
+            const std::vector<fastjet::PseudoJet> & fastjet_jets() const;
 
             const std::vector<Trigger> & triggers() const;
             const std::vector<fastjet::PseudoJet> pseudojets(double pt_cut = 0.00) const;
@@ -60,7 +61,6 @@ namespace MOD {
             
             const bool trigger_exists(std::string trigger_name) const;
             
-
             bool read_event(std::istream & data_stream);
             bool assigned_trigger_fired() const;
 
@@ -69,13 +69,7 @@ namespace MOD {
 
             MOD::PFCandidate hardest_pfcandidate();
 
-            void apply_jet_quality_cuts(std::string quality_level);
-            void apply_jet_energy_corrections();
-            void apply_eta_cut(double eta_cut);
-            MOD::CalibratedJet hardest_jet();
-
-            std::vector<MOD::CalibratedJet> calibrated_jets() const;
-
+            MOD::CalibratedJet hardest_jet(bool quality_cut, bool jec, bool eta, std::string quality_cut_level, double eta_cut) const;           // This returns hardest CMS Jet after doing all the corrections.
 
             friend std::ostream& operator<< (std::ostream&, const Event&);
             
@@ -99,15 +93,15 @@ namespace MOD {
             std::vector<MOD::CalibratedJet> _CMS_jets;
             std::vector<fastjet::PseudoJet> _CMS_pseudojets;
 
-
-
-            // std::vector<MOD::CalibratedJet> _calibrated_jets;          // These are the jets we actually use.
-            // std::vector<fastjet::PseudoJet> _calibrated_pseudojets;    // These are provided by  
+            std::vector<fastjet::PseudoJet> _fastjet_pseudojets;
 
             void set_assigned_trigger();
             void set_hardest_pt();
             void establish_properties();
 
-      };
+            std::vector<MOD::CalibratedJet> apply_jet_quality_cuts(std::vector<MOD::CalibratedJet> jets, std::string quality_level) const;
+            std::vector<MOD::CalibratedJet> apply_jet_energy_corrections(std::vector<MOD::CalibratedJet> jets) const;
+            std::vector<MOD::CalibratedJet> apply_eta_cut(std::vector<MOD::CalibratedJet> jets, double eta_cut) const;
 
+      };
 }

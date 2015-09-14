@@ -272,44 +272,35 @@ int MOD::Event::assigned_trigger_prescale() const {
 
 void MOD::Event::set_assigned_trigger() {
 
-   // First, figure out what the hardest pT is.
-   MOD::Event * duplicate_of_current_event = new MOD::Event(_run_number, _event_number, _version, _data_type, _condition, _triggers, _particles, _pseudojets, _CMS_jets, _CMS_pseudojets);
+   // First, figure out the hardest pT.
+   double hardest_pT = hardest_jet(true, true, true, "loose", 2.4).pseudojet().pt();
 
-   duplicate_of_current_event->apply_jet_quality_cuts("loose");
-   duplicate_of_current_event->apply_jet_energy_corrections();
-   duplicate_of_current_event->apply_eta_cut(2.4);
-
-   double hardest_pt_value = duplicate_of_current_event->hardest_jet().pseudojet().pt();
-
-
-   // Next, lookup which trigger to use based on the pt value of the hardest jet.
-
-   
+   // Next, lookup which trigger to use based on the pT value of the hardest jet.
    string trigger_to_use;
    string trigger;
 
-   if ( (hardest_pt_value > 325) && ( trigger_exists("HLT_Jet180U") || trigger_exists("HLT_Jet180U_v1") || trigger_exists("HLT_Jet180U_v2") || trigger_exists("HLT_Jet180U_v3") ) ) {
+   if ( (hardest_pT > 325) && ( trigger_exists("HLT_Jet180U") || trigger_exists("HLT_Jet180U_v1") || trigger_exists("HLT_Jet180U_v2") || trigger_exists("HLT_Jet180U_v3") ) ) {
       trigger = "HLT_Jet180U";
    }
-   else if ( (hardest_pt_value > 260) && ( trigger_exists("HLT_Jet140U") || trigger_exists("HLT_Jet140U_v1") || trigger_exists("HLT_Jet140U_v2") || trigger_exists("HLT_Jet140U_v3") ) ) {
+   else if ( (hardest_pT > 260) && ( trigger_exists("HLT_Jet140U") || trigger_exists("HLT_Jet140U_v1") || trigger_exists("HLT_Jet140U_v2") || trigger_exists("HLT_Jet140U_v3") ) ) {
       trigger = "HLT_Jet140U";
    }
-   else if ( (hardest_pt_value > 196) && ( trigger_exists("HLT_Jet100U") || trigger_exists("HLT_Jet100U_v1") || trigger_exists("HLT_Jet100U_v2") || trigger_exists("HLT_Jet100U_v3") ) ) {
+   else if ( (hardest_pT > 196) && ( trigger_exists("HLT_Jet100U") || trigger_exists("HLT_Jet100U_v1") || trigger_exists("HLT_Jet100U_v2") || trigger_exists("HLT_Jet100U_v3") ) ) {
       trigger = "HLT_Jet100U";
    }
-   else if ( (hardest_pt_value > 153) && ( trigger_exists("HLT_Jet70U") || trigger_exists("HLT_Jet70U_v1") || trigger_exists("HLT_Jet70U_v2") || trigger_exists("HLT_Jet70U_v3") ) ) {
+   else if ( (hardest_pT > 153) && ( trigger_exists("HLT_Jet70U") || trigger_exists("HLT_Jet70U_v1") || trigger_exists("HLT_Jet70U_v2") || trigger_exists("HLT_Jet70U_v3") ) ) {
       trigger = "HLT_Jet70U";
    }
-   else if ( (hardest_pt_value > 114) && ( trigger_exists("HLT_Jet50U") || trigger_exists("HLT_Jet50U_v1") || trigger_exists("HLT_Jet50U_v2") || trigger_exists("HLT_Jet50U_v3") ) ) {
+   else if ( (hardest_pT > 114) && ( trigger_exists("HLT_Jet50U") || trigger_exists("HLT_Jet50U_v1") || trigger_exists("HLT_Jet50U_v2") || trigger_exists("HLT_Jet50U_v3") ) ) {
       trigger = "HLT_Jet50U";
    }
-   else if ( (hardest_pt_value > 84) && ( trigger_exists("HLT_Jet30U") || trigger_exists("HLT_Jet30U_v1") || trigger_exists("HLT_Jet30U_v2") || trigger_exists("HLT_Jet30U_v3") ) ) {
+   else if ( (hardest_pT > 84) && ( trigger_exists("HLT_Jet30U") || trigger_exists("HLT_Jet30U_v1") || trigger_exists("HLT_Jet30U_v2") || trigger_exists("HLT_Jet30U_v3") ) ) {
       trigger = "HLT_Jet30U";
    }
-   else if ( (hardest_pt_value > 56) && ( trigger_exists("HLT_Jet15U") || trigger_exists("HLT_Jet15U_v1") || trigger_exists("HLT_Jet15U_v2") || trigger_exists("HLT_Jet15U_v3") ) ) {
+   else if ( (hardest_pT > 56) && ( trigger_exists("HLT_Jet15U") || trigger_exists("HLT_Jet15U_v1") || trigger_exists("HLT_Jet15U_v2") || trigger_exists("HLT_Jet15U_v3") ) ) {
       trigger = "HLT_Jet15U";
    }
-   else if ( (hardest_pt_value > 37) && ( trigger_exists("HLT_L1Jet6U") || trigger_exists("HLT_L1Jet6U_v1") || trigger_exists("HLT_L1Jet6U_v2") || trigger_exists("HLT_L1Jet6U_v3") ) ) {
+   else if ( (hardest_pT > 37) && ( trigger_exists("HLT_L1Jet6U") || trigger_exists("HLT_L1Jet6U_v1") || trigger_exists("HLT_L1Jet6U_v2") || trigger_exists("HLT_L1Jet6U_v3") ) ) {
       trigger = "HLT_L1Jet6U";
    }
 
@@ -337,13 +328,13 @@ void MOD::Event::establish_properties() {
    set_assigned_trigger();
 
    // Cluster PFCandidates into AK5 Jets ourselves.
-   // vector<PseudoJet> pfcandidates = pseudojets();
+   vector<PseudoJet> pfcandidates = pseudojets();
 
-   // JetDefinition jet_def(antikt_algorithm, 0.5);
-   // ClusterSequence cs(event_being_read.pseudojets(), jet_def);
-   // vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
+   JetDefinition jet_def(antikt_algorithm, 0.5);
+   ClusterSequence cs(pseudojets(), jet_def);
+   vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
 
-   // _calibrated_pseudojets = ak5_jets;
+   _fastjet_pseudojets = ak5_jets;
 }
 
 
@@ -366,8 +357,7 @@ MOD::PFCandidate MOD::Event::hardest_pfcandidate() {
    }
 }
 
-void MOD::Event::apply_jet_quality_cuts(string quality_level) {
-   vector<MOD::CalibratedJet> jets = _CMS_jets;
+vector<MOD::CalibratedJet> MOD::Event::apply_jet_quality_cuts(vector<MOD::CalibratedJet> jets, string quality_level) const {
 
    vector<MOD::CalibratedJet> quality_jets;
 
@@ -376,12 +366,10 @@ void MOD::Event::apply_jet_quality_cuts(string quality_level) {
          quality_jets.push_back(jets[i]);
    }
 
-   _CMS_jets = quality_jets;
+   return quality_jets;
 }
 
-void MOD::Event::apply_jet_energy_corrections() {
-
-   vector<MOD::CalibratedJet> jets = _CMS_jets;
+vector<MOD::CalibratedJet> MOD::Event::apply_jet_energy_corrections(vector<MOD::CalibratedJet> jets) const {
 
    vector<MOD::CalibratedJet> jec_corrected_jets;
 
@@ -389,12 +377,10 @@ void MOD::Event::apply_jet_energy_corrections() {
       jec_corrected_jets.push_back(jets[i].corrected_jet());
    }
 
-   _CMS_jets = jec_corrected_jets;
-  
+   return jec_corrected_jets;
 }
 
-void MOD::Event::apply_eta_cut(double eta_cut) {
-   vector<MOD::CalibratedJet> jets = _CMS_jets;
+vector<MOD::CalibratedJet> MOD::Event::apply_eta_cut(vector<MOD::CalibratedJet> jets, double eta_cut) const {
 
    vector<MOD::CalibratedJet> jets_with_eta_cut;
 
@@ -404,18 +390,34 @@ void MOD::Event::apply_eta_cut(double eta_cut) {
       }
    }
 
-   _CMS_jets = jets_with_eta_cut;
+   return jets_with_eta_cut;
 }
 
-MOD::CalibratedJet MOD::Event::hardest_jet() {
-   vector<MOD::CalibratedJet> jets = _CMS_jets;
 
-   if ( jets.size() > 0 ) {
-      sort(jets.begin(), jets.end());
-      return jets[0];   
-   } 
+
+MOD::CalibratedJet MOD::Event::hardest_jet(bool quality_cut, bool jec, bool eta, string quality_cut_level, double eta_cut) const {
+
+   vector<MOD::CalibratedJet> processed_jets = _CMS_jets;
+
+   // First of all, apply jet quality cuts.
+   if (quality_cut)
+      processed_jets = apply_jet_quality_cuts(processed_jets, quality_cut_level);
    
-   return CalibratedJet(); 
+   // Next, apply Jet Energy Corrections.
+   if (jec)
+      processed_jets = apply_jet_energy_corrections(processed_jets);
+
+   // Then, apply eta cut.
+   if (eta_cut)
+      processed_jets = apply_eta_cut(processed_jets, eta_cut);
+   
+   // Finally, sort the jets and return the hardest one.
+   if (processed_jets.size() > 0) {
+      sort(processed_jets.begin(), processed_jets.end());
+      return processed_jets[0];
+   }
+
+   return CalibratedJet();
 }
 
 
