@@ -192,6 +192,7 @@ string MOD::Event::make_string() const {
 
 
 bool MOD::Event::read_event(istream & data_stream) {
+
    string line;
    while(getline(data_stream, line)) {
       istringstream iss(line);
@@ -206,6 +207,8 @@ bool MOD::Event::read_event(istream & data_stream) {
 
          stream >> tag >> version_keyword >> version >> a >> b >> run_keyword >> run_number >> event_keyword >> event_number;
          
+         // cout << "BeginEvent" << endl;
+
          set_event_number(event_number);
          set_run_number(run_number);
          set_version(version);
@@ -213,6 +216,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "PFC") {
          try {
+            // cout << "PFC" << endl;
             add_particle(stream);
          }
          catch (exception& e) {
@@ -221,6 +225,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "AK5") {
          try {
+            // cout << "AK5" << endl;
             add_CMS_jet(stream);
          }
          catch (exception& e) {
@@ -229,6 +234,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "Trig") {
          try {
+            // cout << "Trig" << endl;
             add_trigger(stream);
          }
          catch (exception& e) {
@@ -237,6 +243,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "Cond") {
          try {
+            // cout << "Cond" << endl;
             add_conditions(stream);
          }
          catch (exception& e) {
@@ -244,6 +251,7 @@ bool MOD::Event::read_event(istream & data_stream) {
          }
       }
       else if (tag == "EndEvent") {
+         // cout << "EndEvent" << endl;
          establish_properties();
          return true;
       }
@@ -255,7 +263,6 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
    }
 
-   cout << "I AM THROWING IT" << endl;
    return false;
 }
 
@@ -415,16 +422,14 @@ MOD::CalibratedJet MOD::Event::hardest_jet(bool quality_cut, bool jec, bool eta,
    // Then, apply eta cut.
    if (eta_cut)
       processed_jets = apply_eta_cut(processed_jets, eta_cut);
-   
+
    // Finally, sort the jets and return the hardest one.
-   // if (processed_jets.size() > 0) {
+   if (processed_jets.size() > 0) {
       sort(processed_jets.begin(), processed_jets.end());
       return processed_jets[0];
-   // }
+   }
 
-   // cout << "blank jet" << endl;
-
-   // return CalibratedJet();
+   return CalibratedJet();
 }
 
 
@@ -460,7 +465,7 @@ vector<PseudoJet> MOD::Event::hardest_corrected_fastjet_jet_constituents(bool qu
       }
    }
 
-   // if (index >= 0) {
+   if (index >= 0) {
       // We now have the corresponding "hardest" FastJet jet.
       PseudoJet hardest_fastjet_jet = fastjet_jets[index];
 
@@ -469,11 +474,11 @@ vector<PseudoJet> MOD::Event::hardest_corrected_fastjet_jet_constituents(bool qu
       PseudoJet hardest_corrected_fastjet_jet = hardest_fastjet_jet;
 
       return hardest_corrected_fastjet_jet.constituents();   
-   // }
-   // else {
+   }
+   else {
       // cout << "EMPTY INDEX" << endl;
-      // return vector<PseudoJet>();
-   // }
+      return vector<PseudoJet>();
+   }
    
 
 

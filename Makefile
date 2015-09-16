@@ -25,7 +25,7 @@ OBJ  =$(patsubst %,$(OBJDIR)/%,$(_OBJ:=.o))
 
 
 #_EXEC=skim analyze validate turn_on analyze_beta
-_EXEC=analyze  
+_EXEC=skim analyze  
 EXEC=$(patsubst %,$(EXECDIR)/%,$(_EXEC:=.o))
 BIN=$(patsubst %,$(BINDIR)/%,$(_EXEC))
 
