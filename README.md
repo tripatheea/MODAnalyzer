@@ -62,7 +62,7 @@ This repository is concerned with steps (4) to (6) only. Steps (1) to (3) are ca
 
     Standard library exception caught in cmsRun:
   
-  Can not get data (Additional Information: [frontier.c:793]: No more servers/proxies. 
+    Can not get data (Additional Information: [frontier.c:793]: No more servers/proxies. 
   
 This error message generally means that you didn't use  an encrypted Internet connection. If you are on MIT campus that means you should be using either the MIT SECURE access point or an Ethernet cable.
 
