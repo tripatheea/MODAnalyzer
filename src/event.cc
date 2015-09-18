@@ -344,13 +344,18 @@ void MOD::Event::set_assigned_trigger() {
 void MOD::Event::set_trigger_jet() {
    // Get hardest jet, apply JEC, and then eta cut.
 
-   vector<MOD::CalibratedJet> processed_jets = apply_jet_energy_corrections(_CMS_jets);
+   vector<MOD::CalibratedJet> CMS_jets = _CMS_jets;
+
+   vector<MOD::CalibratedJet> processed_jets = apply_jet_energy_corrections(CMS_jets);
    processed_jets = apply_eta_cut(processed_jets, 2.4);
 
    // Then, sort the jets and store the hardest one as _trigger_jet.
    if (processed_jets.size() > 0) {
       sort(processed_jets.begin(), processed_jets.end());
-      _trigger_jet = processed_jets[0];
+      
+      auto it = std::find(processed_jets.begin(), processed_jets.end(), processed_jets[0]);
+      auto index = std::distance(processed_jets.begin(), it);
+      _trigger_jet = _CMS_jets[index];
    }
    else {
       _trigger_jet = CalibratedJet();

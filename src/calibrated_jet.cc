@@ -172,6 +172,10 @@ bool MOD::CalibratedJet::operator < (const MOD::CalibratedJet& j1) const {
   return false;
 }
 
+bool MOD::CalibratedJet::operator==(const CalibratedJet& rhs) const {
+  return (_pseudojet == rhs._pseudojet) && (_algorithm == rhs._algorithm) && (_JEC == rhs._JEC) && (_area == rhs._area);
+}
+
 namespace MOD {
    ostream& operator<< (ostream& os, const CalibratedJet& jet) {
       os << jet.make_string();

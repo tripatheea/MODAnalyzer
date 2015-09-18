@@ -50,6 +50,8 @@ namespace MOD {
 
          bool operator<(const CalibratedJet& rhs) const;
 
+         bool operator==(const CalibratedJet& rhs) const;
+
       private:
          fastjet::PseudoJet _pseudojet;
          double _mass;
