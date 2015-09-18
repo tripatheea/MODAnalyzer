@@ -13,11 +13,14 @@
 
 namespace MOD {
   
-  std::vector<MOD::PFCandidate> select_charged(std::vector<PFCandidate> pfcandidates); 
+  std::vector<MOD::PFCandidate> select_charged(std::vector<MOD::PFCandidate> pfcandidates); 
+  
   std::vector<fastjet::PseudoJet> convert_to_pseudojets(std::vector<MOD::PFCandidate> pfcandidates);
   std::vector<fastjet::PseudoJet> convert_to_pseudojets(std::vector<MOD::CalibratedJet> jets);
 
   std::vector<fastjet::PseudoJet> filter_by_pT(std::vector<fastjet::PseudoJet>, double);
+
+  fastjet::PseudoJet filter_charged(fastjet::PseudoJet);
 
 
 }

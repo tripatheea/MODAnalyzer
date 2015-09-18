@@ -250,42 +250,27 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    double zg_2_pt_10 = soft_drop_jet_pt_10_2.structure_of<SoftDrop>().symmetry();
    properties.push_back(MOD::Property("zg_2_pt_10", zg_2_pt_10));  
 
-   /*
-   vector<PseudoJet> hardest_jet_charged_constituents;
+   
+   
+   PseudoJet ak5_jet_with_charged_particles_only = MOD::filter_charged(closest_fastjet_jet_to_trigger_jet);
 
-   for (unsigned i = 0; i < hardest_corrected_fastjet_jet_constituents.size(); i++) {
-      if ( (abs(hardest_corrected_fastjet_jet_constituents[i].user_index()) == 211) || (abs(hardest_corrected_fastjet_jet_constituents[i].user_index()) == 11) || (abs(hardest_corrected_fastjet_jet_constituents[i].user_index()) == 13) ) {
-         hardest_jet_charged_constituents.push_back(hardest_corrected_fastjet_jet_constituents[i]);
-      }
-   }
 
-   JetDefinition jet_def_charged(aachen_algorithm, 1000);
-   ClusterSequence cs_charged(hardest_jet_charged_constituents, jet_def_charged);
-   vector<PseudoJet> ak5_jet_with_charged_particles_only = sorted_by_pt(cs_charged.inclusive_jets(3.0));
+   PseudoJet hardest_jet_charged = ak5_jet_with_charged_particles_only;
 
-   if (ak5_jet_with_charged_particles_only.size() > 0) {
-      PseudoJet hardest_jet_charged = ak5_jet_with_charged_particles_only[0];
+   SoftDrop soft_drop_charged(0.0, 0.05);
+   PseudoJet soft_drop_jet_charged = soft_drop_charged(hardest_jet_charged);
+   double zg_charged_05 = soft_drop_jet_charged.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_charged_05", zg_charged_05));
 
-      SoftDrop soft_drop_charged(0.0, 0.05);
-      PseudoJet soft_drop_jet_charged = soft_drop_charged(hardest_jet_charged);
-      double zg_charged_05 = soft_drop_jet_charged.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_charged_05", zg_charged_05));
+   SoftDrop soft_drop_charged_2(0.0, 0.1);
+   PseudoJet soft_drop_jet_charged_2 = soft_drop_charged_2(hardest_jet_charged);
+   double zg_charged_1 = soft_drop_jet_charged_2.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_charged_1", zg_charged_1));  
 
-      SoftDrop soft_drop_charged_2(0.0, 0.1);
-      PseudoJet soft_drop_jet_charged_2 = soft_drop_charged_2(hardest_jet_charged);
-      double zg_charged_1 = soft_drop_jet_charged_2.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_charged_1", zg_charged_1));  
-
-      SoftDrop soft_drop_charged_3(0.0, 0.2);
-      PseudoJet soft_drop_jet_charged_3 = soft_drop_charged_3(hardest_jet_charged);
-      double zg_charged_2 = soft_drop_jet_charged_3.structure_of<SoftDrop>().symmetry();
-      properties.push_back(MOD::Property("zg_charged_2", zg_charged_2));  
-   }
-   else {
-      properties.push_back(MOD::Property("zg_charged_05", -1.00));      
-      properties.push_back(MOD::Property("zg_charged_1", -1.00));      
-      properties.push_back(MOD::Property("zg_charged_2", -1.00));  
-   }
+   SoftDrop soft_drop_charged_3(0.0, 0.2);
+   PseudoJet soft_drop_jet_charged_3 = soft_drop_charged_3(hardest_jet_charged);
+   double zg_charged_2 = soft_drop_jet_charged_3.structure_of<SoftDrop>().symmetry();
+   properties.push_back(MOD::Property("zg_charged_2", zg_charged_2));  
 
 
 
@@ -298,34 +283,33 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    // Constituent multiplicity before and after SoftDrop.
 
-   properties.push_back( MOD::Property("multiplicity_before_SD", (int) hardest_corrected_fastjet_jet.constituents().size()) );
-   properties.push_back( MOD::Property("multiplicity_after_SD", (int) soft_drop(hardest_corrected_fastjet_jet).constituents().size() ) );
+   properties.push_back( MOD::Property("multiplicity_before_SD", (int) closest_fastjet_jet_to_trigger_jet.constituents().size()) );
+   properties.push_back( MOD::Property("multiplicity_after_SD", (int) soft_drop(closest_fastjet_jet_to_trigger_jet).constituents().size() ) );
    
 
    // Must be "hardest_uncorrected_jet" because the corrected jet has a JEC set to 1.
-   properties.push_back( MOD::Property("jec", hardest_uncorrected_jet.JEC()) );
+   properties.push_back( MOD::Property("jec", trigger_jet.JEC()) );
    
-   properties.push_back( MOD::Property("jet_area", hardest_uncorrected_jet.area()) );
+   properties.push_back( MOD::Property("jet_area", closest_fastjet_jet_to_trigger_jet.area()) );
 
    
 
-   properties.push_back( MOD::Property("jet_mass_before_SD", hardest_corrected_fastjet_jet.m()) );
-   properties.push_back( MOD::Property("jet_mass_after_SD", soft_drop(hardest_corrected_fastjet_jet).m()) );
+   properties.push_back( MOD::Property("jet_mass_before_SD", closest_fastjet_jet_to_trigger_jet.m()) );
+   properties.push_back( MOD::Property("jet_mass_after_SD", soft_drop(closest_fastjet_jet_to_trigger_jet).m()) );
 
-   properties.push_back( MOD::Property("fractional_energy_loss", (hardest_corrected_fastjet_jet.E() - soft_drop(hardest_corrected_fastjet_jet).E()) / hardest_corrected_fastjet_jet.E() ) );
+   properties.push_back( MOD::Property("fractional_energy_loss", (closest_fastjet_jet_to_trigger_jet.E() - soft_drop(closest_fastjet_jet_to_trigger_jet).E()) / closest_fastjet_jet_to_trigger_jet.E() ) );
    
    properties.push_back( MOD::Property("hardest_eta", hardest_corrected_fastjet_jet.eta()) );
 
 
    // Jet mass and multiplicity before and after SD for charged particles only.
-   PseudoJet hardest_jet_charged = ak5_jet_with_charged_particles_only[0];
 
    properties.push_back( MOD::Property("charged_multi_before_SD", (int) hardest_jet_charged.constituents().size()) );
    properties.push_back( MOD::Property("charged_multi_after_SD", (int) soft_drop(hardest_jet_charged).constituents().size()) );
 
    properties.push_back( MOD::Property("charged_jet_mass_before_SD", hardest_jet_charged.m()) );
    properties.push_back( MOD::Property("charged_jet_mass_after_SD", soft_drop(hardest_jet_charged).m()) );
-   */
+   
    
 
    string name;
