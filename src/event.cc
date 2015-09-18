@@ -391,6 +391,29 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
 }
 
 
+void MOD::Event::set_trigger_jet_is_matched() {
+
+   fastjet::PseudoJet trigger_fastjet = _trigger_jet.pseudojet();
+   fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet = _closest_fastjet_jet_to_trigger_jet;
+
+   // Compare the number of constituents first.
+   if (trigger_fastjet.constituents().size() != closest_fastjet_jet_to_trigger_jet.constituents().size()) {
+      _trigger_jet_is_matched = false;
+      return;
+   }
+
+   // Next, compare if the 4-vector matches upto 10e-4 precision or not.
+   double tolerance = pow(10, -3);
+   if ( ( abs(trigger_fastjet.px() - closest_fastjet_jet_to_trigger_jet.px()) < tolerance ) && ( abs(trigger_fastjet.py() - closest_fastjet_jet_to_trigger_jet.py()) < tolerance ) && ( abs(trigger_fastjet.pz() - closest_fastjet_jet_to_trigger_jet.pz()) < tolerance ) && ( abs(trigger_fastjet.E() - closest_fastjet_jet_to_trigger_jet.E()) < tolerance ) ) {      
+      _trigger_jet_is_matched = true;
+      return;
+   }
+
+   _trigger_jet_is_matched = false;
+   return;
+}
+
+
 fastjet::PseudoJet MOD::Event::closest_fastjet_jet_to_trigger_jet() {
    return _closest_fastjet_jet_to_trigger_jet;
 }
@@ -398,15 +421,7 @@ fastjet::PseudoJet MOD::Event::closest_fastjet_jet_to_trigger_jet() {
 
 void MOD::Event::establish_properties() {
    
-   // First of all, assign _trigger_jet.
-   set_trigger_jet();
-   
-   // Next, find out the specific FastJet that's closest to _trigger_jet.
-
-
-   set_assigned_trigger();
-
-   // Cluster PFCandidates into AK5 Jets ourselves.
+   // Cluster PFCandidates into AK5 Jets using FastJet.
    vector<PseudoJet> pfcandidates = pseudojets();
 
    JetDefinition jet_def(antikt_algorithm, 0.5);
@@ -414,6 +429,17 @@ void MOD::Event::establish_properties() {
    vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
 
    _fastjet_pseudojets = ak5_jets;
+
+   // First of all, assign _trigger_jet.
+   set_trigger_jet();
+   
+   // Next, find out the specific FastJet that's closest to _trigger_jet.
+
+   set_assigned_trigger();
+
+   set_trigger_jet_is_matched();
+
+   
 }
 
 
@@ -462,58 +488,10 @@ vector<MOD::CalibratedJet> MOD::Event::apply_eta_cut(vector<MOD::CalibratedJet> 
    return jets_with_eta_cut;
 }
 
-
-
-
-vector<PseudoJet> MOD::Event::hardest_corrected_fastjet_jet_constituents(bool quality_cut, bool eta, string quality_cut_level, double eta_cut, double PFC_pT_cut) const {
-
-
-   // Cluster PFCandidates using FastJet.
-   JetDefinition jet_def(antikt_algorithm, 0.5);
-   ClusterSequence cs(pseudojets(PFC_pT_cut), jet_def);
-   vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(3.0));
-
-   // Get the hardest CMS jet (this is without constituents).
-
-   // Note that we've set (bool) jec to be always False. This is for two reason:
-   //    a) Once we've applied JEC factors, CMS jets will no longer match FastJet jets, 
-   //    b) Internally, JEC corrected jets have JEC factor set to 1.00. Since the whole point of doing this is to use the JEC factor of the hardest CMS jet to the corresponding FastJet jet, we don't want that. 
-   MOD::CalibratedJet hardest_CMS_jet = hardest_jet(quality_cut, false, eta, quality_cut_level, eta_cut);
-
-   // Loop through all FastJet pseudojets, calculating delta R for each one.
-   vector<double> delta_Rs;
-   for (unsigned i = 0; i < fastjet_jets.size(); i++) {
-      delta_Rs.push_back( hardest_CMS_jet.pseudojet().delta_R(fastjet_jets[i]) );
-   }
-   
-   // Find the index of the fastjet jet that has the lowest delta R. This will be the jet that's "closest" to the CMS jet. 
-   int index = -1;
-   double delta_R = std::numeric_limits<double>::max();
-   for (unsigned i = 0; i < delta_Rs.size(); i++) {
-      if (delta_Rs[i] <= delta_R) {
-         delta_R = delta_Rs[i];
-         index = i;
-      }
-   }
-
-   if (index >= 0) {
-      // We now have the corresponding "hardest" FastJet jet.
-      PseudoJet hardest_fastjet_jet = fastjet_jets[index];
-
-      // Now, just apply the corresponding JEC factor.
-      // PseudoJet hardest_corrected_fastjet_jet = hardest_CMS_jet.JEC() * hardest_fastjet_jet;
-      PseudoJet hardest_corrected_fastjet_jet = hardest_fastjet_jet;
-
-      return hardest_corrected_fastjet_jet.constituents();   
-   }
-   else {
-      // cout << "EMPTY INDEX" << endl;
-      return vector<PseudoJet>();
-   }
-   
-
-
+bool MOD::Event::trigger_jet_is_matched() const {
+   return _trigger_jet_is_matched;
 }
+
 
 
 namespace MOD {
