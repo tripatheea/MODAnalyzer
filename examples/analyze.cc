@@ -19,6 +19,8 @@
 #include "../interface/fractional_jet_multiplicity.h"
 #include "../interface/property.h"
 
+#include "../src/helpers.cc"
+
 using namespace std;
 using namespace fastjet;
 using namespace contrib;
@@ -114,9 +116,8 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    // vector<PseudoJet> hardest_corrected_fastjet_jet_constituents = event_being_read.hardest_corrected_fastjet_jet_constituents(true, true, "loose", 2.4, 0.0);
 
-   // JetDefinition jet_def(antikt_algorithm, 0.5);
+   JetDefinition jet_def(antikt_algorithm, 0.5);
    // ClusterSequence cs(hardest_corrected_fastjet_jet_constituents, jet_def);
-   // PseudoJet hardest_corrected_fastjet_jet = cs.inclusive_jets()[0];
 
    PseudoJet hardest_corrected_fastjet_jet = event_being_read.closest_fastjet_jet_to_trigger_jet();
 
@@ -150,8 +151,8 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    
 
-   /*
-   ClusterSequence cs_1(event_being_read.hardest_corrected_fastjet_jet_constituents(true, true, "loose", 2.4, 1.0), jet_def);
+   
+   ClusterSequence cs_1(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet.constituents(), 1.00), jet_def);
    PseudoJet hardest_jet_pt_1 = cs_1.inclusive_jets()[0];
 
    SoftDrop soft_drop_pt_1(0.0, 0.05);
@@ -171,7 +172,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
    
-   ClusterSequence cs_2(event_being_read.hardest_corrected_fastjet_jet_constituents(true, true, "loose", 2.4, 2.0), jet_def);
+   ClusterSequence cs_2(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet.constituents(), 2.00), jet_def);
    PseudoJet hardest_jet_pt_2 = cs_2.inclusive_jets()[0];
 
    SoftDrop soft_drop_pt_2(0.0, 0.05);
@@ -191,7 +192,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
 
-   ClusterSequence cs_3(event_being_read.hardest_corrected_fastjet_jet_constituents(true, true, "loose", 2.4, 3.0), jet_def);
+   ClusterSequence cs_3(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet.constituents(), 3.00), jet_def);
    PseudoJet hardest_jet_pt_3 = cs_3.inclusive_jets()[0];
 
    SoftDrop soft_drop_pt_3(0.0, 0.05);
@@ -211,7 +212,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    
 
-   ClusterSequence cs_5(event_being_read.hardest_corrected_fastjet_jet_constituents(true, true, "loose", 2.4, 5.0), jet_def);
+   ClusterSequence cs_5(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet.constituents(), 5.00), jet_def);
    PseudoJet hardest_jet_pt_5 = cs_5.inclusive_jets()[0];
 
    SoftDrop soft_drop_pt_5(0.0, 0.05);
@@ -231,7 +232,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
 
-   ClusterSequence cs_10(event_being_read.hardest_corrected_fastjet_jet_constituents(true, true, "loose", 2.4, 10.0), jet_def);
+   ClusterSequence cs_10(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet.constituents(), 10.00), jet_def);
    PseudoJet hardest_jet_pt_10 = cs_10.inclusive_jets()[0];
 
    SoftDrop soft_drop_pt_10(0.0, 0.05);
@@ -249,7 +250,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    double zg_2_pt_10 = soft_drop_jet_pt_10_2.structure_of<SoftDrop>().symmetry();
    properties.push_back(MOD::Property("zg_2_pt_10", zg_2_pt_10));  
 
-
+   /*
    vector<PseudoJet> hardest_jet_charged_constituents;
 
    for (unsigned i = 0; i < hardest_corrected_fastjet_jet_constituents.size(); i++) {
