@@ -98,9 +98,13 @@ namespace MOD {
 
             std::vector<fastjet::PseudoJet> _fastjet_pseudojets;
 
+            MOD::CalibratedJet _trigger_jet;
+
             void set_assigned_trigger();
             void set_hardest_pt();
             void establish_properties();
+
+            void set_trigger_jet();
 
             std::vector<MOD::CalibratedJet> apply_jet_quality_cuts(std::vector<MOD::CalibratedJet> jets, std::string quality_level) const;
             std::vector<MOD::CalibratedJet> apply_jet_energy_corrections(std::vector<MOD::CalibratedJet> jets) const;

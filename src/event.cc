@@ -283,13 +283,15 @@ int MOD::Event::assigned_trigger_prescale() const {
 }
 
 void MOD::Event::set_assigned_trigger() {
-
-   // First, figure out the hardest pT.
-   double hardest_pT = hardest_jet(true, true, true, "loose", 2.4).pseudojet().pt();
-
-   // Next, lookup which trigger to use based on the pT value of the hardest jet.
+   
    string trigger_to_use;
    string trigger;
+
+   // First, figure out the hardest pT.
+   MOD::CalibratedJet trigger_jet = _trigger_jet;
+   double hardest_pT = trigger_jet.pseudojet().pt();
+
+   // Next, lookup which trigger to use based on the pT value of the hardest jet.
 
    if ( (hardest_pT > 325) && ( trigger_exists("HLT_Jet180U") || trigger_exists("HLT_Jet180U_v1") || trigger_exists("HLT_Jet180U_v2") || trigger_exists("HLT_Jet180U_v3") ) ) {
       trigger = "HLT_Jet180U";
@@ -336,7 +338,39 @@ void MOD::Event::set_assigned_trigger() {
 }
 
 
+void MOD::Event::set_trigger_jet() {
+   // Get hardest jet, apply JEC, and then eta cut.
+
+   vector<MOD::CalibratedJet> processed_jets = apply_jet_energy_corrections(_CMS_jets);
+   processed_jets = apply_eta_cut(processed_jets, 2.4);
+
+   // Then, sort the jets and store the hardest one as _trigger_jet.
+   if (processed_jets.size() > 0) {
+      sort(processed_jets.begin(), processed_jets.end());
+      _trigger_jet = processed_jets[0];
+   }
+   else {
+      _trigger_jet = CalibratedJet();
+   }
+}
+
+
+void set_closest_fastjet_jet_to_trigger_jet() {
+   MOD::CalibratedJet trigger_jet = _trigger_jet;
+
+   if (_trigger_jet.valid()) {
+      
+   }
+}
+
 void MOD::Event::establish_properties() {
+   
+   // First of all, assign _trigger_jet.
+   set_trigger_jet();
+   
+   // Next, find out the specific FastJet that's closest to _trigger_jet.
+
+
    set_assigned_trigger();
 
    // Cluster PFCandidates into AK5 Jets ourselves.

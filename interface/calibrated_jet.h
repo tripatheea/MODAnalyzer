@@ -40,9 +40,11 @@ namespace MOD {
          int charged_multiplicity() const;
          double charged_em_fraction() const;
 
-         MOD::CalibratedJet corrected_jet();
+         fastjet::PseudoJet uncorrected_pseudojet() const;
+         fastjet::PseudoJet corrected_pseudojet() const;
 
-         bool jet_quality_cut(std::string level);
+
+         const int jet_quality();
 
          friend std::ostream& operator<< (std::ostream&, const CalibratedJet&);
 
@@ -63,5 +65,8 @@ namespace MOD {
          double _charged_hadron_fraction;
          int _charged_multiplicity;
          double _charged_em_fraction;
+
+         enum JetQualityLevels_t { UNDETERMINED = -1, FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3 };
+         JetQualityLevels_t _jet_quality;
    };
 }

@@ -4,11 +4,11 @@ using namespace std;
 using namespace fastjet;
 
 
-MOD::CalibratedJet::CalibratedJet(double px, double py, double pz, double energy, string algorithm, double JEC, double area, double neutral_hadron_fraction, double neutral_em_fraction, int number_of_constituents, double charged_hadron_fraction, int charged_multiplicity, double charged_em_fraction) : _pseudojet(PseudoJet(px, py, pz, energy)), _algorithm(algorithm), _JEC(JEC), _area(area), _neutral_hadron_fraction(neutral_hadron_fraction), _neutral_em_fraction(neutral_em_fraction), _number_of_constituents(number_of_constituents), _charged_hadron_fraction(charged_hadron_fraction), _charged_multiplicity(charged_multiplicity), _charged_em_fraction(charged_em_fraction) {
+MOD::CalibratedJet::CalibratedJet(double px, double py, double pz, double energy, string algorithm, double JEC, double area, double neutral_hadron_fraction, double neutral_em_fraction, int number_of_constituents, double charged_hadron_fraction, int charged_multiplicity, double charged_em_fraction) : _pseudojet(PseudoJet(px, py, pz, energy)), _algorithm(algorithm), _JEC(JEC), _area(area), _neutral_hadron_fraction(neutral_hadron_fraction), _neutral_em_fraction(neutral_em_fraction), _number_of_constituents(number_of_constituents), _charged_hadron_fraction(charged_hadron_fraction), _charged_multiplicity(charged_multiplicity), _charged_em_fraction(charged_em_fraction), _jet_quality(static_cast<JetQualityLevels_t>(-1)) {
 
 }
 
-MOD::CalibratedJet::CalibratedJet(PseudoJet pseudojet, string algorithm, double JEC, double area, double neutral_hadron_fraction, double neutral_em_fraction, int number_of_constituents, double charged_hadron_fraction, int charged_multiplicity, double charged_em_fraction) : _pseudojet(pseudojet), _algorithm(algorithm), _JEC(JEC), _area(area), _neutral_hadron_fraction(neutral_hadron_fraction), _neutral_em_fraction(neutral_em_fraction), _number_of_constituents(number_of_constituents), _charged_hadron_fraction(charged_hadron_fraction), _charged_multiplicity(charged_multiplicity), _charged_em_fraction(charged_em_fraction) {
+MOD::CalibratedJet::CalibratedJet(PseudoJet pseudojet, string algorithm, double JEC, double area, double neutral_hadron_fraction, double neutral_em_fraction, int number_of_constituents, double charged_hadron_fraction, int charged_multiplicity, double charged_em_fraction) : _pseudojet(pseudojet), _algorithm(algorithm), _JEC(JEC), _area(area), _neutral_hadron_fraction(neutral_hadron_fraction), _neutral_em_fraction(neutral_em_fraction), _number_of_constituents(number_of_constituents), _charged_hadron_fraction(charged_hadron_fraction), _charged_multiplicity(charged_multiplicity), _charged_em_fraction(charged_em_fraction), _jet_quality(static_cast<JetQualityLevels_t>(-1)) {
 
 }
 
@@ -34,6 +34,7 @@ MOD::CalibratedJet::CalibratedJet(istringstream & input_stream) {
    _charged_multiplicity = charged_multiplicity;
    _charged_em_fraction = charged_em_fraction;
 
+   _jet_quality = static_cast<JetQualityLevels_t>(-1);
 }
 
 MOD::CalibratedJet::CalibratedJet() {
@@ -111,41 +112,53 @@ string MOD::CalibratedJet::algorithm() const {
   return _algorithm;
 }
 
-MOD::CalibratedJet MOD::CalibratedJet::corrected_jet() {
-  PseudoJet new_pseudojet = _pseudojet * _JEC;
-
-  MOD::CalibratedJet corrected_jet = MOD::CalibratedJet(new_pseudojet, _algorithm, 1.00, _area, _neutral_hadron_fraction, _neutral_em_fraction, _number_of_constituents, _charged_hadron_fraction, _charged_multiplicity, _charged_em_fraction);
-  return corrected_jet;
+PseudoJet MOD::CalibratedJet::uncorrected_pseudojet() const {
+  return _pseudojet;
 }
 
-bool MOD::CalibratedJet::jet_quality_cut(string level) {
+PseudoJet MOD::CalibratedJet::corrected_pseudojet() const {
+  return _JEC * _pseudojet;
+}
 
-   bool pass = false;
-   double cut_off = 0.99;
+const int MOD::CalibratedJet::jet_quality() {
 
-   if (level == "tight") {
-      cut_off = 0.90;
-   }
-   else if (level == "medium") {
-      cut_off = 0.95;
-   }
-   else if (level == "loose") {
-    cut_off = 0.99;
-   }
-   else {
-    throw std::runtime_error("Invalid level for jet quality cut! Only 'loose', 'medium' and 'tight' are accepted.");
-   }
+  // First, check if jet_quality has already been calculated or not. 
 
-   pass = ( number_of_constituents() > 1 )     &&
-          ( neutral_hadron_fraction() < cut_off ) && 
-          ( neutral_em_fraction() < cut_off )     &&
-          ( 
-            ( abs(pseudojet().eta()) >= 2.4 ) || 
-               ( charged_em_fraction() < 0.99 && charged_hadron_fraction() > 0.00 && charged_multiplicity() > 0) ); 
+  if (_jet_quality != -1) {
+    
+    // This is the first time we're determining jet quality. Calculate it.
+    
+    double cut_offs [3] = { 0.99, 0.95, 0.90 };
+    
+    bool pass = false;
 
-   return pass;
+    for (unsigned i = 0; i < 3; i++) {
+      
+      pass = ( number_of_constituents() > 1 )     &&
+             ( neutral_hadron_fraction() < cut_offs[i] ) && 
+             ( neutral_em_fraction() < cut_offs[i] )     &&
+             ( 
+                ( abs(pseudojet().eta()) >= 2.4 ) || 
+                ( charged_em_fraction() < 0.99 && charged_hadron_fraction() > 0.00 && charged_multiplicity() > 0) ); 
+      
+      // UNDETERMINED = -1, FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3
+
+      if (pass) {
+        _jet_quality =  static_cast<JetQualityLevels_t>(i + 1);
+        return _jet_quality;
+      }
+    } 
+
+    // If the code reached here, this means it didn't pass any quality cut. 
+    _jet_quality = static_cast<JetQualityLevels_t>(0);
+    
+    return _jet_quality;
+  }
+
+  return _jet_quality;
 
 }
+
 
 
 
