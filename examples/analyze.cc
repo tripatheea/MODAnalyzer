@@ -93,8 +93,8 @@ int main(int argc, char * argv[]) {
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
 
 
-   MOD::CalibratedJet hardest_uncorrected_jet = event_being_read.hardest_jet(true, false, true, "loose", 2.4);
-   MOD::CalibratedJet hardest_corrected_jet = event_being_read.hardest_jet(true, true, true, "loose", 2.4);
+   fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet = event_being_read.closest_fastjet_jet_to_trigger_jet();
+   MOD::CalibratedJet trigger_jet = event_being_read.trigger_jet();
 
 
    vector<MOD::Property> properties;
@@ -106,17 +106,19 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    
 
 
-   properties.push_back(MOD::Property("Uncor_Hardest_pT", hardest_uncorrected_jet.pseudojet().pt()));
-   properties.push_back(MOD::Property("Cor_Hardest_pT", hardest_corrected_jet.pseudojet().pt()));
+   properties.push_back(MOD::Property("Uncor_Hardest_pT", trigger_jet.uncorrected_pseudojet().pt()));
+   properties.push_back(MOD::Property("Cor_Hardest_pT", trigger_jet.corrected_pseudojet().pt()));
 
    properties.push_back(MOD::Property("Prescale", event_being_read.assigned_trigger_prescale()));
    properties.push_back(MOD::Property("Trigger_Name", event_being_read.assigned_trigger_name()));
 
-   vector<PseudoJet> hardest_corrected_fastjet_jet_constituents = event_being_read.hardest_corrected_fastjet_jet_constituents(true, true, "loose", 2.4, 0.0);
+   // vector<PseudoJet> hardest_corrected_fastjet_jet_constituents = event_being_read.hardest_corrected_fastjet_jet_constituents(true, true, "loose", 2.4, 0.0);
 
-   JetDefinition jet_def(antikt_algorithm, 0.5);
-   ClusterSequence cs(hardest_corrected_fastjet_jet_constituents, jet_def);
-   PseudoJet hardest_corrected_fastjet_jet = cs.inclusive_jets()[0];
+   // JetDefinition jet_def(antikt_algorithm, 0.5);
+   // ClusterSequence cs(hardest_corrected_fastjet_jet_constituents, jet_def);
+   // PseudoJet hardest_corrected_fastjet_jet = cs.inclusive_jets()[0];
+
+   PseudoJet hardest_corrected_fastjet_jet = event_being_read.closest_fastjet_jet_to_trigger_jet();
 
    SoftDrop soft_drop(0.0, 0.05);
    PseudoJet soft_drop_jet = soft_drop(hardest_corrected_fastjet_jet);
@@ -146,11 +148,9 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back(MOD::Property("mu_2", mu_2));  
 
 
+   
 
-   properties.push_back(MOD::Property("Hardest_PFC_pdgId", event_being_read.hardest_pfcandidate().pdgId()));
-   properties.push_back(MOD::Property("Hardest_PFC_pT", event_being_read.hardest_pfcandidate().pseudojet().pt()));
-
-
+   /*
    ClusterSequence cs_1(event_being_read.hardest_corrected_fastjet_jet_constituents(true, true, "loose", 2.4, 1.0), jet_def);
    PseudoJet hardest_jet_pt_1 = cs_1.inclusive_jets()[0];
 
@@ -324,7 +324,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    properties.push_back( MOD::Property("charged_jet_mass_before_SD", hardest_jet_charged.m()) );
    properties.push_back( MOD::Property("charged_jet_mass_after_SD", soft_drop(hardest_jet_charged).m()) );
-
+   */
    
 
    string name;

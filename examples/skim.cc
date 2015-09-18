@@ -62,7 +62,6 @@ int main(int argc, char * argv[]) {
    MOD::Event event_being_read;
 
    int event_serial_number = 1;
-   int events_with_mismatched_jets = 0;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
 
       if( (event_serial_number % 1000) == 0 )
@@ -82,7 +81,7 @@ int main(int argc, char * argv[]) {
    // Write number of events processed to the num stream so that we can sum it up later.
    num_stream << (event_serial_number - 1) << endl;
 
-   // restore
+   // Restore.
    std::cout.flush ();
    std::cout.rdbuf(cerrbuf);
 

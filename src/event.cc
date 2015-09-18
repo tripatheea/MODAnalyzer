@@ -125,7 +125,7 @@ void MOD::Event::add_CMS_jet(istringstream & input_stream) {
    MOD::CalibratedJet new_jet(input_stream);
 
    _CMS_jets.push_back(new_jet);
-   _CMS_pseudojets.push_back(new_jet.pseudojet());      
+   _CMS_pseudojets.push_back(new_jet.uncorrected_pseudojet());      
    
 }
 
@@ -289,7 +289,10 @@ void MOD::Event::set_assigned_trigger() {
 
    // First, figure out the hardest pT.
    MOD::CalibratedJet trigger_jet = _trigger_jet;
-   double hardest_pT = trigger_jet.pseudojet().pt();
+
+   // Here, "uncorrected" or "corrected" both give the same answer. 
+   // CONFUSING!!!!!
+   double hardest_pT = trigger_jet.uncorrected_pseudojet().pt();
 
    // Next, lookup which trigger to use based on the pT value of the hardest jet.
 
@@ -367,7 +370,7 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
       // Loop through all FastJet pseudojets, calculating delta R for each one.
       vector<double> delta_Rs;
       for (unsigned i = 0; i < fastjet_jets.size(); i++) {
-         delta_Rs.push_back( _trigger_jet.pseudojet().delta_R(fastjet_jets[i]) );
+         delta_Rs.push_back( _trigger_jet.uncorrected_pseudojet().delta_R(fastjet_jets[i]) );
       }
       
       // Find the index of the fastjet jet that has the lowest delta R. This will be the jet that's "closest" to the CMS jet. 
@@ -391,9 +394,13 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
 }
 
 
+const MOD::CalibratedJet MOD::Event::trigger_jet() const {
+   return _trigger_jet;
+}
+
 void MOD::Event::set_trigger_jet_is_matched() {
 
-   fastjet::PseudoJet trigger_fastjet = _trigger_jet.pseudojet();
+   fastjet::PseudoJet trigger_fastjet = _trigger_jet.uncorrected_pseudojet();
    fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet = _closest_fastjet_jet_to_trigger_jet;
 
    // Compare the number of constituents first.
@@ -480,7 +487,7 @@ vector<MOD::CalibratedJet> MOD::Event::apply_eta_cut(vector<MOD::CalibratedJet> 
    vector<MOD::CalibratedJet> jets_with_eta_cut;
 
    for (unsigned i = 0; i < jets.size(); i++) {
-      if ( abs(jets[i].pseudojet().eta()) < eta_cut ) {
+      if ( abs(jets[i].uncorrected_pseudojet().eta()) < eta_cut ) {
          jets_with_eta_cut.push_back(jets[i]);
       }
    }

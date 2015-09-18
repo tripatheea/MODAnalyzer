@@ -73,6 +73,8 @@ namespace MOD {
 
             bool trigger_jet_is_matched() const;
 
+            const MOD::CalibratedJet trigger_jet() const;
+
 
             friend std::ostream& operator<< (std::ostream&, const Event&);
             

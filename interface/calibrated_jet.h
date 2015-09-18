@@ -20,8 +20,6 @@ namespace MOD {
          CalibratedJet();
 
          bool is_valid() const;
-
-         fastjet::PseudoJet pseudojet() const;
          
          std::string algorithm() const;
          std::string make_string() const;

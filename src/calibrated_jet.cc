@@ -45,10 +45,6 @@ bool MOD::CalibratedJet::is_valid() const {
 }
 
 
-PseudoJet MOD::CalibratedJet::pseudojet() const {
-   return _pseudojet;
-}
-
 string MOD::CalibratedJet::make_string() const {
    stringstream ss;
    ss << "  " << _algorithm
@@ -146,7 +142,7 @@ const int MOD::CalibratedJet::jet_quality() {
              ( neutral_hadron_fraction() < cut_offs[i] ) && 
              ( neutral_em_fraction() < cut_offs[i] )     &&
              ( 
-                ( abs(pseudojet().eta()) >= 2.4 ) || 
+                ( abs(uncorrected_pseudojet().eta()) >= 2.4 ) || 
                 ( charged_em_fraction() < 0.99 && charged_hadron_fraction() > 0.00 && charged_multiplicity() > 0) ); 
       
       // UNDETERMINED = -1, FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3
@@ -171,7 +167,7 @@ const int MOD::CalibratedJet::jet_quality() {
 
 
 bool MOD::CalibratedJet::operator < (const MOD::CalibratedJet& j1) const {
-  if (pseudojet().pt() > j1.pseudojet().pt())
+  if (uncorrected_pseudojet().pt() > j1.uncorrected_pseudojet().pt())
     return true;
   return false;
 }
