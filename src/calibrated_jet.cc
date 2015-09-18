@@ -112,6 +112,14 @@ string MOD::CalibratedJet::algorithm() const {
   return _algorithm;
 }
 
+MOD::CalibratedJet MOD::CalibratedJet::corrected_jet() {
+  PseudoJet new_pseudojet = _pseudojet * _JEC;
+
+  MOD::CalibratedJet corrected_jet = MOD::CalibratedJet(new_pseudojet, _algorithm, 1.00, _area, _neutral_hadron_fraction, _neutral_em_fraction, _number_of_constituents, _charged_hadron_fraction, _charged_multiplicity, _charged_em_fraction);
+  return corrected_jet;
+}
+
+
 PseudoJet MOD::CalibratedJet::uncorrected_pseudojet() const {
   return _pseudojet;
 }

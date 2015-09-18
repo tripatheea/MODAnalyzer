@@ -69,6 +69,8 @@ namespace MOD {
 
             MOD::CalibratedJet hardest_jet(bool quality_cut, bool jec, bool eta, std::string quality_cut_level, double eta_cut) const;
 
+            fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet();
+            
 
             // This method is important because unlike a jet returned by the hardest_jet() method, this one actually consists of the jet's constituents (important, for example, for caluclating zg.).
             // This method returns the constituents instead of a single AK5 jet because we need the ClusterSequence that we used in the AK5 jet to calculate zg. 
@@ -100,13 +102,15 @@ namespace MOD {
 
             MOD::CalibratedJet _trigger_jet;
 
+            fastjet::PseudoJet _closest_fastjet_jet_to_trigger_jet;
+
             void set_assigned_trigger();
             void set_hardest_pt();
             void establish_properties();
 
             void set_trigger_jet();
+            void set_closest_fastjet_jet_to_trigger_jet();
 
-            std::vector<MOD::CalibratedJet> apply_jet_quality_cuts(std::vector<MOD::CalibratedJet> jets, std::string quality_level) const;
             std::vector<MOD::CalibratedJet> apply_jet_energy_corrections(std::vector<MOD::CalibratedJet> jets) const;
             std::vector<MOD::CalibratedJet> apply_eta_cut(std::vector<MOD::CalibratedJet> jets, double eta_cut) const;
 

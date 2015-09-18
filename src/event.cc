@@ -355,13 +355,46 @@ void MOD::Event::set_trigger_jet() {
 }
 
 
-void set_closest_fastjet_jet_to_trigger_jet() {
-   MOD::CalibratedJet trigger_jet = _trigger_jet;
+void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
 
-   if (_trigger_jet.valid()) {
+   if (_trigger_jet.is_valid()) {
+
+      // Cluster PFCandidates using FastJet.
+      JetDefinition jet_def(antikt_algorithm, 0.5);
+      ClusterSequence cs(_pseudojets, jet_def);
+      vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(3.0));
+
+      // Loop through all FastJet pseudojets, calculating delta R for each one.
+      vector<double> delta_Rs;
+      for (unsigned i = 0; i < fastjet_jets.size(); i++) {
+         delta_Rs.push_back( _trigger_jet.pseudojet().delta_R(fastjet_jets[i]) );
+      }
       
+      // Find the index of the fastjet jet that has the lowest delta R. This will be the jet that's "closest" to the CMS jet. 
+      int index = -1;
+      double delta_R = std::numeric_limits<double>::max();
+      for (unsigned i = 0; i < delta_Rs.size(); i++) {
+         if (delta_Rs[i] <= delta_R) {
+            delta_R = delta_Rs[i];
+            index = i;
+         }
+      }
+
+      if (index >= 0) {
+         // We now have the corresponding "hardest" FastJet jet.
+         _closest_fastjet_jet_to_trigger_jet = fastjet_jets[index];
+         return;   
+      }
    }
+
+   return;
 }
+
+
+fastjet::PseudoJet MOD::Event::closest_fastjet_jet_to_trigger_jet() {
+   return _closest_fastjet_jet_to_trigger_jet;
+}
+
 
 void MOD::Event::establish_properties() {
    
@@ -403,17 +436,7 @@ MOD::PFCandidate MOD::Event::hardest_pfcandidate() {
    }
 }
 
-vector<MOD::CalibratedJet> MOD::Event::apply_jet_quality_cuts(vector<MOD::CalibratedJet> jets, string quality_level) const {
 
-   vector<MOD::CalibratedJet> quality_jets;
-
-   for (unsigned i = 0; i < jets.size(); i++) {
-      if (jets[i].jet_quality_cut(quality_level))
-         quality_jets.push_back(jets[i]);
-   }
-
-   return quality_jets;
-}
 
 vector<MOD::CalibratedJet> MOD::Event::apply_jet_energy_corrections(vector<MOD::CalibratedJet> jets) const {
 
@@ -439,32 +462,6 @@ vector<MOD::CalibratedJet> MOD::Event::apply_eta_cut(vector<MOD::CalibratedJet> 
    return jets_with_eta_cut;
 }
 
-
-
-MOD::CalibratedJet MOD::Event::hardest_jet(bool quality_cut, bool jec, bool eta, string quality_cut_level, double eta_cut) const {
-
-   vector<MOD::CalibratedJet> processed_jets = _CMS_jets;
-
-   // First of all, apply jet quality cuts.
-   if (quality_cut)
-      processed_jets = apply_jet_quality_cuts(processed_jets, quality_cut_level);
-   
-   // Next, apply Jet Energy Corrections.
-   if (jec)
-      processed_jets = apply_jet_energy_corrections(processed_jets);
-
-   // Then, apply eta cut.
-   if (eta_cut)
-      processed_jets = apply_eta_cut(processed_jets, eta_cut);
-
-   // Finally, sort the jets and return the hardest one.
-   if (processed_jets.size() > 0) {
-      sort(processed_jets.begin(), processed_jets.end());
-      return processed_jets[0];
-   }
-
-   return CalibratedJet();
-}
 
 
 

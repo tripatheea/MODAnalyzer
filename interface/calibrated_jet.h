@@ -40,6 +40,8 @@ namespace MOD {
          int charged_multiplicity() const;
          double charged_em_fraction() const;
 
+         MOD::CalibratedJet corrected_jet();    // Remove this method.
+
          fastjet::PseudoJet uncorrected_pseudojet() const;
          fastjet::PseudoJet corrected_pseudojet() const;
 
