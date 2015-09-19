@@ -20,7 +20,7 @@ namespace MOD {
 
   std::vector<fastjet::PseudoJet> filter_by_pT(std::vector<fastjet::PseudoJet>, double);
 
-  fastjet::PseudoJet filter_charged(fastjet::PseudoJet);
+  std::vector<fastjet::PseudoJet> filter_charged(std::vector<fastjet::PseudoJet>);
 
 
 }

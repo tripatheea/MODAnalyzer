@@ -67,9 +67,9 @@ namespace MOD {
 
             MOD::PFCandidate hardest_pfcandidate();
 
-            MOD::CalibratedJet hardest_jet(bool quality_cut, bool jec, bool eta, std::string quality_cut_level, double eta_cut) const;
 
             fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet();
+            std::vector<fastjet::PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents();
 
             bool trigger_jet_is_matched() const;
 
@@ -103,6 +103,7 @@ namespace MOD {
             MOD::CalibratedJet _trigger_jet;
 
             fastjet::PseudoJet _closest_fastjet_jet_to_trigger_jet;
+            std::vector<fastjet::PseudoJet> _closest_fastjet_jet_to_trigger_jet_constituents;
 
             bool _trigger_jet_is_matched;
 

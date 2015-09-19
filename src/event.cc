@@ -284,7 +284,7 @@ int MOD::Event::assigned_trigger_prescale() const {
 
 void MOD::Event::set_assigned_trigger() {
    
-   string trigger_to_use;
+   string trigger_to_use = "";
    string trigger;
 
    // First, figure out the hardest pT.
@@ -293,6 +293,7 @@ void MOD::Event::set_assigned_trigger() {
    // Here, "uncorrected" or "corrected" both give the same answer. 
    // CONFUSING!!!!!
    double hardest_pT = trigger_jet.uncorrected_pseudojet().pt();
+
 
    // Next, lookup which trigger to use based on the pT value of the hardest jet.
 
@@ -321,6 +322,7 @@ void MOD::Event::set_assigned_trigger() {
       trigger = "HLT_L1Jet6U";
    }
 
+
    // Since there are multiple trigger versions, keep trying until you find the right one.
 
    if ( trigger_by_name(trigger).is_valid()) {
@@ -336,8 +338,16 @@ void MOD::Event::set_assigned_trigger() {
       trigger_to_use = trigger + "_v3";
    }
 
-   _assigned_trigger_name = trigger_to_use;
-   _assigned_trigger = trigger_by_name(trigger_to_use);
+   if (trigger_to_use != "") {
+      _assigned_trigger_name = trigger_to_use;
+      _assigned_trigger = trigger_by_name(trigger_to_use);   
+   }
+   else {
+      _assigned_trigger = Trigger();
+   }
+   
+
+   
 }
 
 
@@ -348,6 +358,7 @@ void MOD::Event::set_trigger_jet() {
 
    vector<MOD::CalibratedJet> processed_jets = apply_jet_energy_corrections(CMS_jets);
    processed_jets = apply_eta_cut(processed_jets, 2.4);
+
 
    // Then, sort the jets and store the hardest one as _trigger_jet.
    if (processed_jets.size() > 0) {
@@ -391,6 +402,7 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
       if (index >= 0) {
          // We now have the corresponding "hardest" FastJet jet.
          _closest_fastjet_jet_to_trigger_jet = fastjet_jets[index];
+         _closest_fastjet_jet_to_trigger_jet_constituents = _closest_fastjet_jet_to_trigger_jet.constituents();
          return;   
       }
    }
@@ -408,11 +420,13 @@ void MOD::Event::set_trigger_jet_is_matched() {
    fastjet::PseudoJet trigger_fastjet = _trigger_jet.uncorrected_pseudojet();
    fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet = _closest_fastjet_jet_to_trigger_jet;
 
-   // Compare the number of constituents first.
-   if (trigger_fastjet.constituents().size() != closest_fastjet_jet_to_trigger_jet.constituents().size()) {
-      _trigger_jet_is_matched = false;
-      return;
-   }
+   // HOW CAN YOU COMPARE THE NUMBER OF CONSTITUENTS WHEN CMS AK5 JETS HAVE NO CONSTITUENTS?
+
+   // // Compare the number of constituents first.
+   // if (trigger_fastjet.constituents().size() != closest_fastjet_jet_to_trigger_jet.constituents().size()) {
+   //    _trigger_jet_is_matched = false;
+   //    return;
+   // }
 
    // Next, compare if the 4-vector matches upto 10e-4 precision or not.
    double tolerance = pow(10, -3);
@@ -431,6 +445,10 @@ fastjet::PseudoJet MOD::Event::closest_fastjet_jet_to_trigger_jet() {
 }
 
 
+std::vector<fastjet::PseudoJet> MOD::Event::closest_fastjet_jet_to_trigger_jet_constituents() {
+   return _closest_fastjet_jet_to_trigger_jet_constituents;
+}
+
 void MOD::Event::establish_properties() {
    
    // Cluster PFCandidates into AK5 Jets using FastJet.
@@ -444,14 +462,14 @@ void MOD::Event::establish_properties() {
 
    // First of all, assign _trigger_jet.
    set_trigger_jet();
-   
-   // Next, find out the specific FastJet that's closest to _trigger_jet.
 
-   set_assigned_trigger();
+   // Next, find out the specific FastJet that's closest to _trigger_jet.
+   set_closest_fastjet_jet_to_trigger_jet();
 
    set_trigger_jet_is_matched();
 
-   
+   set_assigned_trigger();   
+
 }
 
 

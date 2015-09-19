@@ -58,22 +58,15 @@ std::vector<fastjet::PseudoJet> MOD::filter_by_pT(std::vector<fastjet::PseudoJet
 }
 
 
-fastjet::PseudoJet MOD::filter_charged(fastjet::PseudoJet jet) {
+std::vector<fastjet::PseudoJet> MOD::filter_charged(std::vector<fastjet::PseudoJet> jet_constituents) {
   vector<PseudoJet> filtered_constituents;
 
-  for (unsigned i = 0; i < jet.constituents().size(); i++) {
-    if ( (abs(jet.constituents()[i].user_index()) == 211) || (abs(jet.constituents()[i].user_index()) == 11) || (abs(jet.constituents()[i].user_index()) == 13) ) {
-      filtered_constituents.push_back(jet.constituents()[i]);
+  for (unsigned i = 0; i < jet_constituents.size(); i++) {
+    if ( (abs(jet_constituents[i].user_index()) == 211) || (abs(jet_constituents[i].user_index()) == 11) || (abs(jet_constituents[i].user_index()) == 13) ) {
+      filtered_constituents.push_back(jet_constituents[i]);
     }
   }
 
-  // Now, recluster with Cambridge-Alachen algorithm.
-
-  JetDefinition jet_def(aachen_algorithm, 1000);
-  ClusterSequence cs_charged(filtered_constituents, jet_def);
-  PseudoJet ak5_jet_with_charged_particles_only = sorted_by_pt(cs_charged.inclusive_jets(3.0))[0];
-
-  return ak5_jet_with_charged_particles_only;
-
+  return filtered_constituents;
 }
 
