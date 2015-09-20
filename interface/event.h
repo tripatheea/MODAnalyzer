@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <limits>
 #include <algorithm>
-
+#include <typeinfo>
 
 #include "trigger.h"
 #include "pfcandidate.h"

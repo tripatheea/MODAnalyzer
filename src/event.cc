@@ -275,7 +275,7 @@ const MOD::Trigger MOD::Event::assigned_trigger() const {
 }
 
 bool MOD::Event::assigned_trigger_fired() const {
-   return _assigned_trigger.fired();
+   return _assigned_trigger.is_valid() && _assigned_trigger.fired();
 }
 
 int MOD::Event::assigned_trigger_prescale() const {
@@ -343,11 +343,9 @@ void MOD::Event::set_assigned_trigger() {
       _assigned_trigger = trigger_by_name(trigger_to_use);   
    }
    else {
+      _assigned_trigger_name = "";
       _assigned_trigger = Trigger();
    }
-   
-
-   
 }
 
 
@@ -399,14 +397,34 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
          }
       }
 
+      cout << "Index is: " << index << endl;
+      cout << fastjet_jets.size() << endl;
+
       if (index >= 0) {
          // We now have the corresponding "hardest" FastJet jet.
          _closest_fastjet_jet_to_trigger_jet = fastjet_jets[index];
-         _closest_fastjet_jet_to_trigger_jet_constituents = _closest_fastjet_jet_to_trigger_jet.constituents();
+         
+         cout << _closest_fastjet_jet_to_trigger_jet.pt() << endl;
+         
+         cout << "DAMN!" << endl;
+         vector<PseudoJet> constituents = fastjet_jets[index].constituents();
+         
+         cout << typeid(constituents).name() << endl;
+         cout << typeid(_closest_fastjet_jet_to_trigger_jet_constituents).name() << endl;
+         
+
+         // printf( "%p\n", _closest_fastjet_jet_to_trigger_jet_constituents);
+
+
+         _closest_fastjet_jet_to_trigger_jet_constituents = constituents;
+         
+         cout << "Looks good so far!" << endl;
+
          return;   
       }
    }
 
+   cout << "I'm exiting the other way!" << endl;
    return;
 }
 
@@ -460,14 +478,19 @@ void MOD::Event::establish_properties() {
 
    _fastjet_pseudojets = ak5_jets;
 
+   cout << "2" << endl;
    // First of all, assign _trigger_jet.
    set_trigger_jet();
+
+   cout << "3" << endl;
 
    // Next, find out the specific FastJet that's closest to _trigger_jet.
    set_closest_fastjet_jet_to_trigger_jet();
 
+   cout << "5" << endl;
    set_trigger_jet_is_matched();
 
+   cout << "4" << endl;
    set_assigned_trigger();   
 
 }
