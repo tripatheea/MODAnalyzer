@@ -14,8 +14,8 @@ namespace MOD {
    class CalibratedJet {
 
       public:
-         CalibratedJet(double px, double py, double pz, double energy, std::string algorithm, double JEC, double area, double neutral_hadron_fraction, double neutral_em_fraction, int number_of_constituents, double charged_hadron_fraction, int charged_multiplicity, double charged_em_fraction);
-         CalibratedJet(fastjet::PseudoJet pseudojet, std::string algorithm, double JEC, double area, double neutral_hadron_fraction, double neutral_em_fraction, int number_of_constituents, double charged_hadron_fraction, int charged_multiplicity, double charged_em_fraction);
+         CalibratedJet(double px, double py, double pz, double energy, std::string algorithm, double JEC, double area, int number_of_constituents, int charged_multiplicity, double neutral_hadron_fraction, double neutral_em_fraction, double charged_hadron_fraction, double charged_em_fraction);
+         CalibratedJet(fastjet::PseudoJet pseudojet, std::string algorithm, double JEC, double area, int number_of_constituents, int charged_multiplicity, double neutral_hadron_fraction, double neutral_em_fraction, double charged_hadron_fraction, double charged_em_fraction);
          CalibratedJet(std::istringstream & input_stream);
          CalibratedJet();
 
@@ -60,12 +60,11 @@ namespace MOD {
 
          double _area;
 
+         int _number_of_constituents;
+         int _charged_multiplicity;
          double _neutral_hadron_fraction;
          double _neutral_em_fraction;
-         int _number_of_constituents;
-
          double _charged_hadron_fraction;
-         int _charged_multiplicity;
          double _charged_em_fraction;
 
          enum JetQualityLevels_t { UNDETERMINED = -1, FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3 };

@@ -119,14 +119,11 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back(MOD::Property("trig_jet_matched", (int) event_being_read.trigger_jet_is_matched())); 
    properties.push_back(MOD::Property("jet_quality", trigger_jet.jet_quality())); 
    
-
-
    properties.push_back(MOD::Property("Uncor_Hardest_pT", trigger_jet.uncorrected_pseudojet().pt()));
    properties.push_back(MOD::Property("Cor_Hardest_pT", trigger_jet.corrected_pseudojet().pt()));
 
    properties.push_back(MOD::Property("Prescale", event_being_read.assigned_trigger_prescale()));
    properties.push_back(MOD::Property("Trigger_Name", event_being_read.assigned_trigger_name()));
-
 
 
 

@@ -94,30 +94,32 @@ def parse_file(input_file, pT_lower_cut = 0.00):
         properties['corrected_hardest_pT'].append( float( numbers[1] ) )
 
         properties['prescales'].append( float( numbers[2] ) )
-        
 
-        properties['rho_10'].append( float( numbers[3] ) )
-        properties['zg_10'].append( float( numbers[4] ) )
-        properties['rho_11'].append( float( numbers[5] ) )
-        properties['zg_11'].append( float( numbers[6] ) )
-        properties['rho_12'].append( float( numbers[7] ) )
-        properties['zg_12'].append( float( numbers[8] ) )
-        properties['rho_13'].append( float( numbers[9] ) )
-        properties['zg_13'].append( float( numbers[10] ) )
-        properties['rho_14'].append( float( numbers[11] ) )
-        properties['zg_14'].append( float( numbers[12] ) )
-        properties['rho_15'].append( float( numbers[13] ) )
-        properties['zg_15'].append( float( numbers[14] ) )
-        properties['rho_16'].append( float( numbers[15] ) )
-        properties['zg_16'].append( float( numbers[16] ) )
-        properties['rho_17'].append( float( numbers[17] ) )
-        properties['zg_17'].append( float( numbers[18] ) )
-        properties['rho_18'].append( float( numbers[19] ) )
-        properties['zg_18'].append( float( numbers[20] ) )
-        properties['rho_19'].append( float( numbers[21] ) )
-        properties['zg_19'].append( float( numbers[22] ) )
-        properties['rho_20'].append( float( numbers[23] ) )
-        properties['zg_20'].append( float( numbers[24] ) )
+        properties['trig_jet_matched'].append( int( numbers[3] ) )
+        properties['jet_quality'].append( int( numbers[4] ) )
+
+        properties['rho_10'].append( float( numbers[5] ) )
+        properties['zg_10'].append( float( numbers[6] ) )
+        properties['rho_11'].append( float( numbers[7] ) )
+        properties['zg_11'].append( float( numbers[8] ) )
+        properties['rho_12'].append( float( numbers[9] ) )
+        properties['zg_12'].append( float( numbers[10] ) )
+        properties['rho_13'].append( float( numbers[11] ) )
+        properties['zg_13'].append( float( numbers[12] ) )
+        properties['rho_14'].append( float( numbers[13] ) )
+        properties['zg_14'].append( float( numbers[14] ) )
+        properties['rho_15'].append( float( numbers[15] ) )
+        properties['zg_15'].append( float( numbers[16] ) )
+        properties['rho_16'].append( float( numbers[17] ) )
+        properties['zg_16'].append( float( numbers[18] ) )
+        properties['rho_17'].append( float( numbers[19] ) )
+        properties['zg_17'].append( float( numbers[20] ) )
+        properties['rho_18'].append( float( numbers[21] ) )
+        properties['zg_18'].append( float( numbers[22] ) )
+        properties['rho_19'].append( float( numbers[23] ) )
+        properties['zg_19'].append( float( numbers[24] ) )
+        properties['rho_20'].append( float( numbers[25] ) )
+        properties['zg_20'].append( float( numbers[26] ) )
         
 
     except:
@@ -150,7 +152,12 @@ def calculate_distribution(y_cut, f):
 def plot_rho(pT_lower_cut=150):
   properties = parse_file(input_analysis_file, pT_lower_cut)
 
+  # FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3
+  jet_quality_level = 1
+
   prescales = properties['prescales']
+  trig_jet_matched = properties['trig_jet_matched']
+  jet_quality = properties['jet_quality']
   
   rho, weights = defaultdict(list), defaultdict(list)
   # cutoffs = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50]
@@ -163,12 +170,20 @@ def plot_rho(pT_lower_cut=150):
         rho[str(cutoff)].append(properties['rho_' + str(cutoff).replace('.', '')[1:]][i])
         weights[str(cutoff)].append(prescales[i])
   
-
-  logged_rho = defaultdict(list)
+  prescales_filtered = [prescales[i] for i in range(0, len(prescales)) if trig_jet_matched[i] == 1 and jet_quality[i] >= jet_quality_level]
+  
+  rho_filtered = defaultdict(list)
+  weights_filtered = defaultdict(list)
   for r in rho:
-    logged_rho[r] = np.log(rho[r])
+    rho_filtered[r] = [ rho[r][i] for i in range(0, len(rho[r])) if trig_jet_matched[i] == 1 and jet_quality >= jet_quality_level ]
+    weights_filtered[r] = [ weights[r][i] for i in range(0, len(rho[r])) if trig_jet_matched[i] == 1 and jet_quality >= jet_quality_level ]
+
+  
+  logged_rho = defaultdict(list)
+  for r in rho_filtered:
+    logged_rho[r] = np.log(rho_filtered[r])
     
-    plt.hist(logged_rho[r], weights=weights[r], label="z\_cut=" + str(r), normed=1, histtype='step', lw=5, bins=50)
+    plt.hist(logged_rho[r], weights=weights_filtered[r], label="z\_cut=" + str(r), normed=1, histtype='step', lw=5, bins=50)
 
   plt.autoscale(True)
   # plt.gca().set_ylim(0, 10)

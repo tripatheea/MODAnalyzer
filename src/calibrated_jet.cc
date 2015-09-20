@@ -4,11 +4,11 @@ using namespace std;
 using namespace fastjet;
 
 
-MOD::CalibratedJet::CalibratedJet(double px, double py, double pz, double energy, string algorithm, double JEC, double area, double neutral_hadron_fraction, double neutral_em_fraction, int number_of_constituents, double charged_hadron_fraction, int charged_multiplicity, double charged_em_fraction) : _pseudojet(PseudoJet(px, py, pz, energy)), _algorithm(algorithm), _JEC(JEC), _area(area), _neutral_hadron_fraction(neutral_hadron_fraction), _neutral_em_fraction(neutral_em_fraction), _number_of_constituents(number_of_constituents), _charged_hadron_fraction(charged_hadron_fraction), _charged_multiplicity(charged_multiplicity), _charged_em_fraction(charged_em_fraction), _jet_quality(static_cast<JetQualityLevels_t>(-1)) {
+MOD::CalibratedJet::CalibratedJet(double px, double py, double pz, double energy, string algorithm, double JEC, double area, int number_of_constituents, int charged_multiplicity, double neutral_hadron_fraction, double neutral_em_fraction, double charged_hadron_fraction, double charged_em_fraction) : _pseudojet(PseudoJet(px, py, pz, energy)), _algorithm(algorithm), _JEC(JEC), _area(area), _number_of_constituents(number_of_constituents), _charged_multiplicity(charged_multiplicity), _neutral_hadron_fraction(neutral_hadron_fraction), _neutral_em_fraction(neutral_em_fraction), _charged_hadron_fraction(charged_hadron_fraction), _charged_em_fraction(charged_em_fraction), _jet_quality(static_cast<JetQualityLevels_t>(-1)) {
 
 }
 
-MOD::CalibratedJet::CalibratedJet(PseudoJet pseudojet, string algorithm, double JEC, double area, double neutral_hadron_fraction, double neutral_em_fraction, int number_of_constituents, double charged_hadron_fraction, int charged_multiplicity, double charged_em_fraction) : _pseudojet(pseudojet), _algorithm(algorithm), _JEC(JEC), _area(area), _neutral_hadron_fraction(neutral_hadron_fraction), _neutral_em_fraction(neutral_em_fraction), _number_of_constituents(number_of_constituents), _charged_hadron_fraction(charged_hadron_fraction), _charged_multiplicity(charged_multiplicity), _charged_em_fraction(charged_em_fraction), _jet_quality(static_cast<JetQualityLevels_t>(-1)) {
+MOD::CalibratedJet::CalibratedJet(PseudoJet pseudojet, string algorithm, double JEC, double area, int number_of_constituents, int charged_multiplicity, double neutral_hadron_fraction, double neutral_em_fraction, double charged_hadron_fraction, double charged_em_fraction) : _pseudojet(pseudojet), _algorithm(algorithm), _JEC(JEC), _area(area), _number_of_constituents(number_of_constituents), _charged_multiplicity(charged_multiplicity), _neutral_hadron_fraction(neutral_hadron_fraction), _neutral_em_fraction(neutral_em_fraction), _charged_hadron_fraction(charged_hadron_fraction), _charged_em_fraction(charged_em_fraction), _jet_quality(static_cast<JetQualityLevels_t>(-1)) {
 
 }
 
@@ -20,18 +20,19 @@ MOD::CalibratedJet::CalibratedJet(istringstream & input_stream) {
    double neutral_hadron_fraction, neutral_em_fraction, charged_hadron_fraction, charged_em_fraction;
    int number_of_constituents, charged_multiplicity;
 
-   input_stream >> tag >> px >> py >> pz >> energy >> JEC >> area >> neutral_hadron_fraction >> neutral_em_fraction >> number_of_constituents >> charged_hadron_fraction >> charged_multiplicity >> charged_em_fraction;
+   input_stream >> tag >> px >> py >> pz >> energy >> JEC >> area >> number_of_constituents >> charged_multiplicity >> neutral_hadron_fraction >> neutral_em_fraction >> charged_hadron_fraction >> charged_em_fraction;
    _pseudojet = PseudoJet(px, py, pz, energy);
    _algorithm = tag;
    _JEC = JEC;
-
    _area = area;
 
+   // no_of_const     chrg_multip    neu_had_frac     neu_em_frac   chrg_had_frac    chrg_em_frac
+
+   _number_of_constituents = number_of_constituents;
+   _charged_multiplicity = charged_multiplicity;
    _neutral_hadron_fraction = neutral_hadron_fraction;
    _neutral_em_fraction = neutral_em_fraction;
-   _number_of_constituents = number_of_constituents;
    _charged_hadron_fraction = charged_hadron_fraction;
-   _charged_multiplicity = charged_multiplicity;
    _charged_em_fraction = charged_em_fraction;
 
    _jet_quality = static_cast<JetQualityLevels_t>(-1);
@@ -54,11 +55,11 @@ string MOD::CalibratedJet::make_string() const {
         << setw(16) << fixed << setprecision(8) << _pseudojet.E()
         << setw(16) << fixed << setprecision(8) << _JEC 
         << setw(16) << fixed << setprecision(8) << _area
+        << setw(16) << fixed << setprecision(8) << _number_of_constituents   
+        << setw(16) << fixed << setprecision(8) << _charged_multiplicity   
         << setw(16) << fixed << setprecision(8) << _neutral_hadron_fraction   
         << setw(16) << fixed << setprecision(8) << _neutral_em_fraction   
-        << setw(16) << fixed << setprecision(8) << _number_of_constituents   
         << setw(16) << fixed << setprecision(8) << _charged_hadron_fraction   
-        << setw(16) << fixed << setprecision(8) << _charged_multiplicity   
         << setw(16) << fixed << setprecision(8) << _charged_em_fraction       
         << endl;
 
@@ -100,7 +101,7 @@ double MOD::CalibratedJet::charged_em_fraction() const {
 
 string MOD::CalibratedJet::make_header_string() const {
    stringstream ss;
-   ss << "# AK5" << "              px              py              pz          energy             jec            area    neu_had_frac     neu_em_frac     no_of_const   chrg_had_frac     chrg_multip    chrg_em_frac" << endl;
+   ss << "# AK5" << "              px              py              pz          energy             jec            area     no_of_const     chrg_multip    neu_had_frac     neu_em_frac   chrg_had_frac    chrg_em_frac" << endl;
    return ss.str();
 }
 
