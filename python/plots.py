@@ -77,7 +77,7 @@ def get_version(input_file):
       return numbers[1] + " " + numbers[2] 
 
 
-def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00, pT_upper_cut = 20000.00):
+def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
 
@@ -90,26 +90,29 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00, pT_upper_cut 
       numbers = line.split()
       
       if not numbers[0] == "#":
-        if (float(numbers[4]) > pT_lower_cut) and (float(numbers[17]) > pfc_pT_cut) and (float(numbers[4]) < pT_upper_cut):
+        if (float(numbers[6]) > pT_lower_cut) and (float(numbers[6]) < pT_upper_cut):
+          
           properties['event_number'].append( float( numbers[1] ) )
           properties['run_number'].append( float( numbers[2] ) )
 
-          properties['uncorrected_hardest_pts'].append( float( numbers[3] ) )
-          properties['corrected_hardest_pts'].append( float( numbers[4] ) )
-          properties['prescales'].append( int( numbers[5] ) )
-          properties['trigger_names'].append(  numbers[6] )
-          properties['zg_05'].append( float( numbers[7] ) )
-          properties['dr_05'].append( float( numbers[8] ) )
-          properties['mu_05'].append( float( numbers[9] ) )
-          properties['zg_1'].append( float( numbers[10] ) )
-          properties['dr_1'].append( float( numbers[11] ) )
-          properties['mu_1'].append( float( numbers[12] ) )
-          properties['zg_2'].append( float( numbers[13] ) )
-          properties['dr_2'].append( float( numbers[14] ) )
-          properties['mu_2'].append( float( numbers[15] ) )
-          properties['hardest_pfc_pdgid'].append( float( numbers[16] ) )
-          properties['hardest_pfc_pt'].append( float( numbers[17] ) )
-
+          properties['trig_jet_matched'].append( int(numbers[3]) )
+          properties['jet_quality'].append( int(numbers[4]) )
+          
+          properties['uncorrected_hardest_pts'].append( float( numbers[5] ) )
+          properties['corrected_hardest_pts'].append( float( numbers[6] ) )
+          properties['prescales'].append( int( numbers[7] ) )
+          
+          properties['trigger_names'].append(  numbers[8] )
+          properties['zg_05'].append( float( numbers[9] ) )
+          properties['dr_05'].append( float( numbers[10] ) )
+          properties['mu_05'].append( float( numbers[11] ) )
+          properties['zg_1'].append( float( numbers[12] ) )
+          properties['dr_1'].append( float( numbers[13] ) )
+          properties['mu_1'].append( float( numbers[14] ) )
+          properties['zg_2'].append( float( numbers[15] ) )
+          properties['dr_2'].append( float( numbers[16] ) )
+          properties['mu_2'].append( float( numbers[17] ) )
+          
           properties['zg_05_pt_1'].append( float( numbers[18] ) )
           properties['zg_1_pt_1'].append( float( numbers[19] ) )
           properties['zg_2_pt_1'].append( float( numbers[20] ) )
@@ -138,23 +141,18 @@ def parse_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00, pT_upper_cut 
 
           properties['multiplicity_before_SD'].append( float( numbers[37] ) )
           properties['multiplicity_after_SD'].append( float( numbers[38] ) )
+          properties['jet_mass_before_SD'].append( float( numbers[39] ) )
+          properties['jet_mass_after_SD'].append( float( numbers[40] ) )
 
-          properties['JEC'].append( float( numbers[39] ) )
-          
-          properties['jet_area'].append( float( numbers[40] ) )
+          properties['charged_multiplicity_before_SD'].append( float( numbers[41] ) )
+          properties['charged_multiplicity_after_SD'].append( float( numbers[42] ) )
+          properties['charged_jet_mass_before_SD'].append( float( numbers[43] ) )
+          properties['charged_jet_mass_after_SD'].append( float( numbers[44] ) )
 
-          properties['jet_mass_before_SD'].append( float( numbers[41] ) )
-          properties['jet_mass_after_SD'].append( float( numbers[42] ) )
-
-          properties['fractional_energy_loss'].append( float( numbers[43] ) )
-          
-          properties['eta'].append( float( numbers[44] ) )
-
-          properties['charged_multiplicity_before_SD'].append( float( numbers[45] ) )
-          properties['charged_multiplicity_after_SD'].append( float( numbers[46] ) )
-          
-          properties['charged_jet_mass_before_SD'].append( float( numbers[47] ) )
-          properties['charged_jet_mass_after_SD'].append( float( numbers[48] ) )
+          properties['fractional_energy_loss'].append( float( numbers[45] ) )
+          properties['eta'].append( float( numbers[46] ) )
+          properties['JEC'].append( float( numbers[47] ) )
+          properties['jet_area'].append( float( numbers[48] ) )
 
     except:
       if len(numbers) != 0:
@@ -2442,11 +2440,10 @@ def extrap1d(interpolator):
 
 
 def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
-  pfc_pT_cut = 0
 
   zg_cut = float(zg_cut)
 
-  properties = parse_file(input_analysis_file, pT_lower_cut, pfc_pT_cut, pT_upper_cut)
+  properties = parse_file(input_analysis_file, pT_lower_cut, pT_upper_cut)
   properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut, pT_upper_cut)
   properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut, pT_upper_cut)
 
@@ -3088,7 +3085,7 @@ def plot_pts_variable_bin():
 
 # plot_hardest_pt_softdrop()
 
-# plot_pts()
+plot_pts()
 
 # plot_pts_variable_bin()
 
@@ -3100,24 +3097,24 @@ def plot_pts_variable_bin():
 
 
 
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
 
 
-plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
 
-plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
 
 
 
