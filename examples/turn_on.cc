@@ -84,29 +84,28 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    vector<MOD::Property> properties;
    
-   MOD::CalibratedJet hardest_uncorrected_jet = event_being_read.hardest_jet(true, false, true, "loose", 2.4);
-   MOD::CalibratedJet hardest_corrected_jet = event_being_read.hardest_jet(true, true, true, "loose", 2.4);
-
    if (event_being_read.CMS_jets().size() == 0) {
       return;
    }
 
-
    vector<MOD::Trigger> triggers = event_being_read.triggers();
-
   
    try {
       for (unsigned i = 0; i < triggers.size(); i++) {
          
          if (triggers[i].fired()) {
 
+            MOD::CalibratedJet trigger_jet = event_being_read.trigger_jet();
 
             properties.push_back(MOD::Property("# Entry", "  Entry"));
 
             properties.push_back(MOD::Property("Event_Number", event_being_read.event_number()));
             properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
 
-            properties.push_back(MOD::Property("Cor_Hardest_pT", hardest_corrected_jet.pseudojet().pt()));   
+            properties.push_back(MOD::Property("trig_jet_matched", (int) event_being_read.trigger_jet_is_matched())); 
+            properties.push_back(MOD::Property("jet_quality", trigger_jet.jet_quality())); 
+   
+            properties.push_back(MOD::Property("Cor_Hardest_pT", trigger_jet.corrected_pseudojet().pt()));   
             properties.push_back(MOD::Property("Prescale", triggers[i].prescale()));
             properties.push_back(MOD::Property("Trigger_Name", triggers[i].name()));         
        

@@ -115,7 +115,7 @@ void MOD::Event::add_particle(istringstream & input_stream) {
    _pseudojets.push_back(PseudoJet(new_particle.pseudojet()));
 }
 
-void MOD::Event::add_conditions(istringstream & input_stream) {
+void MOD::Event::add_condition(istringstream & input_stream) {
    MOD::Condition new_condition(input_stream);
 
    _condition = new_condition;
@@ -244,7 +244,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       else if (tag == "Cond") {
          try {
             // cout << "Cond" << endl;
-            add_conditions(stream);
+            add_condition(stream);
          }
          catch (exception& e) {
             throw runtime_error("Invalid file format! Something's wrong with the way conditions have been written.");
@@ -473,21 +473,21 @@ void MOD::Event::establish_properties() {
 
 
 
-MOD::PFCandidate MOD::Event::hardest_pfcandidate() {
-   // Get PFCandidates.
-   vector<MOD::PFCandidate> particles = _particles;
+// MOD::PFCandidate MOD::Event::hardest_pfcandidate() {
+//    // Get PFCandidates.
+//    vector<MOD::PFCandidate> particles = _particles;
 
-   if (particles.size() > 0) {
-      // Sort by pT.
-      sort(particles.begin(), particles.end());
+//    if (particles.size() > 0) {
+//       // Sort by pT.
+//       sort(particles.begin(), particles.end());
 
-      // Return the first PFCandidate.
-      return particles[0];
-   }
-   else {
-      throw runtime_error("No PFCandidate found!");
-   }
-}
+//       // Return the first PFCandidate.
+//       return particles[0];
+//    }
+//    else {
+//       throw runtime_error("No PFCandidate found!");
+//    }
+// }
 
 
 

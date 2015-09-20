@@ -49,7 +49,7 @@ namespace MOD {
             const Trigger trigger_by_name(std::string name) const;    
             const Trigger assigned_trigger() const;
 
-            void add_conditions(std::istringstream & input_stream); 
+            void add_condition(std::istringstream & input_stream); 
             void add_particle(std::istringstream & input_stream);
             void add_CMS_jet(std::istringstream & input_stream);
             void add_trigger(std::istringstream & input_stream);
@@ -65,7 +65,7 @@ namespace MOD {
 
             int assigned_trigger_prescale() const;
 
-            MOD::PFCandidate hardest_pfcandidate();
+            // MOD::PFCandidate hardest_pfcandidate();
 
 
             fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet();

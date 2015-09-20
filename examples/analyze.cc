@@ -75,14 +75,13 @@ int main(int argc, char * argv[]) {
       if (event_serial_number == 1)
          output_file << "%" << " Version " << event_being_read.version() << endl;
 
-      analyze_event(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
+      if (event_being_read.assigned_trigger_fired())
+         analyze_event(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
       
       event_being_read = MOD::Event();
       event_serial_number++;
 
    }
-
-
 
    auto finish = std::chrono::steady_clock::now();
    double elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double> >(finish - start).count();
