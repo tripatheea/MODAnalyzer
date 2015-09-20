@@ -10,17 +10,15 @@ _run_number(run_number), _event_number(event_number),  _version(version), _data_
 {}
 
 
-//  
-
 
 MOD::Event::Event() {}
 
 int MOD::Event::event_number() const {
-   return _event_number;
+   return _condition.event_number();
 }
 
 int MOD::Event::run_number() const {
-   return _run_number;
+   return _condition.run_number();
 }
 
 int MOD::Event::version() const {
@@ -31,13 +29,6 @@ pair<string, string> MOD::Event::data_type() const {
    return _data_type;
 }
 
-void MOD::Event::set_run_number(int run_number) {
-   _run_number = run_number;
-}
-
-void MOD::Event::set_event_number(int event_number) {
-   _event_number = event_number;
-}
 
 void MOD::Event::set_version(int version) {
    _version = version;
@@ -61,36 +52,36 @@ const vector<PseudoJet> MOD::Event::pseudojets(double pt_cut) const {
 
 }
 
-const vector<PseudoJet> MOD::Event::charged_pseudojets(double pt_cut) const {
+// const vector<PseudoJet> MOD::Event::charged_pseudojets(double pt_cut) const {
    
-   vector<PseudoJet> charged_pseudojets;
+//    vector<PseudoJet> charged_pseudojets;
 
-   for (unsigned i = 0; i < charged_particles().size(); i++) {
-      if (charged_particles()[i].pseudojet().pt() >= pt_cut) {
-         charged_pseudojets.push_back(charged_particles()[i].pseudojet());
-      }
-   }
+//    for (unsigned i = 0; i < charged_particles().size(); i++) {
+//       if (charged_particles()[i].pseudojet().pt() >= pt_cut) {
+//          charged_pseudojets.push_back(charged_particles()[i].pseudojet());
+//       }
+//    }
 
-   return charged_pseudojets;
+//    return charged_pseudojets;
 
-}
+// }
 
 
 const vector<MOD::PFCandidate> & MOD::Event::particles() const {
    return _particles;
 }
 
-const vector<MOD::PFCandidate> MOD::Event::charged_particles() const {
+// const vector<MOD::PFCandidate> MOD::Event::charged_particles() const {
    
-   vector<MOD::PFCandidate> charged_particles;
+//    vector<MOD::PFCandidate> charged_particles;
 
-   for (unsigned i = 0; i < _particles.size(); i++) {
-      if ( (abs(_particles[i].pdgId()) == 211) || (abs(_particles[i].pdgId()) == 11) || (abs(_particles[i].pdgId()) == 13) ) {
-         charged_particles.push_back(_particles[i]);
-      }
-   }
-   return charged_particles;
-}
+//    for (unsigned i = 0; i < _particles.size(); i++) {
+//       if ( (abs(_particles[i].pdgId()) == 211) || (abs(_particles[i].pdgId()) == 11) || (abs(_particles[i].pdgId()) == 13) ) {
+//          charged_particles.push_back(_particles[i]);
+//       }
+//    }
+//    return charged_particles;
+// }
 
 
 
@@ -156,7 +147,7 @@ const vector<MOD::Trigger> & MOD::Event::triggers() const {
 string MOD::Event::make_string() const {
    stringstream file_to_write;
    
-   file_to_write << "BeginEvent Version " << _version << " " << _data_type.first << " " << _data_type.second << " Run " << _run_number << " Event " << _event_number << endl;
+   file_to_write << "BeginEvent Version " << _version << " " << _data_type.first << " " << _data_type.second << endl;
    
 
    // First, write out conditions.
@@ -197,20 +188,18 @@ bool MOD::Event::read_event(istream & data_stream) {
    while(getline(data_stream, line)) {
       istringstream iss(line);
 
-      int event_number, run_number, version;
-      string tag, run_keyword, event_keyword, version_keyword, a, b;
+      int version;
+      string tag, version_keyword, a, b;
 
       iss >> tag;      
       istringstream stream(line);
 
       if (tag == "BeginEvent") {
 
-         stream >> tag >> version_keyword >> version >> a >> b >> run_keyword >> run_number >> event_keyword >> event_number;
+         stream >> tag >> version_keyword >> version >> a >> b;
          
          // cout << "BeginEvent" << endl;
 
-         set_event_number(event_number);
-         set_run_number(run_number);
          set_version(version);
          set_data_type(a, b);
       }
@@ -275,7 +264,8 @@ const MOD::Trigger MOD::Event::assigned_trigger() const {
 }
 
 bool MOD::Event::assigned_trigger_fired() const {
-   return _assigned_trigger.is_valid() && _assigned_trigger.fired();
+   bool fired = _assigned_trigger.is_valid() && _assigned_trigger.fired();
+   return fired;
 }
 
 int MOD::Event::assigned_trigger_prescale() const {
@@ -285,14 +275,13 @@ int MOD::Event::assigned_trigger_prescale() const {
 void MOD::Event::set_assigned_trigger() {
    
    string trigger_to_use = "";
-   string trigger;
+   string trigger = "";
 
    // First, figure out the hardest pT.
    MOD::CalibratedJet trigger_jet = _trigger_jet;
 
-   // Here, "uncorrected" or "corrected" both give the same answer. 
-   // CONFUSING!!!!!
-   double hardest_pT = trigger_jet.uncorrected_pseudojet().pt();
+   
+   double hardest_pT = trigger_jet.corrected_pseudojet().pt();
 
 
    // Next, lookup which trigger to use based on the pT value of the hardest jet.
@@ -457,14 +446,18 @@ void MOD::Event::establish_properties() {
    vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
    _fastjet_pseudojets = ak5_jets;
 
+   // cout << "trigger_jet" << endl;
    // First of all, assign _trigger_jet.
    set_trigger_jet();
 
+   // cout << "closest fastjet" << endl;
    // Next, find out the specific FastJet that's closest to _trigger_jet.
    set_closest_fastjet_jet_to_trigger_jet();
 
+   // cout << "trigger_jet is matched" << endl;
    set_trigger_jet_is_matched();
 
+   // cout << "assigned trigger" << endl;
    set_assigned_trigger();   
 
 }
