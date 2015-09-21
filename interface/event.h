@@ -1,3 +1,7 @@
+#ifndef EVENT_H
+#define EVENT_H
+
+
 #include <iostream>
 #include <vector>
 #include <unordered_map>
@@ -9,6 +13,8 @@
 #include <limits>
 #include <algorithm>
 #include <typeinfo>
+
+#include "helpers.h"
 
 #include "trigger.h"
 #include "pfcandidate.h"
@@ -33,15 +39,12 @@ namespace MOD {
             std::pair<std::string, std::string> data_type() const;
 
             const std::vector<PFCandidate> & particles() const;
-            const std::vector<PFCandidate> charged_particles() const;
 
             const std::vector<MOD::CalibratedJet> & CMS_jets() const;
             const std::vector<fastjet::PseudoJet> & CMS_pseudojets() const;
             const std::vector<fastjet::PseudoJet> & fastjet_pseudojets() const;
 
             const std::vector<Trigger> & triggers() const;
-            const std::vector<fastjet::PseudoJet> pseudojets(double pt_cut = 0.00) const;
-            const std::vector<fastjet::PseudoJet> charged_pseudojets(double pt_cut = 0.00) const;
 
             std::string make_string() const;
             std::string assigned_trigger_name() const;
@@ -120,3 +123,6 @@ namespace MOD {
 
       };
 }
+
+
+#endif /* EVENT_H */

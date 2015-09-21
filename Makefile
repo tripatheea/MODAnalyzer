@@ -20,12 +20,12 @@ BINDIR=bin
 INCDIR=interface
 INC= -I$(INCDIR)
 
-_OBJ =calibrated_jet event fractional_jet_multiplicity pfcandidate trigger property condition
+_OBJ =calibrated_jet event fractional_jet_multiplicity pfcandidate trigger property condition helpers
 OBJ  =$(patsubst %,$(OBJDIR)/%,$(_OBJ:=.o))
 
 
 #_EXEC=skim analyze validate turn_on analyze_beta
-_EXEC=skim analyze turn_on analyze_beta
+_EXEC=skim analyze turn_on analyze_beta 
 EXEC=$(patsubst %,$(EXECDIR)/%,$(_EXEC:=.o))
 BIN=$(patsubst %,$(BINDIR)/%,$(_EXEC))
 

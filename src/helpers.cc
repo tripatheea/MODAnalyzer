@@ -57,6 +57,18 @@ std::vector<fastjet::PseudoJet> MOD::filter_by_pT(std::vector<fastjet::PseudoJet
   return filtered_pseudojets;
 }
 
+std::vector<MOD::PFCandidate> MOD::filter_by_pT(std::vector<MOD::PFCandidate> pfcandidates, double pT_lower_cut) {
+  vector<PFCandidate> filtered;
+
+  for (unsigned i = 0; i < pfcandidates.size(); i++) {
+    if (pfcandidates[i].pseudojet().pt() > pT_lower_cut)
+      filtered.push_back(pfcandidates[i]);
+  }
+
+  return filtered;
+}
+
+
 
 std::vector<fastjet::PseudoJet> MOD::filter_charged(std::vector<fastjet::PseudoJet> jet_constituents) {
   vector<PseudoJet> filtered_constituents;
@@ -68,5 +80,17 @@ std::vector<fastjet::PseudoJet> MOD::filter_charged(std::vector<fastjet::PseudoJ
   }
 
   return filtered_constituents;
+}
+
+std::vector<MOD::PFCandidate> MOD::filter_charged(std::vector<MOD::PFCandidate> pfcandidates) {
+  vector<PFCandidate> filtered;
+
+  for (unsigned i = 0; i < pfcandidates.size(); i++) {
+    if ( (abs(pfcandidates[i].pseudojet().user_index()) == 211) || (abs(pfcandidates[i].pseudojet().user_index()) == 11) || (abs(pfcandidates[i].pseudojet().user_index()) == 13) ) {
+      filtered.push_back(pfcandidates[i]);
+    }
+  }
+
+  return filtered;
 }
 

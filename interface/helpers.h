@@ -1,3 +1,7 @@
+#ifndef HELPERS_H
+#define HELPERS_H
+
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -9,6 +13,9 @@
 
 
 #include "fastjet/ClusterSequence.hh"
+#include "pfcandidate.h"
+#include "calibrated_jet.h"
+
 
 
 namespace MOD {
@@ -18,9 +25,13 @@ namespace MOD {
   std::vector<fastjet::PseudoJet> convert_to_pseudojets(std::vector<MOD::PFCandidate> pfcandidates);
   std::vector<fastjet::PseudoJet> convert_to_pseudojets(std::vector<MOD::CalibratedJet> jets);
 
-  std::vector<fastjet::PseudoJet> filter_by_pT(std::vector<fastjet::PseudoJet>, double);
+  std::vector<fastjet::PseudoJet> filter_by_pT(std::vector<fastjet::PseudoJet>, double pT_cut);
+  std::vector<MOD::PFCandidate> filter_by_pT(std::vector<MOD::PFCandidate>, double pT_cut);
 
   std::vector<fastjet::PseudoJet> filter_charged(std::vector<fastjet::PseudoJet>);
-
+  std::vector<MOD::PFCandidate> filter_charged(std::vector<MOD::PFCandidate>);
 
 }
+
+
+#endif /* EVENT_H */

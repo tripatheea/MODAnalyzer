@@ -1,3 +1,6 @@
+#ifndef PFCANDIDATE_H
+#define PFCANDIDATE_H
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -32,3 +35,7 @@ namespace MOD {
          int _pdgId; 
    };
 }
+
+
+
+#endif /* PFCANDIDATE_H */

@@ -1,3 +1,7 @@
+#ifndef CALIBRATED_JET_H
+#define CALIBRATED_JET_H
+
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -71,3 +75,7 @@ namespace MOD {
          JetQualityLevels_t _jet_quality;
    };
 }
+
+
+
+#endif /* CALIBRATED_JET_H */

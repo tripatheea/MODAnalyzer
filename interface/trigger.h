@@ -1,3 +1,6 @@
+#ifndef TRIGGER_H
+#define TRIGGER_H
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -30,3 +33,7 @@ namespace MOD {
          bool _fired;
    };
 }
+
+
+
+#endif /* TRIGGER_H */

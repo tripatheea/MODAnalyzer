@@ -67,8 +67,7 @@ This repository is concerned with steps (4) to (6) only. Steps (1) to (3) are ca
 This error message generally means that you didn't use  an encrypted Internet connection. If you are on MIT campus that means you should be using either the MIT SECURE access point or an Ethernet cable.
 
 ## TODO
-- Talk to Sal about what the rapidity range is for AK5.
-- Figure out migration in charged to neutral.
+- pT boundaries for triggers (ask Sal?).
 
 
 ### Low Priority TODOs

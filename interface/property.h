@@ -1,3 +1,6 @@
+#ifndef PROPERTY_H
+#define PROPERTY_H
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -35,3 +38,6 @@ namespace MOD {
          std::string _value_data_type;
    };
 }
+
+
+#endif /* PROPERTY_H */

@@ -116,9 +116,11 @@ void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int
    properties.push_back(MOD::Property("jet_quality", trigger_jet.jet_quality())); 
    
    // Run AK5 clustering with FastJet to get zg value.
+   vector<MOD::PFCandidate> pfcandidates = event_being_read.particles();
+   vector<PseudoJet> pfcandidates_pseudojets = MOD::convert_to_pseudojets(pfcandidates);
 
    JetDefinition jet_def(antikt_algorithm, 0.5);
-   ClusterSequence cs(event_being_read.pseudojets(), jet_def);
+   ClusterSequence cs(pfcandidates_pseudojets, jet_def);
    vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
 
    if ((unsigned) ak5_jets.size() > 0) {

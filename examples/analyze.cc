@@ -19,8 +19,6 @@
 #include "../interface/fractional_jet_multiplicity.h"
 #include "../interface/property.h"
 
-#include "../src/helpers.cc"
-
 using namespace std;
 using namespace fastjet;
 using namespace contrib;

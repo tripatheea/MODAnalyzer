@@ -1,3 +1,6 @@
+#ifndef CONDITION_H
+#define CONDITION_H
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -36,3 +39,6 @@ namespace MOD {
          
    };
 }
+
+
+#endif /* CONDITION_H */

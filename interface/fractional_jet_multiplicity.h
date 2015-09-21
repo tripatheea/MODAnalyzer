@@ -1,3 +1,6 @@
+#ifndef FRACTIONAL_JET_MULTIPLICITY_H
+#define FRACTIONAL_JET_MULTIPLICITY_H
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -20,3 +23,6 @@ namespace MOD {
          double calculate_n_tilde(std::vector<fastjet::PseudoJet> pseudojets) const;
    };
 }
+
+
+#endif /* FRACTIONAL_JET_MULTIPLICITY_H */

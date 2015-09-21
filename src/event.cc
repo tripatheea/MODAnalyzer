@@ -1,5 +1,6 @@
 #include "event.h"
 
+
 using namespace std;
 using namespace fastjet;
 
@@ -38,52 +39,9 @@ void MOD::Event::set_data_type(string a, string b) {
    _data_type = make_pair(a, b);;
 }
 
-const vector<PseudoJet> MOD::Event::pseudojets(double pt_cut) const {
-   
-   vector<PseudoJet> pfcandidates;
-
-   for (unsigned i = 0; i < _pseudojets.size(); i++) {
-      if (_pseudojets[i].pt() >= pt_cut) {
-         pfcandidates.push_back(_pseudojets[i]);
-      }
-   }
-
-   return pfcandidates;
-
-}
-
-// const vector<PseudoJet> MOD::Event::charged_pseudojets(double pt_cut) const {
-   
-//    vector<PseudoJet> charged_pseudojets;
-
-//    for (unsigned i = 0; i < charged_particles().size(); i++) {
-//       if (charged_particles()[i].pseudojet().pt() >= pt_cut) {
-//          charged_pseudojets.push_back(charged_particles()[i].pseudojet());
-//       }
-//    }
-
-//    return charged_pseudojets;
-
-// }
-
-
 const vector<MOD::PFCandidate> & MOD::Event::particles() const {
    return _particles;
 }
-
-// const vector<MOD::PFCandidate> MOD::Event::charged_particles() const {
-   
-//    vector<MOD::PFCandidate> charged_particles;
-
-//    for (unsigned i = 0; i < _particles.size(); i++) {
-//       if ( (abs(_particles[i].pdgId()) == 211) || (abs(_particles[i].pdgId()) == 11) || (abs(_particles[i].pdgId()) == 13) ) {
-//          charged_particles.push_back(_particles[i]);
-//       }
-//    }
-//    return charged_particles;
-// }
-
-
 
 
 const vector<MOD::CalibratedJet> & MOD::Event::CMS_jets() const {
@@ -439,10 +397,11 @@ std::vector<fastjet::PseudoJet> MOD::Event::closest_fastjet_jet_to_trigger_jet_c
 void MOD::Event::establish_properties() {
    
    // Cluster PFCandidates into AK5 Jets using FastJet.
-   vector<PseudoJet> pfcandidates = pseudojets();
+   vector<MOD::PFCandidate> pfcandidates = particles();
+   vector<PseudoJet> pfcandidates_pseudojets = MOD::convert_to_pseudojets(pfcandidates);
 
    JetDefinition jet_def(antikt_algorithm, 0.5);
-   ClusterSequence cs(pseudojets(), jet_def);
+   ClusterSequence cs(pfcandidates_pseudojets, jet_def);
    vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
    _fastjet_pseudojets = ak5_jets;
 
@@ -465,22 +424,6 @@ void MOD::Event::establish_properties() {
 
 
 
-
-// MOD::PFCandidate MOD::Event::hardest_pfcandidate() {
-//    // Get PFCandidates.
-//    vector<MOD::PFCandidate> particles = _particles;
-
-//    if (particles.size() > 0) {
-//       // Sort by pT.
-//       sort(particles.begin(), particles.end());
-
-//       // Return the first PFCandidate.
-//       return particles[0];
-//    }
-//    else {
-//       throw runtime_error("No PFCandidate found!");
-//    }
-// }
 
 
 
