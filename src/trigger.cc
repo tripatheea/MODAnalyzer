@@ -22,6 +22,19 @@ string MOD::Trigger::name() const {
    return MOD::Trigger::_name;
 }
 
+std::string MOD::Trigger::short_name() const {
+
+  std::string name = _name;
+
+  int index = name.find("_v");
+  
+  if ((unsigned) index != std::string::npos)
+    return name.substr(0, index);
+  
+  return name;
+
+}
+
 pair<int, int> MOD::Trigger::prescale_pair() const {
    return MOD::Trigger::_prescales;
 }

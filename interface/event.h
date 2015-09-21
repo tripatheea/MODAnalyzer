@@ -50,6 +50,7 @@ namespace MOD {
             std::string assigned_trigger_name() const;
 
             const Trigger trigger_by_name(std::string name) const;    
+            const Trigger trigger_by_short_name(std::string name) const;    
             const Trigger assigned_trigger() const;
 
             void add_condition(std::istringstream & input_stream); 
@@ -62,6 +63,7 @@ namespace MOD {
             void set_version(int version);
             void set_data_type(std::string a, std::string b);
             
+            // You can give a trigger's full name or short name here.
             const bool trigger_exists(std::string trigger_name) const;
             bool read_event(std::istream & data_stream);
             bool assigned_trigger_fired() const;

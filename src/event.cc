@@ -83,19 +83,30 @@ void MOD::Event::add_trigger(istringstream & input_stream) {
 }
 
 const MOD::Trigger MOD::Event::trigger_by_name(string name) const {
-   for(unsigned int i = 0; i < triggers().size(); i++) {
+   for (unsigned i = 0; i < triggers().size(); i++) {
       const MOD::Trigger& current_trigger = triggers().at(i);
 
-      if (current_trigger.name() == name) {
+      if (current_trigger.name() == name) 
          return current_trigger;
-      }
    }
 
    return Trigger();
 }
 
+const MOD::Trigger MOD::Event::trigger_by_short_name(string short_name) const {
+   for (unsigned i = 0; i < triggers().size(); i++) {
+      const MOD::Trigger& current_trigger = triggers().at(i);
+
+      if (current_trigger.short_name() == short_name)
+         return current_trigger;
+   }
+
+   return Trigger();
+}
+
+// You can give a trigger's full name or short name here.
 const bool MOD::Event::trigger_exists(string trigger_name) const {
-   return trigger_by_name(trigger_name).is_valid();
+   return ( trigger_by_name(trigger_name).is_valid() || trigger_by_short_name(trigger_name).is_valid() );
 }
 
 const vector<MOD::Trigger> & MOD::Event::triggers() const {
@@ -244,55 +255,43 @@ void MOD::Event::set_assigned_trigger() {
 
    // Next, lookup which trigger to use based on the pT value of the hardest jet.
 
-   if ( (hardest_pT > 325) && ( trigger_exists("HLT_Jet180U") || trigger_exists("HLT_Jet180U_v1") || trigger_exists("HLT_Jet180U_v2") || trigger_exists("HLT_Jet180U_v3") ) ) {
+   if ( (hardest_pT > 325) && trigger_exists("HLT_Jet180U") ) {
       trigger = "HLT_Jet180U";
    }
-   else if ( (hardest_pT > 260) && ( trigger_exists("HLT_Jet140U") || trigger_exists("HLT_Jet140U_v1") || trigger_exists("HLT_Jet140U_v2") || trigger_exists("HLT_Jet140U_v3") ) ) {
+   else if ( (hardest_pT > 260) && trigger_exists("HLT_Jet140U") ) {
       trigger = "HLT_Jet140U";
    }
-   else if ( (hardest_pT > 196) && ( trigger_exists("HLT_Jet100U") || trigger_exists("HLT_Jet100U_v1") || trigger_exists("HLT_Jet100U_v2") || trigger_exists("HLT_Jet100U_v3") ) ) {
+   else if ( (hardest_pT > 196) && trigger_exists("HLT_Jet100U") ) {
       trigger = "HLT_Jet100U";
    }
-   else if ( (hardest_pT > 153) && ( trigger_exists("HLT_Jet70U") || trigger_exists("HLT_Jet70U_v1") || trigger_exists("HLT_Jet70U_v2") || trigger_exists("HLT_Jet70U_v3") ) ) {
+   else if ( (hardest_pT > 153) && trigger_exists("HLT_Jet70U") ) {
       trigger = "HLT_Jet70U";
    }
-   else if ( (hardest_pT > 114) && ( trigger_exists("HLT_Jet50U") || trigger_exists("HLT_Jet50U_v1") || trigger_exists("HLT_Jet50U_v2") || trigger_exists("HLT_Jet50U_v3") ) ) {
+   else if ( (hardest_pT > 114) && trigger_exists("HLT_Jet50U") ) {
       trigger = "HLT_Jet50U";
    }
-   else if ( (hardest_pT > 84) && ( trigger_exists("HLT_Jet30U") || trigger_exists("HLT_Jet30U_v1") || trigger_exists("HLT_Jet30U_v2") || trigger_exists("HLT_Jet30U_v3") ) ) {
+   else if ( (hardest_pT > 84) && trigger_exists("HLT_Jet30U") ) {
       trigger = "HLT_Jet30U";
    }
-   else if ( (hardest_pT > 56) && ( trigger_exists("HLT_Jet15U") || trigger_exists("HLT_Jet15U_v1") || trigger_exists("HLT_Jet15U_v2") || trigger_exists("HLT_Jet15U_v3") ) ) {
+   else if ( (hardest_pT > 56) && trigger_exists("HLT_Jet15U") ) {
       trigger = "HLT_Jet15U";
    }
-   else if ( (hardest_pT > 37) && ( trigger_exists("HLT_L1Jet6U") || trigger_exists("HLT_L1Jet6U_v1") || trigger_exists("HLT_L1Jet6U_v2") || trigger_exists("HLT_L1Jet6U_v3") ) ) {
+   else if ( (hardest_pT > 37) && trigger_exists("HLT_L1Jet6U") ) {
       trigger = "HLT_L1Jet6U";
    }
 
+   trigger_to_use = trigger;
 
-   // Since there are multiple trigger versions, keep trying until you find the right one.
-
-   if ( trigger_by_name(trigger).is_valid()) {
-      trigger_to_use = trigger;
-   }
-   else if (trigger_by_name(trigger + "_v1").is_valid()) {
-      trigger_to_use = trigger + "_v1";
-   }
-   else if (trigger_by_name(trigger + "_v2").is_valid()) {
-      trigger_to_use = trigger + "_v2";
-   }
-   else if (trigger_by_name(trigger + "_v3").is_valid()) {
-      trigger_to_use = trigger + "_v3";
-   }
 
    if (trigger_to_use != "") {
       _assigned_trigger_name = trigger_to_use;
-      _assigned_trigger = trigger_by_name(trigger_to_use);   
+      _assigned_trigger = trigger_by_short_name(trigger_to_use);   
    }
    else {
       _assigned_trigger_name = "";
       _assigned_trigger = Trigger();
    }
+
 }
 
 

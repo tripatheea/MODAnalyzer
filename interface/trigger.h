@@ -18,6 +18,7 @@ namespace MOD {
          Trigger();
 
          std::string name() const;
+         std::string short_name() const;
          std::pair<int, int> prescale_pair() const;
          int prescale() const;
          bool fired() const;
