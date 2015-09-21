@@ -34,10 +34,10 @@ This repository is concerned with steps (4) to (6) only. Steps (1) to (3) are ca
 
 ### Workflow Instructions
  
- - First, we run the skimmer to filter those N MOD files you produced to get only those files for which the correct trigger fired. This is accomplished by the Python script `utilities/skim.py`. This script takes a single argument,  a path to the directory that contains all the MOD files.
+ - First, we run the skimmer to filter those N MOD files you produced to get only those files for which the correct trigger fired. This is accomplished by the Python script `utilities/skim.py`. This script takes two arguments- a path to the directory that contains all the MOD files and another path to the directory where you'd like to store the skimmed files.
    
    ```
-   python ./utilities/skim.py /media/aashish/opendata/MIT_CMS/eos/opendata/cms/Run2010B/Jet/MOD/Apr21ReReco-v1/0000/
+   python ./utilities/skim.py /media/aashish/opendata/MIT_CMS/eos/opendata/cms/Run2010B/Jet/MOD/Apr21ReReco-v1/0000/ /media/aashish/opendata/MIT_CMS/eos/opendata/cms/Run2010B/Jet/SKIM/Apr21ReReco-v1/0000/
    ```
  
     This step maintains the same directory structure as the input directory except MOD replaced with SKIM. That's why you do not need to enter an output directory. It will also output an error log in the same directory.
@@ -58,13 +58,6 @@ This repository is concerned with steps (4) to (6) only. Steps (1) to (3) are ca
  python ./python/plots.py ~/analyzed_data.dat
  ```
 
-## Troubleshooting
-
-    Standard library exception caught in cmsRun:
-  
-    Can not get data (Additional Information: [frontier.c:793]: No more servers/proxies. 
-  
-This error message generally means that you didn't use  an encrypted Internet connection. If you are on MIT campus that means you should be using either the MIT SECURE access point or an Ethernet cable.
 
 ## TODO
 - pT boundaries for triggers (ask Sal?).

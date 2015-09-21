@@ -78,7 +78,7 @@ def get_version(input_file):
       return numbers[1] + " " + numbers[2] 
 
 
-def parse_file(input_file, pT_lower_cut = 0.00):
+def parse_file(input_file, pT_lower_cut = 0.00, jet_quality_level=1):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
 
@@ -90,7 +90,7 @@ def parse_file(input_file, pT_lower_cut = 0.00):
     try:
       numbers = line.split()
       
-      if not numbers[0] == "#" and float(numbers[1]) > pT_lower_cut:
+      if not numbers[0] == "#" and float(numbers[1]) > pT_lower_cut and int(numbers[3]) == 1 and int(numbers[4]) >= jet_quality_level:
         properties['corrected_hardest_pT'].append( float( numbers[1] ) )
 
         properties['prescales'].append( float( numbers[2] ) )
@@ -169,21 +169,13 @@ def plot_rho(pT_lower_cut=150):
       if properties[ 'zg_' + str(cutoff).replace('.', '')[1:] ][i] > float(cutoff):  
         rho[str(cutoff)].append(properties['rho_' + str(cutoff).replace('.', '')[1:]][i])
         weights[str(cutoff)].append(prescales[i])
-  
-  prescales_filtered = [prescales[i] for i in range(0, len(prescales)) if trig_jet_matched[i] == 1 and jet_quality[i] >= jet_quality_level]
-  
-  rho_filtered = defaultdict(list)
-  weights_filtered = defaultdict(list)
-  for r in rho:
-    rho_filtered[r] = [ rho[r][i] for i in range(0, len(rho[r])) if trig_jet_matched[i] == 1 and jet_quality >= jet_quality_level ]
-    weights_filtered[r] = [ weights[r][i] for i in range(0, len(rho[r])) if trig_jet_matched[i] == 1 and jet_quality >= jet_quality_level ]
 
   
   logged_rho = defaultdict(list)
-  for r in rho_filtered:
-    logged_rho[r] = np.log(rho_filtered[r])
+  for r in rho:
+    logged_rho[r] = np.log(rho[r])
     
-    plt.hist(logged_rho[r], weights=weights_filtered[r], label="z\_cut=" + str(r), normed=1, histtype='step', lw=5, bins=50)
+    plt.hist(logged_rho[r], weights=weights[r], label="z\_cut=" + str(r), normed=1, histtype='step', lw=5, bins=50)
 
   plt.autoscale(True)
   # plt.gca().set_ylim(0, 10)
@@ -226,7 +218,7 @@ def plot_rho(pT_lower_cut=150):
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
   
   # plt.savefig("plots/" + get_version(input_analysis_file) + "/rho/rho_" + str(pT_lower_cut) + ".pdf")
-  plt.savefig("plots/" + "Version 3" + "/rho/rho_" + str(pT_lower_cut) + ".pdf")
+  plt.savefig("plots/" + "Version 4" + "/rho/rho_" + str(pT_lower_cut) + ".pdf")
   plt.clf()
 
 

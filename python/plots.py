@@ -64,6 +64,9 @@ mpl.rcParams['text.latex.preamble'] = [r'\boldmath']
 
 plt.rc('font', family='serif', size=43)
 
+
+
+
 def get_version(input_file):
 
   f = open(input_file, 'r')
@@ -77,11 +80,11 @@ def get_version(input_file):
       return numbers[1] + " " + numbers[2] 
 
 
-def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00):
+def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, jet_quality_level=1):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
 
-  # Hardest_pT Corr_Hardest_pT Prescale Trigger_Name zg_05 dr_05 mu_05 zg_1 dr_1 mu_1 zg_2 dr_2 mu_2
+  # FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3
   
   properties = defaultdict(list)
 
@@ -90,7 +93,7 @@ def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00):
       numbers = line.split()
       
       if not numbers[0] == "#":
-        if (float(numbers[6]) > pT_lower_cut) and (float(numbers[6]) < pT_upper_cut):
+        if (float(numbers[6]) > pT_lower_cut) and (float(numbers[6]) < pT_upper_cut) and (int(numbers[3]) == 1) and (int(numbers[4]) >= jet_quality_level):
           
           properties['event_number'].append( float( numbers[1] ) )
           properties['run_number'].append( float( numbers[2] ) )
@@ -209,9 +212,11 @@ def lin_bins(data, weights, number_of_bins=50):
   return np.histogram(data, weights=weights, bins=np.linspace(min_value, max_value, number_of_bins))
 
 
-def parse_file_turn_on(input_file, pT_lower_cut = 0.00):
+def parse_file_turn_on(input_file, pT_lower_cut = 0.00, jet_quality_level=1):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
+
+  # FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3
 
   properties = defaultdict(list)
 
@@ -220,11 +225,11 @@ def parse_file_turn_on(input_file, pT_lower_cut = 0.00):
       numbers = line.split()
       
       if not numbers[0] == "#":
-        if (float(numbers[1]) > pT_lower_cut):
+        if (float(numbers[1]) > pT_lower_cut) and (int(numbers[3]) == 1) and (int(numbers[4]) >= jet_quality_level):
           properties['event_number'].append( float( numbers[1] ) )
-          properties['corrected_hardest_pts'].append( float( numbers[3] ) )
-          properties['prescales'].append( int( numbers[4] ) )
-          properties['trigger_names'].append(  numbers[5] )
+          properties['corrected_hardest_pts'].append( float( numbers[5] ) )
+          properties['prescales'].append( int( numbers[6] ) )
+          properties['trigger_names'].append(  numbers[7] )
 
     except:
       if len(numbers) != 0:
@@ -258,7 +263,7 @@ def parse_mc_pt_file(input_file, pT_lower_cut=100., pT_upper_cut=20000.):
   return pTs
 
     
-def parse_mc_file(input_file, pT_lower_cut = 0.00, pfc_pT_cut = 0.00, pT_upper_cut=20000):
+def parse_mc_file(input_file, pT_lower_cut = 0.00, pT_upper_cut=20000):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
 
@@ -2009,7 +2014,8 @@ def plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cu
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  print "Printing charged fractional energy loss with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+  print "Printing charged constituent multiplicity softdrop with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
 
   plt.savefig("plots/" + get_version(input_analysis_file) + "/charged_constituent_multiplicity_softdrop/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
   # plt.show()
@@ -2020,17 +2026,15 @@ def plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cu
 
 def plot_constituent_multiplicity_softdrop_multiple_jet_correction_level(pT_lower_cut=100, pT_upper_cut=20000):
   
-  loose_file = '/home/aashish/analyzed_loose.dat'
-  medium_file = '/home/aashish/analyzed_medium.dat'
-  tight_file = '/home/aashish/analyzed_tight.dat'
 
-  files = [loose_file, medium_file, tight_file]
+
+  jet_quality_levels = [1, 2, 3]
   titles = [ ["Before SoftDrop (Loose)", "After SoftDrop (Loose)"], ["Before SoftDrop (Medium)", "After SoftDrop (Medium)"], ["Before SoftDrop (Tight)", "Before SoftDrop (Tight)"]]
   colors = [['red', 'green'], ['gray', 'orange'], ['blue', 'magenta']]
 
-  for i in range(0, len(files)):
+  for i in range(0, len(jet_quality_levels)):
 
-    properties = parse_file(files[i], pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+    properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut, jet_quality_level=jet_quality_levels[i])
 
     multi_before_SD = properties['multiplicity_before_SD']
     multi_after_SD = properties['multiplicity_after_SD']  
@@ -2098,6 +2102,8 @@ def plot_constituent_multiplicity_softdrop_multiple_jet_correction_level(pT_lowe
   # plt.show()
   plt.clf()
 
+
+plot_constituent_multiplicity_softdrop_multiple_jet_correction_level()
 
 def plot_fractional_energy_loss(pT_lower_cut=100, pT_upper_cut=20000):
   properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
@@ -2241,7 +2247,7 @@ def plot_charged_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
 
 
 def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
-  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut, jet_quality_level=1)
 
   jet_mass_before_SD = properties['jet_mass_before_SD']
   jet_mass_after_SD = properties['jet_mass_after_SD']  
@@ -2444,8 +2450,8 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   zg_cut = float(zg_cut)
 
   properties = parse_file(input_analysis_file, pT_lower_cut, pT_upper_cut)
-  properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut, pT_upper_cut)
-  properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pfc_pT_cut, pT_upper_cut)
+  properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pT_upper_cut)
+  properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pT_upper_cut)
 
   zg_data = properties[zg_filename]
   
@@ -2856,8 +2862,13 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   else:
     plt.gca().yaxis.set_major_locator(MultipleLocator(0.5))
 
-  x = np.linspace(math.log(zg_cut, math.e), math.log(0.5, math.e), 6)
-  labels = [str(round(math.exp(i), 2)) for i in x]
+  # .01 * .02 * .03 .04 .05 * .06 .07 .08 .09 .1 * .2 * .3 .4 .5 * .6 .7 .8 .9 1 *
+  # tick_positions = [math.log(0.01, math.e), math.log(0.02, math.e), math.log(0.03, math.e), math.log(0.04, math.e), math.log(0.05, math.e), math.log(0.06, math.e), math.log(0.07, math.e), math.log(0.08, math.e), math.log(0.09, math.e), math.log(0.1, math.e), math.log(0.2, math.e), math.log(0.3, math.e), math.log(0.4, math.e), math.log(0.5, math.e), math.log(0.6, math.e), math.log(0.7, math.e), math.log(0.8, math.e), math.log(0.9, math.e), math.log(1., math.e)]
+  tick_positions = [math.log(0.01, math.e), math.log(0.02, math.e), math.log(0.05, math.e), math.log(0.1, math.e), math.log(0.2, math.e), math.log(0.5, math.e), math.log(1., math.e)]
+
+  # x = np.linspace(math.log(zg_cut, math.e), math.log(0.5, math.e), 6)
+  x = tick_positions
+  labels = [str(round(math.exp(i), 5)) for i in x]
 
   plt.sca(ax0)
   plt.xticks(x, labels)
@@ -2873,7 +2884,7 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
   print "Writing log_zg_cut_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
-  filename = "plots/Version 3/log_zg/log_zg_cut_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+  filename = "plots/" + get_version(input_analysis_file) + "/log_zg/log_zg_cut_" + str(zg_filename) + "_pt_cut_" + str(pT_lower_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
   
   plt.savefig(filename)
   # plt.show()
@@ -3085,15 +3096,13 @@ def plot_pts_variable_bin():
 
 # plot_hardest_pt_softdrop()
 
-plot_pts()
+# plot_pts()
 
 # plot_pts_variable_bin()
 
 # plot_jec_eta_2d()
 
 # plot_JEC()
-
-# plot_hardest_pt_corresponding_triggers()
 
 
 
@@ -3198,176 +3207,6 @@ plot_pts()
 
 
 # Version 3 Ends Here.
-
-
-
-
-
-
-# plot_constituent_multiplicity_softdrop_multiple_jet_correction_level()
-
-
-
-
-
-
-
-
-
-# plot_fractional_energy_loss()
-
-
-# plot_JEC()
-
-# plot_jet_area()
-
-
-
-# plot_constituent_multiplicity_softdrop()
-
-# plot_hardest_pt_softdrop()
-
-
-
-# plot_hardest_pt_corresponding_triggers()
-
-
-
-
-# plot_2d()
-
-
-
-# plot_2d_hist()
-
-
-
-# # Trigger Efficiency Curves Begin.
-
-
-# plot_trigger_efficiency_curves("HLT_Jet30U", "HLT_Jet15U", pT_upper_limit=200)
-# plot_trigger_efficiency_curves("HLT_Jet50U", "HLT_Jet30U", pT_upper_limit=300)
-# plot_trigger_efficiency_curves("HLT_Jet70U", "HLT_Jet50U", pT_upper_limit=350)
-# plot_trigger_efficiency_curves("HLT_Jet100U", "HLT_Jet70U", pT_upper_limit=800)
-# plot_trigger_efficiency_curves("HLT_Jet140U", "HLT_Jet100U", pT_upper_limit=800)
-# plot_trigger_efficiency_curves("HLT_Jet180U", "HLT_Jet140U", pT_upper_limit=1200)
-
-
-# plot_all_trigger_efficiency_curves()
-
-# # Trigger Efficiency Curves End.
-
-
-
-
-
-
-
-
-# Triggers Turn-On Curve Begins.
-
-# plot_turn_on_curves()
-
-# Triggers Turn-On Curve Ends.
-
-
-
-
-
-
-
-
-# # AK5 Distribution Begins.
-
-# plot_pts()
-
-# plot_pts_variable_bin()
-
-# # AK5 Distribution Ends.
-
-
-
-
-
-
-
-
-
-
-
-# # zg_distribution Begins.
-
-# plot_zg_th_mc_data(150, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
-
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-# plot_zg_th_mc_data(150, '0.1', 'zg_1', 'data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-
-
-# plot_zg_th_mc_data(150, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-
-# plot_zg_th_mc_data(300, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_zg_th_mc_data(300, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_zg_th_mc_data(300, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-
-# plot_zg_th_mc_data(600, '0.05', 'zg_05', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_zg_th_mc_data(600, '0.1', 'zg_1', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_zg_th_mc_data(600, '0.2', 'zg_2', 'theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-
-# # zg_distribution Ends.
-
-
-
-
-
-
-
-
-# # Charged zg Begins.
-
-# plot_charged_and_all_zgs(150, '0.05', 'zg_05', n_bins=8, y_max_limit=18)
-# plot_charged_and_all_zgs(150, '0.1', 'zg_1', n_bins=8, y_max_limit=10)
-# plot_charged_and_all_zgs(150, '0.2', 'zg_2', n_bins=8, y_max_limit=10)
-
-# plot_charged_and_all_zgs(300, '0.05', 'zg_05', n_bins=4, y_max_limit=15)
-# plot_charged_and_all_zgs(300, '0.1', 'zg_1', n_bins=4, y_max_limit=15)
-# plot_charged_and_all_zgs(300, '0.2', 'zg_2', n_bins=4, y_max_limit=15)
-
-# plot_charged_and_all_zgs(600, '0.05', 'zg_05', n_bins=2, y_max_limit=15)
-# plot_charged_and_all_zgs(600, '0.1', 'zg_1', n_bins=2, y_max_limit=15)
-# plot_charged_and_all_zgs(600, '0.2', 'zg_2', n_bins=2, y_max_limit=15)
-
-# # Charged zg Ends.
-
-
-
-
-
-
-
-
-
-
-
-# # zg with PFC pT_cut Begins.
-
-
-# plot_zg_pfc_pt_cut(150, '0.05', 'zg_05', n_bins=8, y_max_limit=18)
-# plot_zg_pfc_pt_cut(150, '0.1', 'zg_1', n_bins=8, y_max_limit=10)
-# plot_zg_pfc_pt_cut(150, '0.2', 'zg_2', n_bins=8, y_max_limit=10)
-
-# plot_zg_pfc_pt_cut(300, '0.05', 'zg_05', n_bins=4, y_max_limit=15)
-# plot_zg_pfc_pt_cut(300, '0.1', 'zg_1', n_bins=4, y_max_limit=15)
-# plot_zg_pfc_pt_cut(300, '0.2', 'zg_2', n_bins=4, y_max_limit=15)
-
-# plot_zg_pfc_pt_cut(600, '0.05', 'zg_05', n_bins=2, y_max_limit=15)
-# plot_zg_pfc_pt_cut(600, '0.1', 'zg_1', n_bins=2, y_max_limit=15)
-# plot_zg_pfc_pt_cut(600, '0.2', 'zg_2', n_bins=2, y_max_limit=15)
-
-
-
-# # zg with PFC pT_cut Ends.
 
 
 call(["python", "/home/aashish/root/macros/MODAnalyzer/utilities/sync_plots.py"])

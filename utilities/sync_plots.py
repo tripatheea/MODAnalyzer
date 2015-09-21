@@ -8,42 +8,34 @@ def copy_file_to_output_directory(output_directory, filename, source_timestamp):
       return False  
   return True
 
-def get_stuff_to_sync(input_directory, output_directory):
-  
+def sync_files(input_directory, output_directory):
+
   files_to_sync = []
   directories_to_sync = []
+
+  if not os.path.isdir(output_directory):
+    call(["mkdir", output_directory])
   
   for f in os.listdir(input_directory):
     stat = os.stat(input_directory + "/" + f)
-    if copy_file_to_output_directory(output_directory, f, stat.st_mtime):
+    
       
-      if os.path.isfile(input_directory + "/" + f):
+    if os.path.isfile(input_directory + "/" + f):
+      if copy_file_to_output_directory(output_directory, f, stat.st_mtime):
         files_to_sync.append(input_directory + "/" + f)
-      else:
-        directories_to_sync.append(input_directory + "/" + f)
+    else:
+      directories_to_sync.append((input_directory + "/" + f, output_directory + "/" + f))
 
-  return {'files': files_to_sync, 'directories': directories_to_sync}
-
-
-def sync_files(input_directory, output_directory):
-  things_to_sync = get_stuff_to_sync(input_directory, output_directory)
-
-  files = things_to_sync['files']
-  dirs = things_to_sync['directories']
-
-  print files
-  print
-  print dirs
-
-  for f in files:
+  for f in files_to_sync:
     call(["cp", "-pr", f, output_directory + "/"])
 
-  for d in dirs:
-    call(["cp", "-pr", "-R", d, output_directory + "/"])
+  for d in directories_to_sync:
+    input_dir = d[0]
+    output_dir = d[1]
+    sync_files(input_dir, output_dir)
+    
 
-
-
-input_directory = "/home/aashish/root/macros/MODAnalyzer/plots/Version 3/"
-output_directory = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Plots/Version 3/"
+input_directory = "/home/aashish/root/macros/MODAnalyzer/plots/"
+output_directory = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Plots/"
 
 sync_files(input_directory, output_directory)

@@ -5,9 +5,9 @@ import sys
 from collections import defaultdict
 
 input_path = sys.argv[1]
+output_file_path = sys.argv[2]
 
 
-output_file_path = input_path.replace("MOD", "SKIM")
 error_log_path = output_file_path
 
 if not os.path.exists(output_file_path):
