@@ -80,7 +80,7 @@ def get_version(input_file):
       return numbers[1] + " " + numbers[2] 
 
 
-def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, jet_quality_level=1):
+def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorrected_pT_lower_cut = 0.00, softdrop_unc_pT_lower_cut = 0.00, softdrop_cor_pT_lower_cut = 0.00, jet_quality_level=1):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
 
@@ -93,7 +93,7 @@ def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, jet_qua
       numbers = line.split()
       
       if not numbers[0] == "#":
-        if (float(numbers[6]) > pT_lower_cut) and (float(numbers[6]) < pT_upper_cut) and (int(numbers[3]) == 1) and (int(numbers[4]) >= jet_quality_level):
+        if (float(numbers[6]) > pT_lower_cut) and (float(numbers[6]) < pT_upper_cut) and (float(numbers[5]) > uncorrected_pT_lower_cut) and (float(numbers[36]) > softdrop_unc_pT_lower_cut) and (float(numbers[37]) > softdrop_cor_pT_lower_cut) and (int(numbers[3]) == 1) and (int(numbers[4]) >= jet_quality_level):
           
           properties['event_number'].append( float( numbers[1] ) )
           properties['run_number'].append( float( numbers[2] ) )
@@ -140,22 +140,32 @@ def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, jet_qua
           properties['zg_charged_1'].append( float( numbers[34] ) )
           properties['zg_charged_2'].append( float( numbers[35] ) )
 
-          properties['pTs_after_SD'].append( float( numbers[36] ) )
+          properties['pTs_after_SD_unc'].append( float( numbers[36] ) )
+          properties['pTs_after_SD_cor'].append( float( numbers[37] ) )
 
-          properties['multiplicity_before_SD'].append( float( numbers[37] ) )
-          properties['multiplicity_after_SD'].append( float( numbers[38] ) )
-          properties['jet_mass_before_SD'].append( float( numbers[39] ) )
-          properties['jet_mass_after_SD'].append( float( numbers[40] ) )
+          properties['multiplicity_before_SD'].append( float( numbers[38] ) )
+          properties['multiplicity_after_SD'].append( float( numbers[39] ) )
+          properties['jet_mass_before_SD'].append( float( numbers[40] ) )
+          properties['jet_mass_after_SD'].append( float( numbers[41] ) )
 
-          properties['charged_multiplicity_before_SD'].append( float( numbers[41] ) )
-          properties['charged_multiplicity_after_SD'].append( float( numbers[42] ) )
-          properties['charged_jet_mass_before_SD'].append( float( numbers[43] ) )
-          properties['charged_jet_mass_after_SD'].append( float( numbers[44] ) )
+          properties['charged_multiplicity_before_SD'].append( float( numbers[42] ) )
+          properties['charged_multiplicity_after_SD'].append( float( numbers[43] ) )
+          properties['charged_jet_mass_before_SD'].append( float( numbers[44] ) )
+          properties['charged_jet_mass_after_SD'].append( float( numbers[45] ) )
 
-          properties['fractional_energy_loss'].append( float( numbers[45] ) )
-          properties['eta'].append( float( numbers[46] ) )
-          properties['JEC'].append( float( numbers[47] ) )
-          properties['jet_area'].append( float( numbers[48] ) )
+          properties['fractional_energy_loss'].append( float( numbers[46] ) )
+          properties['eta'].append( float( numbers[47] ) )
+          properties['JEC'].append( float( numbers[48] ) )
+          properties['jet_area'].append( float( numbers[49] ) )
+
+          # no_of_const         chrg_multip        neu_had_frac         neu_em_frac       chrg_had_frac        chrg_em_frac
+
+          properties['no_of_const'].append( int( numbers[50] ) )
+          properties['chrg_multip'].append( int( numbers[51] ) )
+          properties['neu_had_frac'].append( float( numbers[52] ) )
+          properties['neu_em_frac'].append( float( numbers[53] ) )
+          properties['chrg_had_frac'].append( float( numbers[54] ) )
+          properties['chrg_em_frac'].append( float( numbers[55] ) )
 
     except:
       if len(numbers) != 0:
@@ -1809,7 +1819,7 @@ def plot_hardest_pt_softdrop(pT_lower_cut=100, pT_upper_cut=20000):
   properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
   pTs_before_SD = properties['corrected_hardest_pts']
-  pTs_after_SD = properties['pTs_after_SD']  
+  pTs_after_SD = properties['pTs_after_SD_unc']  
   prescales = properties['prescales']
 
   pT_before_SD_hist = Hist(150, 0, 1500, title='Before SoftDrop', markersize=3.0, color='black')
@@ -2103,7 +2113,6 @@ def plot_constituent_multiplicity_softdrop_multiple_jet_correction_level(pT_lowe
   plt.clf()
 
 
-plot_constituent_multiplicity_softdrop_multiple_jet_correction_level()
 
 def plot_fractional_energy_loss(pT_lower_cut=100, pT_upper_cut=20000):
   properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
@@ -3056,12 +3065,209 @@ def plot_pts_variable_bin():
 
 
 
+def plot_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05'):
+  dr_cut = float(dr_cut)
+
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
+
+  dr = properties[dr_filename]
+  prescales = properties['prescales']
+
+  dr_data_hist = Hist(6 * 8, 0.0, 0.6, title="CMS Open Data", markersize=2.5, color='black')
+  bin_width_data = (dr_data_hist.upperbound() - dr_data_hist.lowerbound()) / dr_data_hist.nbins()
+  map(dr_data_hist.Fill, dr, prescales)
+  dr_data_hist.Scale(1.0 / ( dr_data_hist.GetSumOfWeights() * bin_width_data ))
+  rplt.errorbar(dr_data_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.91, 1.0])
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(dr_cut) + "}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[1.0, 0.75])
+
+
+  plt.gca().set_xlabel("$R_g$", fontsize=75)
+  plt.gca().set_ylabel("$\displaystyle \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} R_g}$", fontsize=75, rotation=0, labelpad=115, y=0.39)
+  
+  plt.gca().autoscale(True)
+  plt.gca().set_xlim(0.0, 0.8)
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_snap(True)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/delta_R/" + "/" + dr_filename + "_pT_" + str(pT_lower_cut) + ".pdf")
+
+  plt.clf()
+
+
+def plot_2d_zg_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05'):
+  dr_cut = float(dr_cut)
+  zg_cut = float(zg_cut)
+
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
+
+  zg = properties[zg_filename]
+  dr = properties[dr_filename]
+  prescales = properties['prescales']  
+
+
+  H, xedges, yedges = np.histogram2d(dr, zg, bins=25, weights=prescales, normed=1, range=[[min(dr), max(dr)], [min(zg), max(zg)]] )
+
+  H_normalized = []
+  for i in range(0, 25):
+    current_row = []
+    factor = sum(H[i])
+    for j in range(0, 25):
+      current_row.append(H[i][j] / factor)
+
+    H_normalized.append(current_row)
+
+
+  H_normalized = np.array(H_normalized)
+  H = H_normalized
+
+  H = np.rot90(H)
+  H = np.flipud(H)
+
+  for a in range(0, len(H)):
+    for b in range(0, len(H[j])):
+      if str(H[a][b]) == "nan":
+        H[a][b] = 0.
+  
+  Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
+
+  plt.pcolormesh(xedges,yedges, Hmasked)
+
+  cbar = plt.colorbar()
+  cbar.ax.set_ylabel('Counts')
+
+  plt.xlabel('$R_g$', fontsize=75)
+  plt.ylabel('$z_g$', rotation=0, fontsize=75, labelpad=30)
+
+
+  
+
+  plt.gcf().set_size_inches(30, 30, forward=1)
+  plt.gcf().set_snap(True)
+
+
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/zg_against_dr/" + dr_filename + "_pT_" + str(pT_lower_cut) + ".pdf")
+
+  plt.clf()
 
 
 
 
 
 
+
+
+def zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05'):
+   # uncorrected_pT_lower_cut = 0.00, softdrop_pT_lower_cut = 0.00, 
+
+  zg_cut = float(zg_cut)
+
+  properties_uncorrected_pT = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
+  properties_corrected_pT = parse_file(input_analysis_file, uncorrected_pT_lower_cut=pT_lower_cut)
+  
+  properties_SD_pT_unc = parse_file(input_analysis_file, softdrop_unc_pT_lower_cut=pT_lower_cut)
+  properties_SD_pT_cor = parse_file(input_analysis_file, softdrop_cor_pT_lower_cut=pT_lower_cut)
+
+  zg_data_unc = properties_uncorrected_pT[zg_filename]
+  prescales_unc = properties_uncorrected_pT['prescales']
+
+  zg_data_cor = properties_corrected_pT[zg_filename]
+  prescales_cor = properties_corrected_pT['prescales']
+
+  zg_data_SD_unc = properties_SD_pT_unc[zg_filename]
+  prescales_SD_unc = properties_SD_pT_unc['prescales']
+
+  zg_data_SD_cor = properties_SD_pT_cor[zg_filename]
+  prescales_SD_cor = properties_SD_pT_cor['prescales']
+  
+
+
+
+  zg_data_hist = Hist(6 * 8, 0.0, 0.6, title="Cut on Uncorrected pT", markersize=2.5, color='black')
+  bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
+  map(zg_data_hist.Fill, zg_data_unc, prescales_unc)
+  zg_data_hist.Scale(1.0 / ( zg_data_hist.GetSumOfWeights() * bin_width_data ))
+  rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+
+  zg_data_hist = Hist(6 * 8, 0.0, 0.6, title="Cut on Corrected pT", markersize=2.5, color='red')
+  bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
+  map(zg_data_hist.Fill, zg_data_cor, prescales_cor)
+  zg_data_hist.Scale(1.0 / ( zg_data_hist.GetSumOfWeights() * bin_width_data ))
+  rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+
+  zg_data_hist = Hist(6 * 8, 0.0, 0.6, title="Cut on Uncorrected SD pT", markersize=2.5, color='green')
+  bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
+  map(zg_data_hist.Fill, zg_data_SD_unc, prescales_SD_unc)
+  zg_data_hist.Scale(1.0 / ( zg_data_hist.GetSumOfWeights() * bin_width_data ))
+  rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+
+  zg_data_hist = Hist(6 * 8, 0.0, 0.6, title="Cut on Corrected SD pT", markersize=2.5, color='blue')
+  bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
+  map(zg_data_hist.Fill, zg_data_SD_cor, prescales_SD_cor)
+  zg_data_hist.Scale(1.0 / ( zg_data_hist.GetSumOfWeights() * bin_width_data ))
+  rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+  plt.gca().legend([extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.88, 0.58])
+
+
+  plt.gca().set_xlabel("$z_g$", fontsize=95)
+  plt.gca().set_ylabel("$\displaystyle \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=80, rotation=0, labelpad=115, y=0.39)
+  
+  plt.gca().autoscale(True)
+  plt.gca().set_xlim(0.0, 0.6)
+  plt.gca().set_ylim(0.0, 19)
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_snap(True)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/zg_different_pT_cuts/" + "/" + zg_filename + "_pT_" + str(pT_lower_cut) + ".pdf")
+
+  plt.clf()
+
+  
+
+# zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05')
+# zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.1', zg_filename='zg_1')
+# zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.2', zg_filename='zg_2')
+
+# zg_different_pT_cuts(pT_lower_cut=300, zg_cut='0.05', zg_filename='zg_05')
+# zg_different_pT_cuts(pT_lower_cut=300, zg_cut='0.1', zg_filename='zg_1')
+# zg_different_pT_cuts(pT_lower_cut=300, zg_cut='0.2', zg_filename='zg_2')
+
+# zg_different_pT_cuts(pT_lower_cut=600, zg_cut='0.05', zg_filename='zg_05')
+# zg_different_pT_cuts(pT_lower_cut=600, zg_cut='0.1', zg_filename='zg_1')
+# zg_different_pT_cuts(pT_lower_cut=600, zg_cut='0.2', zg_filename='zg_2')
 
 # Version 3 Begins Here.
 
@@ -3092,6 +3298,10 @@ def plot_pts_variable_bin():
 # plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=400)
 
 
+
+
+
+
 # plot_jet_area()
 
 # plot_hardest_pt_softdrop()
@@ -3103,6 +3313,32 @@ def plot_pts_variable_bin():
 # plot_jec_eta_2d()
 
 # plot_JEC()
+
+# plot_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05')
+# plot_delta_R(pT_lower_cut=150, dr_cut='0.1', dr_filename='dr_1')
+# plot_delta_R(pT_lower_cut=150, dr_cut='0.2', dr_filename='dr_2')
+
+# plot_delta_R(pT_lower_cut=300, dr_cut='0.05', dr_filename='dr_05')
+# plot_delta_R(pT_lower_cut=300, dr_cut='0.1', dr_filename='dr_1')
+# plot_delta_R(pT_lower_cut=300, dr_cut='0.2', dr_filename='dr_2')
+
+# plot_delta_R(pT_lower_cut=600, dr_cut='0.05', dr_filename='dr_05')
+# plot_delta_R(pT_lower_cut=600, dr_cut='0.1', dr_filename='dr_1')
+# plot_delta_R(pT_lower_cut=600, dr_cut='0.2', dr_filename='dr_2')
+
+
+plot_2d_zg_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
+plot_2d_zg_delta_R(pT_lower_cut=150, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
+plot_2d_zg_delta_R(pT_lower_cut=150, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
+
+plot_2d_zg_delta_R(pT_lower_cut=300, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
+plot_2d_zg_delta_R(pT_lower_cut=300, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
+plot_2d_zg_delta_R(pT_lower_cut=300, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
+
+plot_2d_zg_delta_R(pT_lower_cut=600, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
+plot_2d_zg_delta_R(pT_lower_cut=600, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
+plot_2d_zg_delta_R(pT_lower_cut=600, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
+
 
 
 

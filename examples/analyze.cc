@@ -91,7 +91,7 @@ int main(int argc, char * argv[]) {
 
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
 
-   JetDefinition jet_def_cambridge(cambridge_algorithm, 1000.);
+   JetDefinition jet_def_cambridge(cambridge_algorithm, jet_def_cambridge.max_allowable_R);
 
    vector<fastjet::PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents = event_being_read.closest_fastjet_jet_to_trigger_jet_constituents();
    ClusterSequence cs(closest_fastjet_jet_to_trigger_jet_constituents, jet_def_cambridge);
@@ -126,6 +126,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    SoftDrop soft_drop(0.0, 0.05);
    PseudoJet soft_drop_jet = soft_drop(closest_fastjet_jet_to_trigger_jet);
+   PseudoJet soft_drop_jet_corr = soft_drop(closest_fastjet_jet_to_trigger_jet * trigger_jet.JEC());
    double zg_05 = soft_drop_jet.structure_of<SoftDrop>().symmetry();
    double dr_05 = soft_drop_jet.structure_of<SoftDrop>().delta_R();
    double mu_05 = soft_drop_jet.structure_of<SoftDrop>().mu();
@@ -336,7 +337,8 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    
 
    // Hardest Jet pT before and after SoftDrop.
-   properties.push_back(MOD::Property("pT_after_SD", soft_drop_jet.pt()));
+   properties.push_back(MOD::Property("pT_after_SD_unc", soft_drop_jet.pt()));
+   properties.push_back(MOD::Property("pT_after_SD_cor", soft_drop_jet_corr.pt()));
 
    // Jet mass and constituent multiplicity before and after SoftDrop.
 
@@ -377,10 +379,15 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back( MOD::Property("jec", trigger_jet.JEC()) );
    properties.push_back( MOD::Property("jet_area", trigger_jet.area()) );
 
-   
-   
-   
-   
+
+   properties.push_back( MOD::Property("no_of_const", trigger_jet.number_of_constituents()) );
+   properties.push_back( MOD::Property("chrg_multip", trigger_jet.charged_multiplicity()) );
+   properties.push_back( MOD::Property("neu_had_frac", trigger_jet.neutral_hadron_fraction()) );
+   properties.push_back( MOD::Property("neu_em_frac", trigger_jet.neutral_em_fraction()) );
+   properties.push_back( MOD::Property("chrg_had_frac", trigger_jet.charged_hadron_fraction()) );
+   properties.push_back( MOD::Property("chrg_em_frac", trigger_jet.charged_em_fraction()) );
+
+
 
    string name;
    

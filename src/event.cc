@@ -364,13 +364,11 @@ void MOD::Event::set_trigger_jet_is_matched() {
    fastjet::PseudoJet trigger_fastjet = _trigger_jet.uncorrected_pseudojet();
    fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet = _closest_fastjet_jet_to_trigger_jet;
 
-   // HOW CAN YOU COMPARE THE NUMBER OF CONSTITUENTS WHEN CMS AK5 JETS HAVE NO CONSTITUENTS?
-
-   // // Compare the number of constituents first.
-   // if (trigger_fastjet.constituents().size() != closest_fastjet_jet_to_trigger_jet.constituents().size()) {
-   //    _trigger_jet_is_matched = false;
-   //    return;
-   // }
+   // Compare the number of constituents first.
+   if ((unsigned) _trigger_jet.number_of_constituents() != (unsigned) closest_fastjet_jet_to_trigger_jet_constituents().size()) {
+      _trigger_jet_is_matched = false;
+      return;
+   }
 
    // Next, compare if the 4-vector matches upto 10e-4 precision or not.
    double tolerance = pow(10, -3);
