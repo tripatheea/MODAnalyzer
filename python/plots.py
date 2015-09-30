@@ -153,19 +153,23 @@ def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorre
           properties['charged_jet_mass_before_SD'].append( float( numbers[44] ) )
           properties['charged_jet_mass_after_SD'].append( float( numbers[45] ) )
 
-          properties['fractional_energy_loss'].append( float( numbers[46] ) )
-          properties['eta'].append( float( numbers[47] ) )
-          properties['JEC'].append( float( numbers[48] ) )
-          properties['jet_area'].append( float( numbers[49] ) )
+          properties['chrg_dr_05'].append( float( numbers[46] ) )
+          properties['chrg_dr_1'].append( float( numbers[47] ) )
+          properties['chrg_dr_2'].append( float( numbers[48] ) )
+
+          properties['fractional_energy_loss'].append( float( numbers[49] ) )
+          properties['eta'].append( float( numbers[50] ) )
+          properties['JEC'].append( float( numbers[51] ) )
+          properties['jet_area'].append( float( numbers[52] ) )
 
           # no_of_const         chrg_multip        neu_had_frac         neu_em_frac       chrg_had_frac        chrg_em_frac
 
-          properties['no_of_const'].append( int( numbers[50] ) )
-          properties['chrg_multip'].append( int( numbers[51] ) )
-          properties['neu_had_frac'].append( float( numbers[52] ) )
-          properties['neu_em_frac'].append( float( numbers[53] ) )
-          properties['chrg_had_frac'].append( float( numbers[54] ) )
-          properties['chrg_em_frac'].append( float( numbers[55] ) )
+          properties['no_of_const'].append( int( numbers[53] ) )
+          properties['chrg_multip'].append( int( numbers[54] ) )
+          properties['neu_had_frac'].append( float( numbers[55] ) )
+          properties['neu_em_frac'].append( float( numbers[56] ) )
+          properties['chrg_had_frac'].append( float( numbers[57] ) )
+          properties['chrg_em_frac'].append( float( numbers[58] ) )
 
     except:
       if len(numbers) != 0:
@@ -294,74 +298,6 @@ def parse_mc_file(input_file, pT_lower_cut = 0.00, pT_upper_cut=20000):
   
   return properties
 
-
-
-
-def plot_dr():
-  pT_lower_cut = 150
-  properties = parse_file(input_analysis_file, pT_lower_cut)
-
-  drs = [properties['dr_05'], properties['dr_1'], properties['dr_2']]
-  prescales = properties['prescales']
-
-  colors = ['red', 'blue', 'green']
-  labels = ['$z_{cut}$ = 0.05', '$z_{cut}$ = 0.1', '$z_{cut}$ = 0.2']
-
-  for i in range(0, len(drs)):
-    # no. of bins, xlower, xhigher
-    dr_hist = Hist(50, 0.0, 0.5, title=labels[i], markersize=1.0, color=colors[i])
-
-    map(dr_hist.Fill, drs[i], prescales)
-    
-    dr_hist.Scale(1.0 / dr_hist.GetSumOfWeights())
-    
-    rplt.errorbar(dr_hist, xerr=False, emptybins=False, markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-
-  plt.autoscale(True)
-  # plt.xlim(0.0, 0.5)
-
-  plt.legend()
-  plt.xlabel("$\Delta$R between Subjets")
-  plt.suptitle("$\Delta$R between Subjets with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
-
-  fig = plt.gcf()
-  fig.set_size_inches(20, 20, forward=1)
-
-  plt.savefig("plots/delta_r_distribution_pt_cut_" + str(pT_lower_cut) + ".pdf")
-  plt.show()
-
-def plot_mu():
-  pT_lower_cut = 150
-  properties = parse_file(input_analysis_file, pT_lower_cut)
-
-  mus = [properties['mu_05'], properties['mu_1'], properties['mu_2']]
-  prescales = properties['prescales']
-
-  colors = ['red', 'blue', 'green']
-  labels = ['$z_{cut}$ = 0.05', '$z_{cut}$ = 0.1', '$z_{cut}$ = 0.2']
-
-  for i in range(0, len(mus)):
-    # no. of bins, xlower, xhigher
-    mu_hist = Hist(50, 0, 1.0, title=labels[i], markersize=1.0, color=colors[i])
-
-    map(mu_hist.Fill, mus[i], prescales)
-    
-    mu_hist.Scale(1.0 / mu_hist.GetSumOfWeights())
-    
-    rplt.errorbar(mu_hist, xerr=False, emptybins=False, markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-
-  plt.autoscale(True)
-  # plt.xlim(0.00, 1)
-
-  plt.legend()
-  plt.xlabel("Mass Drop($\mu$)")
-  plt.suptitle("Mass Drop($\mu$) with $p_{T cut}$ = " + str(pT_lower_cut) + " GeV")
-
-  fig = plt.gcf()
-  fig.set_size_inches(20, 20, forward=1)
-
-  plt.savefig("plots/mass_drop_distribution_pt_cut_" + str(pT_lower_cut) + ".pdf")
-  plt.show()
 
 
 
@@ -3109,6 +3045,148 @@ def plot_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05'):
   plt.clf()
 
 
+
+
+def plot_charged_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05'):
+  dr_cut = float(dr_cut)
+
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
+
+  dr = properties['chrg_' + dr_filename]
+  prescales = properties['prescales']
+
+  dr_data_hist = Hist(6 * 8, 0.0, 0.6, title="CMS Open Data", markersize=2.5, color='black')
+  bin_width_data = (dr_data_hist.upperbound() - dr_data_hist.lowerbound()) / dr_data_hist.nbins()
+  map(dr_data_hist.Fill, dr, prescales)
+  dr_data_hist.Scale(1.0 / ( dr_data_hist.GetSumOfWeights() * bin_width_data ))
+  rplt.errorbar(dr_data_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.91, 1.0])
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(dr_cut) + "}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[1.0, 0.75])
+
+
+  plt.gca().set_xlabel("$R_g$", fontsize=75)
+  plt.gca().set_ylabel("$\displaystyle \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} R_g}$", fontsize=75, rotation=0, labelpad=115, y=0.39)
+  
+  plt.gca().autoscale(True)
+  plt.gca().set_xlim(0.0, 0.8)
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_snap(True)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/charged_delta_R/" + "/" + dr_filename + "_pT_" + str(pT_lower_cut) + ".pdf")
+
+  plt.clf()
+
+
+def plot_log_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05'):
+  dr_cut = float(dr_cut)
+
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
+
+  dr = properties[dr_filename]
+  prescales = properties['prescales']
+  logged_dr = np.log(dr)
+
+  bins_linear_log = np.linspace(math.log(0.0001, math.e), math.log(0.6, math.e), 48) 
+  
+  dr_data_hist = Hist(bins_linear_log, title="CMS Open Data", markersize=2.5, color='black')
+  bin_width_data = (dr_data_hist.upperbound() - dr_data_hist.lowerbound()) / dr_data_hist.nbins()
+  map(dr_data_hist.Fill, logged_dr, prescales)
+  dr_data_hist.Scale(1.0 / ( dr_data_hist.GetSumOfWeights() * bin_width_data ))
+
+  rplt.errorbar(dr_data_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.91, 1.0])
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(dr_cut) + "}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[1.0, 0.75])
+
+
+  plt.gca().set_xlabel("$R_g$", fontsize=75)
+  plt.gca().set_ylabel("$\displaystyle \\frac{R_g}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} R_g}$", fontsize=75, rotation=0, labelpad=115, y=0.39)
+  
+  plt.gca().autoscale(True)
+  plt.gca().set_ylim(0.0, 1.2)
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_snap(True)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/log_delta_R/" + "/" + dr_filename + "_pT_" + str(pT_lower_cut) + ".pdf")
+
+  plt.clf()
+
+
+
+def plot_charged_log_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05'):
+  dr_cut = float(dr_cut)
+
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
+
+  dr = properties['chrg_' + dr_filename]
+  prescales = properties['prescales']
+  logged_dr = np.log(dr)
+
+  bins_linear_log = np.linspace(math.log(0.0001, math.e), math.log(0.6, math.e), 48) 
+  
+  dr_data_hist = Hist(bins_linear_log, title="CMS Open Data", markersize=2.5, color='black')
+  bin_width_data = (dr_data_hist.upperbound() - dr_data_hist.lowerbound()) / dr_data_hist.nbins()
+  map(dr_data_hist.Fill, logged_dr, prescales)
+  dr_data_hist.Scale(1.0 / ( dr_data_hist.GetSumOfWeights() * bin_width_data ))
+
+  rplt.errorbar(dr_data_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.91, 1.0])
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(dr_cut) + "}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[1.0, 0.75])
+
+
+  plt.gca().set_xlabel("$R_g$", fontsize=75)
+  plt.gca().set_ylabel("$\displaystyle \\frac{R_g}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} R_g}$", fontsize=75, rotation=0, labelpad=115, y=0.39)
+  
+  plt.gca().autoscale(True)
+  plt.gca().set_ylim(0.0, 1.2)
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.gcf().set_snap(True)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/charged_log_delta_R/" + "/" + dr_filename + "_pT_" + str(pT_lower_cut) + ".pdf")
+
+  plt.clf()
+
 def plot_2d_zg_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05'):
   dr_cut = float(dr_cut)
   zg_cut = float(zg_cut)
@@ -3327,17 +3405,62 @@ def zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05'):
 # plot_delta_R(pT_lower_cut=600, dr_cut='0.2', dr_filename='dr_2')
 
 
-plot_2d_zg_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
-plot_2d_zg_delta_R(pT_lower_cut=150, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
-plot_2d_zg_delta_R(pT_lower_cut=150, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
 
-plot_2d_zg_delta_R(pT_lower_cut=300, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
-plot_2d_zg_delta_R(pT_lower_cut=300, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
-plot_2d_zg_delta_R(pT_lower_cut=300, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
+plot_charged_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05')
+plot_charged_delta_R(pT_lower_cut=150, dr_cut='0.1', dr_filename='dr_1')
+plot_charged_delta_R(pT_lower_cut=150, dr_cut='0.2', dr_filename='dr_2')
 
-plot_2d_zg_delta_R(pT_lower_cut=600, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
-plot_2d_zg_delta_R(pT_lower_cut=600, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
-plot_2d_zg_delta_R(pT_lower_cut=600, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
+plot_charged_delta_R(pT_lower_cut=300, dr_cut='0.05', dr_filename='dr_05')
+plot_charged_delta_R(pT_lower_cut=300, dr_cut='0.1', dr_filename='dr_1')
+plot_charged_delta_R(pT_lower_cut=300, dr_cut='0.2', dr_filename='dr_2')
+
+plot_charged_delta_R(pT_lower_cut=600, dr_cut='0.05', dr_filename='dr_05')
+plot_charged_delta_R(pT_lower_cut=600, dr_cut='0.1', dr_filename='dr_1')
+plot_charged_delta_R(pT_lower_cut=600, dr_cut='0.2', dr_filename='dr_2')
+
+
+
+
+# plot_log_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05')
+# plot_log_delta_R(pT_lower_cut=150, dr_cut='0.1', dr_filename='dr_1')
+# plot_log_delta_R(pT_lower_cut=150, dr_cut='0.2', dr_filename='dr_2')
+
+# plot_log_delta_R(pT_lower_cut=300, dr_cut='0.05', dr_filename='dr_05')
+# plot_log_delta_R(pT_lower_cut=300, dr_cut='0.1', dr_filename='dr_1')
+# plot_log_delta_R(pT_lower_cut=300, dr_cut='0.2', dr_filename='dr_2')
+
+# plot_log_delta_R(pT_lower_cut=600, dr_cut='0.05', dr_filename='dr_05')
+# plot_log_delta_R(pT_lower_cut=600, dr_cut='0.1', dr_filename='dr_1')
+# plot_log_delta_R(pT_lower_cut=600, dr_cut='0.2', dr_filename='dr_2')
+
+
+
+plot_charged_log_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05')
+plot_charged_log_delta_R(pT_lower_cut=150, dr_cut='0.1', dr_filename='dr_1')
+plot_charged_log_delta_R(pT_lower_cut=150, dr_cut='0.2', dr_filename='dr_2')
+
+plot_charged_log_delta_R(pT_lower_cut=300, dr_cut='0.05', dr_filename='dr_05')
+plot_charged_log_delta_R(pT_lower_cut=300, dr_cut='0.1', dr_filename='dr_1')
+plot_charged_log_delta_R(pT_lower_cut=300, dr_cut='0.2', dr_filename='dr_2')
+
+plot_charged_log_delta_R(pT_lower_cut=600, dr_cut='0.05', dr_filename='dr_05')
+plot_charged_log_delta_R(pT_lower_cut=600, dr_cut='0.1', dr_filename='dr_1')
+plot_charged_log_delta_R(pT_lower_cut=600, dr_cut='0.2', dr_filename='dr_2')
+
+
+
+
+# plot_2d_zg_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
+# plot_2d_zg_delta_R(pT_lower_cut=150, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
+# plot_2d_zg_delta_R(pT_lower_cut=150, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
+
+# plot_2d_zg_delta_R(pT_lower_cut=300, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
+# plot_2d_zg_delta_R(pT_lower_cut=300, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
+# plot_2d_zg_delta_R(pT_lower_cut=300, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
+
+# plot_2d_zg_delta_R(pT_lower_cut=600, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
+# plot_2d_zg_delta_R(pT_lower_cut=600, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
+# plot_2d_zg_delta_R(pT_lower_cut=600, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
 
 
 

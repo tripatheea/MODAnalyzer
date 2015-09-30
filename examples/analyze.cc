@@ -359,6 +359,15 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
       properties.push_back( MOD::Property("chrg_mass_pre_SD", hardest_jet_charged.m()) );
       properties.push_back( MOD::Property("chrg_mass_post_SD", soft_drop(hardest_jet_charged).m()) );
+
+      SoftDrop chrg_soft_drop_05(0.0, 0.05);
+      SoftDrop chrg_soft_drop_1(0.0, 0.1);
+      SoftDrop chrg_soft_drop_2(0.0, 0.2);
+
+      properties.push_back( MOD::Property("chrg_dr_05", chrg_soft_drop_05(hardest_jet_charged).structure_of<SoftDrop>().delta_R()));
+      properties.push_back( MOD::Property("chrg_dr_1", chrg_soft_drop_1(hardest_jet_charged).structure_of<SoftDrop>().delta_R()));
+      properties.push_back( MOD::Property("chrg_dr_2", chrg_soft_drop_2(hardest_jet_charged).structure_of<SoftDrop>().delta_R()));
+
    }
    else {
       properties.push_back( MOD::Property("chrg_mul_pre_SD", -1. ));
@@ -366,6 +375,10 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
       properties.push_back( MOD::Property("chrg_mass_pre_SD", -1. ));
       properties.push_back( MOD::Property("chrg_mass_post_SD", -1. ));
+
+      properties.push_back( MOD::Property("chrg_dr_05", -1. ));
+      properties.push_back( MOD::Property("chrg_dr_1", -1. ));
+      properties.push_back( MOD::Property("chrg_dr_2", -1. ));
    }
    
 
