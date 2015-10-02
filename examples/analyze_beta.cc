@@ -132,57 +132,57 @@ void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int
    
    SoftDrop soft_drop_10(beta, 0.10);
    PseudoJet soft_drop_jet_10 = soft_drop_10(hardest_jet);
-   properties.push_back(MOD::Property("rho_10", calculate_rho(0.5, soft_drop_jet_10.m(), soft_drop_jet_10.pt())));
+   properties.push_back(MOD::Property("Rg_10", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
    properties.push_back(MOD::Property("zg_10", soft_drop_jet_10.structure_of<SoftDrop>().symmetry()));
 
    SoftDrop soft_drop_11(beta, 0.11);
    PseudoJet soft_drop_jet_11 = soft_drop_11(hardest_jet);
-   properties.push_back(MOD::Property("rho_11", calculate_rho(0.5, soft_drop_jet_11.m(), soft_drop_jet_11.pt())));
+   properties.push_back(MOD::Property("Rg_11", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
    properties.push_back(MOD::Property("zg_11", soft_drop_jet_11.structure_of<SoftDrop>().symmetry()));
 
    SoftDrop soft_drop_12(beta, 0.12);
    PseudoJet soft_drop_jet_12 = soft_drop_12(hardest_jet);
-   properties.push_back(MOD::Property("rho_12", calculate_rho(0.5, soft_drop_jet_12.m(), soft_drop_jet_12.pt())));
+   properties.push_back(MOD::Property("Rg_12", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
    properties.push_back(MOD::Property("zg_12", soft_drop_jet_12.structure_of<SoftDrop>().symmetry()));
 
    SoftDrop soft_drop_13(beta, 0.13);
    PseudoJet soft_drop_jet_13 = soft_drop_13(hardest_jet);
-   properties.push_back(MOD::Property("rho_13", calculate_rho(0.5, soft_drop_jet_13.m(), soft_drop_jet_13.pt())));
+   properties.push_back(MOD::Property("Rg_13", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
    properties.push_back(MOD::Property("zg_13", soft_drop_jet_13.structure_of<SoftDrop>().symmetry()));
 
    SoftDrop soft_drop_14(beta, 0.14);
    PseudoJet soft_drop_jet_14 = soft_drop_14(hardest_jet);
-   properties.push_back(MOD::Property("rho_14", calculate_rho(0.5, soft_drop_jet_14.m(), soft_drop_jet_14.pt())));
+   properties.push_back(MOD::Property("Rg_14", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
    properties.push_back(MOD::Property("zg_14", soft_drop_jet_14.structure_of<SoftDrop>().symmetry()));
 
    SoftDrop soft_drop_15(beta, 0.15);
    PseudoJet soft_drop_jet_15 = soft_drop_15(hardest_jet);
-   properties.push_back(MOD::Property("rho_15", calculate_rho(0.5, soft_drop_jet_15.m(), soft_drop_jet_15.pt())));
+   properties.push_back(MOD::Property("Rg_15", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
    properties.push_back(MOD::Property("zg_15", soft_drop_jet_15.structure_of<SoftDrop>().symmetry()));
 
    SoftDrop soft_drop_16(beta, 0.16);
    PseudoJet soft_drop_jet_16 = soft_drop_16(hardest_jet);
-   properties.push_back(MOD::Property("rho_16", calculate_rho(0.5, soft_drop_jet_16.m(), soft_drop_jet_16.pt())));
+   properties.push_back(MOD::Property("Rg_16", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
    properties.push_back(MOD::Property("zg_16", soft_drop_jet_16.structure_of<SoftDrop>().symmetry()));
 
    SoftDrop soft_drop_17(beta, 0.17);
    PseudoJet soft_drop_jet_17 = soft_drop_17(hardest_jet);
-   properties.push_back(MOD::Property("rho_17", calculate_rho(0.5, soft_drop_jet_17.m(), soft_drop_jet_17.pt())));
+   properties.push_back(MOD::Property("Rg_17", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
    properties.push_back(MOD::Property("zg_17", soft_drop_jet_17.structure_of<SoftDrop>().symmetry()));
 
    SoftDrop soft_drop_18(beta, 0.18);
    PseudoJet soft_drop_jet_18 = soft_drop_18(hardest_jet);
-   properties.push_back(MOD::Property("rho_18", calculate_rho(0.5, soft_drop_jet_18.m(), soft_drop_jet_18.pt())));
+   properties.push_back(MOD::Property("Rg_18", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
    properties.push_back(MOD::Property("zg_18", soft_drop_jet_18.structure_of<SoftDrop>().symmetry()));
 
    SoftDrop soft_drop_19(beta, 0.19);
    PseudoJet soft_drop_jet_19 = soft_drop_19(hardest_jet);
-   properties.push_back(MOD::Property("rho_19", calculate_rho(0.5, soft_drop_jet_19.m(), soft_drop_jet_19.pt())));
+   properties.push_back(MOD::Property("Rg_19", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
    properties.push_back(MOD::Property("zg_19", soft_drop_jet_19.structure_of<SoftDrop>().symmetry()));
 
    SoftDrop soft_drop_20(beta, 0.20);
    PseudoJet soft_drop_jet_20 = soft_drop_20(hardest_jet);
-   properties.push_back(MOD::Property("rho_20", calculate_rho(0.5, soft_drop_jet_20.m(), soft_drop_jet_20.pt())));
+   properties.push_back(MOD::Property("Rg_20", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
    properties.push_back(MOD::Property("zg_20", soft_drop_jet_20.structure_of<SoftDrop>().symmetry()));
 
 
@@ -193,37 +193,37 @@ void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int
 
    if (cs_charged.inclusive_jets().size() == 0) {
 
-      properties.push_back(MOD::Property("chrg_rho_10", -1.));
+      properties.push_back(MOD::Property("chrg_Rg_10", -1.));
       properties.push_back(MOD::Property("chrg_zg_10", -1.));
 
-      properties.push_back(MOD::Property("chrg_rho_11", -1.));
+      properties.push_back(MOD::Property("chrg_Rg_11", -1.));
       properties.push_back(MOD::Property("chrg_zg_11", -1.));
       
-      properties.push_back(MOD::Property("chrg_rho_12", -1.));
+      properties.push_back(MOD::Property("chrg_Rg_12", -1.));
       properties.push_back(MOD::Property("chrg_zg_12", -1.));
       
-      properties.push_back(MOD::Property("chrg_rho_13", -1.));
+      properties.push_back(MOD::Property("chrg_Rg_13", -1.));
       properties.push_back(MOD::Property("chrg_zg_13", -1.));
       
-      properties.push_back(MOD::Property("chrg_rho_14", -1.));
+      properties.push_back(MOD::Property("chrg_Rg_14", -1.));
       properties.push_back(MOD::Property("chrg_zg_14", -1.));
       
-      properties.push_back(MOD::Property("chrg_rho_15", -1.));
+      properties.push_back(MOD::Property("chrg_Rg_15", -1.));
       properties.push_back(MOD::Property("chrg_zg_15", -1.));
       
-      properties.push_back(MOD::Property("chrg_rho_16", -1.));
+      properties.push_back(MOD::Property("chrg_Rg_16", -1.));
       properties.push_back(MOD::Property("chrg_zg_16", -1.));
       
-      properties.push_back(MOD::Property("chrg_rho_17", -1.));
+      properties.push_back(MOD::Property("chrg_Rg_17", -1.));
       properties.push_back(MOD::Property("chrg_zg_17", -1.));
       
-      properties.push_back(MOD::Property("chrg_rho_18", -1.));
+      properties.push_back(MOD::Property("chrg_Rg_18", -1.));
       properties.push_back(MOD::Property("chrg_zg_18", -1.));
       
-      properties.push_back(MOD::Property("chrg_rho_19", -1.));
+      properties.push_back(MOD::Property("chrg_Rg_19", -1.));
       properties.push_back(MOD::Property("chrg_zg_19", -1.));
       
-      properties.push_back(MOD::Property("chrg_rho_20", -1.));
+      properties.push_back(MOD::Property("chrg_Rg_20", -1.));
       properties.push_back(MOD::Property("chrg_zg_20", -1.));
    }
    else {
@@ -232,57 +232,57 @@ void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int
       
       SoftDrop charged_soft_drop_10(beta, 0.10);
       PseudoJet charged_soft_drop_jet_10 = charged_soft_drop_10(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_rho_10", calculate_rho(0.5, charged_soft_drop_jet_10.m(), charged_soft_drop_jet_10.pt())));
+      properties.push_back(MOD::Property("chrg_Rg_10", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
       properties.push_back(MOD::Property("chrg_zg_10", charged_soft_drop_jet_10.structure_of<SoftDrop>().symmetry()));
 
       SoftDrop charged_soft_drop_11(beta, 0.11);
       PseudoJet charged_soft_drop_jet_11 = charged_soft_drop_11(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_rho_11", calculate_rho(0.5, charged_soft_drop_jet_11.m(), charged_soft_drop_jet_11.pt())));
+      properties.push_back(MOD::Property("chrg_Rg_11", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
       properties.push_back(MOD::Property("chrg_zg_11", charged_soft_drop_jet_11.structure_of<SoftDrop>().symmetry()));
 
       SoftDrop charged_soft_drop_12(beta, 0.12);
       PseudoJet charged_soft_drop_jet_12 = charged_soft_drop_12(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_rho_12", calculate_rho(0.5, charged_soft_drop_jet_12.m(), charged_soft_drop_jet_12.pt())));
+      properties.push_back(MOD::Property("chrg_Rg_12", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
       properties.push_back(MOD::Property("chrg_zg_12", charged_soft_drop_jet_12.structure_of<SoftDrop>().symmetry()));
 
       SoftDrop charged_soft_drop_13(beta, 0.13);
       PseudoJet charged_soft_drop_jet_13 = charged_soft_drop_13(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_rho_13", calculate_rho(0.5, charged_soft_drop_jet_13.m(), charged_soft_drop_jet_13.pt())));
+      properties.push_back(MOD::Property("chrg_Rg_13", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
       properties.push_back(MOD::Property("chrg_zg_13", charged_soft_drop_jet_13.structure_of<SoftDrop>().symmetry()));
 
       SoftDrop charged_soft_drop_14(beta, 0.14);
       PseudoJet charged_soft_drop_jet_14 = charged_soft_drop_14(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_rho_14", calculate_rho(0.5, charged_soft_drop_jet_14.m(), charged_soft_drop_jet_14.pt())));
+      properties.push_back(MOD::Property("chrg_Rg_14", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
       properties.push_back(MOD::Property("chrg_zg_14", charged_soft_drop_jet_14.structure_of<SoftDrop>().symmetry()));
 
       SoftDrop charged_soft_drop_15(beta, 0.15);
       PseudoJet charged_soft_drop_jet_15 = charged_soft_drop_15(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_rho_15", calculate_rho(0.5, charged_soft_drop_jet_15.m(), charged_soft_drop_jet_15.pt())));
+      properties.push_back(MOD::Property("chrg_Rg_15", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
       properties.push_back(MOD::Property("chrg_zg_15", charged_soft_drop_jet_15.structure_of<SoftDrop>().symmetry()));
 
       SoftDrop charged_soft_drop_16(beta, 0.16);
       PseudoJet charged_soft_drop_jet_16 = charged_soft_drop_16(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_rho_16", calculate_rho(0.5, charged_soft_drop_jet_16.m(), charged_soft_drop_jet_16.pt())));
+      properties.push_back(MOD::Property("chrg_Rg_16", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
       properties.push_back(MOD::Property("chrg_zg_16", charged_soft_drop_jet_16.structure_of<SoftDrop>().symmetry()));
 
       SoftDrop charged_soft_drop_17(beta, 0.17);
       PseudoJet charged_soft_drop_jet_17 = charged_soft_drop_17(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_rho_17", calculate_rho(0.5, charged_soft_drop_jet_17.m(), charged_soft_drop_jet_17.pt())));
+      properties.push_back(MOD::Property("chrg_Rg_17", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
       properties.push_back(MOD::Property("chrg_zg_17", charged_soft_drop_jet_17.structure_of<SoftDrop>().symmetry()));
 
       SoftDrop charged_soft_drop_18(beta, 0.18);
       PseudoJet charged_soft_drop_jet_18 = charged_soft_drop_18(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_rho_18", calculate_rho(0.5, charged_soft_drop_jet_18.m(), charged_soft_drop_jet_18.pt())));
+      properties.push_back(MOD::Property("chrg_Rg_18", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
       properties.push_back(MOD::Property("chrg_zg_18", charged_soft_drop_jet_18.structure_of<SoftDrop>().symmetry()));
 
       SoftDrop charged_soft_drop_19(beta, 0.19);
       PseudoJet charged_soft_drop_jet_19 = charged_soft_drop_19(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_rho_19", calculate_rho(0.5, charged_soft_drop_jet_19.m(), charged_soft_drop_jet_19.pt())));
+      properties.push_back(MOD::Property("chrg_Rg_19", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
       properties.push_back(MOD::Property("chrg_zg_19", charged_soft_drop_jet_19.structure_of<SoftDrop>().symmetry()));
 
       SoftDrop charged_soft_drop_20(beta, 0.20);
       PseudoJet charged_soft_drop_jet_20 = charged_soft_drop_20(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_rho_20", calculate_rho(0.5, charged_soft_drop_jet_20.m(), charged_soft_drop_jet_20.pt())));
+      properties.push_back(MOD::Property("chrg_Rg_20", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
       properties.push_back(MOD::Property("chrg_zg_20", charged_soft_drop_jet_20.structure_of<SoftDrop>().symmetry()));
 
 
@@ -295,8 +295,6 @@ void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int
    properties.push_back( MOD::Property("neu_em_frac", trigger_jet.neutral_em_fraction()) );
    properties.push_back( MOD::Property("chrg_had_frac", trigger_jet.charged_hadron_fraction()) );
    properties.push_back( MOD::Property("chrg_em_frac", trigger_jet.charged_em_fraction()) );
-
-
 
    
    string name;

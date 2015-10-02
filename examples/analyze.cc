@@ -401,6 +401,20 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back( MOD::Property("chrg_em_frac", trigger_jet.charged_em_fraction()) );
 
 
+   SoftDrop soft_drop_10(0.0, 0.10);
+   SoftDrop soft_drop_11(0.0, 0.11);
+   SoftDrop soft_drop_12(0.0, 0.12);
+   SoftDrop soft_drop_13(0.0, 0.13);
+   SoftDrop soft_drop_14(0.0, 0.14);
+   SoftDrop soft_drop_15(0.0, 0.15);
+
+   properties.push_back( MOD::Property("m_zg_10", soft_drop_10(closest_fastjet_jet_to_trigger_jet).m() ) );
+   properties.push_back( MOD::Property("m_zg_11", soft_drop_11(closest_fastjet_jet_to_trigger_jet).m() ) );
+   properties.push_back( MOD::Property("m_zg_12", soft_drop_12(closest_fastjet_jet_to_trigger_jet).m() ) );
+   properties.push_back( MOD::Property("m_zg_13", soft_drop_13(closest_fastjet_jet_to_trigger_jet).m() ) );
+   properties.push_back( MOD::Property("m_zg_14", soft_drop_14(closest_fastjet_jet_to_trigger_jet).m() ) );
+   properties.push_back( MOD::Property("m_zg_15", soft_drop_15(closest_fastjet_jet_to_trigger_jet).m() ) );
+
 
    string name;
    

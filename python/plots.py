@@ -170,6 +170,13 @@ def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorre
           properties['neu_em_frac'].append( float( numbers[56] ) )
           properties['chrg_had_frac'].append( float( numbers[57] ) )
           properties['chrg_em_frac'].append( float( numbers[58] ) )
+          
+          properties['m_zg_10'].append( float( numbers[59] ) )
+          properties['m_zg_11'].append( float( numbers[60] ) )
+          properties['m_zg_12'].append( float( numbers[61] ) )
+          properties['m_zg_13'].append( float( numbers[62] ) )
+          properties['m_zg_14'].append( float( numbers[63] ) )
+          properties['m_zg_15'].append( float( numbers[64] ) )
 
     except:
       if len(numbers) != 0:
@@ -2260,6 +2267,110 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
 
 
 
+
+
+
+
+def plot_log_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
+
+
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut, jet_quality_level=1)
+
+  prescales = properties['prescales']
+
+  m_zg_10 = properties['m_zg_10']
+  m_zg_11 = properties['m_zg_11']
+  m_zg_12 = properties['m_zg_12']
+  m_zg_13 = properties['m_zg_13']
+  m_zg_14 = properties['m_zg_14']
+  m_zg_15 = properties['m_zg_15']
+
+
+  bins_linear_log = np.linspace(math.log(0.1, math.e), math.log(150, math.e), 30)
+
+
+  m_zg_10_hist = Hist(bins_linear_log, title='$z_g = 0.10$', markersize=3.0, color='green')
+  bin_width_m_zg_10 = (m_zg_10_hist.upperbound() - m_zg_10_hist.lowerbound()) / m_zg_10_hist.nbins()
+  map(m_zg_10_hist.Fill, 2*np.log(m_zg_10), prescales)
+  m_zg_10_hist.Scale(1.0 / (m_zg_10_hist.GetSumOfWeights() * bin_width_m_zg_10))
+  rplt.errorbar(m_zg_10_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  m_zg_11_hist = Hist(bins_linear_log, title='$z_g = 0.11$', markersize=3.0, color='red')
+  bin_width_m_zg_11 = (m_zg_11_hist.upperbound() - m_zg_11_hist.lowerbound()) / m_zg_11_hist.nbins()
+  map(m_zg_11_hist.Fill, 2*np.log(m_zg_11), prescales)
+  m_zg_11_hist.Scale(1.0 / (m_zg_11_hist.GetSumOfWeights() * bin_width_m_zg_11))
+  rplt.errorbar(m_zg_11_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  m_zg_12_hist = Hist(bins_linear_log, title='$z_g = 0.12$', markersize=3.0, color='blue')
+  bin_width_m_zg_12 = (m_zg_12_hist.upperbound() - m_zg_12_hist.lowerbound()) / m_zg_12_hist.nbins()
+  map(m_zg_12_hist.Fill, 2*np.log(m_zg_12), prescales)
+  m_zg_12_hist.Scale(1.0 / (m_zg_12_hist.GetSumOfWeights() * bin_width_m_zg_12))
+  rplt.errorbar(m_zg_12_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  m_zg_13_hist = Hist(bins_linear_log, title='$z_g = 0.13$', markersize=3.0, color='purple')
+  bin_width_m_zg_13 = (m_zg_13_hist.upperbound() - m_zg_13_hist.lowerbound()) / m_zg_13_hist.nbins()
+  map(m_zg_13_hist.Fill, 2*np.log(m_zg_13), prescales)
+  m_zg_13_hist.Scale(1.0 / (m_zg_13_hist.GetSumOfWeights() * bin_width_m_zg_13))
+  rplt.errorbar(m_zg_13_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  m_zg_14_hist = Hist(bins_linear_log, title='$z_g = 0.14$', markersize=3.0, color='black')
+  bin_width_m_zg_14 = (m_zg_14_hist.upperbound() - m_zg_14_hist.lowerbound()) / m_zg_14_hist.nbins()
+  map(m_zg_14_hist.Fill, 2*np.log(m_zg_14), prescales)
+  m_zg_14_hist.Scale(1.0 / (m_zg_14_hist.GetSumOfWeights() * bin_width_m_zg_14))
+  rplt.errorbar(m_zg_14_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  m_zg_15_hist = Hist(bins_linear_log, title='$z_g = 0.15$', markersize=3.0, color='orange')
+  bin_width_m_zg_15 = (m_zg_15_hist.upperbound() - m_zg_15_hist.lowerbound()) / m_zg_15_hist.nbins()
+  map(m_zg_15_hist.Fill, 2*np.log(m_zg_15), prescales)
+  m_zg_15_hist.Scale(1.0 / (m_zg_15_hist.GetSumOfWeights() * bin_width_m_zg_15))
+  rplt.errorbar(m_zg_15_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Legends Begin.
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.89, 1.0])
+  plt.gca().add_artist(legend)
+
+  # extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  
+  # if pT_upper_cut != 20000:
+    # labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  # else:
+    # labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  
+
+  # plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.69])
+
+  # # # Legends End.
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+
+  plt.xlabel('$2 \\log{m}$', fontsize=75)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
+  
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(0.25))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.05))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
+  plt.gca().autoscale(True)
+  plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  print "Printing log jet mass spectrum with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/log_jet_mass_spectrum/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
+  # plt.show()
+  plt.clf()
+
+
+
 def plot_zg():
   properties = parse_file(input_analysis_file, 150)
 
@@ -3375,6 +3486,9 @@ def zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05'):
 
   
 
+
+
+
 # zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05')
 # zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.1', zg_filename='zg_1')
 # zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.2', zg_filename='zg_2')
@@ -3393,6 +3507,13 @@ def zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05'):
 # plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=200)
 # plot_jet_mass_spectrum(pT_lower_cut=200, pT_upper_cut=400)
 # plot_jet_mass_spectrum(pT_lower_cut=400)
+
+
+# plot_log_jet_mass_spectrum(100)
+# plot_log_jet_mass_spectrum(200)
+# plot_log_jet_mass_spectrum(300)
+# plot_log_jet_mass_spectrum(400)
+
 
 # plot_charged_jet_mass_spectrum()
 # plot_charged_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=200)
@@ -3481,32 +3602,32 @@ def zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05'):
 
 
 
-plot_2d_zg_charged_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
-plot_2d_zg_charged_delta_R(pT_lower_cut=150, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
-plot_2d_zg_charged_delta_R(pT_lower_cut=150, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
+# plot_2d_zg_charged_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
+# plot_2d_zg_charged_delta_R(pT_lower_cut=150, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
+# plot_2d_zg_charged_delta_R(pT_lower_cut=150, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
 
-plot_2d_zg_charged_delta_R(pT_lower_cut=300, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
-plot_2d_zg_charged_delta_R(pT_lower_cut=300, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
-plot_2d_zg_charged_delta_R(pT_lower_cut=300, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
+# plot_2d_zg_charged_delta_R(pT_lower_cut=300, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
+# plot_2d_zg_charged_delta_R(pT_lower_cut=300, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
+# plot_2d_zg_charged_delta_R(pT_lower_cut=300, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
 
-plot_2d_zg_charged_delta_R(pT_lower_cut=600, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
-plot_2d_zg_charged_delta_R(pT_lower_cut=600, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
-plot_2d_zg_charged_delta_R(pT_lower_cut=600, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
-
-
+# plot_2d_zg_charged_delta_R(pT_lower_cut=600, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
+# plot_2d_zg_charged_delta_R(pT_lower_cut=600, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
+# plot_2d_zg_charged_delta_R(pT_lower_cut=600, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
 
 
-plot_2d_charged_zg_charged_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
-plot_2d_charged_zg_charged_delta_R(pT_lower_cut=150, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
-plot_2d_charged_zg_charged_delta_R(pT_lower_cut=150, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
 
-plot_2d_charged_zg_charged_delta_R(pT_lower_cut=300, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
-plot_2d_charged_zg_charged_delta_R(pT_lower_cut=300, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
-plot_2d_charged_zg_charged_delta_R(pT_lower_cut=300, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
 
-plot_2d_charged_zg_charged_delta_R(pT_lower_cut=600, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
-plot_2d_charged_zg_charged_delta_R(pT_lower_cut=600, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
-plot_2d_charged_zg_charged_delta_R(pT_lower_cut=600, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
+# plot_2d_charged_zg_charged_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
+# plot_2d_charged_zg_charged_delta_R(pT_lower_cut=150, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
+# plot_2d_charged_zg_charged_delta_R(pT_lower_cut=150, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
+
+# plot_2d_charged_zg_charged_delta_R(pT_lower_cut=300, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
+# plot_2d_charged_zg_charged_delta_R(pT_lower_cut=300, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
+# plot_2d_charged_zg_charged_delta_R(pT_lower_cut=300, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
+
+# plot_2d_charged_zg_charged_delta_R(pT_lower_cut=600, dr_cut='0.05', dr_filename='dr_05', zg_cut='0.05', zg_filename='zg_05')
+# plot_2d_charged_zg_charged_delta_R(pT_lower_cut=600, dr_cut='0.1', dr_filename='dr_1', zg_cut='0.1', zg_filename='zg_1')
+# plot_2d_charged_zg_charged_delta_R(pT_lower_cut=600, dr_cut='0.2', dr_filename='dr_2', zg_cut='0.2', zg_filename='zg_2')
 
 
 

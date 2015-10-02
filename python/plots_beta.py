@@ -3,6 +3,8 @@ from __future__ import division
 
 from subprocess import call
 
+import time
+
 from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import MultipleLocator
 from matplotlib.ticker import FixedLocator
@@ -99,50 +101,50 @@ def parse_file(input_file, pT_lower_cut = 0.00, jet_quality_level=1):
         properties['jet_quality'].append( int( numbers[4] ) )
         properties['no_of_const'].append( int( numbers[5] ) )
 
-        properties['rho_10'].append( float( numbers[6] ) )
+        properties['Rg_10'].append( float( numbers[6] ) )
         properties['zg_10'].append( float( numbers[7] ) )
-        properties['rho_11'].append( float( numbers[8] ) )
+        properties['Rg_11'].append( float( numbers[8] ) )
         properties['zg_11'].append( float( numbers[9] ) )
-        properties['rho_12'].append( float( numbers[10] ) )
+        properties['Rg_12'].append( float( numbers[10] ) )
         properties['zg_12'].append( float( numbers[11] ) )
-        properties['rho_13'].append( float( numbers[12] ) )
+        properties['Rg_13'].append( float( numbers[12] ) )
         properties['zg_13'].append( float( numbers[13] ) )
-        properties['rho_14'].append( float( numbers[14] ) )
+        properties['Rg_14'].append( float( numbers[14] ) )
         properties['zg_14'].append( float( numbers[15] ) )
-        properties['rho_15'].append( float( numbers[16] ) )
+        properties['Rg_15'].append( float( numbers[16] ) )
         properties['zg_15'].append( float( numbers[17] ) )
-        properties['rho_16'].append( float( numbers[18] ) )
+        properties['Rg_16'].append( float( numbers[18] ) )
         properties['zg_16'].append( float( numbers[19] ) )
-        properties['rho_17'].append( float( numbers[20] ) )
+        properties['Rg_17'].append( float( numbers[20] ) )
         properties['zg_17'].append( float( numbers[21] ) )
-        properties['rho_18'].append( float( numbers[22] ) )
+        properties['Rg_18'].append( float( numbers[22] ) )
         properties['zg_18'].append( float( numbers[23] ) )
-        properties['rho_19'].append( float( numbers[24] ) )
+        properties['Rg_19'].append( float( numbers[24] ) )
         properties['zg_19'].append( float( numbers[25] ) )
-        properties['rho_20'].append( float( numbers[26] ) )
+        properties['Rg_20'].append( float( numbers[26] ) )
         properties['zg_20'].append( float( numbers[27] ) )
         
-        properties['chrg_rho_10'].append( float( numbers[28] ) )
+        properties['chrg_Rg_10'].append( float( numbers[28] ) )
         properties['chrg_zg_10'].append( float( numbers[29] ) )
-        properties['chrg_rho_11'].append( float( numbers[30] ) )
+        properties['chrg_Rg_11'].append( float( numbers[30] ) )
         properties['chrg_zg_11'].append( float( numbers[31] ) )
-        properties['chrg_rho_12'].append( float( numbers[32] ) )
+        properties['chrg_Rg_12'].append( float( numbers[32] ) )
         properties['chrg_zg_12'].append( float( numbers[33] ) )
-        properties['chrg_rho_13'].append( float( numbers[34] ) )
+        properties['chrg_Rg_13'].append( float( numbers[34] ) )
         properties['chrg_zg_13'].append( float( numbers[35] ) )
-        properties['chrg_rho_14'].append( float( numbers[36] ) )
+        properties['chrg_Rg_14'].append( float( numbers[36] ) )
         properties['chrg_zg_14'].append( float( numbers[37] ) )
-        properties['chrg_rho_15'].append( float( numbers[38] ) )
+        properties['chrg_Rg_15'].append( float( numbers[38] ) )
         properties['chrg_zg_15'].append( float( numbers[39] ) )
-        properties['chrg_rho_16'].append( float( numbers[40] ) )
+        properties['chrg_Rg_16'].append( float( numbers[40] ) )
         properties['chrg_zg_16'].append( float( numbers[41] ) )
-        properties['chrg_rho_17'].append( float( numbers[42] ) )
+        properties['chrg_Rg_17'].append( float( numbers[42] ) )
         properties['chrg_zg_17'].append( float( numbers[43] ) )
-        properties['chrg_rho_18'].append( float( numbers[44] ) )
+        properties['chrg_Rg_18'].append( float( numbers[44] ) )
         properties['chrg_zg_18'].append( float( numbers[45] ) )
-        properties['chrg_rho_19'].append( float( numbers[46] ) )
+        properties['chrg_Rg_19'].append( float( numbers[46] ) )
         properties['chrg_zg_19'].append( float( numbers[47] ) )
-        properties['chrg_rho_20'].append( float( numbers[48] ) )
+        properties['chrg_Rg_20'].append( float( numbers[48] ) )
         properties['chrg_zg_20'].append( float( numbers[49] ) )
 
         properties['chrg_multip'].append( int( numbers[51] ) )
@@ -244,6 +246,7 @@ def plot_rho(pT_lower_cut=150):
   # plt.savefig("plots/" + get_version(input_analysis_file) + "/rho/rho_" + str(pT_lower_cut) + ".pdf")
   plt.savefig("plots/" + "Version 4" + "/rho/rho_" + str(pT_lower_cut) + ".pdf")
   plt.clf()
+
 
 
 
@@ -419,12 +422,464 @@ def plot_rho_jet_quality_parameters(pT_lower_cut=150):
 
 
 
-plot_rho_jet_quality_parameters(100)
-plot_rho_jet_quality_parameters(200)
-plot_rho_jet_quality_parameters(300)
-plot_rho_jet_quality_parameters(400)
-plot_rho_jet_quality_parameters(500)
-plot_rho_jet_quality_parameters(600)
+
+
+
+def plot_m_and_pT(pT_lower_cut=150):
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+
+  m = properties['jet_13_m']
+  pT = properties['jet_13_pT']
+  prescales = properties['prescales']
+
+
+
+  plt.hist(m, weights=prescales, histtype='step', bins=50, lw=5)
+  plt.autoscale(True)
+  plt.gca().set_xlabel("$m$", fontsize=75, labelpad=50)
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+  plt.savefig("plots/" + "Version 4" + "/rho_experiments/m_pT_" + str(pT_lower_cut) + ".pdf")
+  plt.clf()
+
+
+  plt.hist(np.square(m), weights=prescales, histtype='step', bins=50, lw=5)
+  plt.autoscale(True)
+  plt.gca().set_xlabel("$m^2$", fontsize=75, labelpad=50)
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+  plt.savefig("plots/" + "Version 4" + "/rho_experiments/m_2_pT_" + str(pT_lower_cut) + ".pdf")
+  plt.clf()
+
+  
+  plt.hist(pT, weights=prescales, histtype='step', bins=50, lw=5)
+  plt.autoscale(True)
+  plt.gca().set_xlabel("$p_T$", fontsize=75, labelpad=50)
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+  plt.savefig("plots/" + "Version 4" + "/rho_experiments/pT_" + str(pT_lower_cut) + ".pdf")
+  plt.clf()
+
+
+  plt.hist(np.square(pT), weights=prescales, histtype='step', bins=50, lw=5)
+  plt.autoscale(True)
+  plt.gca().set_xlabel("$p_T^2$", fontsize=75, labelpad=50)
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+  plt.savefig("plots/" + "Version 4" + "/rho_experiments/pT_2_" + str(pT_lower_cut) + ".pdf")
+  plt.clf()
+
+
+  plt.hist(np.divide(np.square(m), np.square(pT)), weights=prescales, histtype='step', bins=50, lw=5, normed=1)
+  plt.autoscale(True)
+  plt.gca().set_xlabel("$\\frac{m^2}{p_T^2}$", fontsize=75, labelpad=50)
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+  plt.savefig("plots/" + "Version 4" + "/rho_experiments/m_2_over_pT_2_" + str(pT_lower_cut) + ".pdf")
+  plt.clf()
+
+
+
+def plot_m_and_pT_decomposition(pT_lower_cut=150):
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+
+  m = properties['jet_13_m']
+  pT = properties['jet_13_pT']
+  prescales = properties['prescales']
+
+
+  def fix_nan(observable, prescales):
+    x = []
+    y = []
+    for i in range(0, len(observable)):
+      if not np.isnan(observable[i]):
+        x.append(observable[i])
+        y.append(prescales[i])
+
+    return x, y
+
+  # plt.hist(np.log(np.divide(np.square(m), np.square(pT))), weights=prescales, histtype='step', bins=50, lw=5, normed=1)
+  
+  a1 = 2 * np.log(m)
+  a2 = 2 * np.log(pT)
+
+  plt.hist(fix_nan(a1, prescales)[0], weights=fix_nan(a1, prescales)[1], label="$2 \\log{m}$", histtype='step', bins=50, lw=5, normed=1)
+  plt.hist(fix_nan(a2, prescales)[0], weights=fix_nan(a2, prescales)[1], label="$2 \\log{p_T}$", histtype='step', bins=50, lw=5, normed=1)
+
+  plt.hist(fix_nan(np.subtract(a1, a2), prescales)[0], weights=fix_nan(np.subtract(a1, a2), prescales)[1], label="$2 \\log{m} - 2 \\log{p_T}$", histtype='step', bins=50, lw=5, normed=1)
+
+
+  plt.plot((0.00, 0.00), (0.00, 0.18), 'k--', lw=5)
+
+  plt.legend(loc=2)
+  plt.autoscale(True)
+  # plt.gca().set_xlabel("$\\log{\\frac{m^2}{p_T^2}}$", fontsize=75, labelpad=50)
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+  plt.savefig("plots/" + "Version 4" + "/rho_experiments/log_m_2_over_pT_2.pdf")
+  plt.clf()
+
+
+
+def plot_m_and_rho(pT_lower_cut=100):
+
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+
+  rhos = properties['rho_13']
+  mass = properties['jet_13_m']
+  prescales = properties['prescales']
+
+
+
+  H, xedges, yedges = np.histogram2d(mass, rhos, bins=25, weights=prescales, normed=1, range=[[min(mass), max(mass)], [min(rhos), max(rhos)]] )
+
+  H_normalized = []
+  for i in range(0, 25):
+    current_row = []
+    factor = sum(H[i])
+    for j in range(0, 25):
+      current_row.append(H[i][j] / factor)
+    H_normalized.append(current_row)
+
+  H_normalized = np.array(H_normalized)
+  H = H_normalized
+
+  H = np.rot90(H)
+  H = np.flipud(H)
+
+  for i in range(0, len(H)):
+    for j in range(0, len(H[j])):
+      if str(H[i][j]) == "nan":
+        H[i][j] = 0.
+
+  Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
+
+  plt.pcolormesh(xedges,yedges, Hmasked)
+
+  cbar = plt.colorbar()
+  cbar.ax.set_ylabel('Counts')
+
+  plt.xlabel('$m$')
+  plt.ylabel('$\\rho$', rotation=0, labelpad=30)
+
+  
+  plt.gcf().set_size_inches(30, 30, forward=1)
+  plt.gcf().set_snap(True)
+
+  
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/rho/rho_vs_m.pdf")
+
+  plt.clf()
+
+
+
+
+def plot_pT_and_rho(pT_lower_cut=100):
+
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+
+  rhos = properties['rho_13']
+  pT = properties['jet_13_pT']
+  prescales = properties['prescales']
+
+
+
+  H, xedges, yedges = np.histogram2d(pT, rhos, bins=25, weights=prescales, normed=1, range=[[min(pT), max(pT)], [min(rhos), max(rhos)]] )
+
+  H_normalized = []
+  for i in range(0, 25):
+    current_row = []
+    factor = sum(H[i])
+    for j in range(0, 25):
+      current_row.append(H[i][j] / factor)
+    H_normalized.append(current_row)
+
+  H_normalized = np.array(H_normalized)
+  H = H_normalized
+
+  H = np.rot90(H)
+  H = np.flipud(H)
+
+  for i in range(0, len(H)):
+    for j in range(0, len(H[j])):
+      if str(H[i][j]) == "nan":
+        H[i][j] = 0.
+
+  Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
+
+  plt.pcolormesh(xedges,yedges, Hmasked)
+
+  cbar = plt.colorbar()
+  cbar.ax.set_ylabel('Counts')
+
+  plt.xlabel('$p_T$')
+  plt.ylabel('$\\rho$', rotation=0, labelpad=30)
+
+  
+  plt.gcf().set_size_inches(30, 30, forward=1)
+  plt.gcf().set_snap(True)
+
+  
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/rho/rho_vs_pT.pdf")
+
+  plt.clf()
+
+
+
+
+
+
+
+def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
+
+
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, jet_quality_level=1)
+
+  prescales = properties['prescales']
+
+  z_g = properties[zg_filename]
+  R_g = properties[zg_filename.replace("zg", "Rg")]
+
+
+  R_g_with_cuts = []
+  z_g_with_cuts_on_R_g = []
+  prescales_for_R_g_with_cuts = []
+  for i in range(0, len(R_g)):
+    if float(R_g[i]) > 0.1 and float(R_g[i]) < 0.4:
+      R_g_with_cuts.append(R_g[i])
+      z_g_with_cuts_on_R_g.append(z_g[i])
+      prescales_for_R_g_with_cuts.append(prescales[i])
+
+  theta_g = np.divide(R_g, 0.5)
+  theta_g_with_R_g_cuts = np.divide(R_g_with_cuts, 0.5)
+
+  # ============================================================================================= PLOT BEGINS ===========================================================================================================================
+
+  bins_linear_log = np.linspace(math.log(0.1, math.e), math.log(0.5, math.e), 30)
+
+  theta_g_hist = Hist(bins_linear_log, title='All Jets', markersize=3.0, color='black')
+  bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
+  map(theta_g_hist.Fill, np.log(theta_g), prescales)
+  theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  bins_linear_log = np.linspace(math.log(0.2, math.e), math.log(0.8, math.e), 30)
+  theta_g_with_cuts_hist = Hist(bins_linear_log, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
+  map(theta_g_with_cuts_hist.Fill, np.log(theta_g_with_R_g_cuts), prescales_for_R_g_with_cuts)
+  theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.69])
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.xlabel('$ \\theta_g $', fontsize=75)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
+  
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(0.25))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.05))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
+  plt.gca().autoscale(True)
+  plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/theta_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+  plt.clf()
+
+  # =============================================================================================== PLOT ENDS ===========================================================================================================================
+
+
+  # ============================================================================================= PLOT BEGINS ===========================================================================================================================
+
+  bins_linear_log = np.linspace(math.log(0.1 * float(zg_cut), math.e), math.log(0.25, math.e), 30)
+
+  theta_g_hist = Hist(bins_linear_log, title='All Jets', markersize=3.0, color='black')
+  bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
+  map(theta_g_hist.Fill, np.log(np.multiply(theta_g, z_g)), prescales)
+  theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  bins_linear_log = np.linspace(math.log(0.2*0.1, math.e), math.log(0.8*0.5, math.e), 30)
+  theta_g_with_cuts_hist = Hist(bins_linear_log, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
+  map(theta_g_with_cuts_hist.Fill, np.log(np.multiply(theta_g_with_R_g_cuts, z_g_with_cuts_on_R_g)), prescales_for_R_g_with_cuts)
+  theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.69])
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.xlabel('$ z_g \\theta_g $', fontsize=75)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
+  
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(0.25))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.05))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
+  plt.gca().autoscale(True)
+  plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+  plt.clf()
+
+  # =============================================================================================== PLOT ENDS ===========================================================================================================================
+
+  # ============================================================================================= PLOT BEGINS ===========================================================================================================================
+
+  bins_linear_log = np.linspace(math.log(float(zg_cut)*0.1*0.1, math.e), math.log(0.5*1*1, math.e), 30)
+
+  theta_g_hist = Hist(bins_linear_log, title='All Jets', markersize=3.0, color='black')
+  bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
+  map(theta_g_hist.Fill, np.log( np.multiply( z_g, np.square(theta_g) )), prescales)
+  theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  bins_linear_log = np.linspace(math.log(float(zg_cut)*0.2*0.2, math.e), math.log(0.5*0.8*0.8, math.e), 30)
+  theta_g_with_cuts_hist = Hist(bins_linear_log, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
+  map(theta_g_with_cuts_hist.Fill, np.log( np.multiply( z_g_with_cuts_on_R_g, np.square(theta_g_with_R_g_cuts) )), prescales_for_R_g_with_cuts)
+  theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.69])
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.xlabel('$ z_g \\theta_g^2 $', fontsize=75)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
+  
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(0.25))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.05))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
+  plt.gca().autoscale(True)
+  plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/z_g_times_theta_g^2/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+  plt.clf()
+
+  # =============================================================================================== PLOT ENDS ===========================================================================================================================
+
+  # ============================================================================================= PLOT BEGINS ===========================================================================================================================
+
+  bins_linear_log = np.linspace(math.log(float(zg_cut)*math.sqrt(0.1), math.e), math.log(0.5*1*1, math.e), 30)
+
+  theta_g_hist = Hist(bins_linear_log, title='All Jets', markersize=3.0, color='black')
+  bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
+  map(theta_g_hist.Fill, np.log( np.multiply( z_g, np.sqrt(theta_g) )), prescales)
+  theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  bins_linear_log = np.linspace(math.log(float(zg_cut)*0.2*0.2, math.e), math.log(0.5*0.8*0.8, math.e), 30)
+  theta_g_with_cuts_hist = Hist(bins_linear_log, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
+  map(theta_g_with_cuts_hist.Fill, np.log( np.multiply( z_g_with_cuts_on_R_g, np.sqrt(theta_g_with_R_g_cuts) )), prescales_for_R_g_with_cuts)
+  theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.69])
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.xlabel('$ z_g \\theta_g^{1/2} $', fontsize=75)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
+  
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(0.25))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.05))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
+  plt.gca().autoscale(True)
+  plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/z_g_times_sqrt_theta_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+  plt.clf()
+
+  # =============================================================================================== PLOT ENDS ===========================================================================================================================
+
+
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.11', zg_filename='zg_11')
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.12', zg_filename='zg_12')
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.13', zg_filename='zg_13')
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.14', zg_filename='zg_14')
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15')
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.16', zg_filename='zg_16')
+plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.17', zg_filename='zg_17')
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.18', zg_filename='zg_18')
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.19', zg_filename='zg_19')
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
+
+
+
+# plot_m_and_rho()
+
+# plot_pT_and_rho()
+
+# plot_m_and_pT(100)
+# plot_m_and_pT(200)
+# plot_m_and_pT(300)
+# plot_m_and_pT(400)
+# plot_m_and_pT(500)
+
+
+# plot_m_and_pT_decomposition(250)
+
+# plot_rho_jet_quality_parameters(100)
+# plot_rho_jet_quality_parameters(200)
+# plot_rho_jet_quality_parameters(300)
+# plot_rho_jet_quality_parameters(400)
+# plot_rho_jet_quality_parameters(500)
+# plot_rho_jet_quality_parameters(600)
 
 
 # plot_rho(pT_lower_cut=100)
@@ -445,5 +900,6 @@ plot_rho_jet_quality_parameters(600)
 # plot_2d_rho_no_of_constituents(400)
 # plot_2d_rho_no_of_constituents(500)
 # plot_2d_rho_no_of_constituents(600)
+
 
 call(["python", "/home/aashish/root/macros/MODAnalyzer/utilities/sync_plots.py"])
