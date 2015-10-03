@@ -653,20 +653,20 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   theta_g = np.divide(R_g, 0.5)
   theta_g_with_R_g_cuts = np.divide(R_g_with_cuts, 0.5)
 
-  # ============================================================================================= PLOT BEGINS ===========================================================================================================================
+  # ============================================================================================= z_g PLOT OF BEGINS ===========================================================================================================================
 
-  bins_linear_log = np.linspace(math.log(0.1, math.e), math.log(0.5, math.e), 30)
+  bins_linear_log = np.linspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 30)
 
   theta_g_hist = Hist(bins_linear_log, title='All Jets', markersize=3.0, color='black')
   bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
-  map(theta_g_hist.Fill, np.log(theta_g), prescales)
+  map(theta_g_hist.Fill, np.log(z_g), prescales)
   theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
   rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-  bins_linear_log = np.linspace(math.log(0.2, math.e), math.log(0.8, math.e), 30)
+  bins_linear_log = np.linspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 30)
   theta_g_with_cuts_hist = Hist(bins_linear_log, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
   bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
-  map(theta_g_with_cuts_hist.Fill, np.log(theta_g_with_R_g_cuts), prescales_for_R_g_with_cuts)
+  map(theta_g_with_cuts_hist.Fill, np.log(z_g_with_cuts_on_R_g), prescales_for_R_g_with_cuts)
   theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
   rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
@@ -675,14 +675,14 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
-  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.69])
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.72])
 
   ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
-  plt.xlabel('$ \\theta_g $', fontsize=75)
+  plt.xlabel('$ z_g $', fontsize=75)
   plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
   
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
@@ -696,15 +696,68 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/z_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+  plt.clf()
+
+  # =============================================================================================== z_g PLOT ENDS ===========================================================================================================================
+
+  # ============================================================================================= theta_g PLOT BEGINS ===========================================================================================================================
+
+  bins_linear_log = np.linspace(math.log(0.1, math.e), math.log(1.5, math.e), int((1.5 - 0.1) / 0.04))
+  bins_linear_log_cuts = np.linspace(math.log(0.2, math.e), math.log(0.8, math.e), int((0.8 - 0.2) / 0.04))
+
+  theta_g_hist = Hist(bins_linear_log, title='All Jets', markersize=3.0, color='black')
+  bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
+  map(theta_g_hist.Fill, np.log(theta_g), prescales)
+  theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
+  map(theta_g_with_cuts_hist.Fill, np.log(theta_g_with_R_g_cuts), prescales_for_R_g_with_cuts)
+  theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+  plt.gca().add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.72])
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  plt.xlabel('$ \\theta_g $', fontsize=75)
+  plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
+  
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  x = np.linspace(math.log(0.1, math.e), math.log(1.5, math.e), 6)
+  labels = [str(round(math.exp(i), 2)) for i in x]
+  plt.xticks(x, labels)
+
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.05))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
+  plt.gca().autoscale(True)
+  plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
   plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/theta_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
   plt.clf()
 
-  # =============================================================================================== PLOT ENDS ===========================================================================================================================
+  # =============================================================================================== theta_g PLOT ENDS ===========================================================================================================================
 
 
-  # ============================================================================================= PLOT BEGINS ===========================================================================================================================
+  # ============================================================================================= theta_g * z_g PLOT BEGINS ===========================================================================================================================
 
-  bins_linear_log = np.linspace(math.log(0.1 * float(zg_cut), math.e), math.log(0.25, math.e), 30)
+  bins_linear_log = np.linspace(math.log(0.1 * float(zg_cut), math.e), math.log(0.6, math.e), int((0.6 - 0.1*float(zg_cut)) / 0.02))
+  bins_linear_log_cuts = np.linspace(math.log(0.2*0.1, math.e), math.log(0.8*0.5, math.e), int((0.8*0.5 - 0.2*0.1) / 0.02))
 
   theta_g_hist = Hist(bins_linear_log, title='All Jets', markersize=3.0, color='black')
   bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
@@ -712,8 +765,7 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
   rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-  bins_linear_log = np.linspace(math.log(0.2*0.1, math.e), math.log(0.8*0.5, math.e), 30)
-  theta_g_with_cuts_hist = Hist(bins_linear_log, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
   bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
   map(theta_g_with_cuts_hist.Fill, np.log(np.multiply(theta_g_with_R_g_cuts, z_g_with_cuts_on_R_g)), prescales_for_R_g_with_cuts)
   theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
@@ -724,7 +776,7 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
-  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.69])
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.72])
 
   ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
@@ -735,6 +787,10 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
   
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  x = np.linspace(math.log(0.1 * float(zg_cut), math.e), math.log(0.6, math.e), 6)
+  labels = [str(round(math.exp(i), 2)) for i in x]
+  plt.xticks(x, labels)
 
   plt.gca().xaxis.set_minor_locator(MultipleLocator(0.25))
   plt.gca().yaxis.set_minor_locator(MultipleLocator(0.05))
@@ -748,11 +804,12 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
   plt.clf()
 
-  # =============================================================================================== PLOT ENDS ===========================================================================================================================
+  # =============================================================================================== theta_g * z_g PLOT ENDS ===========================================================================================================================
 
-  # ============================================================================================= PLOT BEGINS ===========================================================================================================================
+  # ============================================================================================= z_g * theta_g^2 PLOT BEGINS ===========================================================================================================================
 
-  bins_linear_log = np.linspace(math.log(float(zg_cut)*0.1*0.1, math.e), math.log(0.5*1*1, math.e), 30)
+  bins_linear_log = np.linspace(math.log(0.1*0.1*float(zg_cut), math.e), math.log(0.6*1*1, math.e), int( (0.5*0.8*0.8 - 0.2*0.2*float(zg_cut)) / 0.01))
+  bins_linear_log_cuts = np.linspace(math.log(float(zg_cut)*0.2*0.2, math.e), math.log(0.5*0.8*0.8, math.e), int( (0.5*0.8*0.8 - 0.2*0.2*float(zg_cut)) / 0.01))
 
   theta_g_hist = Hist(bins_linear_log, title='All Jets', markersize=3.0, color='black')
   bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
@@ -760,8 +817,7 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
   rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-  bins_linear_log = np.linspace(math.log(float(zg_cut)*0.2*0.2, math.e), math.log(0.5*0.8*0.8, math.e), 30)
-  theta_g_with_cuts_hist = Hist(bins_linear_log, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
   bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
   map(theta_g_with_cuts_hist.Fill, np.log( np.multiply( z_g_with_cuts_on_R_g, np.square(theta_g_with_R_g_cuts) )), prescales_for_R_g_with_cuts)
   theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
@@ -772,7 +828,7 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
-  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.69])
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.72])
 
   ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
@@ -783,6 +839,10 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
   
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  x = np.linspace(math.log(0.1*0.1*float(zg_cut), math.e), math.log(0.6*1*1, math.e), 6)
+  labels = [str(round(math.exp(i), 3)) for i in x]
+  plt.xticks(x, labels)
 
   plt.gca().xaxis.set_minor_locator(MultipleLocator(0.25))
   plt.gca().yaxis.set_minor_locator(MultipleLocator(0.05))
@@ -796,11 +856,12 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/z_g_times_theta_g^2/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
   plt.clf()
 
-  # =============================================================================================== PLOT ENDS ===========================================================================================================================
+  # =============================================================================================== z_g * theta_g^2 PLOT ENDS ===========================================================================================================================
 
-  # ============================================================================================= PLOT BEGINS ===========================================================================================================================
+  # ============================================================================================= z_g * theta_g^(0.5) PLOT BEGINS ===========================================================================================================================
 
-  bins_linear_log = np.linspace(math.log(float(zg_cut)*math.sqrt(0.1), math.e), math.log(0.5*1*1, math.e), 30)
+  bins_linear_log = np.linspace(math.log(float(zg_cut)*math.sqrt(0.1), math.e), math.log(0.6*1*1, math.e), int( (0.6*1*1 - float(zg_cut)*math.sqrt(0.1)) / 0.02) )
+  bins_linear_log_cuts = np.linspace(math.log(float(zg_cut)*math.sqrt(0.2), math.e), math.log(0.5*math.sqrt(0.8), math.e), int( (0.5*math.sqrt(0.8) - float(zg_cut)*math.sqrt(0.2)) / 0.02) )
 
   theta_g_hist = Hist(bins_linear_log, title='All Jets', markersize=3.0, color='black')
   bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
@@ -808,8 +869,7 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
   rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-  bins_linear_log = np.linspace(math.log(float(zg_cut)*0.2*0.2, math.e), math.log(0.5*0.8*0.8, math.e), 30)
-  theta_g_with_cuts_hist = Hist(bins_linear_log, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
   bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
   map(theta_g_with_cuts_hist.Fill, np.log( np.multiply( z_g_with_cuts_on_R_g, np.sqrt(theta_g_with_R_g_cuts) )), prescales_for_R_g_with_cuts)
   theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
@@ -820,7 +880,7 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
-  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.69])
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.72])
 
   ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
@@ -831,6 +891,10 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
   
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  x = np.linspace(math.log(float(zg_cut)*math.sqrt(0.1), math.e), math.log(0.6*1*1, math.e), 6)
+  labels = [str(round(math.exp(i), 3)) for i in x]
+  plt.xticks(x, labels)
 
   plt.gca().xaxis.set_minor_locator(MultipleLocator(0.25))
   plt.gca().yaxis.set_minor_locator(MultipleLocator(0.05))
@@ -844,17 +908,17 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/z_g_times_sqrt_theta_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
   plt.clf()
 
-  # =============================================================================================== PLOT ENDS ===========================================================================================================================
+  # =============================================================================================== z_g * theta_g^(0.5) PLOT ENDS ===========================================================================================================================
 
 
-# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
+plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 # plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.11', zg_filename='zg_11')
 # plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.12', zg_filename='zg_12')
 # plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.13', zg_filename='zg_13')
 # plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.14', zg_filename='zg_14')
 # plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15')
 # plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.16', zg_filename='zg_16')
-plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.17', zg_filename='zg_17')
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.17', zg_filename='zg_17')
 # plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.18', zg_filename='zg_18')
 # plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.19', zg_filename='zg_19')
 # plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
