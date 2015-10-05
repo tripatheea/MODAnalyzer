@@ -687,6 +687,10 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
+  x = np.linspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 6)
+  labels = [str(round(math.exp(i), 2)) for i in x]
+  plt.xticks(x, labels)
+
   plt.gca().xaxis.set_minor_locator(MultipleLocator(0.25))
   plt.gca().yaxis.set_minor_locator(MultipleLocator(0.05))
   plt.tick_params(which='major', width=5, length=25, labelsize=70)
@@ -912,16 +916,26 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
 
 
 plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
-# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.11', zg_filename='zg_11')
-# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.12', zg_filename='zg_12')
-# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.13', zg_filename='zg_13')
-# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.14', zg_filename='zg_14')
-# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15')
-# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.16', zg_filename='zg_16')
-# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.17', zg_filename='zg_17')
-# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.18', zg_filename='zg_18')
-# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.19', zg_filename='zg_19')
-# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
+plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.10', zg_filename='zg_10')
+plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.10', zg_filename='zg_10')
+plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.10', zg_filename='zg_10')
+
+
+
+plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15')
+plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.15', zg_filename='zg_15')
+plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.15', zg_filename='zg_15')
+plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.15', zg_filename='zg_15')
+
+
+
+plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
+plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.20', zg_filename='zg_20')
+plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.20', zg_filename='zg_20')
+plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.20', zg_filename='zg_20')
+
+
+
 
 
 
