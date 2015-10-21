@@ -51,7 +51,7 @@ string MOD::PFCandidate::make_string() const {
 
 string MOD::PFCandidate::make_header_string() const {
    stringstream ss;
-   ss << "# PFC" << "              px              py              pz          energy   pdgId" << endl;  
+   ss << "# PFC" << "              px              py              pz          energy   pdgId" << endl;
    return ss.str();
 }
 
