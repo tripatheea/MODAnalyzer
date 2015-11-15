@@ -3486,6 +3486,86 @@ def zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05'):
 
   
 
+def zg_new_mc():
+  
+  properties = parse_file(input_analysis_file, pT_lower_cut=150)
+  
+  zg_data = properties['zg_05']
+  pT_data = properties['corrected_hardest_pts']
+  prescales = properties['prescales']
+
+  monte_carlo_file_name = "/home/aashish/MODMonteCarlo/data/zg_output.dat"
+
+  f = open(monte_carlo_file_name, 'r')
+  lines = f.read().split("\n")
+  
+  zg_mc = []
+  pT_mc = []
+  for line in lines:  
+    if len(line.strip()) != 0:
+      numbers = line.split(", ")
+      pT_mc.append(float(numbers[0]))
+      zg_mc.append(float(numbers[1]))
+
+  zg_data_hist = Hist(20, 0, 0.5, title="Data")
+  bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
+  map(zg_data_hist.Fill, zg_data, prescales)
+  zg_data_hist.Scale(1.0 / ( zg_data_hist.GetSumOfWeights() * bin_width_data ))
+
+  
+  rplt.errorbar(zg_data_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+  
+  plt.hist(zg_mc, color="red", histtype='step', normed=1, lw=5, label="Pythia 8.212")
+
+  plt.legend()
+
+  plt.xlabel("$z_g$")
+
+  plt.gca().autoscale(True)
+  # plt.gca().set_xlim(0.0, 0.5)
+  # plt.gca().set_ylim(0.0, 19)
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.gcf().set_snap(True)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/zg_new_MC.pdf")
+
+  plt.clf()
+
+
+
+  print min(pT_mc)
+  print max(pT_mc)
+  pT_data_hist = Hist(20, 0, 7000, title="Data")
+  bin_width_data = (pT_data_hist.upperbound() - pT_data_hist.lowerbound()) / pT_data_hist.nbins()
+  map(pT_data_hist.Fill, pT_data, prescales)
+  pT_data_hist.Scale(1.0 / ( pT_data_hist.GetSumOfWeights() * bin_width_data ))
+
+  
+  # rplt.errorbar(pT_data_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+  
+  plt.hist(pT_mc, color="red", bins=50, histtype='step', normed=True, lw=5, label="Pythia 8.212")
+
+  plt.legend()
+
+  plt.xlabel("$p_T$")
+
+  plt.gca().autoscale(True)
+  # plt.gca().set_xlim(0.0, 0.5)
+  plt.gca().set_ylim(0.0, 0.002)
+
+  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+  plt.gcf().set_snap(True)
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/pT_new_MC.pdf")
+
+  plt.clf()
+
+zg_new_mc()
 
 
 

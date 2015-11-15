@@ -2,7 +2,7 @@ ifeq ($(USER),jthaler)
 	-include config_jthaler.mk
 	PATH_TO_FASTJET = $(FASTJETLOCATION)/fastjet-config
 else 
-	PATH_TO_FASTJET = ../fastjet-install/bin/fastjet-config
+	PATH_TO_FASTJET = /usr/local/bin/fastjet-config
 endif
 
 CXX = g++
@@ -20,7 +20,7 @@ BINDIR=bin
 INCDIR=interface
 INC= -I$(INCDIR)
 
-_OBJ =calibrated_jet event fractional_jet_multiplicity pfcandidate trigger property condition helpers
+_OBJ =mc_pfcandidate mc_calibrated_jet calibrated_jet event fractional_jet_multiplicity pfcandidate trigger property condition helpers
 OBJ  =$(patsubst %,$(OBJDIR)/%,$(_OBJ:=.o))
 
 
