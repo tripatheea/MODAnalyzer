@@ -95,12 +95,14 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
 
 
    MOD::MCCalibratedJet hardest_truth_jet = event_being_read.hardest_mc_truth_jet();
+   MOD::MCCalibratedJet hardest_reco_jet = event_being_read.hardest_mc_reco_jet();
 
 
    vector<MOD::Property> properties;
    
    properties.push_back(MOD::Property("# Entry", "  Entry"));
 
+   // properties.push_back(MOD::Property("Hardest_pT", hardest_reco_jet.pseudojet().pt()));
    properties.push_back(MOD::Property("Hardest_pT", hardest_truth_jet.pseudojet().pt()));
    
 

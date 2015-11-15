@@ -36,6 +36,6 @@ def sync_files(input_directory, output_directory):
     
 
 input_directory = "/home/aashish/root-6.04.06/macros/MODAnalyzer/plots/"
-output_directory = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Plots/"
+output_directory = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Plots/With MC/"
 
 sync_files(input_directory, output_directory)
