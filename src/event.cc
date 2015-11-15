@@ -64,6 +64,20 @@ void MOD::Event::add_particle(istringstream & input_stream) {
    _pseudojets.push_back(PseudoJet(new_particle.pseudojet()));
 }
 
+void MOD::Event::add_mc_truth_particle(istringstream & input_stream) {
+   MOD::MCPFCandidate new_particle(input_stream);
+
+   _mc_truth_particles.push_back(new_particle);
+   _mc_truth_pseudojets.push_back(PseudoJet(new_particle.pseudojet()));
+}
+
+void MOD::Event::add_mc_reco_particle(istringstream & input_stream) {
+   MOD::MCPFCandidate new_particle(input_stream);
+
+   _mc_reco_particles.push_back(new_particle);
+   _mc_reco_pseudojets.push_back(PseudoJet(new_particle.pseudojet()));
+}
+
 void MOD::Event::add_condition(istringstream & input_stream) {
    MOD::Condition new_condition(input_stream);
 
@@ -78,8 +92,33 @@ void MOD::Event::add_CMS_jet(istringstream & input_stream) {
    
 }
 
+void MOD::Event::add_mc_truth_jet(istringstream & input_stream) {
+   MOD::MCCalibratedJet new_jet(input_stream);
+
+   _mc_truth_jets.push_back(new_jet);
+   _mc_truth_pseudojets.push_back(new_jet.pseudojet());      
+   
+}
+
+void MOD::Event::add_mc_reco_jet(istringstream & input_stream) {
+   MOD::MCCalibratedJet new_jet(input_stream);
+
+   _mc_reco_jets.push_back(new_jet);
+   _mc_reco_pseudojets.push_back(new_jet.pseudojet());      
+   
+}
+
 void MOD::Event::add_trigger(istringstream & input_stream) {
    _triggers.push_back(MOD::Trigger(input_stream));
+}
+
+const int MOD::Event::data_source() const {
+   return _data_source;
+}
+
+void MOD::Event::set_data_source(int data_source) {
+   // 0 => Experiment, 1 => MC_TRUTH, 2 => MC_RECO.
+   _data_source = static_cast<data_source_t>(data_source);
 }
 
 const MOD::Trigger MOD::Event::trigger_by_name(string name) const {
@@ -151,6 +190,43 @@ string MOD::Event::make_string() const {
 }
 
 
+const MOD::MCCalibratedJet MOD::Event::hardest_mc_truth_jet() const {
+   return _hardest_mc_truth_jet;
+}
+
+const MOD::MCCalibratedJet MOD::Event::hardest_mc_reco_jet() const {
+   return _hardest_mc_reco_jet;
+}
+
+void MOD::Event::set_hardest_truth_jet() {
+   
+   double hardest_pT = 0.0;
+   int hardest_pT_index = 0;
+
+   for (unsigned i = 0; i < _mc_truth_jets.size(); i++) {
+      if (_mc_truth_jets[i].pseudojet().pt() > hardest_pT) {
+         hardest_pT = _mc_truth_jets[i].pseudojet().pt();
+         hardest_pT_index = i;
+      }
+   }
+
+   _hardest_mc_truth_jet = _mc_truth_jets[hardest_pT_index];
+}
+
+void MOD::Event::set_hardest_reco_jet() {
+   double hardest_pT = 0.0;
+   int hardest_pT_index = 0;
+
+   for (unsigned i = 0; i < _mc_reco_jets.size(); i++) {
+      if (_mc_reco_jets[i].pseudojet().pt() > hardest_pT) {
+         hardest_pT = _mc_reco_jets[i].pseudojet().pt();
+         hardest_pT_index = i;
+      }
+   }
+
+   _hardest_mc_reco_jet = _mc_reco_jets[hardest_pT_index];
+}
+
 bool MOD::Event::read_event(istream & data_stream) {
 
    string line;
@@ -206,6 +282,42 @@ bool MOD::Event::read_event(istream & data_stream) {
          }
          catch (exception& e) {
             throw runtime_error("Invalid file format! Something's wrong with the way conditions have been written.");
+         }
+      }
+      else if (tag == "TRUTH") {
+         try {
+            set_data_source(1);
+            add_mc_truth_particle(stream);
+         }
+         catch (exception& e) {
+            throw runtime_error("Invalid file format! Something's wrong with the way Truth has been written. ;)");
+         }
+      }
+      else if (tag == "RPFC") {
+         try {
+            set_data_source(2);
+            add_mc_reco_particle(stream);
+         }
+         catch (exception& e) {
+            throw runtime_error("Invalid file format! Something's wrong with the way RPFC has been written. ;)");
+         }
+      }
+      else if (tag == "TAK5") {
+         try {
+            set_data_source(1);
+            add_mc_truth_jet(stream);
+         }
+         catch (exception& e) {
+            throw runtime_error("Invalid file format! Something's wrong with the way TAK5 has been written. ;)");
+         }
+      }
+      else if (tag == "RAK5") {
+         try {
+            set_data_source(2);
+            add_mc_reco_jet(stream);
+         }
+         catch (exception& e) {
+            throw runtime_error("Invalid file format! Something's wrong with the way RAK5 has been written. ;)");
          }
       }
       else if (tag == "EndEvent") {
@@ -393,28 +505,38 @@ std::vector<fastjet::PseudoJet> MOD::Event::closest_fastjet_jet_to_trigger_jet_c
 
 void MOD::Event::establish_properties() {
    
-   // Cluster PFCandidates into AK5 Jets using FastJet.
-   vector<MOD::PFCandidate> pfcandidates = particles();
-   vector<PseudoJet> pfcandidates_pseudojets = MOD::convert_to_pseudojets(pfcandidates);
+   if (data_source() == 0) {
+      // Cluster PFCandidates into AK5 Jets using FastJet.
+      vector<MOD::PFCandidate> pfcandidates = particles();
+      vector<PseudoJet> pfcandidates_pseudojets = MOD::convert_to_pseudojets(pfcandidates);
 
-   JetDefinition jet_def(antikt_algorithm, 0.5);
-   ClusterSequence cs(pfcandidates_pseudojets, jet_def);
-   vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
-   _fastjet_pseudojets = ak5_jets;
+      JetDefinition jet_def(antikt_algorithm, 0.5);
+      ClusterSequence cs(pfcandidates_pseudojets, jet_def);
+      vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
+      _fastjet_pseudojets = ak5_jets;
 
-   // cout << "trigger_jet" << endl;
-   // First of all, assign _trigger_jet.
-   set_trigger_jet();
+      // cout << "trigger_jet" << endl;
+      // First of all, assign _trigger_jet.
+      set_trigger_jet();
 
-   // cout << "closest fastjet" << endl;
-   // Next, find out the specific FastJet that's closest to _trigger_jet.
-   set_closest_fastjet_jet_to_trigger_jet();
+      // cout << "closest fastjet" << endl;
+      // Next, find out the specific FastJet that's closest to _trigger_jet.
+      set_closest_fastjet_jet_to_trigger_jet();
 
-   // cout << "trigger_jet is matched" << endl;
-   set_trigger_jet_is_matched();
+      // cout << "trigger_jet is matched" << endl;
+      set_trigger_jet_is_matched();
 
-   // cout << "assigned trigger" << endl;
-   set_assigned_trigger();   
+      // cout << "assigned trigger" << endl;
+      set_assigned_trigger();   
+   }
+   else if (data_source() == 1) {
+      set_hardest_truth_jet();
+   }
+   else if (data_source() == 2) {
+      set_hardest_truth_jet();
+      set_hardest_reco_jet();
+   }
+
 
 }
 

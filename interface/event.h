@@ -18,7 +18,9 @@
 
 #include "trigger.h"
 #include "pfcandidate.h"
+#include "mc_pfcandidate.h"
 #include "calibrated_jet.h"
+#include "mc_calibrated_jet.h"
 #include "condition.h"
 
 
@@ -57,6 +59,12 @@ namespace MOD {
             void add_particle(std::istringstream & input_stream);
             void add_CMS_jet(std::istringstream & input_stream);
             void add_trigger(std::istringstream & input_stream);
+
+            void add_mc_truth_particle(std::istringstream & input_stream);
+            void add_mc_truth_jet(std::istringstream & input_stream);
+
+            void add_mc_reco_particle(std::istringstream & input_stream);
+            void add_mc_reco_jet(std::istringstream & input_stream);
             
             void set_event_number(int event_number);
             void set_run_number(int run_number);
@@ -76,9 +84,19 @@ namespace MOD {
             fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet();
             std::vector<fastjet::PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents();
 
+            const MOD::MCCalibratedJet hardest_mc_truth_jet() const;
+            const MOD::MCCalibratedJet hardest_mc_reco_jet() const;
+
+            void set_hardest_truth_jet();
+            void set_hardest_reco_jet();
+
+
             bool trigger_jet_is_matched() const;
 
             const MOD::CalibratedJet trigger_jet() const;
+
+            const int data_source() const;
+            void set_data_source(int data_source);
 
 
             friend std::ostream& operator<< (std::ostream&, const Event&);
@@ -99,6 +117,21 @@ namespace MOD {
             std::vector<MOD::Trigger> _triggers;
             std::vector<MOD::PFCandidate> _particles;
             std::vector<fastjet::PseudoJet> _pseudojets;
+
+            std::vector<MOD::MCPFCandidate> _mc_truth_particles;
+            std::vector<fastjet::PseudoJet> _mc_truth_particles_pseudojets;
+
+            std::vector<MOD::MCPFCandidate> _mc_reco_particles;
+            std::vector<fastjet::PseudoJet> _mc_reco_particles_pseudojets;
+
+            std::vector<MOD::MCCalibratedJet> _mc_truth_jets;
+            std::vector<fastjet::PseudoJet> _mc_truth_pseudojets;
+
+            std::vector<MOD::MCCalibratedJet> _mc_reco_jets;
+            std::vector<fastjet::PseudoJet> _mc_reco_pseudojets;
+
+            MOD::MCCalibratedJet _hardest_mc_truth_jet;
+            MOD::MCCalibratedJet _hardest_mc_reco_jet;
 
             std::vector<MOD::CalibratedJet> _CMS_jets;
             std::vector<fastjet::PseudoJet> _CMS_pseudojets;
@@ -122,6 +155,9 @@ namespace MOD {
 
             std::vector<MOD::CalibratedJet> apply_jet_energy_corrections(std::vector<MOD::CalibratedJet> jets) const;
             std::vector<MOD::CalibratedJet> apply_eta_cut(std::vector<MOD::CalibratedJet> jets, double eta_cut) const;
+
+            enum data_source_t { EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2 };
+            data_source_t _data_source;
 
       };
 }
