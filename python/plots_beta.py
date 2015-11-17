@@ -80,6 +80,79 @@ def get_version(input_file):
       return numbers[1] + " " + numbers[2] 
 
 
+
+def parse_mc(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorrected_pT_lower_cut = 0.00, softdrop_unc_pT_lower_cut = 0.00, softdrop_cor_pT_lower_cut = 0.00, jet_quality_level=1):
+  f = open(input_file, 'r')
+  lines = f.read().split("\n")
+  
+  properties = defaultdict(list)
+
+  for line in lines:
+    try:
+      numbers = line.split()
+      
+      if not numbers[0] == "#":
+        if (float(numbers[1]) > pT_lower_cut) and (float(numbers[1]) < pT_upper_cut):
+         
+          properties['hardest_pT'].append( float( numbers[1] ) )
+
+          properties['Rg_10'].append( float( numbers[2] ) )
+          properties['zg_10'].append( float( numbers[3] ) )
+          properties['Rg_11'].append( float( numbers[4] ) )
+          properties['zg_11'].append( float( numbers[5] ) )
+          properties['Rg_12'].append( float( numbers[6] ) )
+          properties['zg_12'].append( float( numbers[7] ) )
+          properties['Rg_13'].append( float( numbers[8] ) )
+          properties['zg_13'].append( float( numbers[9] ) )
+          properties['Rg_14'].append( float( numbers[10] ) )
+          properties['zg_14'].append( float( numbers[11] ) )
+          properties['Rg_15'].append( float( numbers[12] ) )
+          properties['zg_15'].append( float( numbers[13] ) )
+          properties['Rg_16'].append( float( numbers[14] ) )
+          properties['zg_16'].append( float( numbers[15] ) )
+          properties['Rg_17'].append( float( numbers[16] ) )
+          properties['zg_17'].append( float( numbers[17] ) )
+          properties['Rg_18'].append( float( numbers[18] ) )
+          properties['zg_18'].append( float( numbers[19] ) )
+          properties['Rg_19'].append( float( numbers[20] ) )
+          properties['zg_19'].append( float( numbers[21] ) )
+          properties['Rg_20'].append( float( numbers[22] ) )
+          properties['zg_20'].append( float( numbers[23] ) )
+          
+          properties['chrg_Rg_10'].append( float( numbers[24] ) )
+          properties['chrg_zg_10'].append( float( numbers[25] ) )
+          properties['chrg_Rg_11'].append( float( numbers[26] ) )
+          properties['chrg_zg_11'].append( float( numbers[27] ) )
+          properties['chrg_Rg_12'].append( float( numbers[28] ) )
+          properties['chrg_zg_12'].append( float( numbers[29] ) )
+          properties['chrg_Rg_13'].append( float( numbers[30] ) )
+          properties['chrg_zg_13'].append( float( numbers[31] ) )
+          properties['chrg_Rg_14'].append( float( numbers[32] ) )
+          properties['chrg_zg_14'].append( float( numbers[33] ) )
+          properties['chrg_Rg_15'].append( float( numbers[34] ) )
+          properties['chrg_zg_15'].append( float( numbers[35] ) )
+          properties['chrg_Rg_16'].append( float( numbers[36] ) )
+          properties['chrg_zg_16'].append( float( numbers[37] ) )
+          properties['chrg_Rg_17'].append( float( numbers[38] ) )
+          properties['chrg_zg_17'].append( float( numbers[39] ) )
+          properties['chrg_Rg_18'].append( float( numbers[40] ) )
+          properties['chrg_zg_18'].append( float( numbers[41] ) )
+          properties['chrg_Rg_19'].append( float( numbers[42] ) )
+          properties['chrg_zg_19'].append( float( numbers[43] ) )
+          properties['chrg_Rg_20'].append( float( numbers[44] ) )
+          properties['chrg_zg_20'].append( float( numbers[45] ) )
+          
+    except:
+      if len(numbers) != 0:
+        # print "Some kind of error occured while parsing the given file!"
+        # print numbers
+        # print
+        pass
+
+  f.close()
+
+  return properties
+
 def parse_file(input_file, pT_lower_cut = 0.00, jet_quality_level=1):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
@@ -182,6 +255,9 @@ def calculate_distribution(y_cut, f):
 
 def plot_rho(pT_lower_cut=150):
   properties = parse_file(input_analysis_file, pT_lower_cut)
+  pythia_properties = parse_mc("/home/aashish/pythia_qcd.dat")
+  herwig_properties = parse_mc("/home/aashish/herwig_qcd.dat")
+  sherpa_properties = parse_mc("/home/aashish/sherpa_qcd.dat")
 
   # FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3
   jet_quality_level = 1
@@ -191,6 +267,8 @@ def plot_rho(pT_lower_cut=150):
   jet_quality = properties['jet_quality']
   
   rho, weights = defaultdict(list), defaultdict(list)
+  pythia_rho = defaultdict(list)
+
   # cutoffs = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50]
   # cutoffs = ['0.10', '0.11', '0.12', '0.13', '0.14', '0.15', '0.16', '0.17', '0.18', '0.19', '0.20']
   cutoffs = ['0.13', '0.14', '0.15', '0.16']
@@ -201,12 +279,27 @@ def plot_rho(pT_lower_cut=150):
         rho[str(cutoff)].append(properties['rho_' + str(cutoff).replace('.', '')[1:]][i])
         weights[str(cutoff)].append(prescales[i])
 
+  for cutoff in cutoffs:
+    for i in range(0, len(pythia_properties['zg_' + str(cutoff).replace('.', '')[1:]])):
+      # if pythia_properties[ 'zg_' + str(cutoff).replace('.', '')[1:] ][i] > float(cutoff):  
+        # pythia_rho[str(cutoff)].append(pythia_properties['rho_' + str(cutoff).replace('.', '')[1:]][i])
+        # pass
+
+      pass
+
+
+      
+
   
   logged_rho = defaultdict(list)
+  pythia_logged_rho = defaultdict(list)
+
   for r in rho:
     logged_rho[r] = np.log(rho[r])
+    pythia_logged_rho[r] = np.log(pythia_rho[r])
     
     plt.hist(logged_rho[r], weights=weights[r], label="z\_cut=" + str(r), normed=1, histtype='step', lw=5, bins=50)
+    plt.hist(pythia_logged_rho[r], label="(Pythia) z\_cut=" + str(r), normed=1, histtype='step', lw=5, bins=50)
 
   plt.autoscale(True)
   # plt.gca().set_ylim(0, 10)
@@ -634,11 +727,22 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
 
 
   properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, jet_quality_level=1)
+  
+  pythia_properties = parse_mc("/home/aashish/pythia_qcd.dat")
+  herwig_properties = parse_mc("/home/aashish/herwig_qcd.dat")
+  sherpa_properties = parse_mc("/home/aashish/sherpa_qcd.dat")
 
   prescales = properties['prescales']
 
   z_g = properties[zg_filename]
+  pythia_z_g = pythia_properties[zg_filename]
+  herwig_z_g = herwig_properties[zg_filename]
+  sherpa_z_g = sherpa_properties[zg_filename]
+
   R_g = properties[zg_filename.replace("zg", "Rg")]
+  pythia_R_g = pythia_properties[zg_filename.replace("zg", "Rg")]
+  herwig_R_g = herwig_properties[zg_filename.replace("zg", "Rg")]
+  sherpa_R_g = sherpa_properties[zg_filename.replace("zg", "Rg")]
 
 
   R_g_with_cuts = []
@@ -650,34 +754,120 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
       z_g_with_cuts_on_R_g.append(z_g[i])
       prescales_for_R_g_with_cuts.append(prescales[i])
 
+
+  def get_mc_with_cuts(z_g, R_g):
+    mc_Rg_with_cuts = []
+    mc_zg_with_cuts = []
+    
+    for i in range(0, len(R_g)):
+      if float(R_g[i]) > 0.1 and float(R_g[i]) < 0.4:
+        mc_Rg_with_cuts.append(R_g[i])
+        mc_zg_with_cuts.append(z_g[i])
+
+    return (mc_zg_with_cuts, mc_Rg_with_cuts)
+
+  pythia_R_g_with_cuts, pythia_z_g_with_cuts_on_R_g = get_mc_with_cuts(pythia_z_g, pythia_R_g)
+  herwig_R_g_with_cuts, herwig_z_g_with_cuts_on_R_g = get_mc_with_cuts(herwig_z_g, herwig_R_g)
+  sherpa_R_g_with_cuts, sherpa_z_g_with_cuts_on_R_g = get_mc_with_cuts(sherpa_z_g, sherpa_R_g)
+
   theta_g = np.divide(R_g, 0.5)
   theta_g_with_R_g_cuts = np.divide(R_g_with_cuts, 0.5)
+
+  pythia_theta_g = np.divide(pythia_R_g, 0.5)
+  pythia_theta_g_with_R_g_cuts = np.divide(pythia_R_g_with_cuts, 0.5)
+
+  herwig_theta_g = np.divide(herwig_R_g, 0.5)
+  herwig_theta_g_with_R_g_cuts = np.divide(herwig_R_g_with_cuts, 0.5)
+
+  sherpa_theta_g = np.divide(sherpa_R_g, 0.5)
+  sherpa_theta_g_with_R_g_cuts = np.divide(sherpa_R_g_with_cuts, 0.5)
 
   # ============================================================================================= z_g PLOT OF BEGINS ===========================================================================================================================
 
   bins_linear_log = np.linspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 30)
 
-  theta_g_hist = Hist(bins_linear_log, title='All Jets', markersize=3.0, color='black')
+  # Data.
+
+  theta_g_hist = Hist(bins_linear_log, title='Data', markersize=3.0, color='black')
   bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
   map(theta_g_hist.Fill, np.log(z_g), prescales)
   theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
   rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-  bins_linear_log = np.linspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 30)
-  theta_g_with_cuts_hist = Hist(bins_linear_log, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
-  bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
-  map(theta_g_with_cuts_hist.Fill, np.log(z_g_with_cuts_on_R_g), prescales_for_R_g_with_cuts)
-  theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
-  rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  # bins_linear_log = np.linspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 30)
+  # theta_g_with_cuts_hist = Hist(bins_linear_log, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
+  # map(theta_g_with_cuts_hist.Fill, np.log(z_g_with_cuts_on_R_g), prescales_for_R_g_with_cuts)
+  # theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Data Ends.
+
+  # Monte Carlo.
+
+  # Pythia.
+
+  pythia_theta_g_hist = Hist(bins_linear_log, title='Pythia', markersize=3.0, color='blue')
+  bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
+  map(pythia_theta_g_hist.Fill, np.log(pythia_z_g))
+  pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(pythia_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # bins_linear_log = np.linspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 30)
+  # pythia_theta_g_with_cuts_hist = Hist(bins_linear_log, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (pythia_theta_g_with_cuts_hist.upperbound() - pythia_theta_g_with_cuts_hist.lowerbound()) / pythia_theta_g_with_cuts_hist.nbins()
+  # map(pythia_theta_g_with_cuts_hist.Fill, np.log(pythia_z_g_with_cuts_on_R_g))
+  # pythia_theta_g_with_cuts_hist.Scale(1.0 / (pythia_theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(pythia_theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Pythia Ends.
+
+  # Herwig.
+
+  herwig_theta_g_hist = Hist(bins_linear_log, title='Herwig', markersize=3.0, color='green')
+  bin_width = (herwig_theta_g_hist.upperbound() - herwig_theta_g_hist.lowerbound()) / herwig_theta_g_hist.nbins()
+  map(herwig_theta_g_hist.Fill, np.log(herwig_z_g))
+  herwig_theta_g_hist.Scale(1.0 / (herwig_theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(herwig_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # bins_linear_log = np.linspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 30)
+  # herwig_theta_g_with_cuts_hist = Hist(bins_linear_log, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (herwig_theta_g_with_cuts_hist.upperbound() - herwig_theta_g_with_cuts_hist.lowerbound()) / herwig_theta_g_with_cuts_hist.nbins()
+  # map(herwig_theta_g_with_cuts_hist.Fill, np.log(herwig_z_g_with_cuts_on_R_g))
+  # herwig_theta_g_with_cuts_hist.Scale(1.0 / (herwig_theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(herwig_theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Herwig Ends.
+
+  # Sherpa.
+
+  sherpa_theta_g_hist = Hist(bins_linear_log, title='Sherpa', markersize=3.0, color='orange')
+  bin_width = (sherpa_theta_g_hist.upperbound() - sherpa_theta_g_hist.lowerbound()) / sherpa_theta_g_hist.nbins()
+  map(sherpa_theta_g_hist.Fill, np.log(sherpa_z_g))
+  sherpa_theta_g_hist.Scale(1.0 / (sherpa_theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(sherpa_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # bins_linear_log = np.linspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 30)
+  # sherpa_theta_g_with_cuts_hist = Hist(bins_linear_log, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (sherpa_theta_g_with_cuts_hist.upperbound() - sherpa_theta_g_with_cuts_hist.lowerbound()) / sherpa_theta_g_with_cuts_hist.nbins()
+  # map(sherpa_theta_g_with_cuts_hist.Fill, np.log(sherpa_z_g_with_cuts_on_R_g))
+  # sherpa_theta_g_with_cuts_hist.Scale(1.0 / (sherpa_theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(sherpa_theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Sherpa Ends.
+
+
+  # Monte Carlo Ends.
+
 
   legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
   plt.gca().add_artist(legend)
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
-  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.72])
+  labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.50, 0.72])
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -710,26 +900,84 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   bins_linear_log = np.linspace(math.log(0.1, math.e), math.log(1.5, math.e), int((1.5 - 0.1) / 0.04))
   bins_linear_log_cuts = np.linspace(math.log(0.2, math.e), math.log(0.8, math.e), int((0.8 - 0.2) / 0.04))
 
-  theta_g_hist = Hist(bins_linear_log, title='All Jets', markersize=3.0, color='black')
+  # Data.
+  theta_g_hist = Hist(bins_linear_log, title='Data', markersize=3.0, color='black')
   bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
   map(theta_g_hist.Fill, np.log(theta_g), prescales)
   theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
   rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-  theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
-  bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
-  map(theta_g_with_cuts_hist.Fill, np.log(theta_g_with_R_g_cuts), prescales_for_R_g_with_cuts)
-  theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
-  rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  # theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
+  # map(theta_g_with_cuts_hist.Fill, np.log(theta_g_with_R_g_cuts), prescales_for_R_g_with_cuts)
+  # theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Data Ends.
+
+  # Monte Carlo Begins.
+
+  # Pythia.
+
+  pythia_theta_g_hist = Hist(bins_linear_log, title='Pythia 8.212', markersize=3.0, color='blue')
+  bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
+  map(pythia_theta_g_hist.Fill, np.log(pythia_theta_g))
+  pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(pythia_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # pythia_theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='purple')
+  # bin_width = (pythia_theta_g_with_cuts_hist.upperbound() - pythia_theta_g_with_cuts_hist.lowerbound()) / pythia_theta_g_with_cuts_hist.nbins()
+  # map(pythia_theta_g_with_cuts_hist.Fill, np.log(pythia_theta_g_with_R_g_cuts))
+  # pythia_theta_g_with_cuts_hist.Scale(1.0 / (pythia_theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(pythia_theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Pythia Ends.
+
+  # Herwig.
+
+  herwig_theta_g_hist = Hist(bins_linear_log, title='Herwig++ 2.7.1', markersize=3.0, color='green')
+  bin_width = (herwig_theta_g_hist.upperbound() - herwig_theta_g_hist.lowerbound()) / herwig_theta_g_hist.nbins()
+  map(herwig_theta_g_hist.Fill, np.log(herwig_theta_g))
+  herwig_theta_g_hist.Scale(1.0 / (herwig_theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(herwig_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # herwig_theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='purple')
+  # bin_width = (herwig_theta_g_with_cuts_hist.upperbound() - herwig_theta_g_with_cuts_hist.lowerbound()) / herwig_theta_g_with_cuts_hist.nbins()
+  # map(herwig_theta_g_with_cuts_hist.Fill, np.log(herwig_theta_g_with_R_g_cuts))
+  # herwig_theta_g_with_cuts_hist.Scale(1.0 / (herwig_theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(herwig_theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Herwig Ends.
+
+  # Sherpa.
+
+  sherpa_theta_g_hist = Hist(bins_linear_log, title='Sherpa 2.2.0', markersize=3.0, color='orange')
+  bin_width = (sherpa_theta_g_hist.upperbound() - sherpa_theta_g_hist.lowerbound()) / sherpa_theta_g_hist.nbins()
+  map(sherpa_theta_g_hist.Fill, np.log(sherpa_theta_g))
+  sherpa_theta_g_hist.Scale(1.0 / (sherpa_theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(sherpa_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # sherpa_theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='purple')
+  # bin_width = (sherpa_theta_g_with_cuts_hist.upperbound() - sherpa_theta_g_with_cuts_hist.lowerbound()) / sherpa_theta_g_with_cuts_hist.nbins()
+  # map(sherpa_theta_g_with_cuts_hist.Fill, np.log(sherpa_theta_g_with_R_g_cuts))
+  # sherpa_theta_g_with_cuts_hist.Scale(1.0 / (sherpa_theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(sherpa_theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Sherpa Ends.
+  
+
+  # Monte Carlo Ends.
+
+
 
   legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
   plt.gca().add_artist(legend)
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
-  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.72])
+  labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.50, 0.72])
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -763,26 +1011,84 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   bins_linear_log = np.linspace(math.log(0.1 * float(zg_cut), math.e), math.log(0.6, math.e), int((0.6 - 0.1*float(zg_cut)) / 0.02))
   bins_linear_log_cuts = np.linspace(math.log(0.2*0.1, math.e), math.log(0.8*0.5, math.e), int((0.8*0.5 - 0.2*0.1) / 0.02))
 
-  theta_g_hist = Hist(bins_linear_log, title='All Jets', markersize=3.0, color='black')
+
+  # Data Begins.
+
+  theta_g_hist = Hist(bins_linear_log, title='Data', markersize=3.0, color='black')
   bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
   map(theta_g_hist.Fill, np.log(np.multiply(theta_g, z_g)), prescales)
   theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
   rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-  theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
-  bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
-  map(theta_g_with_cuts_hist.Fill, np.log(np.multiply(theta_g_with_R_g_cuts, z_g_with_cuts_on_R_g)), prescales_for_R_g_with_cuts)
-  theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
-  rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  # theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
+  # map(theta_g_with_cuts_hist.Fill, np.log(np.multiply(theta_g_with_R_g_cuts, z_g_with_cuts_on_R_g)), prescales_for_R_g_with_cuts)
+  # theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Data Ends.
+
+  # Monte Carlo.
+
+  # Pythia.
+  
+  pythia_theta_g_hist = Hist(bins_linear_log, title='Pythia', markersize=3.0, color='blue')
+  bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
+  map(pythia_theta_g_hist.Fill, np.log(np.multiply(pythia_theta_g, pythia_z_g)))
+  pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(pythia_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # pythia_theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (pythia_theta_g_with_cuts_hist.upperbound() - pythia_theta_g_with_cuts_hist.lowerbound()) / pythia_theta_g_with_cuts_hist.nbins()
+  # map(pythia_theta_g_with_cuts_hist.Fill, np.log(np.multiply(pythia_theta_g_with_R_g_cuts, z_g_with_cuts_on_R_g)))
+  # pythia_theta_g_with_cuts_hist.Scale(1.0 / (pythia_theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(pythia_theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Pythia Ends.
+
+  # Herwig.
+
+  herwig_theta_g_hist = Hist(bins_linear_log, title='Herwig', markersize=3.0, color='green')
+  bin_width = (herwig_theta_g_hist.upperbound() - herwig_theta_g_hist.lowerbound()) / herwig_theta_g_hist.nbins()
+  map(herwig_theta_g_hist.Fill, np.log(np.multiply(herwig_theta_g, herwig_z_g)))
+  herwig_theta_g_hist.Scale(1.0 / (herwig_theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(herwig_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # herwig_theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (herwig_theta_g_with_cuts_hist.upperbound() - herwig_theta_g_with_cuts_hist.lowerbound()) / herwig_theta_g_with_cuts_hist.nbins()
+  # map(herwig_theta_g_with_cuts_hist.Fill, np.log(np.multiply(herwig_theta_g_with_R_g_cuts, z_g_with_cuts_on_R_g)))
+  # herwig_theta_g_with_cuts_hist.Scale(1.0 / (herwig_theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(herwig_theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Herwig Ends.
+
+  # Sherpa.
+
+  sherpa_theta_g_hist = Hist(bins_linear_log, title='Sherpa', markersize=3.0, color='orange')
+  bin_width = (sherpa_theta_g_hist.upperbound() - sherpa_theta_g_hist.lowerbound()) / sherpa_theta_g_hist.nbins()
+  map(sherpa_theta_g_hist.Fill, np.log(np.multiply(sherpa_theta_g, sherpa_z_g)))
+  sherpa_theta_g_hist.Scale(1.0 / (sherpa_theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(sherpa_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # sherpa_theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (sherpa_theta_g_with_cuts_hist.upperbound() - sherpa_theta_g_with_cuts_hist.lowerbound()) / sherpa_theta_g_with_cuts_hist.nbins()
+  # map(sherpa_theta_g_with_cuts_hist.Fill, np.log(np.multiply(sherpa_theta_g_with_R_g_cuts, z_g_with_cuts_on_R_g)))
+  # sherpa_theta_g_with_cuts_hist.Scale(1.0 / (sherpa_theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(sherpa_theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Sherpa Ends.
+
+  # Monte Carlo Ends. 
+
 
   legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
   plt.gca().add_artist(legend)
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
-  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.72])
+  labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.50, 0.72])
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -815,26 +1121,83 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   bins_linear_log = np.linspace(math.log(0.1*0.1*float(zg_cut), math.e), math.log(0.6*1*1, math.e), int( (0.5*0.8*0.8 - 0.2*0.2*float(zg_cut)) / 0.01))
   bins_linear_log_cuts = np.linspace(math.log(float(zg_cut)*0.2*0.2, math.e), math.log(0.5*0.8*0.8, math.e), int( (0.5*0.8*0.8 - 0.2*0.2*float(zg_cut)) / 0.01))
 
-  theta_g_hist = Hist(bins_linear_log, title='All Jets', markersize=3.0, color='black')
+  # Data Begins.
+
+  theta_g_hist = Hist(bins_linear_log, title='Data', markersize=3.0, color='black')
   bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
   map(theta_g_hist.Fill, np.log( np.multiply( z_g, np.square(theta_g) )), prescales)
   theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
   rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-  theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
-  bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
-  map(theta_g_with_cuts_hist.Fill, np.log( np.multiply( z_g_with_cuts_on_R_g, np.square(theta_g_with_R_g_cuts) )), prescales_for_R_g_with_cuts)
-  theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
-  rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  # theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
+  # map(theta_g_with_cuts_hist.Fill, np.log( np.multiply( z_g_with_cuts_on_R_g, np.square(theta_g_with_R_g_cuts) )), prescales_for_R_g_with_cuts)
+  # theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Data Ends.
+
+  # Monte Carlo Begins.
+
+  # Pythia Begins.
+
+  pythia_theta_g_hist = Hist(bins_linear_log, title='Pythia', markersize=3.0, color='blue')
+  bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
+  map(pythia_theta_g_hist.Fill, np.log( np.multiply( pythia_z_g, np.square(pythia_theta_g) )))
+  pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(pythia_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # pythia_theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (pythia_theta_g_with_cuts_hist.upperbound() - pythia_theta_g_with_cuts_hist.lowerbound()) / pythia_theta_g_with_cuts_hist.nbins()
+  # map(pythia_theta_g_with_cuts_hist.Fill, np.log( np.multiply( pythia_z_g_with_cuts_on_R_g, np.square(pythia_theta_g_with_R_g_cuts) )))
+  # pythia_theta_g_with_cuts_hist.Scale(1.0 / (pythia_theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(pythia_theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Pythia Ends.
+
+  # Herwig Begins.
+
+  herwig_theta_g_hist = Hist(bins_linear_log, title='Herwig', markersize=3.0, color='green')
+  bin_width = (herwig_theta_g_hist.upperbound() - herwig_theta_g_hist.lowerbound()) / herwig_theta_g_hist.nbins()
+  map(herwig_theta_g_hist.Fill, np.log( np.multiply( herwig_z_g, np.square(herwig_theta_g) )))
+  herwig_theta_g_hist.Scale(1.0 / (herwig_theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(herwig_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # herwig_theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (herwig_theta_g_with_cuts_hist.upperbound() - herwig_theta_g_with_cuts_hist.lowerbound()) / herwig_theta_g_with_cuts_hist.nbins()
+  # map(herwig_theta_g_with_cuts_hist.Fill, np.log( np.multiply( herwig_z_g_with_cuts_on_R_g, np.square(herwig_theta_g_with_R_g_cuts) )))
+  # herwig_theta_g_with_cuts_hist.Scale(1.0 / (herwig_theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(herwig_theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Herwig Ends.
+
+  # Sherpa Begins.
+
+  sherpa_theta_g_hist = Hist(bins_linear_log, title='Sherpa', markersize=3.0, color='orange')
+  bin_width = (sherpa_theta_g_hist.upperbound() - sherpa_theta_g_hist.lowerbound()) / sherpa_theta_g_hist.nbins()
+  map(sherpa_theta_g_hist.Fill, np.log( np.multiply( sherpa_z_g, np.square(sherpa_theta_g) )))
+  sherpa_theta_g_hist.Scale(1.0 / (sherpa_theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(sherpa_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # sherpa_theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (sherpa_theta_g_with_cuts_hist.upperbound() - sherpa_theta_g_with_cuts_hist.lowerbound()) / sherpa_theta_g_with_cuts_hist.nbins()
+  # map(sherpa_theta_g_with_cuts_hist.Fill, np.log( np.multiply( sherpa_z_g_with_cuts_on_R_g, np.square(sherpa_theta_g_with_R_g_cuts) )))
+  # sherpa_theta_g_with_cuts_hist.Scale(1.0 / (sherpa_theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(sherpa_theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Sherpa Ends.
+
+  # Monte Carlo Ends.
+
 
   legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
   plt.gca().add_artist(legend)
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
-  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.72])
+  labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.50, 0.72])
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -867,26 +1230,83 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   bins_linear_log = np.linspace(math.log(float(zg_cut)*math.sqrt(0.1), math.e), math.log(0.6*1*1, math.e), int( (0.6*1*1 - float(zg_cut)*math.sqrt(0.1)) / 0.02) )
   bins_linear_log_cuts = np.linspace(math.log(float(zg_cut)*math.sqrt(0.2), math.e), math.log(0.5*math.sqrt(0.8), math.e), int( (0.5*math.sqrt(0.8) - float(zg_cut)*math.sqrt(0.2)) / 0.02) )
 
-  theta_g_hist = Hist(bins_linear_log, title='All Jets', markersize=3.0, color='black')
+  # Data.
+
+  theta_g_hist = Hist(bins_linear_log, title='Data', markersize=3.0, color='black')
   bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
   map(theta_g_hist.Fill, np.log( np.multiply( z_g, np.sqrt(theta_g) )), prescales)
   theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
   rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-  theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
-  bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
-  map(theta_g_with_cuts_hist.Fill, np.log( np.multiply( z_g_with_cuts_on_R_g, np.sqrt(theta_g_with_R_g_cuts) )), prescales_for_R_g_with_cuts)
-  theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
-  rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  # theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (theta_g_with_cuts_hist.upperbound() - theta_g_with_cuts_hist.lowerbound()) / theta_g_with_cuts_hist.nbins()
+  # map(theta_g_with_cuts_hist.Fill, np.log( np.multiply( z_g_with_cuts_on_R_g, np.sqrt(theta_g_with_R_g_cuts) )), prescales_for_R_g_with_cuts)
+  # theta_g_with_cuts_hist.Scale(1.0 / (theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Data Ends.
+
+  # Monte Carlo.
+
+  # Pythia.
+
+  pythia_theta_g_hist = Hist(bins_linear_log, title='Pythia', markersize=3.0, color='blue')
+  bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
+  map(pythia_theta_g_hist.Fill, np.log( np.multiply( pythia_z_g, np.sqrt(pythia_theta_g) )))
+  pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(pythia_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # pythia_theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (pythia_theta_g_with_cuts_hist.upperbound() - pythia_theta_g_with_cuts_hist.lowerbound()) / pythia_theta_g_with_cuts_hist.nbins()
+  # map(pythia_theta_g_with_cuts_hist.Fill, np.log( np.multiply( pythia_z_g_with_cuts_on_R_g, np.sqrt(pythia_theta_g_with_R_g_cuts) )))
+  # pythia_theta_g_with_cuts_hist.Scale(1.0 / (pythia_theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(pythia_theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Pythia Ends.
+
+  # Herwig.
+
+  herwig_theta_g_hist = Hist(bins_linear_log, title='Herwig', markersize=3.0, color='green')
+  bin_width = (herwig_theta_g_hist.upperbound() - herwig_theta_g_hist.lowerbound()) / herwig_theta_g_hist.nbins()
+  map(herwig_theta_g_hist.Fill, np.log( np.multiply( herwig_z_g, np.sqrt(herwig_theta_g) )))
+  herwig_theta_g_hist.Scale(1.0 / (herwig_theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(herwig_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # herwig_theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (herwig_theta_g_with_cuts_hist.upperbound() - herwig_theta_g_with_cuts_hist.lowerbound()) / herwig_theta_g_with_cuts_hist.nbins()
+  # map(herwig_theta_g_with_cuts_hist.Fill, np.log( np.multiply( herwig_z_g_with_cuts_on_R_g, np.sqrt(herwig_theta_g_with_R_g_cuts) )))
+  # herwig_theta_g_with_cuts_hist.Scale(1.0 / (herwig_theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(herwig_theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Herwig Ends.
+
+  # Sherpa.
+
+  sherpa_theta_g_hist = Hist(bins_linear_log, title='Sherpa', markersize=3.0, color='orange')
+  bin_width = (sherpa_theta_g_hist.upperbound() - sherpa_theta_g_hist.lowerbound()) / sherpa_theta_g_hist.nbins()
+  map(sherpa_theta_g_hist.Fill, np.log( np.multiply( sherpa_z_g, np.sqrt(sherpa_theta_g) )))
+  sherpa_theta_g_hist.Scale(1.0 / (sherpa_theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(sherpa_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # sherpa_theta_g_with_cuts_hist = Hist(bins_linear_log_cuts, title='Jets with $0.1 < R_g < 0.4$', markersize=3.0, color='red')
+  # bin_width = (sherpa_theta_g_with_cuts_hist.upperbound() - sherpa_theta_g_with_cuts_hist.lowerbound()) / sherpa_theta_g_with_cuts_hist.nbins()
+  # map(sherpa_theta_g_with_cuts_hist.Fill, np.log( np.multiply( sherpa_z_g_with_cuts_on_R_g, np.sqrt(sherpa_theta_g_with_R_g_cuts) )))
+  # sherpa_theta_g_with_cuts_hist.Scale(1.0 / (sherpa_theta_g_with_cuts_hist.GetSumOfWeights() * bin_width))
+  # rplt.errorbar(sherpa_theta_g_with_cuts_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  # Sherpa Ends.
+
+  # Monte Carlo Ends.
+
 
   legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
   plt.gca().add_artist(legend)
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
-  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.72])
+  labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.50, 0.72])
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -915,17 +1335,17 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   # =============================================================================================== z_g * theta_g^(0.5) PLOT ENDS ===========================================================================================================================
 
 
-plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
-plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.10', zg_filename='zg_10')
-plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.10', zg_filename='zg_10')
-plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.10', zg_filename='zg_10')
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
+# plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.10', zg_filename='zg_10')
+# plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.10', zg_filename='zg_10')
+# plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.10', zg_filename='zg_10')
 
 
 
-plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15')
-plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.15', zg_filename='zg_15')
-plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.15', zg_filename='zg_15')
-plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.15', zg_filename='zg_15')
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15')
+# plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.15', zg_filename='zg_15')
+# plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.15', zg_filename='zg_15')
+# plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.15', zg_filename='zg_15')
 
 
 

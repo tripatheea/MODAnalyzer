@@ -225,12 +225,20 @@ void MOD::Event::set_hardest_reco_jet() {
    double hardest_pT = 0.0;
    int hardest_pT_index = 0;
 
+   vector<PseudoJet> abc;
+
    for (unsigned i = 0; i < _mc_reco_jets.size(); i++) {
       if (_mc_reco_jets[i].pseudojet().pt() > hardest_pT) {
          hardest_pT = _mc_reco_jets[i].pseudojet().pt();
          hardest_pT_index = i;
+
       }
+
+      abc.push_back(_mc_reco_)
+
    }
+
+   cout << "HARDEST IS: " << hardest_pT << endl;
 
    _hardest_mc_reco_jet = _mc_reco_jets[hardest_pT_index];
 

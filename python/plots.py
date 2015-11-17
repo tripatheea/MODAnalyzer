@@ -203,7 +203,61 @@ def parse_mc(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorrect
         if (float(numbers[1]) > pT_lower_cut) and (float(numbers[1]) < pT_upper_cut):
          
           properties['hardest_pts'].append( float( numbers[1] ) )
+          properties['zg_05'].append( float( numbers[2] ) )
+          properties['dr_05'].append( float( numbers[3] ) )
+          properties['mu_05'].append( float( numbers[4] ) )
+          properties['zg_1'].append( float( numbers[5] ) )
+          properties['dr_1'].append( float( numbers[6] ) )
+          properties['mu_1'].append( float( numbers[7] ) )
+          properties['zg_2'].append( float( numbers[8] ) )
+          properties['dr_2'].append( float( numbers[9] ) )
+          properties['mu_2'].append( float( numbers[10] ) )
           
+          properties['zg_05_pt_1'].append( float( numbers[11] ) )
+          properties['zg_1_pt_1'].append( float( numbers[12] ) )
+          properties['zg_2_pt_1'].append( float( numbers[13] ) )
+
+          properties['zg_05_pt_2'].append( float( numbers[14] ) )
+          properties['zg_1_pt_2'].append( float( numbers[15] ) )
+          properties['zg_2_pt_2'].append( float( numbers[16] ) )
+
+          properties['zg_05_pt_3'].append( float( numbers[17] ) )
+          properties['zg_1_pt_3'].append( float( numbers[18] ) )
+          properties['zg_2_pt_3'].append( float( numbers[19] ) )
+
+          properties['zg_05_pt_5'].append( float( numbers[20] ) )
+          properties['zg_1_pt_5'].append( float( numbers[21] ) )
+          properties['zg_2_pt_5'].append( float( numbers[22] ) )
+
+          properties['zg_05_pt_10'].append( float( numbers[23] ) )
+          properties['zg_1_pt_10'].append( float( numbers[24] ) )
+          properties['zg_2_pt_10'].append( float( numbers[25] ) )
+
+          properties['zg_charged_05'].append( float( numbers[26] ) )
+          properties['zg_charged_1'].append( float( numbers[27] ) )
+          properties['zg_charged_2'].append( float( numbers[28] ) )
+
+          properties['pTs_after_SD'].append( float( numbers[29] ) )
+
+          properties['multiplicity_before_SD'].append( float( numbers[30] ) )
+          properties['multiplicity_after_SD'].append( float( numbers[31] ) )
+          properties['jet_mass_before_SD'].append( float( numbers[32] ) )
+          properties['jet_mass_after_SD'].append( float( numbers[33] ) )
+
+          properties['charged_multiplicity_before_SD'].append( float( numbers[34] ) )
+          properties['charged_multiplicity_after_SD'].append( float( numbers[35] ) )
+          properties['charged_jet_mass_before_SD'].append( float( numbers[36] ) )
+          properties['charged_jet_mass_after_SD'].append( float( numbers[37] ) )
+
+          properties['chrg_dr_05'].append( float( numbers[38] ) )
+          properties['chrg_dr_1'].append( float( numbers[39] ) )
+          properties['chrg_dr_2'].append( float( numbers[40] ) )
+
+          properties['fractional_energy_loss'].append( float( numbers[41] ) )
+          properties['eta'].append( float( numbers[42] ) )
+          # properties['jet_area'].append( float( numbers[43] ) )
+
+
           
     except:
       if len(numbers) != 0:
@@ -634,19 +688,26 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
   zg_cut = float(zg_cut)
 
   properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
-  properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
-  properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+  # properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+  # properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
+  properties_pythia = parse_mc("/home/aashish/pythia_reco.dat")
+  properties_herwig = parse_mc("/home/aashish/herwig_reco.dat")
+  properties_sherpa = parse_mc("/home/aashish/sherpa_reco.dat")
+
 
   zg_data = properties[zg_filename]
   
   zg_pythias = properties_pythia[zg_filename]
   zg_herwigs = properties_herwig[zg_filename]
+  zg_sherpas = properties_sherpa[zg_filename]
 
   prescales = properties['prescales']
 
   data_label = "CMS 2010 Open Data"
-  pythia_label = "Pythia 8.205" if mc else ""
-  herwig_label = "Herwig++ 2.6.3" if mc else ""
+  pythia_label = "Pythia 8.212" if mc else ""
+  herwig_label = "Herwig++ 2.7.1" if mc else ""
+  sherpa_label = "Sherpa 2.2.0" if mc else ""
   theory_label = "Theory (MLL)" if theory else ""
 
   
@@ -825,6 +886,23 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
   
   # Herwig Ends.
 
+  # Sherpa.
+
+  zg_sherpa_hist = Hist(6 * n_bins, 0, 0.6, title=sherpa_label, markersize=5.0, color='orange', linewidth=5)
+  bin_width_sherpa = (zg_sherpa_hist.upperbound() - zg_sherpa_hist.lowerbound()) / zg_sherpa_hist.nbins()
+
+  map(zg_sherpa_hist.Fill, zg_sherpas)
+
+  zg_sherpa_hist.Scale(1.0 / ( zg_sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
+
+  if mc:
+    # sherpa_plot = rplt.hist(zg_sherpa_hist, axes=ax0)
+    sherpa_plot = ax0.hist(zg_sherpas, label=sherpa_label, bins=5 * n_bins, normed=1, histtype='step', color='orange', linewidth=5)
+  else:
+    sherpa_plot = ax0.hist(zg_sherpas, bins=5 * n_bins, normed=1, histtype='step', color='orange', linewidth=0)
+
+  # Sherpa Ends.
+
   # Simulation Plots End.
 
   
@@ -860,6 +938,10 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
       zg_pythia_hist.Divide(zg_data_hist)
       zg_pythia_line_plot = convert_hist_to_line_plot(zg_pythia_hist, n_bins)
       plt.plot(zg_pythia_line_plot[0], zg_pythia_line_plot[1], linewidth=5, color='blue')
+
+      zg_sherpa_hist.Divide(zg_data_hist)
+      zg_sherpa_line_plot = convert_hist_to_line_plot(zg_sherpa_hist, n_bins)
+      plt.plot(zg_sherpa_line_plot[0], zg_sherpa_line_plot[1], linewidth=5, color='orange')
 
     if data:
       ratio_data_to_data = [None if n == 0 else m / n for m, n in zip(data_plot_points_y, data_plot_points_y)]
@@ -908,6 +990,10 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
       zg_pythia_hist.Divide(zg_theory_line_hist)
       zg_pythia_line_plot = convert_hist_to_line_plot(zg_pythia_hist, n_bins)
       plt.plot(zg_pythia_line_plot[0], zg_pythia_line_plot[1], linewidth=5, color='blue')
+
+      zg_sherpa_hist.Divide(zg_theory_line_hist)
+      zg_sherpa_line_plot = convert_hist_to_line_plot(zg_sherpa_hist, n_bins)
+      plt.plot(zg_sherpa_line_plot[0], zg_sherpa_line_plot[1], linewidth=5, color='orange')
 
     if data:
       zg_data_to_th_y = [b / m for b, m in zip(data_plot_points_y, theory_extrapolated_line)]
@@ -964,14 +1050,16 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
   if mc:
     pythia_line, = ax0.plot(range(1), linewidth=5, color=zg_pythia_hist.GetLineColor())
     herwig_line, = ax0.plot(range(1), linewidth=5, color=zg_herwig_hist.GetLineColor())
+    sherpa_line, = ax0.plot(range(1), linewidth=5, color=zg_sherpa_hist.GetLineColor())
   else:
     pythia_line, = ax0.plot(range(1), linewidth=5, color=zg_pythia_hist.GetLineColor(), alpha=0)
     herwig_line, = ax0.plot(range(1), linewidth=5, color=zg_herwig_hist.GetLineColor(), alpha=0)
+    sherpa_line, = ax0.plot(range(1), linewidth=5, color=zg_sherpa_hist.GetLineColor(), alpha=0)
 
-  handles = [data_plot, (th_patch, th_line), pythia_line, herwig_line]
-  labels = [data_label, theory_label, pythia_label, herwig_label]
+  handles = [data_plot, (th_patch, th_line), pythia_line, herwig_line, sherpa_line]
+  labels = [data_label, theory_label, pythia_label, herwig_label, sherpa_label]
 
-  first_legend = ax0.legend(handles, labels, fontsize=60, handler_map = {th_line : HandlerLine2D(marker_pad = 0), pythia_line : HandlerLine2D(marker_pad = 0), herwig_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1, bbox_to_anchor=[0.97, 0.98])
+  first_legend = ax0.legend(handles, labels, fontsize=60, handler_map = {th_line : HandlerLine2D(marker_pad = 0), pythia_line : HandlerLine2D(marker_pad = 0), herwig_line : HandlerLine2D(marker_pad = 0), sherpa_line : HandlerLine2D(marker_pad = 0)}, frameon=0, borderpad=0.1, bbox_to_anchor=[0.97, 0.98])
   ax = ax0.add_artist(first_legend)
 
   for txt in first_legend.get_texts():
@@ -982,9 +1070,9 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   
   if pT_upper_cut != 10000:
-    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+    labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
   else:
-    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+    labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 
   # labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
   
@@ -1601,7 +1689,7 @@ def plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05'
 
 
 
-def plot_pts(pT_lower_cut=0, pT_upper_cut=100000):
+def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
   properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
   pTs = properties['uncorrected_hardest_pts']
@@ -1631,8 +1719,8 @@ def plot_pts(pT_lower_cut=0, pT_upper_cut=100000):
   herwig_pt_hist = Hist(100, pT_lower_cut, 1000, title="Herwig++ 2.7.1", linewidth=5, markersize=5.0, color="green")
   bin_width_herwig = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
 
-  # sherpa_pt_hist = Hist(100, pT_lower_cut, 1000, title="Sherpa 2.2.0", linewidth=5, markersize=5.0, color="blue")
-  # bin_width_sherpa = (sherpa_pt_hist.upperbound() - sherpa_pt_hist.lowerbound()) / sherpa_pt_hist.nbins()
+  sherpa_pt_hist = Hist(100, pT_lower_cut, 1000, title="Sherpa 2.2.0", linewidth=5, markersize=5.0, color="blue")
+  bin_width_sherpa = (sherpa_pt_hist.upperbound() - sherpa_pt_hist.lowerbound()) / sherpa_pt_hist.nbins()
 
   corrected_pt_hist = Hist(100, pT_lower_cut, 1000, title='Corrected', markersize=3.0, color='black')
   bin_width_corrected = (corrected_pt_hist.upperbound() - corrected_pt_hist.lowerbound()) / corrected_pt_hist.nbins()
@@ -1645,9 +1733,8 @@ def plot_pts(pT_lower_cut=0, pT_upper_cut=100000):
   
   map(pythia_pt_hist.Fill, pythia_pTs)
   map(herwig_pt_hist.Fill, herwig_pTs)
-  # map(sherpa_pt_hist.Fill, sherpa_pTs)
+  map(sherpa_pt_hist.Fill, sherpa_pTs)
 
-  # print herwig_pt_hist.GetSumOfWeights()
 
   corrected_pt_hist.Scale(1.0 / (corrected_pt_hist.GetSumOfWeights() * bin_width_corrected))
   uncorrected_pt_hist.Scale(1.0 / (uncorrected_pt_hist.GetSumOfWeights() * bin_width_uncorrected))
@@ -1668,7 +1755,7 @@ def plot_pts(pT_lower_cut=0, pT_upper_cut=100000):
   uncorrected_data_plot = rplt.errorbar(uncorrected_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
   rplt.hist(pythia_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
   rplt.hist(herwig_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-  # rplt.hist(sherpa_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.hist(sherpa_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
   
 
   data_x_errors, data_y_errors = [], []
@@ -1743,13 +1830,13 @@ def plot_pts(pT_lower_cut=0, pT_upper_cut=100000):
   # Ratio Plot.
   pythia_pt_hist.Divide(corrected_pt_hist)
   herwig_pt_hist.Divide(corrected_pt_hist)
-  # sherpa_pt_hist.Divide(corrected_pt_hist)
+  sherpa_pt_hist.Divide(corrected_pt_hist)
   uncorrected_pt_hist.Divide(corrected_pt_hist)
   corrected_pt_hist.Divide(corrected_pt_hist)
 
   rplt.hist(pythia_pt_hist, axes=ax1, linewidth=5)
   rplt.hist(herwig_pt_hist, axes=ax1, linewidth=5)
-  # rplt.hist(sherpa_pt_hist, axes=ax1, linewidth=5)
+  rplt.hist(sherpa_pt_hist, axes=ax1, linewidth=5)
   
   rplt.errorbar(corrected_pt_hist, xerr=data_to_data_x_err, yerr=data_to_data_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
   rplt.errorbar(uncorrected_pt_hist, xerr=uncorrected_to_corrected_x_err, yerr=uncorrected_to_corrected_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
@@ -3655,14 +3742,6 @@ def weird_pt(reco=True):
   plt.clf()
 
 
-weird_pt(reco=True)
-weird_pt(reco=False)
-
-
-# zg_new_mc()
-
-
-# plot_pts()
 
 
 
@@ -3913,4 +3992,4 @@ weird_pt(reco=False)
 # Version 3 Ends Here.
 
 
-call(["python", "/home/aashish/root/macros/MODAnalyzer/utilities/sync_plots.py"])
+call(["python", "/home/aashish/root-6.04.06/macros/MODAnalyzer/utilities/sync_plots.py"])

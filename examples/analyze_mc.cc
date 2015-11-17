@@ -375,7 +375,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
 
    properties.push_back( MOD::Property("fra_energy_loss", (hardest_reco_jet.E() - soft_drop(hardest_reco_jet).E()) / hardest_reco_jet.E() ) );
    properties.push_back( MOD::Property("hardest_eta", hardest_reco_jet.eta()) );
-
+   
    
 
 
