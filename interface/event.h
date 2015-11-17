@@ -87,6 +87,12 @@ namespace MOD {
             const MOD::MCCalibratedJet hardest_mc_truth_jet() const;
             const MOD::MCCalibratedJet hardest_mc_reco_jet() const;
 
+            std::vector<fastjet::PseudoJet> hardest_mc_truth_jet_constituents();
+            std::vector<fastjet::PseudoJet> hardest_mc_reco_jet_constituents();
+
+
+
+
             void set_hardest_truth_jet();
             void set_hardest_reco_jet();
 
@@ -132,6 +138,9 @@ namespace MOD {
 
             MOD::MCCalibratedJet _hardest_mc_truth_jet;
             MOD::MCCalibratedJet _hardest_mc_reco_jet;
+
+            std::vector<fastjet::PseudoJet> _hardest_mc_truth_jet_constituents;
+            std::vector<fastjet::PseudoJet> _hardest_mc_reco_jet_constituents;
 
             std::vector<MOD::CalibratedJet> _CMS_jets;
             std::vector<fastjet::PseudoJet> _CMS_pseudojets;

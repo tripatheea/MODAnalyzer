@@ -93,27 +93,29 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
 
    JetDefinition jet_def_cambridge(cambridge_algorithm, jet_def_cambridge.max_allowable_R);
 
+   vector<fastjet::PseudoJet> hardest_reco_jet_constituents = event_being_read.hardest_mc_reco_jet_constituents();
+   ClusterSequence cs(hardest_reco_jet_constituents, jet_def_cambridge);
+   if (cs.inclusive_jets().size() == 0) {
+      return;
+   }
 
-   MOD::MCCalibratedJet hardest_truth_jet = event_being_read.hardest_mc_truth_jet();
-   MOD::MCCalibratedJet hardest_reco_jet = event_being_read.hardest_mc_reco_jet();
+   fastjet::PseudoJet hardest_reco_jet = cs.inclusive_jets()[0];
+
 
 
    vector<MOD::Property> properties;
    
    properties.push_back(MOD::Property("# Entry", "  Entry"));
 
-   // properties.push_back(MOD::Property("Hardest_pT", hardest_reco_jet.pseudojet().pt()));
-   properties.push_back(MOD::Property("Hardest_pT", hardest_truth_jet.pseudojet().pt()));
+   properties.push_back(MOD::Property("Hardest_pT", event_being_read.hardest_mc_reco_jet().pseudojet().pt()));
+   // properties.push_back(MOD::Property("Hardest_pT", event_being_read.hardest_mc_truth_jet().pseudojet().pt()));
    
 
-   /*
-   properties.push_back(MOD::Property("Cor_Hardest_pT", trigger_jet.corrected_pseudojet().pt()));
-
+   // Get all 
 
 
    SoftDrop soft_drop(0.0, 0.05);
-   PseudoJet soft_drop_jet = soft_drop(closest_fastjet_jet_to_trigger_jet);
-   PseudoJet soft_drop_jet_corr = soft_drop(closest_fastjet_jet_to_trigger_jet * trigger_jet.JEC());
+   PseudoJet soft_drop_jet = soft_drop(hardest_reco_jet);
    double zg_05 = soft_drop_jet.structure_of<SoftDrop>().symmetry();
    double dr_05 = soft_drop_jet.structure_of<SoftDrop>().delta_R();
    double mu_05 = soft_drop_jet.structure_of<SoftDrop>().mu();
@@ -122,7 +124,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
    properties.push_back(MOD::Property("mu_05", mu_05));
 
    SoftDrop soft_drop_1(0.0, 0.1);
-   PseudoJet soft_drop_jet_1 = soft_drop_1(closest_fastjet_jet_to_trigger_jet);
+   PseudoJet soft_drop_jet_1 = soft_drop_1(hardest_reco_jet);
    double zg_1 = soft_drop_jet_1.structure_of<SoftDrop>().symmetry();
    double dr_1 = soft_drop_jet_1.structure_of<SoftDrop>().delta_R();
    double mu_1 = soft_drop_jet_1.structure_of<SoftDrop>().mu();
@@ -131,7 +133,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
    properties.push_back(MOD::Property("mu_1", mu_1));  
 
    SoftDrop soft_drop_2(0.0, 0.2);
-   PseudoJet soft_drop_jet_2 = soft_drop_2(closest_fastjet_jet_to_trigger_jet);
+   PseudoJet soft_drop_jet_2 = soft_drop_2(hardest_reco_jet);
    double zg_2 = soft_drop_jet_2.structure_of<SoftDrop>().symmetry();
    double dr_2 = soft_drop_jet_2.structure_of<SoftDrop>().delta_R();
    double mu_2 = soft_drop_jet_2.structure_of<SoftDrop>().mu();
@@ -141,7 +143,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
 
 
    
-   ClusterSequence cs_1(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 1.00), jet_def_cambridge);
+   ClusterSequence cs_1(MOD::filter_by_pT(hardest_reco_jet_constituents, 1.00), jet_def_cambridge);
 
    if (cs_1.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_1 = cs_1.inclusive_jets()[0];
@@ -170,7 +172,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
 
 
    
-   ClusterSequence cs_2(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 2.00), jet_def_cambridge);
+   ClusterSequence cs_2(MOD::filter_by_pT(hardest_reco_jet_constituents, 2.00), jet_def_cambridge);
 
    if (cs_2.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_2 = cs_2.inclusive_jets()[0];
@@ -199,7 +201,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
 
 
 
-   ClusterSequence cs_3(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 3.00), jet_def_cambridge);
+   ClusterSequence cs_3(MOD::filter_by_pT(hardest_reco_jet_constituents, 3.00), jet_def_cambridge);
 
    if (cs_3.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_3 = cs_3.inclusive_jets()[0];
@@ -228,7 +230,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
 
    
 
-   ClusterSequence cs_5(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 5.00), jet_def_cambridge);
+   ClusterSequence cs_5(MOD::filter_by_pT(hardest_reco_jet_constituents, 5.00), jet_def_cambridge);
 
    if (cs_5.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_5 = cs_5.inclusive_jets()[0];
@@ -257,7 +259,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
 
 
 
-   ClusterSequence cs_10(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 10.00), jet_def_cambridge);
+   ClusterSequence cs_10(MOD::filter_by_pT(hardest_reco_jet_constituents, 10.00), jet_def_cambridge);
 
    if (cs_10.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_10 = cs_10.inclusive_jets()[0];
@@ -286,7 +288,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
 
 
    
-   std::vector<fastjet::PseudoJet> charged_constituents = MOD::filter_charged(closest_fastjet_jet_to_trigger_jet_constituents);
+   std::vector<fastjet::PseudoJet> charged_constituents = MOD::filter_charged(hardest_reco_jet_constituents);
    
    // Cluster this using Cambridge/Alachen with infinite radius.
 
@@ -324,15 +326,15 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
    
 
    // Hardest Jet pT before and after SoftDrop.
-   properties.push_back(MOD::Property("pT_after_SD", soft_drop_jet_corr.pt()));
+   properties.push_back(MOD::Property("pT_after_SD", soft_drop_jet.pt()));
 
    // Jet mass and constituent multiplicity before and after SoftDrop.
 
-   properties.push_back( MOD::Property("mul_pre_SD", (int) closest_fastjet_jet_to_trigger_jet_constituents.size()) );
-   properties.push_back( MOD::Property("mul_post_SD", (int) soft_drop(closest_fastjet_jet_to_trigger_jet).constituents().size() ) );   
+   properties.push_back( MOD::Property("mul_pre_SD", (int) hardest_reco_jet_constituents.size()) );
+   properties.push_back( MOD::Property("mul_post_SD", (int) soft_drop(hardest_reco_jet).constituents().size() ) );   
 
-   properties.push_back( MOD::Property("mass_pre_SD", closest_fastjet_jet_to_trigger_jet.m()) );
-   properties.push_back( MOD::Property("mass_post_SD", soft_drop(closest_fastjet_jet_to_trigger_jet).m()) );
+   properties.push_back( MOD::Property("mass_pre_SD", hardest_reco_jet.m()) );
+   properties.push_back( MOD::Property("mass_post_SD", soft_drop(hardest_reco_jet).m()) );
 
    
    // Jet mass and multiplicity before and after SD for charged particles only.
@@ -371,13 +373,13 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
    
 
 
-   properties.push_back( MOD::Property("fra_energy_loss", (closest_fastjet_jet_to_trigger_jet.E() - soft_drop(closest_fastjet_jet_to_trigger_jet).E()) / closest_fastjet_jet_to_trigger_jet.E() ) );
-   properties.push_back( MOD::Property("hardest_eta", closest_fastjet_jet_to_trigger_jet.eta()) );
+   properties.push_back( MOD::Property("fra_energy_loss", (hardest_reco_jet.E() - soft_drop(hardest_reco_jet).E()) / hardest_reco_jet.E() ) );
+   properties.push_back( MOD::Property("hardest_eta", hardest_reco_jet.eta()) );
 
    
 
 
-   */
+   
 
    string name;
    

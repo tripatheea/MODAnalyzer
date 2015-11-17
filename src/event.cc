@@ -211,6 +211,14 @@ void MOD::Event::set_hardest_truth_jet() {
    }
 
    _hardest_mc_truth_jet = _mc_truth_jets[hardest_pT_index];
+
+   // Recluster stuff to get the constituents.
+
+   JetDefinition jet_def(antikt_algorithm, 0.5);
+   ClusterSequence cs(_mc_truth_pseudojets, jet_def);
+   vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(3.0));
+
+   _hardest_mc_truth_jet_constituents = fastjet_jets[0].constituents();
 }
 
 void MOD::Event::set_hardest_reco_jet() {
@@ -225,6 +233,22 @@ void MOD::Event::set_hardest_reco_jet() {
    }
 
    _hardest_mc_reco_jet = _mc_reco_jets[hardest_pT_index];
+
+   // Recluster stuff to get the constituents.
+
+   JetDefinition jet_def(antikt_algorithm, 0.5);
+   ClusterSequence cs(_mc_reco_pseudojets, jet_def);
+   vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(3.0));
+
+   _hardest_mc_reco_jet_constituents = fastjet_jets[0].constituents();
+}
+
+vector<PseudoJet> MOD::Event::hardest_mc_truth_jet_constituents() {
+   return _hardest_mc_truth_jet_constituents;
+}
+
+vector<PseudoJet> MOD::Event::hardest_mc_reco_jet_constituents() {
+   return _hardest_mc_reco_jet_constituents;
 }
 
 bool MOD::Event::read_event(istream & data_stream) {
@@ -465,6 +489,7 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
 
    return;
 }
+
 
 
 const MOD::CalibratedJet MOD::Event::trigger_jet() const {

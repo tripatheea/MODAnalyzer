@@ -1653,7 +1653,7 @@ def plot_pts(pT_lower_cut=0, pT_upper_cut=100000):
   uncorrected_pt_hist.Scale(1.0 / (uncorrected_pt_hist.GetSumOfWeights() * bin_width_uncorrected))
   pythia_pt_hist.Scale(1.0 / (pythia_pt_hist.GetSumOfWeights() * bin_width_pythia))
   herwig_pt_hist.Scale(1.0 / (herwig_pt_hist.GetSumOfWeights() * bin_width_herwig))
-  # sherpa_pt_hist.Scale(1.0 / (sherpa_pt_hist.GetSumOfWeights() * bin_width_sherpa))
+  sherpa_pt_hist.Scale(1.0 / (sherpa_pt_hist.GetSumOfWeights() * bin_width_sherpa))
 
   
   gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
