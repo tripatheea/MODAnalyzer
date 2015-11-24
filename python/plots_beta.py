@@ -81,7 +81,7 @@ def get_version(input_file):
 
 
 
-def parse_mc(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorrected_pT_lower_cut = 0.00, softdrop_unc_pT_lower_cut = 0.00, softdrop_cor_pT_lower_cut = 0.00, jet_quality_level=1):
+def parse_mc(input_file, pT_lower_cut=0.00, pT_upper_cut = 20000.00, uncorrected_pT_lower_cut = 0.00, softdrop_unc_pT_lower_cut = 0.00, softdrop_cor_pT_lower_cut = 0.00, jet_quality_level=1):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
   
@@ -255,9 +255,9 @@ def calculate_distribution(y_cut, f):
 
 def plot_rho(pT_lower_cut=150):
   properties = parse_file(input_analysis_file, pT_lower_cut)
-  pythia_properties = parse_mc("/home/aashish/pythia_qcd.dat")
-  herwig_properties = parse_mc("/home/aashish/herwig_qcd.dat")
-  sherpa_properties = parse_mc("/home/aashish/sherpa_qcd.dat")
+  pythia_properties = parse_mc("/home/aashish/pythia_qcd_truth.dat", pT_lower_cut=pT_lower_cut)
+  herwig_properties = parse_mc("/home/aashish/herwig_qcd_truth.dat", pT_lower_cut=pT_lower_cut)
+  sherpa_properties = parse_mc("/home/aashish/sherpa_qcd_truth.dat", pT_lower_cut=pT_lower_cut)
 
   # FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3
   jet_quality_level = 1
@@ -728,9 +728,13 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
 
   properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, jet_quality_level=1)
   
-  pythia_properties = parse_mc("/home/aashish/pythia_qcd.dat")
-  herwig_properties = parse_mc("/home/aashish/herwig_qcd.dat")
-  sherpa_properties = parse_mc("/home/aashish/sherpa_qcd.dat")
+  pythia_properties = parse_mc("/home/aashish/pythia_reco_qcd.dat", pT_lower_cut=pT_lower_cut)
+  herwig_properties = parse_mc("/home/aashish/herwig_reco_qcd.dat", pT_lower_cut=pT_lower_cut)
+  sherpa_properties = parse_mc("/home/aashish/sherpa_reco_qcd.dat", pT_lower_cut=pT_lower_cut)
+
+  # pythia_properties = parse_mc("/home/aashish/pythia_truth_qcd.dat", pT_lower_cut=pT_lower_cut)
+  # herwig_properties = parse_mc("/home/aashish/herwig_truth_qcd.dat", pT_lower_cut=pT_lower_cut)
+  # sherpa_properties = parse_mc("/home/aashish/sherpa_truth_qcd.dat", pT_lower_cut=pT_lower_cut)
 
   prescales = properties['prescales']
 
@@ -1335,15 +1339,15 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   # =============================================================================================== z_g * theta_g^(0.5) PLOT ENDS ===========================================================================================================================
 
 
-# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
-# plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.10', zg_filename='zg_10')
+plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
+plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.10', zg_filename='zg_10')
 # plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.10', zg_filename='zg_10')
 # plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.10', zg_filename='zg_10')
 
 
 
-# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15')
-# plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.15', zg_filename='zg_15')
+plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15')
+plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.15', zg_filename='zg_15')
 # plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.15', zg_filename='zg_15')
 # plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.15', zg_filename='zg_15')
 
@@ -1351,8 +1355,8 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
 
 plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
 plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.20', zg_filename='zg_20')
-plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.20', zg_filename='zg_20')
-plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.20', zg_filename='zg_20')
+# plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.20', zg_filename='zg_20')
+# plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.20', zg_filename='zg_20')
 
 
 

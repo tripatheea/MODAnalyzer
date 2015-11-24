@@ -23,7 +23,7 @@ using namespace std;
 using namespace fastjet;
 using namespace contrib;
 
-void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number,  vector<double> cone_radii, vector<double> pt_cuts);
+void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, std::string);
 
 int main(int argc, char * argv[]) {
 
@@ -35,25 +35,27 @@ int main(int argc, char * argv[]) {
         std::cerr << "ERROR: You need to supply three arguments- first, path to the input data; second, path to the output file; third, number of events to process. The path has to be either absolute or relative to the bin directory:" << std::endl << std::endl << "./analysis (input_file.dat) (output_file.dat) [optional Nev]" << std::endl;
         return 1;
    }
-   else if (argc == 3) {
+   else if (argc == 4) {
       // Third argument is missing, process everything.
       number_of_events_to_process = std::numeric_limits<int>::max();
    }
    else {
       // Third argument gives the number of events to process.
-      number_of_events_to_process = stoi(argv[3]);
+      number_of_events_to_process = stoi(argv[4]);
    }
 
    ifstream data_file(argv[1]);
-   ofstream output_file(argv[2], ios::out | ios::app);
+   ofstream output_file(argv[2], ios::out);
+   std::string reco_or_truth = argv[3];
 
    
    cout << endl << endl << "Starting analysis with the following given arguments: " << endl;
    cout << "Input file: " << argv[1] << endl;
    cout << "Output file: " << argv[2] << endl;
+   cout << "Reco vs. Truth: " << argv[3] << endl;
    cout << "Number of events: ";
 
-   if(argc == 3)
+   if(argc == 4)
       cout << "ALL" << endl << endl;
    else
       cout << number_of_events_to_process << endl << endl;
@@ -66,19 +68,19 @@ int main(int argc, char * argv[]) {
    int event_serial_number = 1;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
       
-      if( (event_serial_number % 100) == 0 )
+      if( (event_serial_number % 100) == 0 ) {
          cout << "Processing event number " << event_serial_number << endl;
+      }
 
       // Write out version info in the output file for the "syncing plots" thing to work (as it needs to figure out which directory to put things into).
       if (event_serial_number == 1)
          output_file << "%" << " Version " << event_being_read.version() << endl;
 
       
-      mc_analyze_event(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
+      mc_analyze_event(event_being_read, output_file, event_serial_number, reco_or_truth);
       
       event_being_read = MOD::Event();
       event_serial_number++;
-
    }
 
    auto finish = std::chrono::steady_clock::now();
@@ -89,25 +91,36 @@ int main(int argc, char * argv[]) {
 }
 
 
-void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
+void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, std::string reco_or_truth) {
 
-   JetDefinition jet_def_cambridge(cambridge_algorithm, jet_def_cambridge.max_allowable_R);
 
-   vector<fastjet::PseudoJet> hardest_reco_jet_constituents = event_being_read.hardest_mc_reco_jet_constituents();
-   ClusterSequence cs(hardest_reco_jet_constituents, jet_def_cambridge);
+   JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
+
+   vector<fastjet::PseudoJet> hardest_jet_constituents;
+   if (reco_or_truth == "reco") {
+      hardest_jet_constituents = event_being_read.hardest_mc_reco_jet_constituents();   
+   }
+   else {
+      hardest_jet_constituents = event_being_read.hardest_mc_truth_jet_constituents();     
+   }
+      
+
+
+
+   ClusterSequence cs(hardest_jet_constituents, jet_def_cambridge);
+
+
    if (cs.inclusive_jets().size() == 0) {
       return;
    }
 
-   fastjet::PseudoJet hardest_reco_jet = cs.inclusive_jets()[0];
-
-
+   fastjet::PseudoJet hardest_jet = cs.inclusive_jets()[0];
 
    vector<MOD::Property> properties;
    
    properties.push_back(MOD::Property("# Entry", "  Entry"));
 
-   properties.push_back(MOD::Property("Hardest_pT", event_being_read.hardest_mc_reco_jet().pseudojet().pt()));
+   properties.push_back(MOD::Property("Hardest_pT", hardest_jet.pt()));
    // properties.push_back(MOD::Property("Hardest_pT", event_being_read.hardest_mc_truth_jet().pseudojet().pt()));
    
 
@@ -115,7 +128,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
 
 
    SoftDrop soft_drop(0.0, 0.05);
-   PseudoJet soft_drop_jet = soft_drop(hardest_reco_jet);
+   PseudoJet soft_drop_jet = soft_drop(hardest_jet);
    double zg_05 = soft_drop_jet.structure_of<SoftDrop>().symmetry();
    double dr_05 = soft_drop_jet.structure_of<SoftDrop>().delta_R();
    double mu_05 = soft_drop_jet.structure_of<SoftDrop>().mu();
@@ -124,7 +137,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
    properties.push_back(MOD::Property("mu_05", mu_05));
 
    SoftDrop soft_drop_1(0.0, 0.1);
-   PseudoJet soft_drop_jet_1 = soft_drop_1(hardest_reco_jet);
+   PseudoJet soft_drop_jet_1 = soft_drop_1(hardest_jet);
    double zg_1 = soft_drop_jet_1.structure_of<SoftDrop>().symmetry();
    double dr_1 = soft_drop_jet_1.structure_of<SoftDrop>().delta_R();
    double mu_1 = soft_drop_jet_1.structure_of<SoftDrop>().mu();
@@ -133,7 +146,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
    properties.push_back(MOD::Property("mu_1", mu_1));  
 
    SoftDrop soft_drop_2(0.0, 0.2);
-   PseudoJet soft_drop_jet_2 = soft_drop_2(hardest_reco_jet);
+   PseudoJet soft_drop_jet_2 = soft_drop_2(hardest_jet);
    double zg_2 = soft_drop_jet_2.structure_of<SoftDrop>().symmetry();
    double dr_2 = soft_drop_jet_2.structure_of<SoftDrop>().delta_R();
    double mu_2 = soft_drop_jet_2.structure_of<SoftDrop>().mu();
@@ -142,8 +155,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
    properties.push_back(MOD::Property("mu_2", mu_2));  
 
 
-   
-   ClusterSequence cs_1(MOD::filter_by_pT(hardest_reco_jet_constituents, 1.00), jet_def_cambridge);
+   ClusterSequence cs_1(MOD::filter_by_pT(hardest_jet_constituents, 1.00), jet_def_cambridge);
 
    if (cs_1.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_1 = cs_1.inclusive_jets()[0];
@@ -172,7 +184,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
 
 
    
-   ClusterSequence cs_2(MOD::filter_by_pT(hardest_reco_jet_constituents, 2.00), jet_def_cambridge);
+   ClusterSequence cs_2(MOD::filter_by_pT(hardest_jet_constituents, 2.00), jet_def_cambridge);
 
    if (cs_2.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_2 = cs_2.inclusive_jets()[0];
@@ -201,7 +213,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
 
 
 
-   ClusterSequence cs_3(MOD::filter_by_pT(hardest_reco_jet_constituents, 3.00), jet_def_cambridge);
+   ClusterSequence cs_3(MOD::filter_by_pT(hardest_jet_constituents, 3.00), jet_def_cambridge);
 
    if (cs_3.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_3 = cs_3.inclusive_jets()[0];
@@ -230,7 +242,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
 
    
 
-   ClusterSequence cs_5(MOD::filter_by_pT(hardest_reco_jet_constituents, 5.00), jet_def_cambridge);
+   ClusterSequence cs_5(MOD::filter_by_pT(hardest_jet_constituents, 5.00), jet_def_cambridge);
 
    if (cs_5.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_5 = cs_5.inclusive_jets()[0];
@@ -259,7 +271,7 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
 
 
 
-   ClusterSequence cs_10(MOD::filter_by_pT(hardest_reco_jet_constituents, 10.00), jet_def_cambridge);
+   ClusterSequence cs_10(MOD::filter_by_pT(hardest_jet_constituents, 10.00), jet_def_cambridge);
 
    if (cs_10.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_10 = cs_10.inclusive_jets()[0];
@@ -284,11 +296,9 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
       properties.push_back(MOD::Property("zg_1_pt_10", -1.));
       properties.push_back(MOD::Property("zg_2_pt_10", -1.));
    }
-    
-
 
    
-   std::vector<fastjet::PseudoJet> charged_constituents = MOD::filter_charged(hardest_reco_jet_constituents);
+   std::vector<fastjet::PseudoJet> charged_constituents = MOD::filter_charged(hardest_jet_constituents);
    
    // Cluster this using Cambridge/Alachen with infinite radius.
 
@@ -319,9 +329,6 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
    }
    
 
-   
-   
-
    // Stuff before and after SoftDrop.
    
 
@@ -330,11 +337,11 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
 
    // Jet mass and constituent multiplicity before and after SoftDrop.
 
-   properties.push_back( MOD::Property("mul_pre_SD", (int) hardest_reco_jet_constituents.size()) );
-   properties.push_back( MOD::Property("mul_post_SD", (int) soft_drop(hardest_reco_jet).constituents().size() ) );   
+   properties.push_back( MOD::Property("mul_pre_SD", (int) hardest_jet_constituents.size()) );
+   properties.push_back( MOD::Property("mul_post_SD", (int) soft_drop(hardest_jet).constituents().size() ) );   
 
-   properties.push_back( MOD::Property("mass_pre_SD", hardest_reco_jet.m()) );
-   properties.push_back( MOD::Property("mass_post_SD", soft_drop(hardest_reco_jet).m()) );
+   properties.push_back( MOD::Property("mass_pre_SD", hardest_jet.m()) );
+   properties.push_back( MOD::Property("mass_post_SD", soft_drop(hardest_jet).m()) );
 
    
    // Jet mass and multiplicity before and after SD for charged particles only.
@@ -370,16 +377,12 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
    }
    
 
-   
 
-
-   properties.push_back( MOD::Property("fra_energy_loss", (hardest_reco_jet.E() - soft_drop(hardest_reco_jet).E()) / hardest_reco_jet.E() ) );
-   properties.push_back( MOD::Property("hardest_eta", hardest_reco_jet.eta()) );
+   properties.push_back( MOD::Property("fra_energy_loss", (hardest_jet.E() - soft_drop(hardest_jet).E()) / hardest_jet.E() ) );
+   properties.push_back( MOD::Property("hardest_eta", hardest_jet.eta()) );
    
    
 
-
-   
 
    string name;
    
@@ -402,7 +405,9 @@ void mc_analyze_event(MOD::Event & event_being_read, ofstream & output_file, int
       output_file << properties[q];
    }
 
+
    output_file << endl;
    
+
    
 }

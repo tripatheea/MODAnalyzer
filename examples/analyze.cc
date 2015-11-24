@@ -23,7 +23,7 @@ using namespace std;
 using namespace fastjet;
 using namespace contrib;
 
-void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number,  vector<double> cone_radii, vector<double> pt_cuts);
+void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, string data_type);
 
 int main(int argc, char * argv[]) {
 
@@ -31,21 +31,26 @@ int main(int argc, char * argv[]) {
 
    int number_of_events_to_process;
 
-   if (argc <= 2) {
-        std::cerr << "ERROR: You need to supply three arguments- first, path to the input data; second, path to the output file; third, number of events to process. The path has to be either absolute or relative to the bin directory:" << std::endl << std::endl << "./analysis (input_file.dat) (output_file.dat) [optional Nev]" << std::endl;
+   if (argc <= 3) {
+        std::cerr << "ERROR: You need to supply four arguments- first, path to the input data; second, path to the output file; third, whether it's data or Monte Carlo; fourth, number of events to process. The path has to be either absolute or relative to the bin directory:" << std::endl << std::endl << "./analysis (input_file.dat) (output_file.dat) [optional Nev]" << std::endl;
         return 1;
    }
-   else if (argc == 3) {
+   else if (argc == 4) {
       // Third argument is missing, process everything.
       number_of_events_to_process = std::numeric_limits<int>::max();
    }
    else {
       // Third argument gives the number of events to process.
-      number_of_events_to_process = stoi(argv[3]);
+      number_of_events_to_process = stoi(argv[4]);
    }
 
    ifstream data_file(argv[1]);
    ofstream output_file(argv[2], ios::out | ios::app);
+   string data_type = argv[3];
+
+   if (data_type != "mc" or data_type != "data") {
+      throw std::invalid_argument( "Invalid data type- only 'data' and 'mc' are accepted!" );
+   }
 
    
    cout << endl << endl << "Starting analysis with the following given arguments: " << endl;
@@ -57,9 +62,6 @@ int main(int argc, char * argv[]) {
       cout << "ALL" << endl << endl;
    else
       cout << number_of_events_to_process << endl << endl;
-
-   vector<double> cone_radii = {0.3, 0.5, 0.7};
-   vector<double> pt_cuts = {50.0, 80.0, 110.0};
 
    MOD::Event event_being_read;
 
@@ -73,8 +75,8 @@ int main(int argc, char * argv[]) {
       if (event_serial_number == 1)
          output_file << "%" << " Version " << event_being_read.version() << endl;
 
-      if (event_being_read.assigned_trigger_fired())
-         analyze_event(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
+      if ( (data_type == "mc") || (event_being_read.assigned_trigger_fired()) )
+         analyze_event(event_being_read, output_file, event_serial_number, data_type);
       
       event_being_read = MOD::Event();
       event_serial_number++;
@@ -89,7 +91,7 @@ int main(int argc, char * argv[]) {
 }
 
 
-void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
+void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, string data_type) {
 
    JetDefinition jet_def_cambridge(cambridge_algorithm, jet_def_cambridge.max_allowable_R);
 
@@ -125,17 +127,17 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
    SoftDrop soft_drop(0.0, 0.05);
-   PseudoJet soft_drop_jet = soft_drop(closest_fastjet_jet_to_trigger_jet);
+   
    PseudoJet soft_drop_jet_corr = soft_drop(closest_fastjet_jet_to_trigger_jet * trigger_jet.JEC());
-   double zg_05 = soft_drop_jet.structure_of<SoftDrop>().symmetry();
-   double dr_05 = soft_drop_jet.structure_of<SoftDrop>().delta_R();
-   double mu_05 = soft_drop_jet.structure_of<SoftDrop>().mu();
+   double zg_05 = soft_drop_jet_corr.structure_of<SoftDrop>().symmetry();
+   double dr_05 = soft_drop_jet_corr.structure_of<SoftDrop>().delta_R();
+   double mu_05 = soft_drop_jet_corr.structure_of<SoftDrop>().mu();
    properties.push_back(MOD::Property("zg_05", zg_05));
    properties.push_back(MOD::Property("dr_05", dr_05));
    properties.push_back(MOD::Property("mu_05", mu_05));
 
    SoftDrop soft_drop_1(0.0, 0.1);
-   PseudoJet soft_drop_jet_1 = soft_drop_1(closest_fastjet_jet_to_trigger_jet);
+   PseudoJet soft_drop_jet_1 = soft_drop_1(closest_fastjet_jet_to_trigger_jet * trigger_jet.JEC());
    double zg_1 = soft_drop_jet_1.structure_of<SoftDrop>().symmetry();
    double dr_1 = soft_drop_jet_1.structure_of<SoftDrop>().delta_R();
    double mu_1 = soft_drop_jet_1.structure_of<SoftDrop>().mu();
@@ -144,7 +146,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back(MOD::Property("mu_1", mu_1));  
 
    SoftDrop soft_drop_2(0.0, 0.2);
-   PseudoJet soft_drop_jet_2 = soft_drop_2(closest_fastjet_jet_to_trigger_jet);
+   PseudoJet soft_drop_jet_2 = soft_drop_2(closest_fastjet_jet_to_trigger_jet * trigger_jet.JEC());
    double zg_2 = soft_drop_jet_2.structure_of<SoftDrop>().symmetry();
    double dr_2 = soft_drop_jet_2.structure_of<SoftDrop>().delta_R();
    double mu_2 = soft_drop_jet_2.structure_of<SoftDrop>().mu();

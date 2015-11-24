@@ -203,52 +203,57 @@ void MOD::Event::set_hardest_truth_jet() {
    double hardest_pT = 0.0;
    int hardest_pT_index = 0;
 
-   for (unsigned i = 0; i < _mc_truth_jets.size(); i++) {
-      if (_mc_truth_jets[i].pseudojet().pt() > hardest_pT) {
-         hardest_pT = _mc_truth_jets[i].pseudojet().pt();
-         hardest_pT_index = i;
-      }
+   if (_mc_truth_jets.size() == 0) {
+      _hardest_mc_truth_jet = MCCalibratedJet();
+      _hardest_mc_truth_jet_constituents = vector<PseudoJet>();
    }
+   else {
+      for (unsigned i = 0; i < _mc_truth_jets.size(); i++) {
+         if (_mc_truth_jets[i].pseudojet().pt() > hardest_pT) {
+            hardest_pT = _mc_truth_jets[i].pseudojet().pt();
+            hardest_pT_index = i;
+         }
+      }
 
-   _hardest_mc_truth_jet = _mc_truth_jets[hardest_pT_index];
+      _hardest_mc_truth_jet = _mc_truth_jets[hardest_pT_index];
 
-   // Recluster stuff to get the constituents.
+      // Recluster stuff to get the constituents.
 
-   JetDefinition jet_def(antikt_algorithm, 0.5);
-   ClusterSequence cs(_mc_truth_pseudojets, jet_def);
-   vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(3.0));
+      JetDefinition jet_def(antikt_algorithm, 0.5);
+      ClusterSequence cs(_mc_truth_pseudojets, jet_def);
+      vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(0.0));
 
-   _hardest_mc_truth_jet_constituents = fastjet_jets[0].constituents();
+      _hardest_mc_truth_jet_constituents = fastjet_jets[0].constituents();
+   }
 }
 
 void MOD::Event::set_hardest_reco_jet() {
    double hardest_pT = 0.0;
    int hardest_pT_index = 0;
 
-   vector<PseudoJet> abc;
+   if (_mc_reco_jets.size() == 0) {
+      _hardest_mc_reco_jet = MCCalibratedJet();
+      _hardest_mc_reco_jet_constituents = vector<PseudoJet>();
+   }
+   else {
 
-   for (unsigned i = 0; i < _mc_reco_jets.size(); i++) {
-      if (_mc_reco_jets[i].pseudojet().pt() > hardest_pT) {
-         hardest_pT = _mc_reco_jets[i].pseudojet().pt();
-         hardest_pT_index = i;
-
+      for (unsigned i = 0; i < _mc_reco_jets.size(); i++) {
+         if (_mc_reco_jets[i].pseudojet().pt() > hardest_pT) {
+            hardest_pT = _mc_reco_jets[i].pseudojet().pt();
+            hardest_pT_index = i;
+         }
       }
 
-      abc.push_back(_mc_reco_)
+      _hardest_mc_reco_jet = _mc_reco_jets[hardest_pT_index];
 
+      // Recluster stuff to get the constituents.
+
+      JetDefinition jet_def(antikt_algorithm, 0.5);
+      ClusterSequence cs(_mc_reco_pseudojets, jet_def);
+      vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(0.0));
+
+      _hardest_mc_reco_jet_constituents = fastjet_jets[0].constituents();
    }
-
-   cout << "HARDEST IS: " << hardest_pT << endl;
-
-   _hardest_mc_reco_jet = _mc_reco_jets[hardest_pT_index];
-
-   // Recluster stuff to get the constituents.
-
-   JetDefinition jet_def(antikt_algorithm, 0.5);
-   ClusterSequence cs(_mc_reco_pseudojets, jet_def);
-   vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(3.0));
-
-   _hardest_mc_reco_jet_constituents = fastjet_jets[0].constituents();
 }
 
 vector<PseudoJet> MOD::Event::hardest_mc_truth_jet_constituents() {
@@ -327,6 +332,9 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "RPFC") {
          try {
+            
+            // cout << "RPFC" << endl;
+
             set_data_source(2);
             add_mc_reco_particle(stream);
          }
@@ -336,6 +344,9 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "TAK5") {
          try {
+
+            // cout << "TAK5" << endl;
+
             set_data_source(1);
             add_mc_truth_jet(stream);
          }
@@ -345,6 +356,9 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "RAK5") {
          try {
+
+            // cout << "RAK5" << endl;
+
             set_data_source(2);
             add_mc_reco_jet(stream);
          }
@@ -353,7 +367,9 @@ bool MOD::Event::read_event(istream & data_stream) {
          }
       }
       else if (tag == "EndEvent") {
+         
          // cout << "EndEvent" << endl;
+
          establish_properties();
          return true;
       }

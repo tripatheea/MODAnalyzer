@@ -189,7 +189,7 @@ def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorre
 
 
 
-def parse_mc(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorrected_pT_lower_cut = 0.00, softdrop_unc_pT_lower_cut = 0.00, softdrop_cor_pT_lower_cut = 0.00, jet_quality_level=1):
+def parse_mc(input_file, pT_lower_cut=150.00, pT_upper_cut = 20000.00, uncorrected_pT_lower_cut = 0.00, softdrop_unc_pT_lower_cut = 0.00, softdrop_cor_pT_lower_cut = 0.00, jet_quality_level=1):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
   
@@ -200,6 +200,8 @@ def parse_mc(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorrect
       numbers = line.split()
       
       if not numbers[0] == "#":
+
+        # print float(numbers[1]) > pT_lower_cut
         if (float(numbers[1]) > pT_lower_cut) and (float(numbers[1]) < pT_upper_cut):
          
           properties['hardest_pts'].append( float( numbers[1] ) )
@@ -691,9 +693,9 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
   # properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
   # properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
-  properties_pythia = parse_mc("/home/aashish/pythia_reco.dat")
-  properties_herwig = parse_mc("/home/aashish/herwig_reco.dat")
-  properties_sherpa = parse_mc("/home/aashish/sherpa_reco.dat")
+  properties_pythia = parse_mc("/home/aashish/pythia_truth.dat", pT_lower_cut=pT_lower_cut)
+  properties_herwig = parse_mc("/home/aashish/herwig_truth.dat", pT_lower_cut=pT_lower_cut)
+  properties_sherpa = parse_mc("/home/aashish/sherpa_truth.dat", pT_lower_cut=pT_lower_cut)
 
 
   zg_data = properties[zg_filename]
@@ -1696,36 +1698,33 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
   corrected_pTs = properties['corrected_hardest_pts']
   prescales = properties['prescales']
 
-  # pythia_properties = parse_mc("/home/aashish/pythia_truth.dat")
-  # herwig_properties = parse_mc("/home/aashish/herwig_truth.dat")
-  # sherpa_properties = parse_mc("/home/aashish/sherpa_truth.dat")
 
-  pythia_properties = parse_mc("/home/aashish/pythia_reco.dat")
-  herwig_properties = parse_mc("/home/aashish/herwig_reco.dat")
-  sherpa_properties = parse_mc("/home/aashish/sherpa_reco.dat")
+  pythia_properties = parse_mc("/home/aashish/pythia_truth.dat", pT_lower_cut=pT_lower_cut)
+  herwig_properties = parse_mc("/home/aashish/herwig_truth.dat", pT_lower_cut=pT_lower_cut)
+  sherpa_properties = parse_mc("/home/aashish/sherpa_truth.dat", pT_lower_cut=pT_lower_cut)
+
+  # pythia_properties = parse_mc("/home/aashish/pythia_reco.dat", pT_lower_cut=pT_lower_cut)
+  # herwig_properties = parse_mc("/home/aashish/herwig_reco.dat", pT_lower_cut=pT_lower_cut)
+  # sherpa_properties = parse_mc("/home/aashish/sherpa_reco.dat", pT_lower_cut=pT_lower_cut)
 
   pythia_pTs = pythia_properties['hardest_pts']
   herwig_pTs = herwig_properties['hardest_pts']
   sherpa_pTs = sherpa_properties['hardest_pts']
 
 
-  # herwig_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_herwig_pp2jj_150pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
-  # pythia_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_pythia_pp2jj_150pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
-
-
-  pythia_pt_hist = Hist(100, pT_lower_cut, 1000, title="Pythia 8.212", linewidth=5, markersize=5.0, color="red")
+  pythia_pt_hist = Hist(100, 0, 700, title="Pythia 8.212", linewidth=5, markersize=5.0, color="red")
   bin_width_pythia = (pythia_pt_hist.upperbound() - pythia_pt_hist.lowerbound()) / pythia_pt_hist.nbins()
 
-  herwig_pt_hist = Hist(100, pT_lower_cut, 1000, title="Herwig++ 2.7.1", linewidth=5, markersize=5.0, color="green")
+  herwig_pt_hist = Hist(100, 0, 700, title="Herwig++ 2.7.1", linewidth=5, markersize=5.0, color="green")
   bin_width_herwig = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
 
-  sherpa_pt_hist = Hist(100, pT_lower_cut, 1000, title="Sherpa 2.2.0", linewidth=5, markersize=5.0, color="blue")
+  sherpa_pt_hist = Hist(100, 0, 700, title="Sherpa 2.2.0", linewidth=5, markersize=5.0, color="blue")
   bin_width_sherpa = (sherpa_pt_hist.upperbound() - sherpa_pt_hist.lowerbound()) / sherpa_pt_hist.nbins()
 
-  corrected_pt_hist = Hist(100, pT_lower_cut, 1000, title='Corrected', markersize=3.0, color='black')
+  corrected_pt_hist = Hist(100, 0, 700, title='Corrected', markersize=3.0, color='black')
   bin_width_corrected = (corrected_pt_hist.upperbound() - corrected_pt_hist.lowerbound()) / corrected_pt_hist.nbins()
 
-  uncorrected_pt_hist = Hist(100, pT_lower_cut, 1000, title='Uncorrected', markersize=3.0, color='orange')
+  uncorrected_pt_hist = Hist(100, 0, 700, title='Uncorrected', markersize=3.0, color='orange')
   bin_width_uncorrected = (uncorrected_pt_hist.upperbound() - uncorrected_pt_hist.lowerbound()) / uncorrected_pt_hist.nbins()
 
   map(uncorrected_pt_hist.Fill, pTs, prescales)
@@ -1876,6 +1875,9 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
     ax0.set_ylim(10e-8, 10e-2)
     pT_minor_ticks = 50
 
+
+  ax0.set_xlim(0, 700)
+  ax1.set_xlim(0, 700)
 
   plt.gcf().set_size_inches(30, 30, forward=1)
 
@@ -3889,24 +3891,24 @@ def weird_pt(reco=True):
 
 
 
-# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
-# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
-# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
 
 
-# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
 
-# plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
-# plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
+plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
 
 
 
@@ -3992,4 +3994,4 @@ def weird_pt(reco=True):
 # Version 3 Ends Here.
 
 
-call(["python", "/home/aashish/root-6.04.06/macros/MODAnalyzer/utilities/sync_plots.py"])
+# call(["python", "/home/aashish/root-6.04.06/macros/MODAnalyzer/utilities/sync_plots.py"])
