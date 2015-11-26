@@ -95,40 +95,75 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    JetDefinition jet_def_cambridge(cambridge_algorithm, jet_def_cambridge.max_allowable_R);
 
-   vector<fastjet::PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents = event_being_read.closest_fastjet_jet_to_trigger_jet_constituents();
-   ClusterSequence cs(closest_fastjet_jet_to_trigger_jet_constituents, jet_def_cambridge);
+   vector<fastjet::PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents;
+   fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet;
+   MOD::CalibratedJet trigger_jet;
 
-   if (cs.inclusive_jets().size() == 0) {
-      return;
+   if (data_type == "data") {
+      closest_fastjet_jet_to_trigger_jet_constituents = event_being_read.closest_fastjet_jet_to_trigger_jet_constituents();
+      ClusterSequence cs(closest_fastjet_jet_to_trigger_jet_constituents, jet_def_cambridge); 
+      
+      if (cs.inclusive_jets().size() == 0)
+         return;
+
+      closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0];
+      trigger_jet = event_being_read.trigger_jet();
    }
 
-   fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0];
+   // Monte Carlo.
+   vector<fastjet::PseudoJet> hardest_mc_jet_constituents;
+   fastjet::PseudoJet hardest_mc_jet;
+   if (data_type == "mc") {
+      vector<PseudoJet> hardest_jet_constituents = event_being_read.hardest_mc_reco_jet_constituents();
+      ClusterSequence cs(hardest_jet_constituents, jet_def_cambridge);
 
-   MOD::CalibratedJet trigger_jet = event_being_read.trigger_jet();
+      if (cs.inclusive_jets().size() == 0) 
+         return;
+
+      hardest_mc_jet = cs.inclusive_jets()[0];
+   }
 
 
    vector<MOD::Property> properties;
    
    properties.push_back(MOD::Property("# Entry", "  Entry"));
 
-   properties.push_back(MOD::Property("Event_Number", event_being_read.event_number()));
-   properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
+   if (data_type == "data") {
+      properties.push_back(MOD::Property("Event_Number", event_being_read.event_number()));
+      properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
 
-   // _trigger_jet_is_matched and _trigger_jet.jet_quality().
-   properties.push_back(MOD::Property("trig_jet_matched", (int) event_being_read.trigger_jet_is_matched())); 
-   properties.push_back(MOD::Property("jet_quality", trigger_jet.jet_quality())); 
+      // _trigger_jet_is_matched and _trigger_jet.jet_quality().
+      properties.push_back(MOD::Property("trig_jet_matched", (int) event_being_read.trigger_jet_is_matched())); 
+      properties.push_back(MOD::Property("jet_quality", trigger_jet.jet_quality())); 
+      
+      properties.push_back(MOD::Property("Uncor_Hardest_pT", trigger_jet.uncorrected_pseudojet().pt()));
+      properties.push_back(MOD::Property("Cor_Hardest_pT", trigger_jet.corrected_pseudojet().pt()));
+
+      properties.push_back(MOD::Property("Prescale", event_being_read.assigned_trigger_prescale()));
+      properties.push_back(MOD::Property("Trigger_Name", event_being_read.assigned_trigger_name()));
+   }
+   else {
+      properties.push_back(MOD::Property("Hardest_pT", hardest_mc_jet.pt()));
+   }
    
-   properties.push_back(MOD::Property("Uncor_Hardest_pT", trigger_jet.uncorrected_pseudojet().pt()));
-   properties.push_back(MOD::Property("Cor_Hardest_pT", trigger_jet.corrected_pseudojet().pt()));
-
-   properties.push_back(MOD::Property("Prescale", event_being_read.assigned_trigger_prescale()));
-   properties.push_back(MOD::Property("Trigger_Name", event_being_read.assigned_trigger_name()));
 
 
 
    SoftDrop soft_drop(0.0, 0.05);
    
-   PseudoJet soft_drop_jet_corr = soft_drop(closest_fastjet_jet_to_trigger_jet * trigger_jet.JEC());
+   PseudoJet soft_drop_jet;
+   PseudoJet soft_drop_jet_corr;
+
+   if (data_type == "data") {
+      soft_drop_jet = soft_drop(closest_fastjet_jet_to_trigger_jet);   // Don't remove this. This is need below while writing out pT_after_SD_unc.
+      soft_drop_jet_corr = soft_drop(closest_fastjet_jet_to_trigger_jet * trigger_jet.JEC());   
+   }
+   else {
+      soft_drop_jet_corr = soft_drop(hardest_mc_jet);     
+   }
+   
+   
+
    double zg_05 = soft_drop_jet_corr.structure_of<SoftDrop>().symmetry();
    double dr_05 = soft_drop_jet_corr.structure_of<SoftDrop>().delta_R();
    double mu_05 = soft_drop_jet_corr.structure_of<SoftDrop>().mu();
@@ -137,7 +172,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back(MOD::Property("mu_05", mu_05));
 
    SoftDrop soft_drop_1(0.0, 0.1);
-   PseudoJet soft_drop_jet_1 = soft_drop_1(closest_fastjet_jet_to_trigger_jet * trigger_jet.JEC());
+   PseudoJet soft_drop_jet_1 = (data_type == "data") ? soft_drop_1(closest_fastjet_jet_to_trigger_jet * trigger_jet.JEC()) : soft_drop_1(hardest_mc_jet);
    double zg_1 = soft_drop_jet_1.structure_of<SoftDrop>().symmetry();
    double dr_1 = soft_drop_jet_1.structure_of<SoftDrop>().delta_R();
    double mu_1 = soft_drop_jet_1.structure_of<SoftDrop>().mu();
@@ -146,7 +181,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back(MOD::Property("mu_1", mu_1));  
 
    SoftDrop soft_drop_2(0.0, 0.2);
-   PseudoJet soft_drop_jet_2 = soft_drop_2(closest_fastjet_jet_to_trigger_jet * trigger_jet.JEC());
+   PseudoJet soft_drop_jet_2 = (data_type == "data") ? soft_drop_2(closest_fastjet_jet_to_trigger_jet * trigger_jet.JEC()) : soft_drop_2(hardest_mc_jet);
    double zg_2 = soft_drop_jet_2.structure_of<SoftDrop>().symmetry();
    double dr_2 = soft_drop_jet_2.structure_of<SoftDrop>().delta_R();
    double mu_2 = soft_drop_jet_2.structure_of<SoftDrop>().mu();
@@ -156,7 +191,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
    
-   ClusterSequence cs_1(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 1.00), jet_def_cambridge);
+   ClusterSequence cs_1 = (data_type == "data") ? ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 1.00), jet_def_cambridge) : ClusterSequence(MOD::filter_by_pT(hardest_mc_jet_constituents, 1.00), jet_def_cambridge);
 
    if (cs_1.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_1 = cs_1.inclusive_jets()[0];
@@ -185,7 +220,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
    
-   ClusterSequence cs_2(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 2.00), jet_def_cambridge);
+   ClusterSequence cs_2 = (data_type == "data") ? ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 2.00), jet_def_cambridge) : ClusterSequence(MOD::filter_by_pT(hardest_mc_jet_constituents, 2.00), jet_def_cambridge);
 
    if (cs_2.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_2 = cs_2.inclusive_jets()[0];
@@ -214,7 +249,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
 
-   ClusterSequence cs_3(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 3.00), jet_def_cambridge);
+   ClusterSequence cs_3 = (data_type == "data") ? ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 3.00), jet_def_cambridge) : ClusterSequence(MOD::filter_by_pT(hardest_mc_jet_constituents, 3.00), jet_def_cambridge);
 
    if (cs_3.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_3 = cs_3.inclusive_jets()[0];
@@ -243,7 +278,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    
 
-   ClusterSequence cs_5(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 5.00), jet_def_cambridge);
+   ClusterSequence cs_5 = (data_type == "data") ? ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 5.00), jet_def_cambridge) : ClusterSequence(MOD::filter_by_pT(hardest_mc_jet_constituents, 5.00), jet_def_cambridge);
 
    if (cs_5.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_5 = cs_5.inclusive_jets()[0];
@@ -272,7 +307,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
 
-   ClusterSequence cs_10(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 10.00), jet_def_cambridge);
+   ClusterSequence cs_10 = (data_type == "data") ? ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 10.00), jet_def_cambridge) : ClusterSequence(MOD::filter_by_pT(hardest_mc_jet_constituents, 10.00), jet_def_cambridge);
 
    if (cs_10.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_10 = cs_10.inclusive_jets()[0];
@@ -301,7 +336,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
    
-   std::vector<fastjet::PseudoJet> charged_constituents = MOD::filter_charged(closest_fastjet_jet_to_trigger_jet_constituents);
+   std::vector<fastjet::PseudoJet> charged_constituents = (data_type == "data") ? MOD::filter_charged(closest_fastjet_jet_to_trigger_jet_constituents) : MOD::filter_charged(hardest_mc_jet_constituents);
    
    // Cluster this using Cambridge/Alachen with infinite radius.
 
@@ -338,18 +373,31 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    // Stuff before and after SoftDrop.
    
 
-   // Hardest Jet pT before and after SoftDrop.
-   properties.push_back(MOD::Property("pT_after_SD_unc", soft_drop_jet.pt()));
-   properties.push_back(MOD::Property("pT_after_SD_cor", soft_drop_jet_corr.pt()));
+   if (data_type == "data") {
+      // Hardest Jet pT before and after SoftDrop.
+      properties.push_back(MOD::Property("pT_after_SD_unc", soft_drop_jet.pt()));
+      properties.push_back(MOD::Property("pT_after_SD_cor", soft_drop_jet_corr.pt()));
 
-   // Jet mass and constituent multiplicity before and after SoftDrop.
+      // Jet mass and constituent multiplicity before and after SoftDrop.
 
-   properties.push_back( MOD::Property("mul_pre_SD", (int) closest_fastjet_jet_to_trigger_jet_constituents.size()) );
-   properties.push_back( MOD::Property("mul_post_SD", (int) soft_drop(closest_fastjet_jet_to_trigger_jet).constituents().size() ) );   
+      properties.push_back( MOD::Property("mul_pre_SD", (int) closest_fastjet_jet_to_trigger_jet_constituents.size()) );
+      properties.push_back( MOD::Property("mul_post_SD", (int) soft_drop(closest_fastjet_jet_to_trigger_jet).constituents().size() ) );   
 
-   properties.push_back( MOD::Property("mass_pre_SD", closest_fastjet_jet_to_trigger_jet.m()) );
-   properties.push_back( MOD::Property("mass_post_SD", soft_drop(closest_fastjet_jet_to_trigger_jet).m()) );
+      properties.push_back( MOD::Property("mass_pre_SD", closest_fastjet_jet_to_trigger_jet.m()) );
+      properties.push_back( MOD::Property("mass_post_SD", soft_drop(closest_fastjet_jet_to_trigger_jet).m()) );
+   }
+   else {
+      // Hardest Jet pT before and after SoftDrop.
+      properties.push_back(MOD::Property("pT_after_SD", soft_drop_jet.pt()));
 
+      // Jet mass and constituent multiplicity before and after SoftDrop.
+
+      properties.push_back( MOD::Property("mul_pre_SD", (int) hardest_mc_jet_constituents.size()) );
+      properties.push_back( MOD::Property("mul_post_SD", (int) soft_drop(hardest_mc_jet).constituents().size() ) );   
+
+      properties.push_back( MOD::Property("mass_pre_SD", hardest_mc_jet.m()) );
+      properties.push_back( MOD::Property("mass_post_SD", soft_drop(hardest_mc_jet).m()) );
+   }
    
    // Jet mass and multiplicity before and after SD for charged particles only.
 
@@ -386,36 +434,32 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    
 
+   if (data_type == "data") {
+      properties.push_back( MOD::Property("fra_energy_loss", (closest_fastjet_jet_to_trigger_jet.E() - soft_drop(closest_fastjet_jet_to_trigger_jet).E()) / closest_fastjet_jet_to_trigger_jet.E() ) );
+      properties.push_back( MOD::Property("hardest_eta", closest_fastjet_jet_to_trigger_jet.eta()) );
 
-   properties.push_back( MOD::Property("fra_energy_loss", (closest_fastjet_jet_to_trigger_jet.E() - soft_drop(closest_fastjet_jet_to_trigger_jet).E()) / closest_fastjet_jet_to_trigger_jet.E() ) );
-   properties.push_back( MOD::Property("hardest_eta", closest_fastjet_jet_to_trigger_jet.eta()) );
+      // Must be "hardest_uncorrected_jet" because the corrected jet has a JEC set to 1.
+      properties.push_back( MOD::Property("jet_area", trigger_jet.area()) );
+   }
+   else {
+      properties.push_back( MOD::Property("fra_energy_loss", (hardest_mc_jet.E() - soft_drop(hardest_mc_jet).E()) / hardest_mc_jet.E() ) );
+      properties.push_back( MOD::Property("hardest_eta", hardest_mc_jet.eta()) );
 
-   // Must be "hardest_uncorrected_jet" because the corrected jet has a JEC set to 1.
+      properties.push_back( MOD::Property("jet_area", hardest_mc_jet.area()) );
+   }
+
    properties.push_back( MOD::Property("jec", trigger_jet.JEC()) );
-   properties.push_back( MOD::Property("jet_area", trigger_jet.area()) );
 
+   
 
-   properties.push_back( MOD::Property("no_of_const", trigger_jet.number_of_constituents()) );
-   properties.push_back( MOD::Property("chrg_multip", trigger_jet.charged_multiplicity()) );
-   properties.push_back( MOD::Property("neu_had_frac", trigger_jet.neutral_hadron_fraction()) );
-   properties.push_back( MOD::Property("neu_em_frac", trigger_jet.neutral_em_fraction()) );
-   properties.push_back( MOD::Property("chrg_had_frac", trigger_jet.charged_hadron_fraction()) );
-   properties.push_back( MOD::Property("chrg_em_frac", trigger_jet.charged_em_fraction()) );
-
-
-   SoftDrop soft_drop_10(0.0, 0.10);
-   SoftDrop soft_drop_11(0.0, 0.11);
-   SoftDrop soft_drop_12(0.0, 0.12);
-   SoftDrop soft_drop_13(0.0, 0.13);
-   SoftDrop soft_drop_14(0.0, 0.14);
-   SoftDrop soft_drop_15(0.0, 0.15);
-
-   properties.push_back( MOD::Property("m_zg_10", soft_drop_10(closest_fastjet_jet_to_trigger_jet).m() ) );
-   properties.push_back( MOD::Property("m_zg_11", soft_drop_11(closest_fastjet_jet_to_trigger_jet).m() ) );
-   properties.push_back( MOD::Property("m_zg_12", soft_drop_12(closest_fastjet_jet_to_trigger_jet).m() ) );
-   properties.push_back( MOD::Property("m_zg_13", soft_drop_13(closest_fastjet_jet_to_trigger_jet).m() ) );
-   properties.push_back( MOD::Property("m_zg_14", soft_drop_14(closest_fastjet_jet_to_trigger_jet).m() ) );
-   properties.push_back( MOD::Property("m_zg_15", soft_drop_15(closest_fastjet_jet_to_trigger_jet).m() ) );
+   if (data_type == "data") {
+      properties.push_back( MOD::Property("no_of_const", trigger_jet.number_of_constituents()) );
+      properties.push_back( MOD::Property("chrg_multip", trigger_jet.charged_multiplicity()) );
+      properties.push_back( MOD::Property("neu_had_frac", trigger_jet.neutral_hadron_fraction()) );
+      properties.push_back( MOD::Property("neu_em_frac", trigger_jet.neutral_em_fraction()) );
+      properties.push_back( MOD::Property("chrg_had_frac", trigger_jet.charged_hadron_fraction()) );
+      properties.push_back( MOD::Property("chrg_em_frac", trigger_jet.charged_em_fraction()) );
+   }
 
 
    string name;
