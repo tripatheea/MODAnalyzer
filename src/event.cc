@@ -288,6 +288,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       else if (tag == "PFC") {
          try {
             // cout << "PFC" << endl;
+            set_data_source(0);
             add_particle(stream);
          }
          catch (exception& e) {
@@ -297,6 +298,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       else if (tag == "AK5") {
          try {
             // cout << "AK5" << endl;
+            set_data_source(0);
             add_CMS_jet(stream);
          }
          catch (exception& e) {
@@ -393,6 +395,7 @@ const MOD::Trigger MOD::Event::assigned_trigger() const {
 }
 
 bool MOD::Event::assigned_trigger_fired() const {
+   // cout << _assigned_trigger.is_valid() << ", " << _assigned_trigger.fired() << endl;
    bool fired = _assigned_trigger.is_valid() && _assigned_trigger.fired();
    return fired;
 }
@@ -441,7 +444,6 @@ void MOD::Event::set_assigned_trigger() {
    }
 
    trigger_to_use = trigger;
-
 
    if (trigger_to_use != "") {
       _assigned_trigger_name = trigger_to_use;
@@ -553,7 +555,7 @@ std::vector<fastjet::PseudoJet> MOD::Event::closest_fastjet_jet_to_trigger_jet_c
 }
 
 void MOD::Event::establish_properties() {
-   
+
    if (data_source() == 0) {
       // Cluster PFCandidates into AK5 Jets using FastJet.
       vector<MOD::PFCandidate> pfcandidates = particles();

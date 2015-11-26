@@ -23,7 +23,7 @@ using namespace std;
 using namespace fastjet;
 using namespace contrib;
 
-void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number,  vector<double> cone_radii, vector<double> pt_cuts);
+void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, string data_type, string mc_type);
 
 double calculate_rho(double R, double m, double pT);
 
@@ -34,35 +34,40 @@ int main(int argc, char * argv[]) {
 
    int number_of_events_to_process;
 
-   if (argc <= 2) {
-        std::cerr << "ERROR: You need to supply three arguments- first, path to the input data; second, path to the output file; third, number of events to process. The path has to be either absolute or relative to the bin directory:" << std::endl << std::endl << "./analysis (input_file.dat) (output_file.dat) [optional Nev]" << std::endl;
+   if (argc <= 4) {
+        std::cerr << "ERROR: You need to supply five arguments- first, path to the input data; second, path to the output file; third, whether it's data or Monte Carlo; fourth, what kind of Monte Carlo it is i.e. truth values or reco- if it's data, you can enter anything you like as long as you give some argument; fifth, number of events to process. The path has to be either absolute or relative to the bin directory:" << std::endl << std::endl << "./analysis (input_file.dat) (output_file.dat) [optional Nev]" << std::endl;
         return 1;
    }
-   else if (argc == 3) {
-      // Third argument is missing, process everything.
+   else if (argc == 5) {
+      // Fifth argument is missing, process everything.
       number_of_events_to_process = std::numeric_limits<int>::max();
    }
    else {
-      // Third argument gives the number of events to process.
-      number_of_events_to_process = stoi(argv[3]);
+      // Fifth argument gives the number of events to process.
+      number_of_events_to_process = stoi(argv[5]);
    }
 
    ifstream data_file(argv[1]);
    ofstream output_file(argv[2], ios::out | ios::app);
+   string data_type = argv[3];
+   string mc_type = argv[4];  // "truth" or "reco"- for data_type == "data" this parameter does not matter as long as it's not an empty string.
 
-   
+   if ( ! (data_type == "mc" or data_type == "data") )
+      throw std::invalid_argument( "Invalid data type- only 'data' and 'mc' are accepted!" );
+
    cout << endl << endl << "Starting analysis with the following given arguments: " << endl;
    cout << "Input file: " << argv[1] << endl;
    cout << "Output file: " << argv[2] << endl;
+   cout << "Data Type: " << argv[3] << endl;
+   cout << "MC Type: " << argv[4] << endl;
    cout << "Number of events: ";
 
-   if(argc == 3)
+   
+
+   if(argc == 5)
       cout << "ALL" << endl << endl;
    else
       cout << number_of_events_to_process << endl << endl;
-
-   vector<double> cone_radii = {0.3, 0.5, 0.7};
-   vector<double> pt_cuts = {50.0, 80.0, 110.0};
 
    MOD::Event event_being_read;
 
@@ -77,7 +82,8 @@ int main(int argc, char * argv[]) {
       if (event_serial_number == 1)
          output_file << "%" << " Version " << event_being_read.version() << endl;
 
-      analyze_qcd_beta(event_being_read, output_file, event_serial_number, cone_radii, pt_cuts);
+      if ( (data_type == "mc") || (event_being_read.assigned_trigger_fired()) )
+         analyze_qcd_beta(event_being_read, output_file, event_serial_number, data_type, mc_type);
       
       
       event_being_read = MOD::Event();
@@ -102,7 +108,7 @@ double calculate_rho(double R, double m, double pT) {
 
 
 
-void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, vector<double> cone_radii, vector<double> pt_cuts) {
+void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, string data_type, string mc_type) {
 
    MOD::CalibratedJet trigger_jet = event_being_read.trigger_jet();
 
