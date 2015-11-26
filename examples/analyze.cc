@@ -23,7 +23,7 @@ using namespace std;
 using namespace fastjet;
 using namespace contrib;
 
-void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, string data_type);
+void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, string data_type, string mc_type);
 
 int main(int argc, char * argv[]) {
 
@@ -31,34 +31,37 @@ int main(int argc, char * argv[]) {
 
    int number_of_events_to_process;
 
-   if (argc <= 3) {
-        std::cerr << "ERROR: You need to supply four arguments- first, path to the input data; second, path to the output file; third, whether it's data or Monte Carlo; fourth, number of events to process. The path has to be either absolute or relative to the bin directory:" << std::endl << std::endl << "./analysis (input_file.dat) (output_file.dat) [optional Nev]" << std::endl;
+   if (argc <= 4) {
+        std::cerr << "ERROR: You need to supply five arguments- first, path to the input data; second, path to the output file; third, whether it's data or Monte Carlo; fourth, what kind of Monte Carlo it is i.e. truth values or reco- if it's data, you can enter anything you like as long as you give some argument; fifth, number of events to process. The path has to be either absolute or relative to the bin directory:" << std::endl << std::endl << "./analysis (input_file.dat) (output_file.dat) [optional Nev]" << std::endl;
         return 1;
    }
-   else if (argc == 4) {
-      // Third argument is missing, process everything.
+   else if (argc == 5) {
+      // Fifth argument is missing, process everything.
       number_of_events_to_process = std::numeric_limits<int>::max();
    }
    else {
-      // Third argument gives the number of events to process.
-      number_of_events_to_process = stoi(argv[4]);
+      // Fifth argument gives the number of events to process.
+      number_of_events_to_process = stoi(argv[5]);
    }
 
    ifstream data_file(argv[1]);
    ofstream output_file(argv[2], ios::out | ios::app);
    string data_type = argv[3];
+   string mc_type = argv[4];  // "truth" or "reco"- for data_type == "data" this parameter does not matter as long as it's not an empty string.
 
-   if (data_type != "mc" or data_type != "data") {
+   if ( ! (data_type == "mc" or data_type == "data") )
       throw std::invalid_argument( "Invalid data type- only 'data' and 'mc' are accepted!" );
-   }
 
-   
    cout << endl << endl << "Starting analysis with the following given arguments: " << endl;
    cout << "Input file: " << argv[1] << endl;
    cout << "Output file: " << argv[2] << endl;
+   cout << "Data Type: " << argv[3] << endl;
+   cout << "MC Type: " << argv[4] << endl;
    cout << "Number of events: ";
 
-   if(argc == 3)
+   
+
+   if(argc == 5)
       cout << "ALL" << endl << endl;
    else
       cout << number_of_events_to_process << endl << endl;
@@ -76,7 +79,7 @@ int main(int argc, char * argv[]) {
          output_file << "%" << " Version " << event_being_read.version() << endl;
 
       if ( (data_type == "mc") || (event_being_read.assigned_trigger_fired()) )
-         analyze_event(event_being_read, output_file, event_serial_number, data_type);
+         analyze_event(event_being_read, output_file, event_serial_number, data_type, mc_type);
       
       event_being_read = MOD::Event();
       event_serial_number++;
@@ -91,7 +94,7 @@ int main(int argc, char * argv[]) {
 }
 
 
-void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, string data_type) {
+void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, string data_type, string mc_type) {
 
    JetDefinition jet_def_cambridge(cambridge_algorithm, jet_def_cambridge.max_allowable_R);
 
@@ -99,14 +102,15 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet;
    MOD::CalibratedJet trigger_jet;
 
+
    if (data_type == "data") {
       closest_fastjet_jet_to_trigger_jet_constituents = event_being_read.closest_fastjet_jet_to_trigger_jet_constituents();
-      ClusterSequence cs(closest_fastjet_jet_to_trigger_jet_constituents, jet_def_cambridge); 
+      // cs = ClusterSequence(closest_fastjet_jet_to_trigger_jet_constituents, jet_def_cambridge); 
       
-      if (cs.inclusive_jets().size() == 0)
-         return;
+      // if (cs.inclusive_jets().size() == 0)
+      //    return;
 
-      closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0];
+      // closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0];
       trigger_jet = event_being_read.trigger_jet();
    }
 
@@ -114,14 +118,24 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    vector<fastjet::PseudoJet> hardest_mc_jet_constituents;
    fastjet::PseudoJet hardest_mc_jet;
    if (data_type == "mc") {
-      vector<PseudoJet> hardest_jet_constituents = event_being_read.hardest_mc_reco_jet_constituents();
-      ClusterSequence cs(hardest_jet_constituents, jet_def_cambridge);
+      hardest_mc_jet_constituents = (mc_type == "reco") ? event_being_read.hardest_mc_reco_jet_constituents() : event_being_read.hardest_mc_truth_jet_constituents();
+      // cs = ClusterSequence(hardest_mc_jet_constituents, jet_def_cambridge);
 
-      if (cs.inclusive_jets().size() == 0) 
-         return;
+      // if (cs.inclusive_jets().size() == 0) 
+      //    return;
 
-      hardest_mc_jet = cs.inclusive_jets()[0];
+      // hardest_mc_jet = cs.inclusive_jets()[0];
    }
+
+
+   vector<PseudoJet> jet_constituents = (data_type == "data") ? closest_fastjet_jet_to_trigger_jet_constituents : hardest_mc_jet_constituents;
+
+   ClusterSequence cs(jet_constituents, jet_def_cambridge);   
+   if (cs.inclusive_jets().size() == 0)
+      return;
+
+   closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0]; // This is okay because we're going to use only one of these two depending on what data_type is. We do this as a work-around to scope issues for ClusterSequence- its scope must be visible for FastJet to be able to infer internal jet structures.
+   hardest_mc_jet = cs.inclusive_jets()[0];                     // This is okay because we're going to use only one of these two depending on what data_type is. We do this as a work-around to scope issues for ClusterSequence- its scope must be visible for FastJet to be able to infer internal jet structures.
 
 
    vector<MOD::Property> properties;
@@ -145,8 +159,6 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    else {
       properties.push_back(MOD::Property("Hardest_pT", hardest_mc_jet.pt()));
    }
-   
-
 
 
    SoftDrop soft_drop(0.0, 0.05);
@@ -159,11 +171,9 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
       soft_drop_jet_corr = soft_drop(closest_fastjet_jet_to_trigger_jet * trigger_jet.JEC());   
    }
    else {
-      soft_drop_jet_corr = soft_drop(hardest_mc_jet);     
+      soft_drop_jet_corr = soft_drop(hardest_mc_jet);
    }
    
-   
-
    double zg_05 = soft_drop_jet_corr.structure_of<SoftDrop>().symmetry();
    double dr_05 = soft_drop_jet_corr.structure_of<SoftDrop>().delta_R();
    double mu_05 = soft_drop_jet_corr.structure_of<SoftDrop>().mu();
@@ -188,7 +198,6 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back(MOD::Property("zg_2", zg_2));  
    properties.push_back(MOD::Property("dr_2", dr_2));  
    properties.push_back(MOD::Property("mu_2", mu_2));  
-
 
    
    ClusterSequence cs_1 = (data_type == "data") ? ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 1.00), jet_def_cambridge) : ClusterSequence(MOD::filter_by_pT(hardest_mc_jet_constituents, 1.00), jet_def_cambridge);
@@ -440,17 +449,12 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
       // Must be "hardest_uncorrected_jet" because the corrected jet has a JEC set to 1.
       properties.push_back( MOD::Property("jet_area", trigger_jet.area()) );
+      properties.push_back( MOD::Property("jec", trigger_jet.JEC()) );
    }
    else {
       properties.push_back( MOD::Property("fra_energy_loss", (hardest_mc_jet.E() - soft_drop(hardest_mc_jet).E()) / hardest_mc_jet.E() ) );
       properties.push_back( MOD::Property("hardest_eta", hardest_mc_jet.eta()) );
-
-      properties.push_back( MOD::Property("jet_area", hardest_mc_jet.area()) );
    }
-
-   properties.push_back( MOD::Property("jec", trigger_jet.JEC()) );
-
-   
 
    if (data_type == "data") {
       properties.push_back( MOD::Property("no_of_const", trigger_jet.number_of_constituents()) );
