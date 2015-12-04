@@ -169,8 +169,8 @@ def plot_pt(pT_lower_cut):
 		cbar = plt.colorbar()
 		cbar.ax.set_ylabel('Counts')
 
-		plt.xlim(0, 200)
-		plt.ylim(0, 200)
+		plt.xlim(150, max(max(x), max(y)))
+		plt.ylim(150, max(max(x), max(y)))
 
 		plt.xlabel('Truth $p_T / \mathrm{GeV}$', fontsize=50, labelpad=75)
 		plt.ylabel('Reco $p_T / \mathrm{GeV}$', fontsize=50, labelpad=75)
@@ -316,10 +316,51 @@ def plot_eta(pT_lower_cut):
 
 
 
-# plot_pt(150)
 
-plot_jet_multiplicity(150, charged=True)
-plot_jet_multiplicity(150, charged=False)
+def plot_zg(pT_lower_cut):
+
+	properties_reco = [parse_mc("/home/aashish/pythia_reco.dat"), parse_mc("/home/aashish/herwig_reco.dat"), parse_mc("/home/aashish/sherpa_reco.dat")]
+	properties_truth = [parse_mc("/home/aashish/pythia_truth.dat"), parse_mc("/home/aashish/herwig_truth.dat"), parse_mc("/home/aashish/sherpa_truth.dat")]
+	labels = ["pythia", "herwig", "sherpa"]
+
+	for prop_reco, prop_truth, label in zip(properties_reco, properties_truth, labels):
+	
+		x = prop_truth['zg_05']
+		y = prop_reco['zg_05']
+
+		H, xedges, yedges = np.histogram2d(x, y, bins=50, normed=1 )
+
+		H = np.rot90(H)
+		H = np.flipud(H)
+
+		Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
+
+		plt.pcolormesh(xedges,yedges, Hmasked)
+
+		cbar = plt.colorbar()
+		cbar.ax.set_ylabel('Counts')
+
+		plt.xlim(0, 0.5)
+		plt.ylim(0, 0.5)
+
+		plt.xlabel('Truth $z_g$', fontsize=50, labelpad=75)
+		plt.ylabel('Reco $z_g$', fontsize=50, labelpad=75)
+
+		plt.gcf().set_size_inches(30, 30, forward=1)
+		plt.gcf().set_snap(True)
+
+		plt.savefig("plots/With MC/2D/zg_05_" + label + ".pdf")
+
+		plt.clf()
+
+
+# plot_zg(150)
+
+
+plot_pt(150)
+
+# plot_jet_multiplicity(150, charged=True)
+# plot_jet_multiplicity(150, charged=False)
 
 # plot_jet_mass(150, charged=True)
 # plot_jet_mass(150, charged=False)

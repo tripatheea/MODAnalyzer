@@ -728,9 +728,9 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
 
   properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, jet_quality_level=1)
   
-  pythia_properties = parse_mc("/home/aashish/pythia_reco_qcd.dat", pT_lower_cut=pT_lower_cut)
-  herwig_properties = parse_mc("/home/aashish/herwig_reco_qcd.dat", pT_lower_cut=pT_lower_cut)
-  sherpa_properties = parse_mc("/home/aashish/sherpa_reco_qcd.dat", pT_lower_cut=pT_lower_cut)
+  pythia_properties = parse_mc("/home/aashish/pythia_truth_qcd.dat", pT_lower_cut=pT_lower_cut)
+  herwig_properties = parse_mc("/home/aashish/herwig_truth_qcd.dat", pT_lower_cut=pT_lower_cut)
+  sherpa_properties = parse_mc("/home/aashish/sherpa_truth_qcd.dat", pT_lower_cut=pT_lower_cut)
 
   # pythia_properties = parse_mc("/home/aashish/pythia_truth_qcd.dat", pT_lower_cut=pT_lower_cut)
   # herwig_properties = parse_mc("/home/aashish/herwig_truth_qcd.dat", pT_lower_cut=pT_lower_cut)
@@ -791,6 +791,8 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   bins_linear_log = np.linspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 30)
 
   # Data.
+
+
 
   theta_g_hist = Hist(bins_linear_log, title='Data', markersize=3.0, color='black')
   bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()

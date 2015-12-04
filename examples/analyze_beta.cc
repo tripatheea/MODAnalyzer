@@ -110,30 +110,69 @@ double calculate_rho(double R, double m, double pT) {
 
 void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, string data_type, string mc_type) {
 
-   MOD::CalibratedJet trigger_jet = event_being_read.trigger_jet();
+   JetDefinition jet_def_cambridge(cambridge_algorithm, jet_def_cambridge.max_allowable_R);
+
+   vector<fastjet::PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents;
+   fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet;
+   MOD::CalibratedJet trigger_jet;
+
+
+   if (data_type == "data") {
+      closest_fastjet_jet_to_trigger_jet_constituents = event_being_read.closest_fastjet_jet_to_trigger_jet_constituents();
+      // cs = ClusterSequence(closest_fastjet_jet_to_trigger_jet_constituents, jet_def_cambridge); 
+      
+      // if (cs.inclusive_jets().size() == 0)
+      //    return;
+
+      // closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0];
+      trigger_jet = event_being_read.trigger_jet();
+   }
+
+   // Monte Carlo.
+   vector<fastjet::PseudoJet> hardest_mc_jet_constituents;
+   fastjet::PseudoJet hardest_mc_jet;
+   if (data_type == "mc") {
+      hardest_mc_jet_constituents = (mc_type == "reco") ? event_being_read.hardest_mc_reco_jet_constituents() : event_being_read.hardest_mc_truth_jet_constituents();
+      // cs = ClusterSequence(hardest_mc_jet_constituents, jet_def_cambridge);
+
+      // if (cs.inclusive_jets().size() == 0) 
+      //    return;
+
+      // hardest_mc_jet = cs.inclusive_jets()[0];
+   }
+
+   vector<PseudoJet> jet_constituents = (data_type == "data") ? closest_fastjet_jet_to_trigger_jet_constituents : hardest_mc_jet_constituents;
+
+   ClusterSequence cs(jet_constituents, jet_def_cambridge);   
+   if (cs.inclusive_jets().size() == 0)
+      return;
+
+   closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0]; // This is okay because we're going to use only one of these two depending on what data_type is. We do this as a work-around to scope issues for ClusterSequence- its scope must be visible for FastJet to be able to infer internal jet structures.
+   hardest_mc_jet = cs.inclusive_jets()[0];                     // This is okay because we're going to use only one of these two depending on what data_type is. We do this as a work-around to scope issues for ClusterSequence- its scope must be visible for FastJet to be able to infer internal jet structures.
+
+
+
+   PseudoJet hardest_jet = (data_type == "data") ? closest_fastjet_jet_to_trigger_jet : hardest_mc_jet;
+
 
    vector<MOD::Property> properties;
 
    properties.push_back(MOD::Property("# Entry", "  Entry"));
-   properties.push_back(MOD::Property("Cor_Hardest_pT", trigger_jet.corrected_pseudojet().pt()));
-   properties.push_back(MOD::Property("Prescale", event_being_read.assigned_trigger_prescale()));
 
-   properties.push_back(MOD::Property("trig_jet_matched", (int) event_being_read.trigger_jet_is_matched())); 
-   properties.push_back(MOD::Property("jet_quality", trigger_jet.jet_quality())); 
+   if (data_type == "data") {
+      properties.push_back(MOD::Property("Cor_Hardest_pT", trigger_jet.corrected_pseudojet().pt()));
+      properties.push_back(MOD::Property("Prescale", event_being_read.assigned_trigger_prescale()));
+      properties.push_back(MOD::Property("trig_jet_matched", (int) event_being_read.trigger_jet_is_matched())); 
+      properties.push_back(MOD::Property("jet_quality", trigger_jet.jet_quality())); 
    
-   properties.push_back(MOD::Property("no_of_const", trigger_jet.number_of_constituents() )); 
+      properties.push_back(MOD::Property("no_of_const", trigger_jet.number_of_constituents() )); 
+   }
+   else {
+      properties.push_back(MOD::Property("Hardest_pT", hardest_mc_jet.pt()));
+   }
    
-   JetDefinition jet_def_cambridge(cambridge_algorithm, jet_def_cambridge.max_allowable_R );
 
-   vector<fastjet::PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents = event_being_read.closest_fastjet_jet_to_trigger_jet_constituents();
-   ClusterSequence cs(closest_fastjet_jet_to_trigger_jet_constituents, jet_def_cambridge);
 
-   if (cs.inclusive_jets().size() == 0)
-      return;
-
-   fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0];
-
-   PseudoJet hardest_jet = closest_fastjet_jet_to_trigger_jet;
    double beta = 0;
    
    SoftDrop soft_drop_10(beta, 0.10);
@@ -194,7 +233,7 @@ void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int
 
    // Just get "charged" particles.
 
-   vector<fastjet::PseudoJet> charged_constituents = MOD::filter_charged(closest_fastjet_jet_to_trigger_jet_constituents);
+   vector<fastjet::PseudoJet> charged_constituents = (data_type == "data") ? MOD::filter_charged(closest_fastjet_jet_to_trigger_jet_constituents) : MOD::filter_charged(hardest_mc_jet_constituents);
    ClusterSequence cs_charged(charged_constituents, jet_def_cambridge);
 
    if (cs_charged.inclusive_jets().size() == 0) {
@@ -234,7 +273,7 @@ void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int
    }
    else {
 
-      PseudoJet hardest_charged_jet = cs.inclusive_jets()[0];
+      PseudoJet hardest_charged_jet = cs_charged.inclusive_jets()[0];
       
       SoftDrop charged_soft_drop_10(beta, 0.10);
       PseudoJet charged_soft_drop_jet_10 = charged_soft_drop_10(hardest_charged_jet);
@@ -294,13 +333,16 @@ void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int
 
    }
 
+   if (data_type == "data") {
+      properties.push_back( MOD::Property("no_of_const", trigger_jet.number_of_constituents()) );
+      properties.push_back( MOD::Property("chrg_multip", trigger_jet.charged_multiplicity()) );
+      properties.push_back( MOD::Property("neu_had_frac", trigger_jet.neutral_hadron_fraction()) );
+      properties.push_back( MOD::Property("neu_em_frac", trigger_jet.neutral_em_fraction()) );
+      properties.push_back( MOD::Property("chrg_had_frac", trigger_jet.charged_hadron_fraction()) );
+      properties.push_back( MOD::Property("chrg_em_frac", trigger_jet.charged_em_fraction()) );
+   }
 
-   properties.push_back( MOD::Property("no_of_const", trigger_jet.number_of_constituents()) );
-   properties.push_back( MOD::Property("chrg_multip", trigger_jet.charged_multiplicity()) );
-   properties.push_back( MOD::Property("neu_had_frac", trigger_jet.neutral_hadron_fraction()) );
-   properties.push_back( MOD::Property("neu_em_frac", trigger_jet.neutral_em_fraction()) );
-   properties.push_back( MOD::Property("chrg_had_frac", trigger_jet.charged_hadron_fraction()) );
-   properties.push_back( MOD::Property("chrg_em_frac", trigger_jet.charged_em_fraction()) );
+   
 
    
    string name;
