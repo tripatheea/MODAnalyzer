@@ -96,7 +96,7 @@ int main(int argc, char * argv[]) {
 
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, string data_type, string mc_type) {
 
-   JetDefinition jet_def_cambridge(cambridge_algorithm, jet_def_cambridge.max_allowable_R);
+   JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
 
    vector<fastjet::PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents;
    fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet;

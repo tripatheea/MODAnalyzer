@@ -96,7 +96,7 @@ void MOD::Event::add_mc_truth_jet(istringstream & input_stream) {
    MOD::MCCalibratedJet new_jet(input_stream);
 
    _mc_truth_jets.push_back(new_jet);
-   _mc_truth_pseudojets.push_back(new_jet.pseudojet());      
+   // _mc_truth_pseudojets.push_back(new_jet.pseudojet());      
    
 }
 
