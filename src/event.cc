@@ -6,9 +6,9 @@ using namespace fastjet;
 
 MOD::Event::Event(int run_number, int event_number, int lumi_block, double inst_lumi) : _run_number(run_number), _event_number(event_number) {}
 
-MOD::Event::Event(int run_number, int event_number, int version, std::pair<std::string, std::string> data_type, MOD::Condition condition, vector<MOD::Trigger> triggers, vector<MOD::PFCandidate> particles, vector<fastjet::PseudoJet> pseudojets, vector<MOD::CalibratedJet> CMS_jets, vector<fastjet::PseudoJet> CMS_pseudojets) : 
-_run_number(run_number), _event_number(event_number),  _version(version), _data_type(data_type), _condition(condition), _triggers(triggers), _particles(particles), _pseudojets(pseudojets), _CMS_jets(CMS_jets), _CMS_pseudojets(CMS_pseudojets) 
-{}
+// MOD::Event::Event(int run_number, int event_number, int version, std::pair<std::string, std::string> data_type, MOD::Condition condition, vector<MOD::Trigger> triggers, vector<MOD::PFCandidate> particles, vector<MOD::CalibratedJet> CMS_jets) : 
+// _run_number(run_number), _event_number(event_number),  _version(version), _data_type(data_type), _condition(condition), _triggers(triggers), _particles(particles), _CMS_jets(CMS_jets) 
+// {}
 
 
 
@@ -48,65 +48,38 @@ const vector<MOD::CalibratedJet> & MOD::Event::CMS_jets() const {
    return _CMS_jets;
 }
 
-const vector<fastjet::PseudoJet> & MOD::Event::CMS_pseudojets() const {
-   return _CMS_pseudojets;
-}
 
-const vector<fastjet::PseudoJet> & MOD::Event::fastjet_pseudojets() const {
-   return _fastjet_pseudojets;
+const vector<fastjet::PseudoJet> & MOD::Event::fastjet_clustered_pseudojets() const {
+   return _fastjet_clustered_pseudojets;
 }
 
 
 void MOD::Event::add_particle(istringstream & input_stream) {
    MOD::PFCandidate new_particle(input_stream);
-
    _particles.push_back(new_particle);
-   _pseudojets.push_back(PseudoJet(new_particle.pseudojet()));
 }
 
 void MOD::Event::add_mc_truth_particle(istringstream & input_stream) {
    MOD::MCPFCandidate new_particle(input_stream);
-
    _mc_truth_particles.push_back(new_particle);
-   _mc_truth_pseudojets.push_back(PseudoJet(new_particle.pseudojet()));
 }
 
 void MOD::Event::add_mc_reco_particle(istringstream & input_stream) {
    MOD::MCPFCandidate new_particle(input_stream);
-
    _mc_reco_particles.push_back(new_particle);
-   _mc_reco_pseudojets.push_back(PseudoJet(new_particle.pseudojet()));
 }
 
 void MOD::Event::add_condition(istringstream & input_stream) {
    MOD::Condition new_condition(input_stream);
-
    _condition = new_condition;
 }
 
 void MOD::Event::add_CMS_jet(istringstream & input_stream) {
    MOD::CalibratedJet new_jet(input_stream);
-
    _CMS_jets.push_back(new_jet);
-   _CMS_pseudojets.push_back(new_jet.uncorrected_pseudojet());      
-   
 }
 
-void MOD::Event::add_mc_truth_jet(istringstream & input_stream) {
-   MOD::MCCalibratedJet new_jet(input_stream);
 
-   _mc_truth_jets.push_back(new_jet);
-   // _mc_truth_pseudojets.push_back(new_jet.pseudojet());      
-   
-}
-
-void MOD::Event::add_mc_reco_jet(istringstream & input_stream) {
-   MOD::MCCalibratedJet new_jet(input_stream);
-
-   _mc_reco_jets.push_back(new_jet);
-   _mc_reco_pseudojets.push_back(new_jet.pseudojet());      
-   
-}
 
 void MOD::Event::add_trigger(istringstream & input_stream) {
    _triggers.push_back(MOD::Trigger(input_stream));
@@ -219,8 +192,10 @@ void MOD::Event::set_hardest_truth_jet() {
 
       // Recluster stuff to get the constituents.
 
+      vector<PseudoJet> truth_particles_pseudojets = MOD::convert_to_pseudojets(_mc_truth_particles);
+
       JetDefinition jet_def(antikt_algorithm, 0.5);
-      ClusterSequence cs(_mc_truth_pseudojets, jet_def);
+      ClusterSequence cs(truth_particles_pseudojets, jet_def);
       vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(0.0));
 
       _hardest_mc_truth_jet_constituents = fastjet_jets[0].constituents();
@@ -248,8 +223,10 @@ void MOD::Event::set_hardest_reco_jet() {
 
       // Recluster stuff to get the constituents.
 
+      vector<PseudoJet> reco_particles_pseudojets = MOD::convert_to_pseudojets(_mc_reco_particles);
+
       JetDefinition jet_def(antikt_algorithm, 0.5);
-      ClusterSequence cs(_mc_reco_pseudojets, jet_def);
+      ClusterSequence cs(reco_particles_pseudojets, jet_def);
       vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(0.0));
 
       _hardest_mc_reco_jet_constituents = fastjet_jets[0].constituents();
@@ -342,30 +319,6 @@ bool MOD::Event::read_event(istream & data_stream) {
          }
          catch (exception& e) {
             throw runtime_error("Invalid file format! Something's wrong with the way RPFC has been written. ;)");
-         }
-      }
-      else if (tag == "TAK5") {
-         try {
-
-            // cout << "TAK5" << endl;
-
-            set_data_source(1);
-            add_mc_truth_jet(stream);
-         }
-         catch (exception& e) {
-            throw runtime_error("Invalid file format! Something's wrong with the way TAK5 has been written. ;)");
-         }
-      }
-      else if (tag == "RAK5") {
-         try {
-
-            // cout << "RAK5" << endl;
-
-            set_data_source(2);
-            add_mc_reco_jet(stream);
-         }
-         catch (exception& e) {
-            throw runtime_error("Invalid file format! Something's wrong with the way RAK5 has been written. ;)");
          }
       }
       else if (tag == "EndEvent") {
@@ -485,8 +438,11 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
    if (_trigger_jet.is_valid()) {
 
       // Cluster PFCandidates using FastJet.
+      vector<PseudoJet> pseudojets = convert_to_pseudojets(_particles);
+
+
       JetDefinition jet_def(antikt_algorithm, 0.5);
-      ClusterSequence cs(_pseudojets, jet_def);
+      ClusterSequence cs(pseudojets, jet_def);
       vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(3.0));
 
       // Loop through all FastJet pseudojets, calculating delta R for each one.
@@ -556,15 +512,17 @@ std::vector<fastjet::PseudoJet> MOD::Event::closest_fastjet_jet_to_trigger_jet_c
 
 void MOD::Event::establish_properties() {
 
-   if (data_source() == 0) {
+   JetDefinition jet_def(antikt_algorithm, 0.5);
+
+   if (data_source() == 0) {  // Experiment 
+
       // Cluster PFCandidates into AK5 Jets using FastJet.
       vector<MOD::PFCandidate> pfcandidates = particles();
       vector<PseudoJet> pfcandidates_pseudojets = MOD::convert_to_pseudojets(pfcandidates);
-
-      JetDefinition jet_def(antikt_algorithm, 0.5);
+   
       ClusterSequence cs(pfcandidates_pseudojets, jet_def);
       vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
-      _fastjet_pseudojets = ak5_jets;
+      _fastjet_clustered_pseudojets = ak5_jets;
 
       // cout << "trigger_jet" << endl;
       // First of all, assign _trigger_jet.
@@ -580,11 +538,46 @@ void MOD::Event::establish_properties() {
       // cout << "assigned trigger" << endl;
       set_assigned_trigger();   
    }
-   else if (data_source() == 1) {
+   else if (data_source() == 1) {   // 1 => MC_TRUTH 
+      
+      // Recluster all truth particles to get "Truth Jets"
+      
+      vector<PseudoJet> truth_particles_pseudojets = convert_to_pseudojets(_mc_truth_particles);
+      ClusterSequence cs(truth_particles_pseudojets, jet_def);
+      vector<PseudoJet> truth_ak5_jets = sorted_by_pt(cs.inclusive_jets(0.0));
+
+      // Create a vector of MOD::MCCalibratedJet.
+      vector<MOD::CalibratedJet> truth_jets;
+      for (unsigned i = 0; i < truth_ak5_jets.size(); i++) {
+         // double px, double py, double pz, double energy, string algorithm
+         truth_jets.push_back(MOD::MCCalibratedJet( truth_ak5_jets[i].px(), truth_ak5_jets[i].py(), truth_ak5_jets[i].pz(), truth_ak5_jets[i].E(), "ak5" ));
+      }
+
+      _mc_truth_jets = truth_jets;
+
+      // Finally, set the hardest truth jet.
+
       set_hardest_truth_jet();
    }
-   else if (data_source() == 2) {
-      set_hardest_truth_jet();
+   else if (data_source() == 2) {   // 2 => MC_RECO.
+
+      // Recluster all reco particles to get reco jets.
+      
+      vector<PseudoJet> reco_particles_pseudojets = convert_to_pseudojets(_mc_reco_particles);
+      ClusterSequence cs(reco_particles_pseudojets, jet_def);
+      vector<PseudoJet> reco_ak5_jets = sorted_by_pt(cs.inclusive_jets(0.0));
+
+      // Create a vector of MOD::MCCalibratedJet.
+      vector<MOD::CalibratedJet> reco_jets;
+      for (unsigned i = 0; i < reco_ak5_jets.size(); i++) {
+         // double px, double py, double pz, double energy, string algorithm
+         reco_jets.push_back(MOD::MCCalibratedJet( reco_ak5_jets[i].px(), reco_ak5_jets[i].py(), reco_ak5_jets[i].pz(), reco_ak5_jets[i].E(), "ak5" ));
+      }
+
+      _mc_reco_jets = reco_jets;      
+
+      // Finally, set the hardest reco jets.
+
       set_hardest_reco_jet();
    }
 

@@ -18,9 +18,9 @@
 
 #include "trigger.h"
 #include "pfcandidate.h"
-#include "mc_pfcandidate.h"
+// #include "mc_pfcandidate.h"
 #include "calibrated_jet.h"
-#include "mc_calibrated_jet.h"
+// #include "mc_calibrated_jet.h"
 #include "condition.h"
 
 
@@ -32,7 +32,7 @@ namespace MOD {
          public:
             Event(int, int, int, double);
             Event();
-            Event(int run_number, int Event_number, int version, std::pair<std::string, std::string> data_type, MOD::Condition condition, std::vector<MOD::Trigger> triggers, std::vector<MOD::PFCandidate> particles, std::vector<fastjet::PseudoJet> pseudojets, std::vector<MOD::CalibratedJet> CMS_jets, std::vector<fastjet::PseudoJet> CMS_pseudojets);
+            // Event(int run_number, int Event_number, int version, std::pair<std::string, std::string> data_type, MOD::Condition condition, std::vector<MOD::Trigger> triggers, std::vector<MOD::PFCandidate> particles, std::vector<MOD::CalibratedJet> CMS_jets);
 
             int event_number() const;
             int run_number() const;
@@ -43,8 +43,7 @@ namespace MOD {
             const std::vector<PFCandidate> & particles() const;
 
             const std::vector<MOD::CalibratedJet> & CMS_jets() const;
-            const std::vector<fastjet::PseudoJet> & CMS_pseudojets() const;
-            const std::vector<fastjet::PseudoJet> & fastjet_pseudojets() const;
+            const std::vector<fastjet::PseudoJet> & fastjet_clustered_pseudojets() const;
 
             const std::vector<Trigger> & triggers() const;
 
@@ -61,10 +60,7 @@ namespace MOD {
             void add_trigger(std::istringstream & input_stream);
 
             void add_mc_truth_particle(std::istringstream & input_stream);
-            void add_mc_truth_jet(std::istringstream & input_stream);
-
             void add_mc_reco_particle(std::istringstream & input_stream);
-            void add_mc_reco_jet(std::istringstream & input_stream);
             
             void set_event_number(int event_number);
             void set_run_number(int run_number);
@@ -120,32 +116,13 @@ namespace MOD {
 
             Condition _condition;
 
+
+            // Things related to CMS Data.
             std::vector<MOD::Trigger> _triggers;
             std::vector<MOD::PFCandidate> _particles;
-            std::vector<fastjet::PseudoJet> _pseudojets;
-
-            std::vector<MOD::MCPFCandidate> _mc_truth_particles;
-            std::vector<fastjet::PseudoJet> _mc_truth_particles_pseudojets;
-
-            std::vector<MOD::MCPFCandidate> _mc_reco_particles;
-            std::vector<fastjet::PseudoJet> _mc_reco_particles_pseudojets;
-
-            std::vector<MOD::MCCalibratedJet> _mc_truth_jets;
-            std::vector<fastjet::PseudoJet> _mc_truth_pseudojets;
-
-            std::vector<MOD::MCCalibratedJet> _mc_reco_jets;
-            std::vector<fastjet::PseudoJet> _mc_reco_pseudojets;
-
-            MOD::MCCalibratedJet _hardest_mc_truth_jet;
-            MOD::MCCalibratedJet _hardest_mc_reco_jet;
-
-            std::vector<fastjet::PseudoJet> _hardest_mc_truth_jet_constituents;
-            std::vector<fastjet::PseudoJet> _hardest_mc_reco_jet_constituents;
 
             std::vector<MOD::CalibratedJet> _CMS_jets;
-            std::vector<fastjet::PseudoJet> _CMS_pseudojets;
-
-            std::vector<fastjet::PseudoJet> _fastjet_pseudojets;
+            std::vector<fastjet::PseudoJet> _fastjet_clustered_pseudojets;
 
             MOD::CalibratedJet _trigger_jet;
 
@@ -154,6 +131,23 @@ namespace MOD {
 
             bool _trigger_jet_is_matched;
 
+
+            // Things related to Monte Carlo.
+            // Note that we don't directly read AK5 jets because in the Monte Carlo generated MOD files, we don't write out AK5 jets. 
+            std::vector<MOD::MCPFCandidate> _mc_truth_particles;
+            std::vector<MOD::MCPFCandidate> _mc_reco_particles;
+
+            std::vector<MOD::MCCalibratedJet> _mc_truth_jets;
+            std::vector<MOD::MCCalibratedJet> _mc_reco_jets;
+
+            MOD::MCCalibratedJet _hardest_mc_truth_jet;
+            MOD::MCCalibratedJet _hardest_mc_reco_jet;
+
+            std::vector<fastjet::PseudoJet> _hardest_mc_truth_jet_constituents;
+            std::vector<fastjet::PseudoJet> _hardest_mc_reco_jet_constituents;
+            
+
+            
             void set_assigned_trigger();
             void set_hardest_pt();
             void establish_properties();
