@@ -547,10 +547,9 @@ void MOD::Event::establish_properties() {
       vector<PseudoJet> truth_ak5_jets = sorted_by_pt(cs.inclusive_jets(0.0));
 
       // Create a vector of MOD::MCCalibratedJet.
-      vector<MOD::CalibratedJet> truth_jets;
+      vector<MOD::MCCalibratedJet> truth_jets;
       for (unsigned i = 0; i < truth_ak5_jets.size(); i++) {
-         // double px, double py, double pz, double energy, string algorithm
-         truth_jets.push_back(MOD::MCCalibratedJet( truth_ak5_jets[i].px(), truth_ak5_jets[i].py(), truth_ak5_jets[i].pz(), truth_ak5_jets[i].E(), "ak5" ));
+         truth_jets.push_back(MOD::MCCalibratedJet( truth_ak5_jets[i], "ak5" ));
       }
 
       _mc_truth_jets = truth_jets;
@@ -568,10 +567,9 @@ void MOD::Event::establish_properties() {
       vector<PseudoJet> reco_ak5_jets = sorted_by_pt(cs.inclusive_jets(0.0));
 
       // Create a vector of MOD::MCCalibratedJet.
-      vector<MOD::CalibratedJet> reco_jets;
+      vector<MOD::MCCalibratedJet> reco_jets;
       for (unsigned i = 0; i < reco_ak5_jets.size(); i++) {
-         // double px, double py, double pz, double energy, string algorithm
-         reco_jets.push_back(MOD::MCCalibratedJet( reco_ak5_jets[i].px(), reco_ak5_jets[i].py(), reco_ak5_jets[i].pz(), reco_ak5_jets[i].E(), "ak5" ));
+         reco_jets.push_back(MOD::MCCalibratedJet( reco_ak5_jets[i], "ak5" ));
       }
 
       _mc_reco_jets = reco_jets;      
