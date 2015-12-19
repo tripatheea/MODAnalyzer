@@ -34,7 +34,7 @@ bool MOD::PDCalibratedJet::is_valid() const {
 
 string MOD::PDCalibratedJet::make_string() const {
    stringstream ss;
-   ss << " PDAK5" << 
+   ss << " PDAK5" 
         << setw(16) << fixed << setprecision(8) << _pseudojet.px()
         << setw(16) << fixed << setprecision(8) << _pseudojet.py()
         << setw(16) << fixed << setprecision(8) << _pseudojet.pz()

@@ -50,10 +50,7 @@ int main(int argc, char * argv[]) {
    cout << endl << endl << "Starting analysis with the following given arguments: " << endl;
    cout << "Input file: " << argv[1] << endl;
    cout << "Output file: " << argv[2] << endl;
-
    cout << "Number of events: ";
-
-   
 
    if(argc == 3)
       cout << "ALL" << endl << endl;
@@ -72,7 +69,7 @@ int main(int argc, char * argv[]) {
       if (event_serial_number == 1)
          output_file << "%" << " Version " << event_being_read.version() << endl;
 
-      if ( (data_type == "mc") || (event_being_read.assigned_trigger_fired()) )
+      if (event_being_read.assigned_trigger_fired())
          analyze_event_data(event_being_read, output_file, event_serial_number);
       
       event_being_read = MOD::Event();
@@ -95,14 +92,9 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
    vector<fastjet::PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents;
    fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet;
    MOD::CalibratedJet trigger_jet;
-
-
    
    closest_fastjet_jet_to_trigger_jet_constituents = event_being_read.closest_fastjet_jet_to_trigger_jet_constituents();
-
    trigger_jet = event_being_read.trigger_jet();
-
-
 
    vector<PseudoJet> jet_constituents = closest_fastjet_jet_to_trigger_jet_constituents;
 
@@ -116,7 +108,6 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
    vector<MOD::Property> properties;
    
    properties.push_back(MOD::Property("# Entry", "  Entry"));
-
 
    properties.push_back(MOD::Property("Event_Number", event_being_read.event_number()));
    properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
@@ -310,9 +301,6 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
       properties.push_back(MOD::Property("zg_2_pt_10", -1.));
    }
     
-
-
-   
    std::vector<fastjet::PseudoJet> charged_constituents = MOD::filter_charged(closest_fastjet_jet_to_trigger_jet_constituents);
    
    // Cluster this using Cambridge/Alachen with infinite radius.
@@ -343,13 +331,8 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
       properties.push_back(MOD::Property("zg_charged_05", -1.0));      
    }
    
-
-   
-   
-
    // Stuff before and after SoftDrop.
    
-
 
    // Hardest Jet pT before and after SoftDrop.
    properties.push_back(MOD::Property("pT_after_SD_unc", soft_drop_jet.pt()));
@@ -394,8 +377,6 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
       properties.push_back( MOD::Property("chrg_dr_1", -1. ));
       properties.push_back( MOD::Property("chrg_dr_2", -1. ));
    }
-   
-
    
 
    properties.push_back( MOD::Property("fra_energy_loss", (closest_fastjet_jet_to_trigger_jet.E() - soft_drop(closest_fastjet_jet_to_trigger_jet).E()) / closest_fastjet_jet_to_trigger_jet.E() ) );
