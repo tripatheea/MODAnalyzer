@@ -5,11 +5,13 @@ using namespace fastjet;
 
 
 MOD::MCCalibratedJet::MCCalibratedJet(double px, double py, double pz, double energy, string algorithm) {
-
+  _pseudojet = PseudoJet(px, py, pz, energy);
+  _algorithm = algorithm;
 }
 
 MOD::MCCalibratedJet::MCCalibratedJet(PseudoJet pseudojet, string algorithm) {
-
+  _pseudojet = pseudojet;
+  _algorithm = algorithm;
 }
 
 MOD::MCCalibratedJet::MCCalibratedJet(istringstream & input_stream) {

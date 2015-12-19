@@ -173,22 +173,15 @@ const MOD::MCCalibratedJet MOD::Event::hardest_mc_reco_jet() const {
 
 void MOD::Event::set_hardest_truth_jet() {
    
-   double hardest_pT = 0.0;
-   int hardest_pT_index = 0;
-
    if (_mc_truth_jets.size() == 0) {
       _hardest_mc_truth_jet = MCCalibratedJet();
       _hardest_mc_truth_jet_constituents = vector<PseudoJet>();
    }
    else {
-      for (unsigned i = 0; i < _mc_truth_jets.size(); i++) {
-         if (_mc_truth_jets[i].pseudojet().pt() > hardest_pT) {
-            hardest_pT = _mc_truth_jets[i].pseudojet().pt();
-            hardest_pT_index = i;
-         }
-      }
 
-      _hardest_mc_truth_jet = _mc_truth_jets[hardest_pT_index];
+      sort(_mc_truth_jets.begin(), _mc_truth_jets.end());
+
+      _hardest_mc_truth_jet = _mc_truth_jets[0];
 
       // Recluster stuff to get the constituents.
 
@@ -203,8 +196,6 @@ void MOD::Event::set_hardest_truth_jet() {
 }
 
 void MOD::Event::set_hardest_reco_jet() {
-   double hardest_pT = 0.0;
-   int hardest_pT_index = 0;
 
    if (_mc_reco_jets.size() == 0) {
       _hardest_mc_reco_jet = MCCalibratedJet();
@@ -212,14 +203,8 @@ void MOD::Event::set_hardest_reco_jet() {
    }
    else {
 
-      for (unsigned i = 0; i < _mc_reco_jets.size(); i++) {
-         if (_mc_reco_jets[i].pseudojet().pt() > hardest_pT) {
-            hardest_pT = _mc_reco_jets[i].pseudojet().pt();
-            hardest_pT_index = i;
-         }
-      }
-
-      _hardest_mc_reco_jet = _mc_reco_jets[hardest_pT_index];
+      sort(_mc_reco_jets.begin(), _mc_reco_jets.end());
+      _hardest_mc_reco_jet = _mc_reco_jets[0];
 
       // Recluster stuff to get the constituents.
 
@@ -311,9 +296,6 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "RPFC") {
          try {
-            
-            // cout << "RPFC" << endl;
-
             set_data_source(2);
             add_mc_reco_particle(stream);
          }
@@ -411,7 +393,7 @@ void MOD::Event::set_assigned_trigger() {
 
 
 void MOD::Event::set_trigger_jet() {
-   // Get hardest jet, apply JEC, and then eta cut.
+   // Get the hardest jet, apply JEC, and then eta cut.
 
    vector<MOD::CalibratedJet> CMS_jets = _CMS_jets;
 
@@ -524,18 +506,14 @@ void MOD::Event::establish_properties() {
       vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
       _fastjet_clustered_pseudojets = ak5_jets;
 
-      // cout << "trigger_jet" << endl;
       // First of all, assign _trigger_jet.
       set_trigger_jet();
 
-      // cout << "closest fastjet" << endl;
       // Next, find out the specific FastJet that's closest to _trigger_jet.
       set_closest_fastjet_jet_to_trigger_jet();
 
-      // cout << "trigger_jet is matched" << endl;
       set_trigger_jet_is_matched();
 
-      // cout << "assigned trigger" << endl;
       set_assigned_trigger();   
    }
    else if (data_source() == 1) {   // 1 => MC_TRUTH 
@@ -543,6 +521,7 @@ void MOD::Event::establish_properties() {
       // Recluster all truth particles to get "Truth Jets"
       
       vector<PseudoJet> truth_particles_pseudojets = convert_to_pseudojets(_mc_truth_particles);
+
       ClusterSequence cs(truth_particles_pseudojets, jet_def);
       vector<PseudoJet> truth_ak5_jets = sorted_by_pt(cs.inclusive_jets(0.0));
 
