@@ -191,7 +191,7 @@ string MOD::Event::make_string() const {
          // While it's possible to do that for all jets, we output just the hardest jet's constituents because all analyses are going to be performed on the hardest jet anyway.
 
          // PseudoJet closest_fastjet_jet_to_trigger_jet = closest_fastjet_jet_to_trigger_jet();
-         vector<PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents = _closest_fastjet_jet_to_trigger_jet_constituents;
+         vector<PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents = _closest_fastjet_jet_to_trigger_jet.constituents();
 
          file_to_write << "# PDPFC" << "              px              py              pz          energy   pdgId" << endl;
 
@@ -507,8 +507,8 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
 
 
       JetDefinition jet_def(antikt_algorithm, 0.5);
-      ClusterSequence cs(pseudojets, jet_def);
-      vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(3.0));
+      ClusterSequence * cs = new ClusterSequence(pseudojets, jet_def);
+      vector<PseudoJet> fastjet_jets = sorted_by_pt(cs->inclusive_jets(3.0));
 
       // Loop through all FastJet pseudojets, calculating delta R for each one.
       vector<double> delta_Rs;
@@ -525,6 +525,8 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
             index = i;
          }
       }
+
+      cs->delete_self_when_unused();
 
       if (index >= 0) {
          // We now have the corresponding "hardest" FastJet jet.
