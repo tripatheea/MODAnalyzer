@@ -66,6 +66,8 @@ namespace MOD {
             void add_mc_truth_particle(std::istringstream & input_stream);
             void add_mc_reco_particle(std::istringstream & input_stream);
             
+            void add_pristine_particle(std::istringstream & input_stream);
+            
             void set_event_number(int event_number);
             void set_run_number(int run_number);
             void set_version(int version);

@@ -67,6 +67,30 @@ std::vector<fastjet::PseudoJet> MOD::convert_to_pseudojets(std::vector<MOD::MCPF
   return pseudojets;
 }
 
+
+std::vector<fastjet::PseudoJet> MOD::convert_to_pseudojets(std::vector<MOD::PDPFCandidate> pd_pfcandidates) {
+  vector<PseudoJet> pseudojets;
+
+  for (unsigned i = 0; i < pd_pfcandidates.size(); i++) {
+    pseudojets.push_back(pd_pfcandidates[i].pseudojet());
+  }
+
+  return pseudojets;
+}
+
+
+
+std::vector<fastjet::PseudoJet> MOD::convert_to_pseudojets(std::vector<MOD::PDCalibratedJet> pd_jets) {
+  vector<PseudoJet> pseudojets;
+
+  for (unsigned i = 0; i < pd_jets.size(); i++) {
+    pseudojets.push_back(pd_jets[i].pseudojet());
+  }
+
+  return pseudojets;
+}
+
+
 std::vector<fastjet::PseudoJet> MOD::filter_by_pT(std::vector<fastjet::PseudoJet> pseudojets, double pT_lower_cut) {
   vector<PseudoJet> filtered_pseudojets;
   

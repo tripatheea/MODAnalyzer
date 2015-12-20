@@ -91,6 +91,91 @@ def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorre
   for line in lines:
     try:
       numbers = line.split()
+
+
+      if not numbers[0] == "#":
+        if (float(numbers[2]) > pT_lower_cut) and (float(numbers[2]) < pT_upper_cut):
+          
+          properties['prescales'].append( int( numbers[1] ) )
+          properties['hardest_pTs'].append( float( numbers[2] ) )
+
+          properties['zg_05'].append( float( numbers[3] ) )
+          properties['dr_05'].append( float( numbers[4] ) )
+          properties['mu_05'].append( float( numbers[5] ) )
+          properties['zg_1'].append( float( numbers[6] ) )
+          properties['dr_1'].append( float( numbers[7] ) )
+          properties['mu_1'].append( float( numbers[8] ) )
+          properties['zg_2'].append( float( numbers[9] ) )
+          properties['dr_2'].append( float( numbers[10] ) )
+          properties['mu_2'].append( float( numbers[11] ) )
+          
+          properties['zg_05_pt_1'].append( float( numbers[12] ) )
+          properties['zg_1_pt_1'].append( float( numbers[13] ) )
+          properties['zg_2_pt_1'].append( float( numbers[14] ) )
+
+          properties['zg_05_pt_2'].append( float( numbers[15] ) )
+          properties['zg_1_pt_2'].append( float( numbers[16] ) )
+          properties['zg_2_pt_2'].append( float( numbers[17] ) )
+
+          properties['zg_05_pt_3'].append( float( numbers[18] ) )
+          properties['zg_1_pt_3'].append( float( numbers[19] ) )
+          properties['zg_2_pt_3'].append( float( numbers[20] ) )
+
+          properties['zg_05_pt_5'].append( float( numbers[21] ) )
+          properties['zg_1_pt_5'].append( float( numbers[22] ) )
+          properties['zg_2_pt_5'].append( float( numbers[23] ) )
+
+          properties['zg_05_pt_10'].append( float( numbers[24] ) )
+          properties['zg_1_pt_10'].append( float( numbers[25] ) )
+          properties['zg_2_pt_10'].append( float( numbers[26] ) )
+
+          properties['zg_charged_05'].append( float( numbers[27] ) )
+          properties['zg_charged_1'].append( float( numbers[28] ) )
+          properties['zg_charged_2'].append( float( numbers[29] ) )
+
+          properties['pTs_after_SD'].append( float( numbers[30] ) )
+
+          properties['multiplicity_before_SD'].append( float( numbers[31] ) )
+          properties['multiplicity_after_SD'].append( float( numbers[32] ) )
+          properties['jet_mass_before_SD'].append( float( numbers[33] ) )
+          properties['jet_mass_after_SD'].append( float( numbers[34] ) )
+
+          properties['charged_multiplicity_before_SD'].append( float( numbers[35] ) )
+          properties['charged_multiplicity_after_SD'].append( float( numbers[36] ) )
+          properties['charged_jet_mass_before_SD'].append( float( numbers[37] ) )
+          properties['charged_jet_mass_after_SD'].append( float( numbers[38] ) )
+
+          properties['chrg_dr_05'].append( float( numbers[39] ) )
+          properties['chrg_dr_1'].append( float( numbers[40] ) )
+          properties['chrg_dr_2'].append( float( numbers[41] ) )
+
+          properties['fractional_energy_loss'].append( float( numbers[42] ) )
+          properties['hardest_eta'].append( float( numbers[43] ) )
+
+    except:
+      if len(numbers) != 0:
+        # print "Some kind of error occured while parsing the given file!"
+        # print numbers
+        # print
+        pass
+
+  return properties
+
+
+
+
+
+def parse_file_old(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorrected_pT_lower_cut = 0.00, softdrop_unc_pT_lower_cut = 0.00, softdrop_cor_pT_lower_cut = 0.00, jet_quality_level=1):
+  f = open(input_file, 'r')
+  lines = f.read().split("\n")
+
+  # FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3
+  
+  properties = defaultdict(list)
+
+  for line in lines:
+    try:
+      numbers = line.split()
       
       if not numbers[0] == "#":
         if (float(numbers[6]) > pT_lower_cut) and (float(numbers[6]) < pT_upper_cut) and (float(numbers[5]) > uncorrected_pT_lower_cut) and (float(numbers[36]) > softdrop_unc_pT_lower_cut) and (float(numbers[37]) > softdrop_cor_pT_lower_cut) and (int(numbers[3]) == 1) and (int(numbers[4]) >= jet_quality_level):
@@ -170,13 +255,7 @@ def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorre
           properties['neu_em_frac'].append( float( numbers[56] ) )
           properties['chrg_had_frac'].append( float( numbers[57] ) )
           properties['chrg_em_frac'].append( float( numbers[58] ) )
-          
-          properties['m_zg_10'].append( float( numbers[59] ) )
-          properties['m_zg_11'].append( float( numbers[60] ) )
-          properties['m_zg_12'].append( float( numbers[61] ) )
-          properties['m_zg_13'].append( float( numbers[62] ) )
-          properties['m_zg_14'].append( float( numbers[63] ) )
-          properties['m_zg_15'].append( float( numbers[64] ) )
+
 
     except:
       if len(numbers) != 0:
@@ -186,6 +265,7 @@ def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorre
         pass
 
   return properties
+
 
 
 
@@ -689,14 +769,12 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 
   zg_cut = float(zg_cut)
 
+  
   properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
-  # properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
-  # properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
-  properties_pythia = parse_mc("/home/aashish/pythia_truth.dat", pT_lower_cut=pT_lower_cut)
-  properties_herwig = parse_mc("/home/aashish/herwig_truth.dat", pT_lower_cut=pT_lower_cut)
-  properties_sherpa = parse_mc("/home/aashish/sherpa_truth.dat", pT_lower_cut=pT_lower_cut)
-
+  properties_pythia = parse_file("/home/aashish/pythia_truth.dat", pT_lower_cut=pT_lower_cut)
+  properties_herwig = parse_file("/home/aashish/herwig_truth.dat", pT_lower_cut=pT_lower_cut)
+  properties_sherpa = parse_file("/home/aashish/sherpa_truth.dat", pT_lower_cut=pT_lower_cut)
 
   zg_data = properties[zg_filename]
   
@@ -705,9 +783,6 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
   zg_sherpas = properties_sherpa[zg_filename]
 
 
-  print len(zg_pythias)
-  print len(zg_herwigs)
-  print len(zg_sherpas)
 
   prescales = properties['prescales']
 
@@ -1696,7 +1771,7 @@ def plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05'
 
 
 
-def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
+def plot_pts_data(pT_lower_cut=100, pT_upper_cut=10000):
   properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
   pTs = properties['uncorrected_hardest_pts']
@@ -1905,6 +1980,188 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
   # plt.show()
   plt.clf()
 
+
+
+
+
+def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
+  experiment_pTs = properties['hardest_pTs']
+  prescales = properties['prescales']
+
+
+  pythia_properties = parse_file("/home/aashish/pythia_truth.dat", pT_lower_cut=pT_lower_cut)
+  herwig_properties = parse_file("/home/aashish/herwig_truth.dat", pT_lower_cut=pT_lower_cut)
+  sherpa_properties = parse_file("/home/aashish/sherpa_truth.dat", pT_lower_cut=pT_lower_cut)
+
+  # pythia_properties = parse_mc("/home/aashish/pythia_reco.dat", pT_lower_cut=pT_lower_cut)
+  # herwig_properties = parse_mc("/home/aashish/herwig_reco.dat", pT_lower_cut=pT_lower_cut)
+  # sherpa_properties = parse_mc("/home/aashish/sherpa_reco.dat", pT_lower_cut=pT_lower_cut)
+
+  pythia_pTs = pythia_properties['hardest_pTs']
+  herwig_pTs = herwig_properties['hardest_pTs']
+  sherpa_pTs = sherpa_properties['hardest_pTs']
+
+
+  pythia_pt_hist = Hist(100, 0, 700, title="Pythia 8.212", linewidth=5, markersize=5.0, color="red")
+  bin_width_pythia = (pythia_pt_hist.upperbound() - pythia_pt_hist.lowerbound()) / pythia_pt_hist.nbins()
+
+  herwig_pt_hist = Hist(100, 0, 700, title="Herwig++ 2.7.1", linewidth=5, markersize=5.0, color="green")
+  bin_width_herwig = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
+
+  sherpa_pt_hist = Hist(100, 0, 700, title="Sherpa 2.2.0", linewidth=5, markersize=5.0, color="blue")
+  bin_width_sherpa = (sherpa_pt_hist.upperbound() - sherpa_pt_hist.lowerbound()) / sherpa_pt_hist.nbins()
+
+  experiment_pt_hist = Hist(100, 0, 700, title='Data', markersize=3.0, color='black')
+  bin_width_experiment = (experiment_pt_hist.upperbound() - experiment_pt_hist.lowerbound()) / experiment_pt_hist.nbins()
+
+
+  map(experiment_pt_hist.Fill, experiment_pTs, prescales)
+  
+  map(pythia_pt_hist.Fill, pythia_pTs)
+  map(herwig_pt_hist.Fill, herwig_pTs)
+  map(sherpa_pt_hist.Fill, sherpa_pTs)
+
+
+  experiment_pt_hist.Scale(1.0 / (experiment_pt_hist.GetSumOfWeights() * bin_width_experiment))
+  pythia_pt_hist.Scale(1.0 / (pythia_pt_hist.GetSumOfWeights() * bin_width_pythia))
+  herwig_pt_hist.Scale(1.0 / (herwig_pt_hist.GetSumOfWeights() * bin_width_herwig))
+  sherpa_pt_hist.Scale(1.0 / (sherpa_pt_hist.GetSumOfWeights() * bin_width_sherpa))
+
+  
+  gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
+
+  ax0 = plt.subplot(gs[0])
+  ax1 = plt.subplot(gs[1])
+
+
+
+
+  data_plot = rplt.errorbar(experiment_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.hist(pythia_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.hist(herwig_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  rplt.hist(sherpa_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+  
+
+  data_x_errors, data_y_errors = [], []
+  for x_segment in data_plot[2][0].get_segments():
+    data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+  for y_segment in data_plot[2][1].get_segments():
+    data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+
+  data_points_x = data_plot[0].get_xdata()
+  data_points_y = data_plot[0].get_ydata()
+
+  data_plot_points_x = []
+  data_plot_points_y = []
+  for i in range(0, len(data_points_x)):
+    data_plot_points_x.append(data_points_x[i])
+    data_plot_points_y.append(data_points_y[i])
+
+
+
+  data_to_data_y_err = [(b / m) for b, m in zip(data_y_errors, data_plot_points_y)]
+  data_to_data_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(data_plot_points_y))]
+
+
+  # Legends Begin.
+
+  legend = ax0.legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.95, 1.0])
+  ax0.add_artist(legend)
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  if pT_upper_cut != 10000:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$"]
+  else:
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+  ax0.legend([extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.57])
+
+  # Legends End.
+
+
+
+  ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
+  ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
+  ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
+  ax1.set_ylabel("Ratio           \nto           \n" + "Data" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
+
+
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  plt.gca().add_artist(ab)
+  preliminary_text = "Prelim. (20\%)"
+  plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  # Ratio Plot.
+  pythia_pt_hist.Divide(experiment_pt_hist)
+  herwig_pt_hist.Divide(experiment_pt_hist)
+  sherpa_pt_hist.Divide(experiment_pt_hist)
+  experiment_pt_hist.Divide(experiment_pt_hist)
+
+  rplt.hist(pythia_pt_hist, axes=ax1, linewidth=5)
+  rplt.hist(herwig_pt_hist, axes=ax1, linewidth=5)
+  rplt.hist(sherpa_pt_hist, axes=ax1, linewidth=5)
+  rplt.errorbar(experiment_pt_hist, xerr=data_to_data_x_err, yerr=data_to_data_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+  ax0.set_yscale('log')
+
+  ax0.autoscale(True)
+  ax1.autoscale(True)
+  
+  ax1.set_ylim(0., 2.)
+
+
+
+  if ((pT_lower_cut == 150 and pT_upper_cut == 250)):
+    ax0.set_xlim(150, 250)
+    ax1.set_xlim(150, 250)
+    ax0.set_ylim(10e-4, 10e-2)
+    pT_minor_ticks = 5
+  elif ((pT_lower_cut == 250 and pT_upper_cut == 500)):
+    ax0.set_xlim(250, 500)
+    ax1.set_xlim(250, 500)
+    ax0.set_ylim(10e-5, 10e-2)
+    pT_minor_ticks = 10
+  elif ((pT_lower_cut == 500 and pT_upper_cut == 10000)):
+    ax0.set_xlim(500, 1500)
+    ax1.set_xlim(500, 1500)
+    ax0.set_ylim(0.0005, 0.05)
+    pT_minor_ticks = 50
+  elif ((pT_lower_cut == 150 and pT_upper_cut == 10000)):
+    ax0.set_xlim(150, 1000)
+    ax1.set_xlim(150, 1000)
+    ax0.set_ylim(10e-8, 10e-2)
+    pT_minor_ticks = 50
+  else:
+    ax0.set_xlim(150, 1000)
+    ax1.set_xlim(150, 1000)
+    ax0.set_ylim(10e-8, 10e-2)
+    pT_minor_ticks = 50
+
+
+  ax0.set_xlim(0, 700)
+  ax1.set_xlim(0, 700)
+
+  plt.gcf().set_size_inches(30, 30, forward=1)
+
+  plt.sca(ax0)
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(pT_minor_ticks))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
+  plt.sca(ax1)
+  plt.gca().xaxis.set_minor_locator(MultipleLocator(pT_minor_ticks))
+  # plt.gca().yaxis.set_minor_locator(MultipleLocator(50))
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  print "Printing fractional energy loss with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+  plt.savefig("plots/" + get_version(input_analysis_file) + "/pT_distribution/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
+  # plt.show()
+  plt.clf()
 
 
 
@@ -3821,7 +4078,7 @@ def plot_jet_eta():
 
 
 
-plot_jet_eta()
+# plot_jet_eta()
 
 # 
 
@@ -3881,7 +4138,7 @@ plot_jet_eta()
 
 # plot_hardest_pt_softdrop()
 
-plot_pts()
+# plot_pts()
 
 # plot_pts_variable_bin()
 

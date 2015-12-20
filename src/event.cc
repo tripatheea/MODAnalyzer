@@ -69,6 +69,11 @@ void MOD::Event::add_mc_reco_particle(istringstream & input_stream) {
    _mc_reco_particles.push_back(new_particle);
 }
 
+void MOD::Event::add_pristine_particle(istringstream & input_stream) {
+   MOD::PDPFCandidate new_particle(input_stream);
+   _pristine_particles.push_back(new_particle);
+}
+
 void MOD::Event::add_condition(istringstream & input_stream) {
    MOD::Condition new_condition(input_stream);
    _condition = new_condition;
@@ -206,8 +211,6 @@ string MOD::Event::make_string() const {
       // PseudoJet closest_fastjet_jet_to_trigger_jet = closest_fastjet_jet_to_trigger_jet();
 
       file_to_write << "# PDPFC" << "              px              py              pz          energy   pdgId" << endl;
-
-      cout << _pristine_particles.size() << endl;
 
       for (unsigned i = 0; i < _pristine_particles.size(); i++) {
          
@@ -427,6 +430,15 @@ bool MOD::Event::read_event(istream & data_stream) {
             throw runtime_error("Invalid file format! Something's wrong with the way RPFC has been written. ;)");
          }
       }
+      else if (tag == "PDPFC") {
+         try {
+            set_data_source(3);
+            add_pristine_particle(stream);
+         }
+         catch (exception& e) {
+            throw runtime_error("Invalid file format! Something's wrong with the way RPFC has been written. ;)");
+         }
+      }
       else if (tag == "EndEvent") {
          
          // cout << "EndEvent" << endl;
@@ -624,9 +636,11 @@ void MOD::Event::establish_properties() {
       vector<MOD::PFCandidate> pfcandidates = particles();
       vector<PseudoJet> pfcandidates_pseudojets = MOD::convert_to_pseudojets(pfcandidates);
    
-      ClusterSequence cs(pfcandidates_pseudojets, jet_def);
-      vector<PseudoJet> ak5_jets = sorted_by_pt(cs.inclusive_jets(3.0));
+      ClusterSequence * cs = new ClusterSequence(pfcandidates_pseudojets, jet_def);
+      vector<PseudoJet> ak5_jets = sorted_by_pt(cs->inclusive_jets(3.0));
       _fastjet_clustered_pseudojets = ak5_jets;
+
+      cs->delete_self_when_unused();
 
       // First of all, assign _trigger_jet.
       set_trigger_jet();
@@ -644,14 +658,16 @@ void MOD::Event::establish_properties() {
       
       vector<PseudoJet> truth_particles_pseudojets = convert_to_pseudojets(_mc_truth_particles);
 
-      ClusterSequence cs(truth_particles_pseudojets, jet_def);
-      vector<PseudoJet> truth_ak5_jets = sorted_by_pt(cs.inclusive_jets(0.0));
+      ClusterSequence * cs = new ClusterSequence(truth_particles_pseudojets, jet_def);
+      vector<PseudoJet> truth_ak5_jets = sorted_by_pt(cs->inclusive_jets(0.0));
 
       // Create a vector of MOD::MCCalibratedJet.
       vector<MOD::MCCalibratedJet> truth_jets;
       for (unsigned i = 0; i < truth_ak5_jets.size(); i++) {
          truth_jets.push_back(MOD::MCCalibratedJet( truth_ak5_jets[i], "ak5" ));
       }
+
+      cs->delete_self_when_unused();
 
       _mc_truth_jets = truth_jets;
 
@@ -664,8 +680,8 @@ void MOD::Event::establish_properties() {
       // Recluster all reco particles to get reco jets.
       
       vector<PseudoJet> reco_particles_pseudojets = convert_to_pseudojets(_mc_reco_particles);
-      ClusterSequence cs(reco_particles_pseudojets, jet_def);
-      vector<PseudoJet> reco_ak5_jets = sorted_by_pt(cs.inclusive_jets(0.0));
+      ClusterSequence * cs = new ClusterSequence(reco_particles_pseudojets, jet_def);
+      vector<PseudoJet> reco_ak5_jets = sorted_by_pt(cs->inclusive_jets(0.0));
 
       // Create a vector of MOD::MCCalibratedJet.
       vector<MOD::MCCalibratedJet> reco_jets;
@@ -673,11 +689,30 @@ void MOD::Event::establish_properties() {
          reco_jets.push_back(MOD::MCCalibratedJet( reco_ak5_jets[i], "ak5" ));
       }
 
+      cs->delete_self_when_unused();
+
       _mc_reco_jets = reco_jets;      
 
       // Finally, set the hardest reco jets.
 
       set_hardest_reco_jet();
+   }
+   else if (data_source() == 3) {
+      // Recluster all pristine particles to get pristine jets.
+      
+      vector<PseudoJet> pristine_particles_pseudojets = convert_to_pseudojets(_pristine_particles);
+      ClusterSequence * cs = new ClusterSequence(pristine_particles_pseudojets, jet_def);
+      vector<PseudoJet> pristine_ak5_jets = sorted_by_pt(cs->inclusive_jets(0.0));
+
+      // Create a vector of MOD::PDCalibratedJet.
+      vector<MOD::PDCalibratedJet> pristine_jets;
+      for (unsigned i = 0; i < pristine_ak5_jets.size(); i++) {
+         pristine_jets.push_back(MOD::PDCalibratedJet( pristine_ak5_jets[i], "ak5" ));
+      }
+
+      cs->delete_self_when_unused();
+
+      _pristine_jets = pristine_jets;      
    }
 
 

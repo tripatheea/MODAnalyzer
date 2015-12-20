@@ -20,6 +20,9 @@
 #include "mc_calibrated_jet.h"
 
 
+#include "pd_pfcandidate.h"
+#include "pd_calibrated_jet.h"
+
 
 
 namespace MOD {
@@ -31,6 +34,9 @@ namespace MOD {
 
   std::vector<fastjet::PseudoJet> convert_to_pseudojets(std::vector<MOD::MCPFCandidate> mc_pfcandidates);
   std::vector<fastjet::PseudoJet> convert_to_pseudojets(std::vector<MOD::MCCalibratedJet> mc_jets);
+
+  std::vector<fastjet::PseudoJet> convert_to_pseudojets(std::vector<MOD::PDPFCandidate> pd_pfcandidates);
+  std::vector<fastjet::PseudoJet> convert_to_pseudojets(std::vector<MOD::PDCalibratedJet> pd_jets);
 
   std::vector<fastjet::PseudoJet> filter_by_pT(std::vector<fastjet::PseudoJet>, double pT_cut);
   std::vector<MOD::PFCandidate> filter_by_pT(std::vector<MOD::PFCandidate>, double pT_cut);

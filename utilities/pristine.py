@@ -5,9 +5,9 @@ import sys
 from collections import defaultdict
 
 input_path = sys.argv[1]
-output_file = sys.argv[2]
+output_path = sys.argv[2]
 
-def run_analyzer(input_path, output_file):
+def run_analyzer(input_path, output_path):
   to_analyze = []
   for f in os.listdir(input_path):
     if f.endswith("mod"):
@@ -16,12 +16,12 @@ def run_analyzer(input_path, output_file):
   to_analyze.sort()
 
   for f in to_analyze:
-    call(['./bin/analyze', input_path + f, output_file])
+    call(['./bin/convert_to_pristine', input_path + f, output_path + f, output_path])
 
 
 start = time()
 
-run_analyzer(input_path, output_file)
+run_analyzer(input_path, output_path)
 
 end = time()
 
