@@ -90,8 +90,15 @@ int main(int argc, char * argv[]) {
 
 
 void convert_to_pristine(MOD::Event & event_being_read, ofstream & output_file) {
+   JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
+
+
 
    MOD::CalibratedJet trigger_jet = event_being_read.trigger_jet();
+   
+   vector<PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents = event_being_read.closest_fastjet_jet_to_trigger_jet_constituents();
+   ClusterSequence cs(closest_fastjet_jet_to_trigger_jet_constituents, jet_def_cambridge);   
+
    PseudoJet closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0];
 
    PseudoJet jec_corrected_jet = closest_fastjet_jet_to_trigger_jet * trigger_jet.JEC();
@@ -99,20 +106,28 @@ void convert_to_pristine(MOD::Event & event_being_read, ofstream & output_file) 
 
    event_being_read.set_prescale(event_being_read.assigned_trigger_prescale());
 
-   
-   if (event_being_read.trigger_jet_is_matched() && (trigger_jet.jet_quality() >= 1)) {   // Jet quality level: FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3
-      output_file << "BeginEvent Version " << event_being_read.version() << " " << event_being_read.data_type().first << " " << event_being_read.data_type().second " Prescale " << event_being_read.prescale() << endl;
-      
-      for (unsigned i = 0; i < jec_corrected_jet_constituents.size(); i++) {
-         cout 
-      }
 
+   event_being_read.set_pristine_form(true);
+
+   if (event_being_read.trigger_jet_is_matched() && (trigger_jet.jet_quality() >= 1)) {   // Jet quality level: FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3      
+      output_file << event_being_read;
    }
 
 
+
+   // output_file << "BeginEvent Version " << event_being_read.version() << " " << event_being_read.data_type().first << " " << event_being_read.data_type().second << " Prescale " << event_being_read.prescale() << endl;
    
-   
-   properties.push_back(MOD::Property("Prescale", event_being_read.assigned_trigger_prescale()));
+   // output_file << "# PDPFC" << "              px              py              pz          energy" << endl;
+
+   // for (unsigned i = 0; i < jec_corrected_jet_constituents.size(); i++) {
+   //    output_file << "  PDPFC"
+   //               << setw(16) << fixed << setprecision(8) << jec_corrected_jet_constituents[i].px()
+   //               << setw(16) << fixed << setprecision(8) << jec_corrected_jet_constituents[i].py()
+   //               << setw(16) << fixed << setprecision(8) << jec_corrected_jet_constituents[i].pz()
+   //               << setw(16) << fixed << setprecision(8) << jec_corrected_jet_constituents[i].E()
+   //               << endl;
+   // }
+
    
 
    
