@@ -100,6 +100,12 @@ namespace MOD {
             const int data_source() const;
             void set_data_source(int data_source);
 
+            const bool pristine_form() const;
+            void set_pristine_form(bool pristine);
+
+            const int prescale() const;
+            void set_prescale(int prescale);
+
 
             friend std::ostream& operator<< (std::ostream&, const Event&);
             
@@ -162,6 +168,11 @@ namespace MOD {
             enum data_source_t { EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2 };
             data_source_t _data_source;
 
+            bool _pristine_form;
+
+            int _prescale = 1;
+
+            
       };
 }
 

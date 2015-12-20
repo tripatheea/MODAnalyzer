@@ -125,38 +125,78 @@ const vector<MOD::Trigger> & MOD::Event::triggers() const {
    return _triggers;
 }
 
+const bool MOD::Event::pristine_form() const {
+   return _pristine_form;
+}
+
+void MOD::Event::set_pristine_form(bool pristine) {
+   _pristine_form = pristine;
+}
+
+const int MOD::Event::prescale() {
+   return _prescale;
+}
+
+void MOD::Event::set_prescale(int prescale) {
+   _prescale = prescale;
+}
+
 string MOD::Event::make_string() const {
    stringstream file_to_write;
    
-   file_to_write << "BeginEvent Version " << _version << " " << _data_type.first << " " << _data_type.second << endl;
-   
+   int data_source = _data_source;  // EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2 
 
-   // First, write out conditions.
-   file_to_write << _condition.make_header_string();
-   file_to_write << _condition;
-
-   // Then, write out all triggers.
    
-   for(unsigned int i = 0; i < _triggers.size(); i++) {
-      if (i == 0)
-         file_to_write << _triggers[i].make_header_string();
-      file_to_write << _triggers[i];
+   file_to_write << "BeginEvent Version " << _version << " " << _data_type.first << " " << _data_type.second " Prescale " << _prescale << endl;      
+  
+
+   if (data_source == 0) {
+     
+      // First, write out conditions.
+      file_to_write << _condition.make_header_string();
+      file_to_write << _condition;   
+
+      // Then, write out all triggers. 
+      for(unsigned int i = 0; i < _triggers.size(); i++) {
+         if (i == 0)
+            file_to_write << _triggers[i].make_header_string();
+         file_to_write << _triggers[i];
+      }
+
+      // Next, write out AK5 calibrated jets.
+      for(unsigned int i = 0; i < _CMS_jets.size(); i++) {
+         if (i == 0)
+            file_to_write << _CMS_jets[i].make_header_string();
+         file_to_write << _CMS_jets[i];
+      }
+      
+      // Finally, write out all particles.
+      for (unsigned int i = 0; i < _particles.size(); i++) {
+         if (i == 0)
+            file_to_write << _particles[i].make_header_string();
+         file_to_write << _particles[i];
+      }
+
+   }
+   else if (data_source == 1) {
+      for (unsigned i = 0; i < _mc_truth_particles; i++) {
+         if (i == 0)
+            file_to_write << _mc_truth_particles[i].make_header_string();
+         file_to_write << _mc_truth_particles[i];
+      }
+   }
+   else if (data_source == 2) {
+      for (unsigned i = 0; i < _mc_reco_particles; i++) {
+         if (i == 0)
+            file_to_write << _mc_reco_particles[i].make_header_string();
+         file_to_write << _mc_reco_particles[i];
+      }
+   }
+   else {
+      throw runtime_error("Invalid data source!");
    }
 
-   // Next, write out AK5 calibrated jets.
-   for(unsigned int i = 0; i < _CMS_jets.size(); i++) {
-      if (i == 0)
-         file_to_write << _CMS_jets[i].make_header_string();
-      file_to_write << _CMS_jets[i];
-   }
    
-   // Finally, write out all particles.
-   for (unsigned int i = 0; i < _particles.size(); i++) {
-      if (i == 0)
-         file_to_write << _particles[i].make_header_string();
-      file_to_write << _particles[i];
-   }
-
    file_to_write << "EndEvent" << endl;
 
    return file_to_write.str();
@@ -232,20 +272,28 @@ bool MOD::Event::read_event(istream & data_stream) {
    while(getline(data_stream, line)) {
       istringstream iss(line);
 
-      int version;
-      string tag, version_keyword, a, b;
+      int version, prescale;
+      string tag, version_keyword, a, b, prescale_keyword;
 
       iss >> tag;      
       istringstream stream(line);
 
       if (tag == "BeginEvent") {
 
-         stream >> tag >> version_keyword >> version >> a >> b;
+         stream >> tag >> version_keyword >> version >> a >> b >> prescale_keyword >> prescale;
          
          // cout << "BeginEvent" << endl;
 
          set_version(version);
          set_data_type(a, b);
+
+         if ( (prescale_keyword != NULL) && (prescale != NULL)) {
+            set_prescale(prescale);
+         }
+         else {
+            set_prescale(0);
+         }
+
       }
       else if (tag == "PFC") {
          try {

@@ -65,9 +65,10 @@ int main(int argc, char * argv[]) {
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
 
       if( (event_serial_number % 1000) == 0 )
-         cout << "convert_to_pristineming event number " << event_serial_number << endl;
+         cout << "Converting event number " << event_serial_number << " to prisine form." << endl;
 
-      convert_to_pristine(event_being_read, output_file);
+      if (event_being_read.assigned_trigger_fired())
+         convert_to_pristine(event_being_read, output_file);
 
       event_being_read = MOD::Event();
       event_serial_number++;
@@ -76,7 +77,7 @@ int main(int argc, char * argv[]) {
    auto finish = std::chrono::steady_clock::now();
    double elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double> >(finish - start).count();
 
-   cout << "Finished convert_to_pristineming " << (event_serial_number - 1) << " events in " << elapsed_seconds << " seconds!" << endl << endl;
+   cout << "Finished converting " << (event_serial_number - 1) << " events to pristine form in " << elapsed_seconds << " seconds!" << endl << endl;
 
    // Write number of events processed to the num stream so that we can sum it up later.
    num_stream << (event_serial_number - 1) << endl;
@@ -89,7 +90,32 @@ int main(int argc, char * argv[]) {
 
 
 void convert_to_pristine(MOD::Event & event_being_read, ofstream & output_file) {
-   // 
+
+   MOD::CalibratedJet trigger_jet = event_being_read.trigger_jet();
+   PseudoJet closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0];
+
+   PseudoJet jec_corrected_jet = closest_fastjet_jet_to_trigger_jet * trigger_jet.JEC();
+   vector<PseudoJet> jec_corrected_jet_constituents = closest_fastjet_jet_to_trigger_jet.constituents();
+
+   event_being_read.set_prescale(event_being_read.assigned_trigger_prescale());
+
+   
+   if (event_being_read.trigger_jet_is_matched() && (trigger_jet.jet_quality() >= 1)) {   // Jet quality level: FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3
+      output_file << "BeginEvent Version " << event_being_read.version() << " " << event_being_read.data_type().first << " " << event_being_read.data_type().second " Prescale " << event_being_read.prescale() << endl;
+      
+      for (unsigned i = 0; i < jec_corrected_jet_constituents.size(); i++) {
+         cout 
+      }
+
+   }
+
+
+   
+   
+   properties.push_back(MOD::Property("Prescale", event_being_read.assigned_trigger_prescale()));
+   
+
+   
 }
 
 
