@@ -125,13 +125,7 @@ const vector<MOD::Trigger> & MOD::Event::triggers() const {
    return _triggers;
 }
 
-const bool MOD::Event::pristine_form() const {
-   return _pristine_form;
-}
 
-void MOD::Event::set_pristine_form(bool pristine) {
-   _pristine_form = pristine;
-}
 
 const int MOD::Event::prescale() const {
    return _prescale;
@@ -152,80 +146,80 @@ string MOD::Event::make_string() const {
 
    if (data_source == 0) { // Data is from experiment.
       
-      if ( ! _pristine_form) {    // Output everything- triggers, conditions, correction factors, everything.
-         // First, write out conditions.
-         file_to_write << _condition.make_header_string();
-         file_to_write << _condition;   
+      // First, write out conditions.
+      file_to_write << _condition.make_header_string();
+      file_to_write << _condition;   
 
-         // Then, write out all triggers. 
-         for(unsigned int i = 0; i < _triggers.size(); i++) {
-            if (i == 0)
-               file_to_write << _triggers[i].make_header_string();
-            file_to_write << _triggers[i];
-         }
-
-         // Next, write out AK5 calibrated jets.
-         for(unsigned int i = 0; i < _CMS_jets.size(); i++) {
-            if (i == 0)
-               file_to_write << _CMS_jets[i].make_header_string();
-            file_to_write << _CMS_jets[i];
-         }
-         
-         // Finally, write out all particles.
-         for (unsigned int i = 0; i < _particles.size(); i++) {
-            if (i == 0)
-               file_to_write << _particles[i].make_header_string();
-            file_to_write << _particles[i];
-         }
+      // Then, write out all triggers. 
+      for(unsigned int i = 0; i < _triggers.size(); i++) {
+         if (i == 0)
+            file_to_write << _triggers[i].make_header_string();
+         file_to_write << _triggers[i];
       }
-      else {   
-         // This output is for pristine form. Data in "pristine form" is used as-it-is i.e. without any consideration of things like JEC.
-         // What this means here is that we need to filter / apply all corrections here itself before outputing the event.
 
-         // We only output the constituents of the hardest jet.
-         // The reason for that is, we want to do our analysis on FastJet-clustered jets instead of on CMS jets. However, we need to apply JEC to our AK5 jets. 
-         // Those JEC factors are known for CMS jets but not for FastJet-clustered jets. This means, we need to figure out a correspondance between CMS and FastJet-clustered jets.
-         // This is hard to do for jets other than the hardest one.
-         // So we select the hardest CMS jet, use delta R to find the corresponding FastJet-clustered jet and then just output constituents of that jet.
-
-         // While it's possible to do that for all jets, we output just the hardest jet's constituents because all analyses are going to be performed on the hardest jet anyway.
-
-         // PseudoJet closest_fastjet_jet_to_trigger_jet = closest_fastjet_jet_to_trigger_jet();
-         vector<PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents = _closest_fastjet_jet_to_trigger_jet.constituents();
-
-         file_to_write << "# PDPFC" << "              px              py              pz          energy   pdgId" << endl;
-
-         for (unsigned i = 0; i < closest_fastjet_jet_to_trigger_jet_constituents.size(); i++) {
-            
-            file_to_write << "  PDPFC"
-                          << setw(16) << fixed << setprecision(8) << closest_fastjet_jet_to_trigger_jet_constituents[i].px()
-                          << setw(16) << fixed << setprecision(8) << closest_fastjet_jet_to_trigger_jet_constituents[i].py()
-                          << setw(16) << fixed << setprecision(8) << closest_fastjet_jet_to_trigger_jet_constituents[i].pz()
-                          << setw(16) << fixed << setprecision(8) << closest_fastjet_jet_to_trigger_jet_constituents[i].E()
-                          << setw(8) << noshowpos << closest_fastjet_jet_to_trigger_jet_constituents[i].user_index()
-                          << endl;
-               }
-
-
-         
-
+      // Next, write out AK5 calibrated jets.
+      for(unsigned int i = 0; i < _CMS_jets.size(); i++) {
+         if (i == 0)
+            file_to_write << _CMS_jets[i].make_header_string();
+         file_to_write << _CMS_jets[i];
       }
       
+      // Finally, write out all particles.
+      for (unsigned int i = 0; i < _particles.size(); i++) {
+         if (i == 0)
+            file_to_write << _particles[i].make_header_string();
+         file_to_write << _particles[i];
+      }
 
    }
    else if (data_source == 1) {
+      
       for (unsigned i = 0; i < _mc_truth_particles.size(); i++) {
          if (i == 0)
             file_to_write << _mc_truth_particles[i].make_header_string();
          file_to_write << _mc_truth_particles[i];
       }
+
    }
    else if (data_source == 2) {
+
       for (unsigned i = 0; i < _mc_reco_particles.size(); i++) {
          if (i == 0)
             file_to_write << _mc_reco_particles[i].make_header_string();
          file_to_write << _mc_reco_particles[i];
       }
+
+   }
+   else if (data_source == 3) {
+
+      // This output is for pristine form. Data in "pristine form" is used as-it-is i.e. without any consideration of things like JEC.
+      // What this means here is that we need to filter / apply all corrections here itself before outputing the event.
+
+      // We only output the constituents of the hardest jet.
+      // The reason for that is, we want to do our analysis on FastJet-clustered jets instead of on CMS jets. However, we need to apply JEC to our AK5 jets. 
+      // Those JEC factors are known for CMS jets but not for FastJet-clustered jets. This means, we need to figure out a correspondance between CMS and FastJet-clustered jets.
+      // This is hard to do for jets other than the hardest one.
+      // So we select the hardest CMS jet, use delta R to find the corresponding FastJet-clustered jet and then just output constituents of that jet.
+
+      // While it's possible to do that for all jets, we output just the hardest jet's constituents because all analyses are going to be performed on the hardest jet anyway.
+
+      // PseudoJet closest_fastjet_jet_to_trigger_jet = closest_fastjet_jet_to_trigger_jet();
+
+      file_to_write << "# PDPFC" << "              px              py              pz          energy   pdgId" << endl;
+
+      cout << _pristine_particles.size() << endl;
+
+      for (unsigned i = 0; i < _pristine_particles.size(); i++) {
+         
+         file_to_write << "  PDPFC"
+                       << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().px()
+                       << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().py()
+                       << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().pz()
+                       << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().E()
+                       << setw(8) << noshowpos << _pristine_particles[i].pseudojet().user_index()
+                       << endl;
+      }
+
    }
    else {
       throw runtime_error("Invalid data source!");
@@ -245,6 +239,38 @@ const MOD::MCCalibratedJet MOD::Event::hardest_mc_truth_jet() const {
 const MOD::MCCalibratedJet MOD::Event::hardest_mc_reco_jet() const {
    return _hardest_mc_reco_jet;
 }
+
+void MOD::Event::convert_to_pristine() {
+
+   // Set the data source to "Pristine".
+   _data_source = static_cast<data_source_t>(3);
+
+   _prescale = _assigned_trigger.prescale();
+   
+
+   PseudoJet jec_corrected_jet = _closest_fastjet_jet_to_trigger_jet * _trigger_jet.JEC();
+   vector<PseudoJet> jec_corrected_jet_constituents = jec_corrected_jet.constituents();
+   MOD::PDCalibratedJet jet = PDCalibratedJet(jec_corrected_jet, "AK5");
+
+   vector<MOD::PDPFCandidate> particles;
+
+   for (unsigned i = 0; i < jec_corrected_jet_constituents.size(); i++) {
+      particles.push_back( PDPFCandidate(jec_corrected_jet_constituents[i]) );
+   }
+
+   vector<MOD::PDCalibratedJet> jets{jet};
+
+   _pristine_particles = particles;
+   _pristine_jets = jets;
+
+   // Empty pfcandidates, jets, triggers.
+   _particles.clear();
+   _CMS_jets.clear();
+   _triggers.clear();
+   _fastjet_clustered_pseudojets.clear();
+
+}
+
 
 void MOD::Event::set_hardest_truth_jet() {
    

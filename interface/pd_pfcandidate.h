@@ -19,6 +19,7 @@ namespace MOD {
       public:
          PDPFCandidate(double px, double py, double pz, double energy, int pdgId);
          PDPFCandidate(std::istringstream & input_stream);
+         PDPFCandidate(fastjet::PseudoJet particle);
          PDPFCandidate();
 
          fastjet::PseudoJet pseudojet() const;

@@ -21,6 +21,10 @@
 // #include "mc_pfcandidate.h"
 #include "calibrated_jet.h"
 #include "mc_calibrated_jet.h"
+
+#include "pd_pfcandidate.h"
+#include "pd_calibrated_jet.h"
+
 #include "condition.h"
 
 
@@ -95,12 +99,10 @@ namespace MOD {
             const int data_source() const;
             void set_data_source(int data_source);
 
-            const bool pristine_form() const;
-            void set_pristine_form(bool pristine);
-
+      
             const int prescale() const;
             void set_prescale(int prescale);
-
+            void convert_to_pristine();
 
             friend std::ostream& operator<< (std::ostream&, const Event&);
             
@@ -144,6 +146,9 @@ namespace MOD {
             MOD::MCCalibratedJet _hardest_mc_truth_jet;
             MOD::MCCalibratedJet _hardest_mc_reco_jet;
 
+            std::vector<MOD::PDPFCandidate> _pristine_particles;
+            std::vector<MOD::PDCalibratedJet> _pristine_jets;
+
             
 
             
@@ -155,13 +160,14 @@ namespace MOD {
             void set_trigger_jet_is_matched();
             void set_closest_fastjet_jet_to_trigger_jet();
 
+
+            
+
             std::vector<MOD::CalibratedJet> apply_jet_energy_corrections(std::vector<MOD::CalibratedJet> jets) const;
             std::vector<MOD::CalibratedJet> apply_eta_cut(std::vector<MOD::CalibratedJet> jets, double eta_cut) const;
 
-            enum data_source_t { EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2 };
+            enum data_source_t { EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2, PRISTINE = 3 };
             data_source_t _data_source;
-
-            bool _pristine_form;
 
             int _prescale = 1;
 

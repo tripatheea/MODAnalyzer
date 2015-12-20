@@ -9,6 +9,7 @@ MOD::PDPFCandidate::PDPFCandidate(double px, double py, double pz, double energy
   p.set_user_index(pdgId);
 
   _pseudojet = p;
+  _pdgId = pdgId;
 }
 
 MOD::PDPFCandidate::PDPFCandidate(istringstream & input_stream) {
@@ -23,6 +24,11 @@ MOD::PDPFCandidate::PDPFCandidate(istringstream & input_stream) {
    _pseudojet.set_user_index(pdgId);
 
    _pdgId = pdgId;
+}
+
+MOD::PDPFCandidate::PDPFCandidate(fastjet::PseudoJet particle) {
+  _pseudojet = particle;
+  _pdgId = particle.user_index();
 }
 
 MOD::PDPFCandidate::PDPFCandidate() {}

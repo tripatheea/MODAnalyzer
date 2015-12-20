@@ -19,6 +19,7 @@ namespace MOD {
       public:
          MCPFCandidate(double px, double py, double pz, double energy, int pdgId);
          MCPFCandidate(std::istringstream & input_stream);
+         MCPFCandidate(fastjet::PseudoJet particle);
          MCPFCandidate();
 
          fastjet::PseudoJet pseudojet() const;
