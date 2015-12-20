@@ -240,6 +240,33 @@ const MOD::MCCalibratedJet MOD::Event::hardest_mc_reco_jet() const {
    return _hardest_mc_reco_jet;
 }
 
+
+const MOD::PDCalibratedJet MOD::Event::hardest_pristine_jet() const {
+   return _pristine_jets[0];
+}
+
+const fastjet::PseudoJet MOD::Event::hardest_jet() const {
+   
+   // EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2, PRISTINE = 3 
+   
+   if (_data_source == 0) {
+      return _closest_fastjet_jet_to_trigger_jet;
+   }
+   else if (_data_source == 1) {
+      return _hardest_mc_truth_jet.pseudojet();
+   }
+   else if (_data_source == 2) {
+      return _hardest_mc_reco_jet.pseudojet();
+   }
+   else if (_data_source == 3) {
+      return _pristine_jets[0].pseudojet();
+   }
+
+   return PseudoJet();
+
+}
+
+
 void MOD::Event::convert_to_pristine() {
 
    // Set the data source to "Pristine".

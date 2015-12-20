@@ -85,7 +85,9 @@ namespace MOD {
             const MOD::MCCalibratedJet hardest_mc_truth_jet() const;
             const MOD::MCCalibratedJet hardest_mc_reco_jet() const;
 
+            const MOD::PDCalibratedJet hardest_pristine_jet() const;
 
+            const fastjet::PseudoJet hardest_jet() const;
 
 
             void set_hardest_truth_jet();
