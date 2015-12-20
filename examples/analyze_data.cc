@@ -89,20 +89,8 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
 
    JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
 
-   vector<fastjet::PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents;
-   fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet;
-   MOD::CalibratedJet trigger_jet;
-   
-   closest_fastjet_jet_to_trigger_jet_constituents = event_being_read.closest_fastjet_jet_to_trigger_jet_constituents();
-   trigger_jet = event_being_read.trigger_jet();
-
-   vector<PseudoJet> jet_constituents = closest_fastjet_jet_to_trigger_jet_constituents;
-
-   ClusterSequence cs(jet_constituents, jet_def_cambridge);   
-   if (cs.inclusive_jets().size() == 0)
-      return;
-
-   closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0]; 
+   MOD::CalibratedJet trigger_jet = event_being_read.trigger_jet();
+   PseudoJet closest_fastjet_jet_to_trigger_jet = event_being_read.closest_fastjet_jet_to_trigger_jet();
    
 
    vector<MOD::Property> properties;
@@ -159,7 +147,7 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
    properties.push_back(MOD::Property("mu_2", mu_2));  
 
    
-   ClusterSequence cs_1 = ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 1.00), jet_def_cambridge);
+   ClusterSequence cs_1 = ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet.constituents(), 1.00), jet_def_cambridge);
 
    if (cs_1.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_1 = cs_1.inclusive_jets()[0];
@@ -188,7 +176,7 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
 
 
    
-   ClusterSequence cs_2 = ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 2.00), jet_def_cambridge);
+   ClusterSequence cs_2 = ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet.constituents(), 2.00), jet_def_cambridge);
 
    if (cs_2.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_2 = cs_2.inclusive_jets()[0];
@@ -217,7 +205,7 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
 
 
 
-   ClusterSequence cs_3 = ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 3.00), jet_def_cambridge);
+   ClusterSequence cs_3 = ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet.constituents(), 3.00), jet_def_cambridge);
 
    if (cs_3.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_3 = cs_3.inclusive_jets()[0];
@@ -246,7 +234,7 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
 
    
 
-   ClusterSequence cs_5 = ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 5.00), jet_def_cambridge);
+   ClusterSequence cs_5 = ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet.constituents(), 5.00), jet_def_cambridge);
 
    if (cs_5.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_5 = cs_5.inclusive_jets()[0];
@@ -275,7 +263,7 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
 
 
 
-   ClusterSequence cs_10 = ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet_constituents, 10.00), jet_def_cambridge);
+   ClusterSequence cs_10 = ClusterSequence(MOD::filter_by_pT(closest_fastjet_jet_to_trigger_jet.constituents(), 10.00), jet_def_cambridge);
 
    if (cs_10.inclusive_jets().size() > 0) {
       PseudoJet hardest_jet_pt_10 = cs_10.inclusive_jets()[0];
@@ -301,7 +289,7 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
       properties.push_back(MOD::Property("zg_2_pt_10", -1.));
    }
     
-   std::vector<fastjet::PseudoJet> charged_constituents = MOD::filter_charged(closest_fastjet_jet_to_trigger_jet_constituents);
+   std::vector<fastjet::PseudoJet> charged_constituents = MOD::filter_charged(closest_fastjet_jet_to_trigger_jet.constituents());
    
    // Cluster this using Cambridge/Alachen with infinite radius.
 
@@ -340,7 +328,7 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
 
    // Jet mass and constituent multiplicity before and after SoftDrop.
 
-   properties.push_back( MOD::Property("mul_pre_SD", (int) closest_fastjet_jet_to_trigger_jet_constituents.size()) );
+   properties.push_back( MOD::Property("mul_pre_SD", (int) closest_fastjet_jet_to_trigger_jet.constituents().size()) );
    properties.push_back( MOD::Property("mul_post_SD", (int) soft_drop(closest_fastjet_jet_to_trigger_jet).constituents().size() ) );   
 
    properties.push_back( MOD::Property("mass_pre_SD", closest_fastjet_jet_to_trigger_jet.m()) );

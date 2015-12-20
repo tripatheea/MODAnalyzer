@@ -74,17 +74,12 @@ namespace MOD {
 
             int assigned_trigger_prescale() const;
 
-            // MOD::PFCandidate hardest_pfcandidate();
 
 
             fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet();
-            std::vector<fastjet::PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents();
 
             const MOD::MCCalibratedJet hardest_mc_truth_jet() const;
             const MOD::MCCalibratedJet hardest_mc_reco_jet() const;
-
-            std::vector<fastjet::PseudoJet> hardest_mc_truth_jet_constituents();
-            std::vector<fastjet::PseudoJet> hardest_mc_reco_jet_constituents();
 
 
 
@@ -133,7 +128,7 @@ namespace MOD {
             MOD::CalibratedJet _trigger_jet;
 
             fastjet::PseudoJet _closest_fastjet_jet_to_trigger_jet;
-            std::vector<fastjet::PseudoJet> _closest_fastjet_jet_to_trigger_jet_constituents;
+            
 
             bool _trigger_jet_is_matched;
 
@@ -149,8 +144,6 @@ namespace MOD {
             MOD::MCCalibratedJet _hardest_mc_truth_jet;
             MOD::MCCalibratedJet _hardest_mc_reco_jet;
 
-            std::vector<fastjet::PseudoJet> _hardest_mc_truth_jet_constituents;
-            std::vector<fastjet::PseudoJet> _hardest_mc_reco_jet_constituents;
             
 
             

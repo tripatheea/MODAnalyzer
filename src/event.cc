@@ -250,7 +250,6 @@ void MOD::Event::set_hardest_truth_jet() {
    
    if (_mc_truth_jets.size() == 0) {
       _hardest_mc_truth_jet = MCCalibratedJet();
-      _hardest_mc_truth_jet_constituents = vector<PseudoJet>();
    }
    else {
 
@@ -265,8 +264,6 @@ void MOD::Event::set_hardest_truth_jet() {
       JetDefinition jet_def(antikt_algorithm, 0.5);
       ClusterSequence cs(truth_particles_pseudojets, jet_def);
       vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(0.0));
-
-      _hardest_mc_truth_jet_constituents = fastjet_jets[0].constituents();
    }
 }
 
@@ -274,7 +271,6 @@ void MOD::Event::set_hardest_reco_jet() {
 
    if (_mc_reco_jets.size() == 0) {
       _hardest_mc_reco_jet = MCCalibratedJet();
-      _hardest_mc_reco_jet_constituents = vector<PseudoJet>();
    }
    else {
 
@@ -288,18 +284,10 @@ void MOD::Event::set_hardest_reco_jet() {
       JetDefinition jet_def(antikt_algorithm, 0.5);
       ClusterSequence cs(reco_particles_pseudojets, jet_def);
       vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(0.0));
-
-      _hardest_mc_reco_jet_constituents = fastjet_jets[0].constituents();
    }
 }
 
-vector<PseudoJet> MOD::Event::hardest_mc_truth_jet_constituents() {
-   return _hardest_mc_truth_jet_constituents;
-}
 
-vector<PseudoJet> MOD::Event::hardest_mc_reco_jet_constituents() {
-   return _hardest_mc_reco_jet_constituents;
-}
 
 bool MOD::Event::read_event(istream & data_stream) {
 
@@ -526,12 +514,12 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
          }
       }
 
+      // This preserves the scope of our ClusterSequence so that later internal structure (like constituents) of the jet can be retrieved.
       cs->delete_self_when_unused();
 
       if (index >= 0) {
          // We now have the corresponding "hardest" FastJet jet.
          _closest_fastjet_jet_to_trigger_jet = fastjet_jets[index];
-         _closest_fastjet_jet_to_trigger_jet_constituents = fastjet_jets[index].constituents();
          return;   
       }
    }
@@ -548,17 +536,16 @@ const MOD::CalibratedJet MOD::Event::trigger_jet() const {
 void MOD::Event::set_trigger_jet_is_matched() {
 
    fastjet::PseudoJet trigger_fastjet = _trigger_jet.uncorrected_pseudojet();
-   fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet = _closest_fastjet_jet_to_trigger_jet;
 
    // Compare the number of constituents first.
-   if ((unsigned) _trigger_jet.number_of_constituents() != (unsigned) closest_fastjet_jet_to_trigger_jet_constituents().size()) {
+   if ((unsigned) _trigger_jet.number_of_constituents() != (unsigned) _closest_fastjet_jet_to_trigger_jet.constituents().size()) {
       _trigger_jet_is_matched = false;
       return;
    }
 
    // Next, compare if the 4-vector matches upto 10e-4 precision or not.
    double tolerance = pow(10, -3);
-   if ( ( abs(trigger_fastjet.px() - closest_fastjet_jet_to_trigger_jet.px()) < tolerance ) && ( abs(trigger_fastjet.py() - closest_fastjet_jet_to_trigger_jet.py()) < tolerance ) && ( abs(trigger_fastjet.pz() - closest_fastjet_jet_to_trigger_jet.pz()) < tolerance ) && ( abs(trigger_fastjet.E() - closest_fastjet_jet_to_trigger_jet.E()) < tolerance ) ) {      
+   if ( ( abs(trigger_fastjet.px() - _closest_fastjet_jet_to_trigger_jet.px()) < tolerance ) && ( abs(trigger_fastjet.py() - _closest_fastjet_jet_to_trigger_jet.py()) < tolerance ) && ( abs(trigger_fastjet.pz() - _closest_fastjet_jet_to_trigger_jet.pz()) < tolerance ) && ( abs(trigger_fastjet.E() - _closest_fastjet_jet_to_trigger_jet.E()) < tolerance ) ) {      
       _trigger_jet_is_matched = true;
       return;
    }
@@ -573,9 +560,6 @@ fastjet::PseudoJet MOD::Event::closest_fastjet_jet_to_trigger_jet() {
 }
 
 
-std::vector<fastjet::PseudoJet> MOD::Event::closest_fastjet_jet_to_trigger_jet_constituents() {
-   return _closest_fastjet_jet_to_trigger_jet_constituents;
-}
 
 void MOD::Event::establish_properties() {
 

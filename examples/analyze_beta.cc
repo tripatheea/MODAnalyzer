@@ -110,264 +110,265 @@ double calculate_rho(double R, double m, double pT) {
 
 void analyze_qcd_beta(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number, string data_type, string mc_type) {
 
-   JetDefinition jet_def_cambridge(cambridge_algorithm, jet_def_cambridge.max_allowable_R);
-
-   vector<fastjet::PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents;
-   fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet;
-   MOD::CalibratedJet trigger_jet;
+   // JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
 
 
-   if (data_type == "data") {
-      closest_fastjet_jet_to_trigger_jet_constituents = event_being_read.closest_fastjet_jet_to_trigger_jet_constituents();
-      // cs = ClusterSequence(closest_fastjet_jet_to_trigger_jet_constituents, jet_def_cambridge); 
+   // vector<fastjet::PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents;
+   // fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet;
+   // MOD::CalibratedJet trigger_jet;
+
+
+   // if (data_type == "data") {
+   //    closest_fastjet_jet_to_trigger_jet_constituents = event_being_read.closest_fastjet_jet_to_trigger_jet_constituents();
+   //    // cs = ClusterSequence(closest_fastjet_jet_to_trigger_jet_constituents, jet_def_cambridge); 
       
-      // if (cs.inclusive_jets().size() == 0)
-      //    return;
+   //    // if (cs.inclusive_jets().size() == 0)
+   //    //    return;
 
-      // closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0];
-      trigger_jet = event_being_read.trigger_jet();
-   }
+   //    // closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0];
+   //    trigger_jet = event_being_read.trigger_jet();
+   // }
 
-   // Monte Carlo.
-   vector<fastjet::PseudoJet> hardest_mc_jet_constituents;
-   fastjet::PseudoJet hardest_mc_jet;
-   if (data_type == "mc") {
-      hardest_mc_jet_constituents = (mc_type == "reco") ? event_being_read.hardest_mc_reco_jet_constituents() : event_being_read.hardest_mc_truth_jet_constituents();
-      // cs = ClusterSequence(hardest_mc_jet_constituents, jet_def_cambridge);
+   // // Monte Carlo.
+   // vector<fastjet::PseudoJet> hardest_mc_jet_constituents;
+   // fastjet::PseudoJet hardest_mc_jet;
+   // if (data_type == "mc") {
+   //    hardest_mc_jet_constituents = (mc_type == "reco") ? event_being_read.hardest_mc_reco_jet_constituents() : event_being_read.hardest_mc_truth_jet_constituents();
+   //    // cs = ClusterSequence(hardest_mc_jet_constituents, jet_def_cambridge);
 
-      // if (cs.inclusive_jets().size() == 0) 
-      //    return;
+   //    // if (cs.inclusive_jets().size() == 0) 
+   //    //    return;
 
-      // hardest_mc_jet = cs.inclusive_jets()[0];
-   }
+   //    // hardest_mc_jet = cs.inclusive_jets()[0];
+   // }
 
-   vector<PseudoJet> jet_constituents = (data_type == "data") ? closest_fastjet_jet_to_trigger_jet_constituents : hardest_mc_jet_constituents;
+   // vector<PseudoJet> jet_constituents = (data_type == "data") ? closest_fastjet_jet_to_trigger_jet_constituents : hardest_mc_jet_constituents;
 
-   ClusterSequence cs(jet_constituents, jet_def_cambridge);   
-   if (cs.inclusive_jets().size() == 0)
-      return;
+   // ClusterSequence cs(jet_constituents, jet_def_cambridge);   
+   // if (cs.inclusive_jets().size() == 0)
+   //    return;
 
-   closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0]; // This is okay because we're going to use only one of these two depending on what data_type is. We do this as a work-around to scope issues for ClusterSequence- its scope must be visible for FastJet to be able to infer internal jet structures.
-   hardest_mc_jet = cs.inclusive_jets()[0];                     // This is okay because we're going to use only one of these two depending on what data_type is. We do this as a work-around to scope issues for ClusterSequence- its scope must be visible for FastJet to be able to infer internal jet structures.
-
-
-
-   PseudoJet hardest_jet = (data_type == "data") ? closest_fastjet_jet_to_trigger_jet : hardest_mc_jet;
+   // closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0]; // This is okay because we're going to use only one of these two depending on what data_type is. We do this as a work-around to scope issues for ClusterSequence- its scope must be visible for FastJet to be able to infer internal jet structures.
+   // hardest_mc_jet = cs.inclusive_jets()[0];                     // This is okay because we're going to use only one of these two depending on what data_type is. We do this as a work-around to scope issues for ClusterSequence- its scope must be visible for FastJet to be able to infer internal jet structures.
 
 
-   vector<MOD::Property> properties;
 
-   properties.push_back(MOD::Property("# Entry", "  Entry"));
+   // PseudoJet hardest_jet = (data_type == "data") ? closest_fastjet_jet_to_trigger_jet : hardest_mc_jet;
 
-   if (data_type == "data") {
-      properties.push_back(MOD::Property("Cor_Hardest_pT", trigger_jet.corrected_pseudojet().pt()));
-      properties.push_back(MOD::Property("Prescale", event_being_read.assigned_trigger_prescale()));
-      properties.push_back(MOD::Property("trig_jet_matched", (int) event_being_read.trigger_jet_is_matched())); 
-      properties.push_back(MOD::Property("jet_quality", trigger_jet.jet_quality())); 
+
+   // vector<MOD::Property> properties;
+
+   // properties.push_back(MOD::Property("# Entry", "  Entry"));
+
+   // if (data_type == "data") {
+   //    properties.push_back(MOD::Property("Cor_Hardest_pT", trigger_jet.corrected_pseudojet().pt()));
+   //    properties.push_back(MOD::Property("Prescale", event_being_read.assigned_trigger_prescale()));
+   //    properties.push_back(MOD::Property("trig_jet_matched", (int) event_being_read.trigger_jet_is_matched())); 
+   //    properties.push_back(MOD::Property("jet_quality", trigger_jet.jet_quality())); 
    
-      properties.push_back(MOD::Property("no_of_const", trigger_jet.number_of_constituents() )); 
-   }
-   else {
-      properties.push_back(MOD::Property("Hardest_pT", hardest_mc_jet.pt()));
-   }
-   
-
-
-   double beta = 0;
-   
-   SoftDrop soft_drop_10(beta, 0.10);
-   PseudoJet soft_drop_jet_10 = soft_drop_10(hardest_jet);
-   properties.push_back(MOD::Property("Rg_10", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-   properties.push_back(MOD::Property("zg_10", soft_drop_jet_10.structure_of<SoftDrop>().symmetry()));
-
-   SoftDrop soft_drop_11(beta, 0.11);
-   PseudoJet soft_drop_jet_11 = soft_drop_11(hardest_jet);
-   properties.push_back(MOD::Property("Rg_11", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-   properties.push_back(MOD::Property("zg_11", soft_drop_jet_11.structure_of<SoftDrop>().symmetry()));
-
-   SoftDrop soft_drop_12(beta, 0.12);
-   PseudoJet soft_drop_jet_12 = soft_drop_12(hardest_jet);
-   properties.push_back(MOD::Property("Rg_12", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-   properties.push_back(MOD::Property("zg_12", soft_drop_jet_12.structure_of<SoftDrop>().symmetry()));
-
-   SoftDrop soft_drop_13(beta, 0.13);
-   PseudoJet soft_drop_jet_13 = soft_drop_13(hardest_jet);
-   properties.push_back(MOD::Property("Rg_13", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-   properties.push_back(MOD::Property("zg_13", soft_drop_jet_13.structure_of<SoftDrop>().symmetry()));
-
-   SoftDrop soft_drop_14(beta, 0.14);
-   PseudoJet soft_drop_jet_14 = soft_drop_14(hardest_jet);
-   properties.push_back(MOD::Property("Rg_14", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-   properties.push_back(MOD::Property("zg_14", soft_drop_jet_14.structure_of<SoftDrop>().symmetry()));
-
-   SoftDrop soft_drop_15(beta, 0.15);
-   PseudoJet soft_drop_jet_15 = soft_drop_15(hardest_jet);
-   properties.push_back(MOD::Property("Rg_15", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-   properties.push_back(MOD::Property("zg_15", soft_drop_jet_15.structure_of<SoftDrop>().symmetry()));
-
-   SoftDrop soft_drop_16(beta, 0.16);
-   PseudoJet soft_drop_jet_16 = soft_drop_16(hardest_jet);
-   properties.push_back(MOD::Property("Rg_16", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-   properties.push_back(MOD::Property("zg_16", soft_drop_jet_16.structure_of<SoftDrop>().symmetry()));
-
-   SoftDrop soft_drop_17(beta, 0.17);
-   PseudoJet soft_drop_jet_17 = soft_drop_17(hardest_jet);
-   properties.push_back(MOD::Property("Rg_17", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-   properties.push_back(MOD::Property("zg_17", soft_drop_jet_17.structure_of<SoftDrop>().symmetry()));
-
-   SoftDrop soft_drop_18(beta, 0.18);
-   PseudoJet soft_drop_jet_18 = soft_drop_18(hardest_jet);
-   properties.push_back(MOD::Property("Rg_18", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-   properties.push_back(MOD::Property("zg_18", soft_drop_jet_18.structure_of<SoftDrop>().symmetry()));
-
-   SoftDrop soft_drop_19(beta, 0.19);
-   PseudoJet soft_drop_jet_19 = soft_drop_19(hardest_jet);
-   properties.push_back(MOD::Property("Rg_19", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-   properties.push_back(MOD::Property("zg_19", soft_drop_jet_19.structure_of<SoftDrop>().symmetry()));
-
-   SoftDrop soft_drop_20(beta, 0.20);
-   PseudoJet soft_drop_jet_20 = soft_drop_20(hardest_jet);
-   properties.push_back(MOD::Property("Rg_20", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-   properties.push_back(MOD::Property("zg_20", soft_drop_jet_20.structure_of<SoftDrop>().symmetry()));
-
-
-   // Just get "charged" particles.
-
-   vector<fastjet::PseudoJet> charged_constituents = (data_type == "data") ? MOD::filter_charged(closest_fastjet_jet_to_trigger_jet_constituents) : MOD::filter_charged(hardest_mc_jet_constituents);
-   ClusterSequence cs_charged(charged_constituents, jet_def_cambridge);
-
-   if (cs_charged.inclusive_jets().size() == 0) {
-
-      properties.push_back(MOD::Property("chrg_Rg_10", -1.));
-      properties.push_back(MOD::Property("chrg_zg_10", -1.));
-
-      properties.push_back(MOD::Property("chrg_Rg_11", -1.));
-      properties.push_back(MOD::Property("chrg_zg_11", -1.));
-      
-      properties.push_back(MOD::Property("chrg_Rg_12", -1.));
-      properties.push_back(MOD::Property("chrg_zg_12", -1.));
-      
-      properties.push_back(MOD::Property("chrg_Rg_13", -1.));
-      properties.push_back(MOD::Property("chrg_zg_13", -1.));
-      
-      properties.push_back(MOD::Property("chrg_Rg_14", -1.));
-      properties.push_back(MOD::Property("chrg_zg_14", -1.));
-      
-      properties.push_back(MOD::Property("chrg_Rg_15", -1.));
-      properties.push_back(MOD::Property("chrg_zg_15", -1.));
-      
-      properties.push_back(MOD::Property("chrg_Rg_16", -1.));
-      properties.push_back(MOD::Property("chrg_zg_16", -1.));
-      
-      properties.push_back(MOD::Property("chrg_Rg_17", -1.));
-      properties.push_back(MOD::Property("chrg_zg_17", -1.));
-      
-      properties.push_back(MOD::Property("chrg_Rg_18", -1.));
-      properties.push_back(MOD::Property("chrg_zg_18", -1.));
-      
-      properties.push_back(MOD::Property("chrg_Rg_19", -1.));
-      properties.push_back(MOD::Property("chrg_zg_19", -1.));
-      
-      properties.push_back(MOD::Property("chrg_Rg_20", -1.));
-      properties.push_back(MOD::Property("chrg_zg_20", -1.));
-   }
-   else {
-
-      PseudoJet hardest_charged_jet = cs_charged.inclusive_jets()[0];
-      
-      SoftDrop charged_soft_drop_10(beta, 0.10);
-      PseudoJet charged_soft_drop_jet_10 = charged_soft_drop_10(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_Rg_10", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-      properties.push_back(MOD::Property("chrg_zg_10", charged_soft_drop_jet_10.structure_of<SoftDrop>().symmetry()));
-
-      SoftDrop charged_soft_drop_11(beta, 0.11);
-      PseudoJet charged_soft_drop_jet_11 = charged_soft_drop_11(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_Rg_11", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-      properties.push_back(MOD::Property("chrg_zg_11", charged_soft_drop_jet_11.structure_of<SoftDrop>().symmetry()));
-
-      SoftDrop charged_soft_drop_12(beta, 0.12);
-      PseudoJet charged_soft_drop_jet_12 = charged_soft_drop_12(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_Rg_12", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-      properties.push_back(MOD::Property("chrg_zg_12", charged_soft_drop_jet_12.structure_of<SoftDrop>().symmetry()));
-
-      SoftDrop charged_soft_drop_13(beta, 0.13);
-      PseudoJet charged_soft_drop_jet_13 = charged_soft_drop_13(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_Rg_13", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-      properties.push_back(MOD::Property("chrg_zg_13", charged_soft_drop_jet_13.structure_of<SoftDrop>().symmetry()));
-
-      SoftDrop charged_soft_drop_14(beta, 0.14);
-      PseudoJet charged_soft_drop_jet_14 = charged_soft_drop_14(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_Rg_14", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-      properties.push_back(MOD::Property("chrg_zg_14", charged_soft_drop_jet_14.structure_of<SoftDrop>().symmetry()));
-
-      SoftDrop charged_soft_drop_15(beta, 0.15);
-      PseudoJet charged_soft_drop_jet_15 = charged_soft_drop_15(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_Rg_15", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-      properties.push_back(MOD::Property("chrg_zg_15", charged_soft_drop_jet_15.structure_of<SoftDrop>().symmetry()));
-
-      SoftDrop charged_soft_drop_16(beta, 0.16);
-      PseudoJet charged_soft_drop_jet_16 = charged_soft_drop_16(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_Rg_16", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-      properties.push_back(MOD::Property("chrg_zg_16", charged_soft_drop_jet_16.structure_of<SoftDrop>().symmetry()));
-
-      SoftDrop charged_soft_drop_17(beta, 0.17);
-      PseudoJet charged_soft_drop_jet_17 = charged_soft_drop_17(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_Rg_17", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-      properties.push_back(MOD::Property("chrg_zg_17", charged_soft_drop_jet_17.structure_of<SoftDrop>().symmetry()));
-
-      SoftDrop charged_soft_drop_18(beta, 0.18);
-      PseudoJet charged_soft_drop_jet_18 = charged_soft_drop_18(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_Rg_18", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-      properties.push_back(MOD::Property("chrg_zg_18", charged_soft_drop_jet_18.structure_of<SoftDrop>().symmetry()));
-
-      SoftDrop charged_soft_drop_19(beta, 0.19);
-      PseudoJet charged_soft_drop_jet_19 = charged_soft_drop_19(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_Rg_19", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-      properties.push_back(MOD::Property("chrg_zg_19", charged_soft_drop_jet_19.structure_of<SoftDrop>().symmetry()));
-
-      SoftDrop charged_soft_drop_20(beta, 0.20);
-      PseudoJet charged_soft_drop_jet_20 = charged_soft_drop_20(hardest_charged_jet);
-      properties.push_back(MOD::Property("chrg_Rg_20", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
-      properties.push_back(MOD::Property("chrg_zg_20", charged_soft_drop_jet_20.structure_of<SoftDrop>().symmetry()));
-
-
-   }
-
-   if (data_type == "data") {
-      properties.push_back( MOD::Property("no_of_const", trigger_jet.number_of_constituents()) );
-      properties.push_back( MOD::Property("chrg_multip", trigger_jet.charged_multiplicity()) );
-      properties.push_back( MOD::Property("neu_had_frac", trigger_jet.neutral_hadron_fraction()) );
-      properties.push_back( MOD::Property("neu_em_frac", trigger_jet.neutral_em_fraction()) );
-      properties.push_back( MOD::Property("chrg_had_frac", trigger_jet.charged_hadron_fraction()) );
-      properties.push_back( MOD::Property("chrg_em_frac", trigger_jet.charged_em_fraction()) );
-   }
-
+   //    properties.push_back(MOD::Property("no_of_const", trigger_jet.number_of_constituents() )); 
+   // }
+   // else {
+   //    properties.push_back(MOD::Property("Hardest_pT", hardest_mc_jet.pt()));
+   // }
    
 
-   
-   string name;
-   
-   int padding = 20;
 
-   if (event_serial_number == 1) {
-      for (unsigned p = 0; p < properties.size(); p++) {
+   // double beta = 0;
+   
+   // SoftDrop soft_drop_10(beta, 0.10);
+   // PseudoJet soft_drop_jet_10 = soft_drop_10(hardest_jet);
+   // properties.push_back(MOD::Property("Rg_10", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   // properties.push_back(MOD::Property("zg_10", soft_drop_jet_10.structure_of<SoftDrop>().symmetry()));
+
+   // SoftDrop soft_drop_11(beta, 0.11);
+   // PseudoJet soft_drop_jet_11 = soft_drop_11(hardest_jet);
+   // properties.push_back(MOD::Property("Rg_11", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   // properties.push_back(MOD::Property("zg_11", soft_drop_jet_11.structure_of<SoftDrop>().symmetry()));
+
+   // SoftDrop soft_drop_12(beta, 0.12);
+   // PseudoJet soft_drop_jet_12 = soft_drop_12(hardest_jet);
+   // properties.push_back(MOD::Property("Rg_12", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   // properties.push_back(MOD::Property("zg_12", soft_drop_jet_12.structure_of<SoftDrop>().symmetry()));
+
+   // SoftDrop soft_drop_13(beta, 0.13);
+   // PseudoJet soft_drop_jet_13 = soft_drop_13(hardest_jet);
+   // properties.push_back(MOD::Property("Rg_13", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   // properties.push_back(MOD::Property("zg_13", soft_drop_jet_13.structure_of<SoftDrop>().symmetry()));
+
+   // SoftDrop soft_drop_14(beta, 0.14);
+   // PseudoJet soft_drop_jet_14 = soft_drop_14(hardest_jet);
+   // properties.push_back(MOD::Property("Rg_14", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   // properties.push_back(MOD::Property("zg_14", soft_drop_jet_14.structure_of<SoftDrop>().symmetry()));
+
+   // SoftDrop soft_drop_15(beta, 0.15);
+   // PseudoJet soft_drop_jet_15 = soft_drop_15(hardest_jet);
+   // properties.push_back(MOD::Property("Rg_15", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   // properties.push_back(MOD::Property("zg_15", soft_drop_jet_15.structure_of<SoftDrop>().symmetry()));
+
+   // SoftDrop soft_drop_16(beta, 0.16);
+   // PseudoJet soft_drop_jet_16 = soft_drop_16(hardest_jet);
+   // properties.push_back(MOD::Property("Rg_16", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   // properties.push_back(MOD::Property("zg_16", soft_drop_jet_16.structure_of<SoftDrop>().symmetry()));
+
+   // SoftDrop soft_drop_17(beta, 0.17);
+   // PseudoJet soft_drop_jet_17 = soft_drop_17(hardest_jet);
+   // properties.push_back(MOD::Property("Rg_17", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   // properties.push_back(MOD::Property("zg_17", soft_drop_jet_17.structure_of<SoftDrop>().symmetry()));
+
+   // SoftDrop soft_drop_18(beta, 0.18);
+   // PseudoJet soft_drop_jet_18 = soft_drop_18(hardest_jet);
+   // properties.push_back(MOD::Property("Rg_18", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   // properties.push_back(MOD::Property("zg_18", soft_drop_jet_18.structure_of<SoftDrop>().symmetry()));
+
+   // SoftDrop soft_drop_19(beta, 0.19);
+   // PseudoJet soft_drop_jet_19 = soft_drop_19(hardest_jet);
+   // properties.push_back(MOD::Property("Rg_19", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   // properties.push_back(MOD::Property("zg_19", soft_drop_jet_19.structure_of<SoftDrop>().symmetry()));
+
+   // SoftDrop soft_drop_20(beta, 0.20);
+   // PseudoJet soft_drop_jet_20 = soft_drop_20(hardest_jet);
+   // properties.push_back(MOD::Property("Rg_20", soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   // properties.push_back(MOD::Property("zg_20", soft_drop_jet_20.structure_of<SoftDrop>().symmetry()));
+
+
+   // // Just get "charged" particles.
+
+   // vector<fastjet::PseudoJet> charged_constituents = (data_type == "data") ? MOD::filter_charged(closest_fastjet_jet_to_trigger_jet_constituents) : MOD::filter_charged(hardest_mc_jet_constituents);
+   // ClusterSequence cs_charged(charged_constituents, jet_def_cambridge);
+
+   // if (cs_charged.inclusive_jets().size() == 0) {
+
+   //    properties.push_back(MOD::Property("chrg_Rg_10", -1.));
+   //    properties.push_back(MOD::Property("chrg_zg_10", -1.));
+
+   //    properties.push_back(MOD::Property("chrg_Rg_11", -1.));
+   //    properties.push_back(MOD::Property("chrg_zg_11", -1.));
+      
+   //    properties.push_back(MOD::Property("chrg_Rg_12", -1.));
+   //    properties.push_back(MOD::Property("chrg_zg_12", -1.));
+      
+   //    properties.push_back(MOD::Property("chrg_Rg_13", -1.));
+   //    properties.push_back(MOD::Property("chrg_zg_13", -1.));
+      
+   //    properties.push_back(MOD::Property("chrg_Rg_14", -1.));
+   //    properties.push_back(MOD::Property("chrg_zg_14", -1.));
+      
+   //    properties.push_back(MOD::Property("chrg_Rg_15", -1.));
+   //    properties.push_back(MOD::Property("chrg_zg_15", -1.));
+      
+   //    properties.push_back(MOD::Property("chrg_Rg_16", -1.));
+   //    properties.push_back(MOD::Property("chrg_zg_16", -1.));
+      
+   //    properties.push_back(MOD::Property("chrg_Rg_17", -1.));
+   //    properties.push_back(MOD::Property("chrg_zg_17", -1.));
+      
+   //    properties.push_back(MOD::Property("chrg_Rg_18", -1.));
+   //    properties.push_back(MOD::Property("chrg_zg_18", -1.));
+      
+   //    properties.push_back(MOD::Property("chrg_Rg_19", -1.));
+   //    properties.push_back(MOD::Property("chrg_zg_19", -1.));
+      
+   //    properties.push_back(MOD::Property("chrg_Rg_20", -1.));
+   //    properties.push_back(MOD::Property("chrg_zg_20", -1.));
+   // }
+   // else {
+
+   //    PseudoJet hardest_charged_jet = cs_charged.inclusive_jets()[0];
+      
+   //    SoftDrop charged_soft_drop_10(beta, 0.10);
+   //    PseudoJet charged_soft_drop_jet_10 = charged_soft_drop_10(hardest_charged_jet);
+   //    properties.push_back(MOD::Property("chrg_Rg_10", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   //    properties.push_back(MOD::Property("chrg_zg_10", charged_soft_drop_jet_10.structure_of<SoftDrop>().symmetry()));
+
+   //    SoftDrop charged_soft_drop_11(beta, 0.11);
+   //    PseudoJet charged_soft_drop_jet_11 = charged_soft_drop_11(hardest_charged_jet);
+   //    properties.push_back(MOD::Property("chrg_Rg_11", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   //    properties.push_back(MOD::Property("chrg_zg_11", charged_soft_drop_jet_11.structure_of<SoftDrop>().symmetry()));
+
+   //    SoftDrop charged_soft_drop_12(beta, 0.12);
+   //    PseudoJet charged_soft_drop_jet_12 = charged_soft_drop_12(hardest_charged_jet);
+   //    properties.push_back(MOD::Property("chrg_Rg_12", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   //    properties.push_back(MOD::Property("chrg_zg_12", charged_soft_drop_jet_12.structure_of<SoftDrop>().symmetry()));
+
+   //    SoftDrop charged_soft_drop_13(beta, 0.13);
+   //    PseudoJet charged_soft_drop_jet_13 = charged_soft_drop_13(hardest_charged_jet);
+   //    properties.push_back(MOD::Property("chrg_Rg_13", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   //    properties.push_back(MOD::Property("chrg_zg_13", charged_soft_drop_jet_13.structure_of<SoftDrop>().symmetry()));
+
+   //    SoftDrop charged_soft_drop_14(beta, 0.14);
+   //    PseudoJet charged_soft_drop_jet_14 = charged_soft_drop_14(hardest_charged_jet);
+   //    properties.push_back(MOD::Property("chrg_Rg_14", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   //    properties.push_back(MOD::Property("chrg_zg_14", charged_soft_drop_jet_14.structure_of<SoftDrop>().symmetry()));
+
+   //    SoftDrop charged_soft_drop_15(beta, 0.15);
+   //    PseudoJet charged_soft_drop_jet_15 = charged_soft_drop_15(hardest_charged_jet);
+   //    properties.push_back(MOD::Property("chrg_Rg_15", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   //    properties.push_back(MOD::Property("chrg_zg_15", charged_soft_drop_jet_15.structure_of<SoftDrop>().symmetry()));
+
+   //    SoftDrop charged_soft_drop_16(beta, 0.16);
+   //    PseudoJet charged_soft_drop_jet_16 = charged_soft_drop_16(hardest_charged_jet);
+   //    properties.push_back(MOD::Property("chrg_Rg_16", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   //    properties.push_back(MOD::Property("chrg_zg_16", charged_soft_drop_jet_16.structure_of<SoftDrop>().symmetry()));
+
+   //    SoftDrop charged_soft_drop_17(beta, 0.17);
+   //    PseudoJet charged_soft_drop_jet_17 = charged_soft_drop_17(hardest_charged_jet);
+   //    properties.push_back(MOD::Property("chrg_Rg_17", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   //    properties.push_back(MOD::Property("chrg_zg_17", charged_soft_drop_jet_17.structure_of<SoftDrop>().symmetry()));
+
+   //    SoftDrop charged_soft_drop_18(beta, 0.18);
+   //    PseudoJet charged_soft_drop_jet_18 = charged_soft_drop_18(hardest_charged_jet);
+   //    properties.push_back(MOD::Property("chrg_Rg_18", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   //    properties.push_back(MOD::Property("chrg_zg_18", charged_soft_drop_jet_18.structure_of<SoftDrop>().symmetry()));
+
+   //    SoftDrop charged_soft_drop_19(beta, 0.19);
+   //    PseudoJet charged_soft_drop_jet_19 = charged_soft_drop_19(hardest_charged_jet);
+   //    properties.push_back(MOD::Property("chrg_Rg_19", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   //    properties.push_back(MOD::Property("chrg_zg_19", charged_soft_drop_jet_19.structure_of<SoftDrop>().symmetry()));
+
+   //    SoftDrop charged_soft_drop_20(beta, 0.20);
+   //    PseudoJet charged_soft_drop_jet_20 = charged_soft_drop_20(hardest_charged_jet);
+   //    properties.push_back(MOD::Property("chrg_Rg_20", charged_soft_drop_jet_10.structure_of<SoftDrop>().delta_R()));
+   //    properties.push_back(MOD::Property("chrg_zg_20", charged_soft_drop_jet_20.structure_of<SoftDrop>().symmetry()));
+
+
+   // }
+
+   // if (data_type == "data") {
+   //    properties.push_back( MOD::Property("no_of_const", trigger_jet.number_of_constituents()) );
+   //    properties.push_back( MOD::Property("chrg_multip", trigger_jet.charged_multiplicity()) );
+   //    properties.push_back( MOD::Property("neu_had_frac", trigger_jet.neutral_hadron_fraction()) );
+   //    properties.push_back( MOD::Property("neu_em_frac", trigger_jet.neutral_em_fraction()) );
+   //    properties.push_back( MOD::Property("chrg_had_frac", trigger_jet.charged_hadron_fraction()) );
+   //    properties.push_back( MOD::Property("chrg_em_frac", trigger_jet.charged_em_fraction()) );
+   // }
+
+   
+
+   
+   // string name;
+   
+   // int padding = 20;
+
+   // if (event_serial_number == 1) {
+   //    for (unsigned p = 0; p < properties.size(); p++) {
          
-         if (p > 0)
-            output_file << setw(padding);
+   //       if (p > 0)
+   //          output_file << setw(padding);
          
-         output_file << properties[p].name();
-      }
+   //       output_file << properties[p].name();
+   //    }
 
-      output_file << endl;
-   }
+   //    output_file << endl;
+   // }
 
-   for (unsigned q = 0; q < properties.size(); q++) {
-      if (q > 0)
-         output_file << setw(padding);
-      output_file << properties[q];
-   }
+   // for (unsigned q = 0; q < properties.size(); q++) {
+   //    if (q > 0)
+   //       output_file << setw(padding);
+   //    output_file << properties[q];
+   // }
 
-   output_file << endl;
+   // output_file << endl;
    
    
 }

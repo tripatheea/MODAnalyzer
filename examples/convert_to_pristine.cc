@@ -90,16 +90,11 @@ int main(int argc, char * argv[]) {
 
 
 void convert_to_pristine(MOD::Event & event_being_read, ofstream & output_file) {
-   JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
-
-
+   
 
    MOD::CalibratedJet trigger_jet = event_being_read.trigger_jet();
-   
-   vector<PseudoJet> closest_fastjet_jet_to_trigger_jet_constituents = event_being_read.closest_fastjet_jet_to_trigger_jet_constituents();
-   ClusterSequence cs(closest_fastjet_jet_to_trigger_jet_constituents, jet_def_cambridge);   
+   PseudoJet closest_fastjet_jet_to_trigger_jet = event_being_read.closest_fastjet_jet_to_trigger_jet();
 
-   PseudoJet closest_fastjet_jet_to_trigger_jet = cs.inclusive_jets()[0];
 
    PseudoJet jec_corrected_jet = closest_fastjet_jet_to_trigger_jet * trigger_jet.JEC();
    vector<PseudoJet> jec_corrected_jet_constituents = closest_fastjet_jet_to_trigger_jet.constituents();
