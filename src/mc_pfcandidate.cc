@@ -44,7 +44,7 @@ int MOD::MCPFCandidate::pdgId() const {
 
 string MOD::MCPFCandidate::make_string() const {
    stringstream ss;
-   ss << "  PFC"
+   ss << "  TRUTH"
         << setw(16) << fixed << setprecision(8) << _pseudojet.px()
         << setw(16) << fixed << setprecision(8) << _pseudojet.py()
         << setw(16) << fixed << setprecision(8) << _pseudojet.pz()
@@ -57,7 +57,7 @@ string MOD::MCPFCandidate::make_string() const {
 
 string MOD::MCPFCandidate::make_header_string() const {
    stringstream ss;
-   ss << "# PFC" << "              px              py              pz          energy   pdgId" << endl;
+   ss << "# TRUTH" << "              px              py              pz          energy   pdgId" << endl;
    return ss.str();
 }
 
