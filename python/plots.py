@@ -4138,7 +4138,7 @@ def plot_jet_eta():
 
 # plot_hardest_pt_softdrop()
 
-# plot_pts()
+plot_pts()
 
 # plot_pts_variable_bin()
 
