@@ -107,7 +107,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back(MOD::Property("hardest_pT", hardest_jet.pt()));
 
 
-   vector<pair<string, int>> zg_cuts { make_pair("05", 0.05), make_pair("10", 0.1), make_pair("20", 0.2) };
+   vector<pair<string, double>> zg_cuts { make_pair("05", 0.05), make_pair("10", 0.1), make_pair("20", 0.2) };
 
    // zg, dr, and mu for zg_cuts of 0.05, 0.1 and 0.2.
 
@@ -234,7 +234,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    // zg and Rg (to eventually calculate theta_g) for  zg_cut ranging from 0.10 to 0.20 with increments of 0.01.
 
-   for (unsigned i = 10; i < 21; i++) {
+   for (unsigned i = 11; i < 20; i++) {
       string label = to_string(i);
       double zg_cut = i / 100;
 
