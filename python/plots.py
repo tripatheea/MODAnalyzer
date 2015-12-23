@@ -80,7 +80,9 @@ def get_version(input_file):
       return numbers[1] + " " + numbers[2] 
 
 
-def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorrected_pT_lower_cut = 0.00, softdrop_unc_pT_lower_cut = 0.00, softdrop_cor_pT_lower_cut = 0.00, jet_quality_level=1):
+
+
+def parse(input_file, pT_lower_cut=150., pT_upper_cut=20000., softdrop_pT_lower_cut=0., softdrop_pT_upper_cut=20000.):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
 
@@ -88,185 +90,27 @@ def parse_file(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorre
   
   properties = defaultdict(list)
 
+  keywords = []
   for line in lines:
     try:
       numbers = line.split()
 
+      if numbers[0] == "#":
+        keywords = numbers[2:]
+      else:
+        pT_index = keywords.index("hardest_pT") + 1
+        softdrop_pT_index = keywords.index("pT_after_SD") + 1
 
-      if not numbers[0] == "#":
-        if (float(numbers[2]) > pT_lower_cut) and (float(numbers[2]) < pT_upper_cut):
-          
-          properties['prescales'].append( int( numbers[1] ) )
-          properties['hardest_pTs'].append( float( numbers[2] ) )
+        print numbers[pT_index]
 
-          properties['zg_05'].append( float( numbers[3] ) )
-          properties['dr_05'].append( float( numbers[4] ) )
-          properties['mu_05'].append( float( numbers[5] ) )
-          properties['zg_1'].append( float( numbers[6] ) )
-          properties['dr_1'].append( float( numbers[7] ) )
-          properties['mu_1'].append( float( numbers[8] ) )
-          properties['zg_2'].append( float( numbers[9] ) )
-          properties['dr_2'].append( float( numbers[10] ) )
-          properties['mu_2'].append( float( numbers[11] ) )
-          
-          properties['zg_05_pt_1'].append( float( numbers[12] ) )
-          properties['zg_1_pt_1'].append( float( numbers[13] ) )
-          properties['zg_2_pt_1'].append( float( numbers[14] ) )
+        if float(numbers[pT_index]) > pT_lower_cut and float(numbers[pT_index]) < pT_upper_cut and float(numbers[softdrop_pT_index]) > softdrop_pT_lower_cut and float(numbers[softdrop_pT_index]) < softdrop_pT_upper_cut:
 
-          properties['zg_05_pt_2'].append( float( numbers[15] ) )
-          properties['zg_1_pt_2'].append( float( numbers[16] ) )
-          properties['zg_2_pt_2'].append( float( numbers[17] ) )
-
-          properties['zg_05_pt_3'].append( float( numbers[18] ) )
-          properties['zg_1_pt_3'].append( float( numbers[19] ) )
-          properties['zg_2_pt_3'].append( float( numbers[20] ) )
-
-          properties['zg_05_pt_5'].append( float( numbers[21] ) )
-          properties['zg_1_pt_5'].append( float( numbers[22] ) )
-          properties['zg_2_pt_5'].append( float( numbers[23] ) )
-
-          properties['zg_05_pt_10'].append( float( numbers[24] ) )
-          properties['zg_1_pt_10'].append( float( numbers[25] ) )
-          properties['zg_2_pt_10'].append( float( numbers[26] ) )
-
-          properties['zg_charged_05'].append( float( numbers[27] ) )
-          properties['zg_charged_1'].append( float( numbers[28] ) )
-          properties['zg_charged_2'].append( float( numbers[29] ) )
-
-          properties['pTs_after_SD'].append( float( numbers[30] ) )
-
-          properties['multiplicity_before_SD'].append( float( numbers[31] ) )
-          properties['multiplicity_after_SD'].append( float( numbers[32] ) )
-          properties['jet_mass_before_SD'].append( float( numbers[33] ) )
-          properties['jet_mass_after_SD'].append( float( numbers[34] ) )
-
-          properties['charged_multiplicity_before_SD'].append( float( numbers[35] ) )
-          properties['charged_multiplicity_after_SD'].append( float( numbers[36] ) )
-          properties['charged_jet_mass_before_SD'].append( float( numbers[37] ) )
-          properties['charged_jet_mass_after_SD'].append( float( numbers[38] ) )
-
-          properties['chrg_dr_05'].append( float( numbers[39] ) )
-          properties['chrg_dr_1'].append( float( numbers[40] ) )
-          properties['chrg_dr_2'].append( float( numbers[41] ) )
-
-          properties['fractional_energy_loss'].append( float( numbers[42] ) )
-          properties['hardest_eta'].append( float( numbers[43] ) )
-
+          for i in range(len(keywords)):
+            keyword = keywords[i]
+            properties[keyword].append( float(numbers[i + 1]) ) # + 1 because we ignore the first keyword "Entry".
+            
     except:
-      if len(numbers) != 0:
-        # print "Some kind of error occured while parsing the given file!"
-        # print numbers
-        # print
-        pass
-
-  return properties
-
-
-
-
-
-def parse_file_old(input_file, pT_lower_cut = 0.00, pT_upper_cut = 20000.00, uncorrected_pT_lower_cut = 0.00, softdrop_unc_pT_lower_cut = 0.00, softdrop_cor_pT_lower_cut = 0.00, jet_quality_level=1):
-  f = open(input_file, 'r')
-  lines = f.read().split("\n")
-
-  # FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3
-  
-  properties = defaultdict(list)
-
-  for line in lines:
-    try:
-      numbers = line.split()
-      
-      if not numbers[0] == "#":
-        if (float(numbers[6]) > pT_lower_cut) and (float(numbers[6]) < pT_upper_cut) and (float(numbers[5]) > uncorrected_pT_lower_cut) and (float(numbers[36]) > softdrop_unc_pT_lower_cut) and (float(numbers[37]) > softdrop_cor_pT_lower_cut) and (int(numbers[3]) == 1) and (int(numbers[4]) >= jet_quality_level):
-          
-          properties['event_number'].append( float( numbers[1] ) )
-          properties['run_number'].append( float( numbers[2] ) )
-
-          properties['trig_jet_matched'].append( int(numbers[3]) )
-          properties['jet_quality'].append( int(numbers[4]) )
-          
-          properties['uncorrected_hardest_pts'].append( float( numbers[5] ) )
-          properties['corrected_hardest_pts'].append( float( numbers[6] ) )
-          properties['prescales'].append( int( numbers[7] ) )
-          
-          properties['trigger_names'].append(  numbers[8] )
-          properties['zg_05'].append( float( numbers[9] ) )
-          properties['dr_05'].append( float( numbers[10] ) )
-          properties['mu_05'].append( float( numbers[11] ) )
-          properties['zg_1'].append( float( numbers[12] ) )
-          properties['dr_1'].append( float( numbers[13] ) )
-          properties['mu_1'].append( float( numbers[14] ) )
-          properties['zg_2'].append( float( numbers[15] ) )
-          properties['dr_2'].append( float( numbers[16] ) )
-          properties['mu_2'].append( float( numbers[17] ) )
-          
-          properties['zg_05_pt_1'].append( float( numbers[18] ) )
-          properties['zg_1_pt_1'].append( float( numbers[19] ) )
-          properties['zg_2_pt_1'].append( float( numbers[20] ) )
-
-          properties['zg_05_pt_2'].append( float( numbers[21] ) )
-          properties['zg_1_pt_2'].append( float( numbers[22] ) )
-          properties['zg_2_pt_2'].append( float( numbers[23] ) )
-
-          properties['zg_05_pt_3'].append( float( numbers[24] ) )
-          properties['zg_1_pt_3'].append( float( numbers[25] ) )
-          properties['zg_2_pt_3'].append( float( numbers[26] ) )
-
-          properties['zg_05_pt_5'].append( float( numbers[27] ) )
-          properties['zg_1_pt_5'].append( float( numbers[28] ) )
-          properties['zg_2_pt_5'].append( float( numbers[29] ) )
-
-          properties['zg_05_pt_10'].append( float( numbers[30] ) )
-          properties['zg_1_pt_10'].append( float( numbers[31] ) )
-          properties['zg_2_pt_10'].append( float( numbers[32] ) )
-
-          properties['zg_charged_05'].append( float( numbers[33] ) )
-          properties['zg_charged_1'].append( float( numbers[34] ) )
-          properties['zg_charged_2'].append( float( numbers[35] ) )
-
-          properties['pTs_after_SD_unc'].append( float( numbers[36] ) )
-          properties['pTs_after_SD_cor'].append( float( numbers[37] ) )
-
-          properties['multiplicity_before_SD'].append( float( numbers[38] ) )
-          properties['multiplicity_after_SD'].append( float( numbers[39] ) )
-          properties['jet_mass_before_SD'].append( float( numbers[40] ) )
-          properties['jet_mass_after_SD'].append( float( numbers[41] ) )
-
-          properties['charged_multiplicity_before_SD'].append( float( numbers[42] ) )
-          properties['charged_multiplicity_after_SD'].append( float( numbers[43] ) )
-          properties['charged_jet_mass_before_SD'].append( float( numbers[44] ) )
-          properties['charged_jet_mass_after_SD'].append( float( numbers[45] ) )
-
-          properties['chrg_dr_05'].append( float( numbers[46] ) )
-          properties['chrg_dr_1'].append( float( numbers[47] ) )
-          properties['chrg_dr_2'].append( float( numbers[48] ) )
-
-          properties['fractional_energy_loss'].append( float( numbers[49] ) )
-          properties['eta'].append( float( numbers[50] ) )
-          properties['jet_area'].append( float( numbers[51] ) )
-          properties['JEC'].append( float( numbers[52] ) )
-
-          # no_of_const         chrg_multip        neu_had_frac         neu_em_frac       chrg_had_frac        chrg_em_frac
-
-          properties['no_of_const'].append( int( numbers[53] ) )
-          properties['chrg_multip'].append( int( numbers[54] ) )
-          properties['neu_had_frac'].append( float( numbers[55] ) )
-          properties['neu_em_frac'].append( float( numbers[56] ) )
-          properties['chrg_had_frac'].append( float( numbers[57] ) )
-          properties['chrg_em_frac'].append( float( numbers[58] ) )
-
-
-    except:
-      if len(numbers) != 0:
-        # print "Some kind of error occured while parsing the given file!"
-        # print numbers
-        # print
-        pass
-
-  return properties
-
-
+      pass
 
 
 def parse_mc(input_file, pT_lower_cut=150.00, pT_upper_cut = 20000.00, uncorrected_pT_lower_cut = 0.00, softdrop_unc_pT_lower_cut = 0.00, softdrop_cor_pT_lower_cut = 0.00, jet_quality_level=1):
@@ -852,7 +696,7 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
     ax0.plot(theory_x, weighted_theory_y_min, alpha=0.0, color='red')
 
 
-    ax0.fill_between(theory_x, theory_y_max, theory_y_min, norm=1, where=np.less_equal(theory_y_min, theory_y_max), facecolor='red', interpolate=True, alpha=0.3, linewidth=0.0)
+    ax0.fill_between(theory_x, theory_y_max, theory_y_min, norm=1, where=np.less_equal(theory_y_min, theory_y_max), facecolor='red', color='red', interpolate=True, alpha=0.3, linewidth=0.0)
 
 
   # Theory Plot Ends.
@@ -1050,7 +894,7 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
       map(zg_theory_max_to_data_hist.Fill, data_plot_points_x, ratio_theory_max_to_data)
       zg_theory_max_to_data_plot = convert_hist_to_line_plot(zg_theory_max_to_data_hist, n_bins)
 
-      ax1.fill_between(zg_theory_max_to_data_plot[0], zg_theory_max_to_data_plot[1], zg_theory_min_to_data_plot[1], norm=1, where=np.less_equal(zg_theory_min_to_data_plot[1], zg_theory_max_to_data_plot[1]), facecolor='red', interpolate=True, alpha=0.3, linewidth=0.0)
+      ax1.fill_between(zg_theory_max_to_data_plot[0], zg_theory_max_to_data_plot[1], zg_theory_min_to_data_plot[1], norm=1, where=np.less_equal(zg_theory_min_to_data_plot[1], zg_theory_max_to_data_plot[1]), color='red', facecolor='red', interpolate=True, alpha=0.3, linewidth=0.0)
       
   elif ratio_denominator == "theory":
 
@@ -1098,7 +942,7 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
       x_min, y_min = zg_theory_min_line.get_xdata(), zg_theory_min_line.get_ydata()
       x_max, y_max = zg_theory_max_line.get_xdata(), zg_theory_max_line.get_ydata()
 
-      ax1.fill_between(x_max, y_max, y_min, norm=1, where=np.less_equal(y_min, y_max), facecolor='red', interpolate=True, alpha=0.3, linewidth=0.0)
+      ax1.fill_between(x_max, y_max, y_min, norm=1, where=np.less_equal(y_min, y_max), facecolor='red', color='red', interpolate=True, alpha=0.3, linewidth=0.0)
 
       zg_theory_line_hist.Divide(zg_theory_line_hist)
       zg_theory_line_plot = convert_hist_to_line_plot(zg_theory_line_hist, n_bins)
@@ -4138,7 +3982,7 @@ def plot_jet_eta():
 
 # plot_hardest_pt_softdrop()
 
-plot_pts()
+# plot_pts()
 
 # plot_pts_variable_bin()
 
@@ -4226,20 +4070,20 @@ plot_pts()
 
 
 
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
 
 
-plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_2', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
 
 # plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
 # plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_1', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
