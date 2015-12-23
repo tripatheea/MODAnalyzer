@@ -24,8 +24,8 @@ _OBJ = pd_pfcandidate pd_calibrated_jet mc_pfcandidate mc_calibrated_jet calibra
 OBJ  = $(patsubst %,$(OBJDIR)/%,$(_OBJ:=.o))
 
 
-#_EXEC=skim analyze validate turn_on analyze_beta
-_EXEC=skim analyze turn_on analyze_beta convert_to_pristine analyze_data write
+
+_EXEC=skim analyze turn_on convert_to_pristine analyze_data write
 EXEC=$(patsubst %,$(EXECDIR)/%,$(_EXEC:=.o))
 BIN=$(patsubst %,$(BINDIR)/%,$(_EXEC))
 

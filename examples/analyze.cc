@@ -103,11 +103,13 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    
    properties.push_back(MOD::Property("# Entry", "  Entry"));
 
-   properties.push_back(MOD::Property("Prescale", event_being_read.prescale()));
-   properties.push_back(MOD::Property("Hardest_pT", hardest_jet.pt()));
+   properties.push_back(MOD::Property("prescale", event_being_read.prescale()));
+   properties.push_back(MOD::Property("hardest_pT", hardest_jet.pt()));
 
 
-   vector<pair<string, int>> zg_cuts { make_pair("05", 5), make_pair("10", 10), make_pair("20", 20) };
+   vector<pair<string, int>> zg_cuts { make_pair("05", 0.05), make_pair("10", 0.1), make_pair("20", 0.2) };
+
+   // zg, dr, and mu for zg_cuts of 0.05, 0.1 and 0.2.
 
    for (unsigned i = 0; i < zg_cuts.size(); i++) {
 
@@ -119,19 +121,22 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
       PseudoJet soft_drop_jet = soft_drop(hardest_jet);
 
       double zg = soft_drop_jet.structure_of<SoftDrop>().symmetry();
-      double dr = soft_drop_jet.structure_of<SoftDrop>().delta_R();
+      double Rg = soft_drop_jet.structure_of<SoftDrop>().delta_R();
       double mu = soft_drop_jet.structure_of<SoftDrop>().mu();
 
       properties.push_back(MOD::Property("zg_" + label, zg));
-      properties.push_back(MOD::Property("dr_" + label, dr));
+      properties.push_back(MOD::Property("Rg_" + label, Rg));
       properties.push_back(MOD::Property("mu_" + label, mu));
    }
 
 
+   // SoftKiller zg values.
+   // pT cut of 1, 2, 3, 5, 10 GeV used for SoftKiller.
+
    vector<int> pT_cuts {1, 2, 3, 5, 10};
 
    for (unsigned i = 0; i < pT_cuts.size(); i++) {
-      double pT_cut = pT_cuts[i];
+      int pT_cut = pT_cuts[i];
 
       ClusterSequence cs = ClusterSequence(MOD::filter_by_pT(hardest_jet_constituents, pT_cut), jet_def_cambridge);
 
@@ -160,12 +165,12 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    }   
 
 
-
+   // Analysis with charged particles only.
    
+   // Get all charged particles.
    std::vector<fastjet::PseudoJet> charged_constituents = MOD::filter_charged(hardest_jet_constituents);
    
-   // Cluster this using Cambridge/Alachen with infinite radius.
-
+   // Cluster them using Cambridge/Alachen with infinite radius. This makes sure that we get the same jets as "regular" ak5 jets except now with just charged particles.
    ClusterSequence cs_charged(charged_constituents, jet_def_cambridge);
 
    if (cs_charged.inclusive_jets().size() > 0 ) {
@@ -189,10 +194,9 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    }
    
 
-   // Hardest Jet pT before and after SoftDrop.
+   // Analysis related to the effects of SoftDrop- observables before and after SoftDrop.
+   
    properties.push_back(MOD::Property("pT_after_SD", soft_drop_jet.pt()));
-
-   // Jet mass and constituent multiplicity before and after SoftDrop.
 
    properties.push_back( MOD::Property("mul_pre_SD", (int) hardest_jet_constituents.size()) );
    properties.push_back( MOD::Property("mul_post_SD", (int) soft_drop(hardest_jet).constituents().size() ) );   
@@ -201,7 +205,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back( MOD::Property("mass_post_SD", soft_drop(hardest_jet).m()) );
 
 
-   // Jet mass and multiplicity before and after SD for charged particles only.
+   // Before and after SoftDrop for charged particles only.
 
    if (cs_charged.inclusive_jets().size() > 0 ) {
       PseudoJet hardest_charged_jet = cs_charged.inclusive_jets()[0];
@@ -227,6 +231,9 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
 
+
+   // zg and Rg (to eventually calculate theta_g) for  zg_cut ranging from 0.10 to 0.20 with increments of 0.01.
+
    for (unsigned i = 10; i < 21; i++) {
       string label = to_string(i);
       double zg_cut = i / 100;
@@ -251,7 +258,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    } 
 
-
+   // Now that we've calculated all observables, write them out.
 
    string name;
    
