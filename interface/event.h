@@ -42,7 +42,7 @@ namespace MOD {
             std::pair<std::string, std::string> data_type() const;
 
             const std::vector<fastjet::PseudoJet> & particles() const;
-            const std::vector<fastjet::PseudoJet> & CMS_jets() const;
+            const std::vector<fastjet::PseudoJet> & cms_jets() const;
             const std::vector<fastjet::PseudoJet> & jets() const;
 
             const std::vector<Trigger> & triggers() const;
@@ -118,7 +118,7 @@ namespace MOD {
 
             std::vector<fastjet::PseudoJet> _particles;
 
-            std::vector<fastjet::PseudoJet> _CMS_jets;
+            std::vector<fastjet::PseudoJet> _cms_jets;
             std::vector<fastjet::PseudoJet> _jets;
 
             fastjet::PseudoJet _trigger_jet;
