@@ -14,19 +14,19 @@ MOD::Event::Event(int run_number, int event_number, int lumi_block, double inst_
 
 MOD::Event::Event() {}
 
-int MOD::Event::event_number() const {
+const int MOD::Event::event_number() const {
    return _condition.event_number();
 }
 
-int MOD::Event::run_number() const {
+const int MOD::Event::run_number() const {
    return _condition.run_number();
 }
 
-int MOD::Event::version() const {
+const int MOD::Event::version() const {
    return _version;
 }
 
-pair<string, string> MOD::Event::data_type() const {
+const pair<string, string> MOD::Event::data_type() const {
    return _data_type;
 }
 
@@ -142,9 +142,6 @@ const int MOD::Event::weight() const {
    return _weight;
 }
 
-void MOD::Event::set_weight(int weight) {
-   _weight = weight;
-}
 
 
 const string MOD::Event::stringify_jet(PseudoJet jet) const {
@@ -241,10 +238,9 @@ string MOD::Event::make_string() const {
 
       file_to_write << " Hardest_Jet_Selection" << endl;
 
-      // This output is for pristine form. Data in "pristine form" is used as-it-is i.e. without any consideration for things like JEC.
-      // What this means here is that we need to filter / apply all corrections here itself before outputing the event.
+      // This output is for pristine form. Data in "pristine form" is used as-it-is i.e. without any consideration for things like jet quality levels and triggers.
 
-      // We only output the constituents of the hardest jet.
+      // We only output the hardest jet and its constituents.
       // The reason for that is, we want to do our analysis on FastJet-clustered jets instead of on cms jets. However, we need to apply JEC to our AK5 jets. 
       // Those JEC factors are known for cms jets but not for FastJet-clustered jets. This means, we need to figure out a correspondance between cms and FastJet-clustered jets.
       // This is hard to do for jets other than the hardest one.
@@ -252,17 +248,15 @@ string MOD::Event::make_string() const {
 
       // While it's possible to do that for all jets, we output just the hardest jet's constituents because all analyses are going to be performed on the hardest jet anyway.
 
-      // PseudoJet closest_fastjet_jet_to_trigger_jet = closest_fastjet_jet_to_trigger_jet();
+      // If this is already in "Pristine" form, jet energy corrections would already have had been applied to this.
 
-      PseudoJet jec_corrected_hardest_jet = _hardest_jet * _hardest_jet.user_info<MOD::InfoCalibratedJet>().JEC();
-
-      file_to_write << "# 1JET" << "              px              py              pz          energy   weight" << endl;
-      file_to_write  << "  1JET"
-                     << setw(16) << fixed << setprecision(8) << jec_corrected_hardest_jet.px()
-                     << setw(16) << fixed << setprecision(8) << jec_corrected_hardest_jet.py()
-                     << setw(16) << fixed << setprecision(8) << jec_corrected_hardest_jet.pz()
-                     << setw(16) << fixed << setprecision(8) << jec_corrected_hardest_jet.E()
-                     << setw(8) << noshowpos << _weight
+      file_to_write << "#  1JET" << "              px              py              pz          energy  weight" << endl;
+      file_to_write  << "   1JET"
+                     << setw(16) << fixed << setprecision(8) << _hardest_jet.px()
+                     << setw(16) << fixed << setprecision(8) << _hardest_jet.py()
+                     << setw(16) << fixed << setprecision(8) << _hardest_jet.pz()
+                     << setw(16) << fixed << setprecision(8) << _hardest_jet.E()
+                     << setw(8) << _weight
                      << endl;
 
       file_to_write << "# PDPFC" << "              px              py              pz          energy   pdgId" << endl;
@@ -291,7 +285,7 @@ string MOD::Event::make_string() const {
 
 
 
-const PseudoJet MOD::Event::hardest_jet() const {
+const PseudoJet & MOD::Event::hardest_jet() const {
    
    // EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2, PRISTINE = 3 
    
@@ -308,8 +302,10 @@ void MOD::Event::convert_to_pristine() {
    PseudoJet jec_corrected_jet = _closest_fastjet_jet_to_trigger_jet * _trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC();
    vector<PseudoJet> jec_corrected_jet_constituents = jec_corrected_jet.constituents();
 
+   int pdgId;
    for (unsigned i = 0; i < jec_corrected_jet_constituents.size(); i++) {
-      jec_corrected_jet_constituents[i].set_user_info( new MOD::InfoCalibratedJet("PDPFC") );
+      pdgId = jec_corrected_jet_constituents[i].user_info<MOD::InfoPFC>().pdgId();
+      jec_corrected_jet_constituents[i].set_user_info( new MOD::InfoPFC(pdgId, "PDPFC") );
    }
 
    vector<PseudoJet> jets{jec_corrected_jet};
@@ -338,27 +334,38 @@ bool MOD::Event::read_event(istream & data_stream) {
       istringstream iss(line);
 
       int version, weight;
-      string tag, version_keyword, a, b, weight_keyword;
+      string tag, version_keyword, a, b;
+      double px, py, pz, energy;
 
       iss >> tag;      
       istringstream stream(line);
 
       if (tag == "BeginEvent") {
 
-         stream >> tag >> version_keyword >> version >> a >> b >> weight_keyword >> weight;
-         
-         // cout << "BeginEvent" << endl;
+         stream >> tag >> version_keyword >> version >> a >> b;
 
          set_version(version);
          set_data_type(a, b);
 
-         if ( (weight_keyword != NULL) && (weight != NULL)) {     // Have to check for null for now because experimental data does not have weight information in its present data format.
-            set_weight(weight);
-         }
-         else {
-            set_weight(0);
-         }
+      }
+      else if (tag == "1JET") {
+         try {
+            set_data_source(3);
+            
+            stream >> tag >> px >> py >> pz >> energy >> weight;
+         
+            _weight = weight;
 
+            PseudoJet jet = PseudoJet(px, py, pz, energy);
+            jet.set_user_info( new MOD::InfoCalibratedJet("1JET") );
+            vector<PseudoJet> jets{jet};
+            
+            _jets = jets;
+
+         }
+         catch (exception& e) {
+            throw runtime_error("Invalid file format 1JET! Something's wrong the way 1JETs have been written!");
+         }
       }
       else if (tag == "PFC") {
          try {
@@ -533,6 +540,10 @@ void MOD::Event::set_trigger_jet() {
 }
 
 
+const fastjet::PseudoJet & MOD::Event::closest_fastjet_jet_to_trigger_jet() {
+   return _closest_fastjet_jet_to_trigger_jet;
+}
+
 void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
 
    if (_trigger_jet.E() > 0) {   // This ensures that trigger jet is a valid jet and not an empty PseudoJet().
@@ -596,13 +607,14 @@ void MOD::Event::establish_properties() {
 
    JetDefinition jet_def(antikt_algorithm, 0.5);
 
-   // Cluster PFCandidates into AK5 Jets using FastJet.
-   ClusterSequence * cs = new ClusterSequence(_particles, jet_def);
-   vector<PseudoJet> ak5_jets = sorted_by_pt(cs->inclusive_jets(3.0));
-   _jets = ak5_jets;
+   if (data_source() != 3) {   // 3 => Pristine. For pristine, we don't want to cluster our PFCandidates into jets because the jet we've added to _jets has JEC applied to it while the jet we'll get by just clustering PFCs won't have JEC applied to it.
+      ClusterSequence * cs = new ClusterSequence(_particles, jet_def);
+      vector<PseudoJet> ak5_jets = sorted_by_pt(cs->inclusive_jets(3.0));
+      _jets = ak5_jets;
 
-   cs->delete_self_when_unused();
-
+      cs->delete_self_when_unused();
+   }
+   
    if (data_source() == 0) {  // Experiment 
 
       // First, assign _trigger_jet.

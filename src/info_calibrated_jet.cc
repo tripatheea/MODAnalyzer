@@ -28,7 +28,7 @@ const string MOD::InfoCalibratedJet::tag() const {
 }
 
 const double MOD::InfoCalibratedJet::JEC() const {
-	if (_tag == "CMSAK5")
+	if (_tag == "AK5")
 		return _JEC;
 	else
 		throw runtime_error("Only CMS jets have JEC factors!");
@@ -70,6 +70,7 @@ const int MOD::InfoCalibratedJet::jet_quality() const {
 
 
 void MOD::InfoCalibratedJet::set_jet_quality_level() {
+
 	if (_tag == "AK5") {
 		double cut_offs [3] = { 0.90, 0.95, 0.99 }; // Tight, Medium and Loose.
     
@@ -88,13 +89,15 @@ void MOD::InfoCalibratedJet::set_jet_quality_level() {
 
       if (pass) {
         _jet_quality =  static_cast<JetQualityLevels_t>(3 - i);
+        return;
       }
     } 
 
     // If the code reached here, this means it didn't pass any quality cut. 
     _jet_quality = static_cast<JetQualityLevels_t>(0);
+    return;
 	}
-
+	
 	_jet_quality = static_cast<JetQualityLevels_t>(4);
 
 }

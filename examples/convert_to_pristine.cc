@@ -91,7 +91,6 @@ void convert_to_pristine(MOD::Event & event_being_read, ofstream & output_file) 
    
    PseudoJet trigger_jet = event_being_read.trigger_jet();
    event_being_read.convert_to_pristine();
-   
 
    if (event_being_read.trigger_jet_is_matched() && (trigger_jet.user_info<MOD::InfoCalibratedJet>().jet_quality() >= 1)) {   // Jet quality level: FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3      
       output_file << event_being_read;
