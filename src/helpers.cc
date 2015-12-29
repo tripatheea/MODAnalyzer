@@ -22,17 +22,6 @@ std::vector<MOD::PFCandidate> MOD::select_charged(std::vector<PFCandidate> pfcan
 
 
 
-std::vector<fastjet::PseudoJet> MOD::convert_to_pseudojets(std::vector<MOD::PFCandidate> pfcandidates) {
-  vector<PseudoJet> pseudojets;
-
-  for (unsigned i = 0; i < pfcandidates.size(); i++) {
-    pseudojets.push_back(pfcandidates[i].pseudojet());
-  }
-
-  return pseudojets;
-}
-
-
 
 
 std::vector<fastjet::PseudoJet> MOD::convert_to_pseudojets(std::vector<MOD::CalibratedJet> jets) {

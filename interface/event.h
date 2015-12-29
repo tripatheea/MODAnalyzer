@@ -59,14 +59,13 @@ namespace MOD {
             const Trigger assigned_trigger() const;
 
             void add_condition(std::istringstream & input_stream); 
+            
             void add_particle(std::istringstream & input_stream);
-            void add_CMS_jet(std::istringstream & input_stream);
+            void add_jet(std::istringstream & input_stream);
+            
             void add_trigger(std::istringstream & input_stream);
 
-            void add_mc_truth_particle(std::istringstream & input_stream);
-            void add_mc_reco_particle(std::istringstream & input_stream);
             
-            void add_pristine_particle(std::istringstream & input_stream);
             
             void set_event_number(int event_number);
             void set_run_number(int run_number);
@@ -104,8 +103,8 @@ namespace MOD {
             void set_data_source(int data_source);
 
       
-            const int prescale() const;
-            void set_prescale(int prescale);
+            const int weight() const;
+            void set_weight(int weight);
             void convert_to_pristine();
 
             friend std::ostream& operator<< (std::ostream&, const Event&);
@@ -124,37 +123,22 @@ namespace MOD {
             Condition _condition;
 
 
-            // Things related to CMS Data.
-            std::vector<MOD::Trigger> _triggers;
-            std::vector<MOD::PFCandidate> _particles;
-
-            std::vector<MOD::CalibratedJet> _CMS_jets;
-            std::vector<fastjet::PseudoJet> _fastjet_clustered_pseudojets;
-
-            MOD::CalibratedJet _trigger_jet;
-
-            fastjet::PseudoJet _closest_fastjet_jet_to_trigger_jet;
             
+            std::vector<MOD::Trigger> _triggers;
+
+            std::vector<fastjet::PseudoJet> _particles;
+
+            std::vector<fastjet::PseudoJet> _CMS_jets;
+            std::vector<fastjet::PseudoJet> _jets;
+
+            fastjet::PseudoJet _trigger_jet;
+            fastjet::PseudoJet _closest_fastjet_jet_to_trigger_jet;
+            fastjet::PseudoJet _hardest_jet;
 
             bool _trigger_jet_is_matched;
 
-
-            // Things related to Monte Carlo.
-            // Note that we don't directly read AK5 jets because in the Monte Carlo generated MOD files, we don't write out AK5 jets. 
-            std::vector<MOD::MCPFCandidate> _mc_truth_particles;
-            std::vector<MOD::MCPFCandidate> _mc_reco_particles;
-
-            std::vector<MOD::MCCalibratedJet> _mc_truth_jets;
-            std::vector<MOD::MCCalibratedJet> _mc_reco_jets;
-
-            MOD::MCCalibratedJet _hardest_mc_truth_jet;
-            MOD::MCCalibratedJet _hardest_mc_reco_jet;
-
-            std::vector<MOD::PDPFCandidate> _pristine_particles;
-            std::vector<MOD::PDCalibratedJet> _pristine_jets;
-
             
-
+            
             
             void set_assigned_trigger();
             void set_hardest_pt();
@@ -168,12 +152,11 @@ namespace MOD {
             
 
             std::vector<MOD::CalibratedJet> apply_jet_energy_corrections(std::vector<MOD::CalibratedJet> jets) const;
-            std::vector<MOD::CalibratedJet> apply_eta_cut(std::vector<MOD::CalibratedJet> jets, double eta_cut) const;
-
+            
             enum data_source_t { EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2, PRISTINE = 3 };
             data_source_t _data_source;
 
-            int _prescale = 1;
+            int _weight = 1;
 
             
       };

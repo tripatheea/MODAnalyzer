@@ -44,44 +44,50 @@ const vector<MOD::PFCandidate> & MOD::Event::particles() const {
 }
 
 
-const vector<MOD::CalibratedJet> & MOD::Event::CMS_jets() const {
+const vector<fastjet::PseudoJet> & MOD::Event::CMS_jets() const {
    return _CMS_jets;
 }
 
 
-const vector<fastjet::PseudoJet> & MOD::Event::fastjet_clustered_pseudojets() const {
-   return _fastjet_clustered_pseudojets;
+const vector<fastjet::PseudoJet> & MOD::Event::jets() const {
+   return _jets;
 }
 
 
 void MOD::Event::add_particle(istringstream & input_stream) {
-   MOD::PFCandidate new_particle(input_stream);
+   string tag;
+   double px, py, pz, energy;
+   int pdgId;
+
+   input_stream >> tag >> px >> py >> pz >> energy >> pdgId;
+
+   PseudoJet new_particle = PseudoJet(px, py, pz, energy);
+   new_particle.set_user_info(new InfoPFC(pdgId, tag));
+
    _particles.push_back(new_particle);
 }
 
-void MOD::Event::add_mc_truth_particle(istringstream & input_stream) {
-   MOD::MCPFCandidate new_particle(input_stream);
-   _mc_truth_particles.push_back(new_particle);
+void MOD::Event::add_jet(istringstream & input_stream) {
+   string tag;
+   double px, py, pz, energy, JEC, area;
+
+   double neutral_hadron_fraction, neutral_em_fraction, charged_hadron_fraction, charged_em_fraction;
+   int number_of_constituents, charged_multiplicity;
+
+   input_stream >> tag >> px >> py >> pz >> energy >> JEC >> area >> number_of_constituents >> charged_multiplicity >> neutral_hadron_fraction >> neutral_em_fraction >> charged_hadron_fraction >> charged_em_fraction;
+   
+   PseudoJet new_jet = PseudoJet(px, py, pz, energy);
+
+   new_jet.set_user_info(new InfoCalibratedJet(tag, JEC, area, number_of_constituents, charged_multiplicity, neutral_hadron_fraction, neutral_em_fraction, charged_hadron_fraction, charged_em_fraction));
+
+   // We never read other jets directly so the jets that reach here will always be CMS jets.
+   _cms_jets.push_back(new_jet);
 }
 
-void MOD::Event::add_mc_reco_particle(istringstream & input_stream) {
-   MOD::MCPFCandidate new_particle(input_stream);
-   _mc_reco_particles.push_back(new_particle);
-}
-
-void MOD::Event::add_pristine_particle(istringstream & input_stream) {
-   MOD::PDPFCandidate new_particle(input_stream);
-   _pristine_particles.push_back(new_particle);
-}
 
 void MOD::Event::add_condition(istringstream & input_stream) {
    MOD::Condition new_condition(input_stream);
    _condition = new_condition;
-}
-
-void MOD::Event::add_CMS_jet(istringstream & input_stream) {
-   MOD::CalibratedJet new_jet(input_stream);
-   _CMS_jets.push_back(new_jet);
 }
 
 
@@ -132,12 +138,12 @@ const vector<MOD::Trigger> & MOD::Event::triggers() const {
 
 
 
-const int MOD::Event::prescale() const {
+const int MOD::Event::weight() const {
    return _prescale;
 }
 
-void MOD::Event::set_prescale(int prescale) {
-   _prescale = prescale;
+void MOD::Event::set_weight(int weight) {
+   _weight = weight;
 }
 
 string MOD::Event::make_string() const {
@@ -235,38 +241,15 @@ string MOD::Event::make_string() const {
 }
 
 
-const MOD::MCCalibratedJet MOD::Event::hardest_mc_truth_jet() const {
-   return _hardest_mc_truth_jet;
-}
-
-const MOD::MCCalibratedJet MOD::Event::hardest_mc_reco_jet() const {
-   return _hardest_mc_reco_jet;
-}
-
-
-const MOD::PDCalibratedJet MOD::Event::hardest_pristine_jet() const {
-   return _pristine_jets[0];
-}
 
 const fastjet::PseudoJet MOD::Event::hardest_jet() const {
    
    // EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2, PRISTINE = 3 
    
-   if (_data_source == 0) {
+   if (_data_source == 0)
       return _closest_fastjet_jet_to_trigger_jet;
-   }
-   else if (_data_source == 1) {
-      return _hardest_mc_truth_jet.pseudojet();
-   }
-   else if (_data_source == 2) {
-      return _hardest_mc_reco_jet.pseudojet();
-   }
-   else if (_data_source == 3) {
-      return _pristine_jets[0].pseudojet();
-   }
-
-   return PseudoJet();
-
+   
+   return _hardest_jet;
 }
 
 
@@ -302,26 +285,6 @@ void MOD::Event::convert_to_pristine() {
 }
 
 
-void MOD::Event::set_hardest_truth_jet() {
-   
-   if (_mc_truth_jets.size() == 0) {
-      _hardest_mc_truth_jet = MCCalibratedJet();
-   }
-   else {
-
-      sort(_mc_truth_jets.begin(), _mc_truth_jets.end());
-
-      _hardest_mc_truth_jet = _mc_truth_jets[0];
-
-      // Recluster stuff to get the constituents.
-
-      vector<PseudoJet> truth_particles_pseudojets = MOD::convert_to_pseudojets(_mc_truth_particles);
-
-      JetDefinition jet_def(antikt_algorithm, 0.5);
-      ClusterSequence cs(truth_particles_pseudojets, jet_def);
-      vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(0.0));
-   }
-}
 
 void MOD::Event::set_hardest_reco_jet() {
 
@@ -620,10 +583,6 @@ void MOD::Event::set_trigger_jet_is_matched() {
 }
 
 
-fastjet::PseudoJet MOD::Event::closest_fastjet_jet_to_trigger_jet() {
-   return _closest_fastjet_jet_to_trigger_jet;
-}
-
 
 
 void MOD::Event::establish_properties() {
@@ -735,18 +694,6 @@ vector<MOD::CalibratedJet> MOD::Event::apply_jet_energy_corrections(vector<MOD::
    return jec_corrected_jets;
 }
 
-vector<MOD::CalibratedJet> MOD::Event::apply_eta_cut(vector<MOD::CalibratedJet> jets, double eta_cut) const {
-
-   vector<MOD::CalibratedJet> jets_with_eta_cut;
-
-   for (unsigned i = 0; i < jets.size(); i++) {
-      if ( abs(jets[i].uncorrected_pseudojet().eta()) < eta_cut ) {
-         jets_with_eta_cut.push_back(jets[i]);
-      }
-   }
-
-   return jets_with_eta_cut;
-}
 
 bool MOD::Event::trigger_jet_is_matched() const {
    return _trigger_jet_is_matched;

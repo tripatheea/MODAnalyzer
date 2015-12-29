@@ -29,7 +29,6 @@ namespace MOD {
   
   std::vector<MOD::PFCandidate> select_charged(std::vector<MOD::PFCandidate> pfcandidates); 
   
-  std::vector<fastjet::PseudoJet> convert_to_pseudojets(std::vector<MOD::PFCandidate> pfcandidates);
   std::vector<fastjet::PseudoJet> convert_to_pseudojets(std::vector<MOD::CalibratedJet> jets);
 
   std::vector<fastjet::PseudoJet> convert_to_pseudojets(std::vector<MOD::MCPFCandidate> mc_pfcandidates);
