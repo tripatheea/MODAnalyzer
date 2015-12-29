@@ -89,6 +89,9 @@ namespace MOD {
             const int data_source() const;
             void set_data_source(int data_source);
 
+            const std::string stringify_jet(fastjet::PseudoJet jet) const;
+            const std::string stringify_pfc(fastjet::PseudoJet particle) const;
+
       
             const int weight() const;
             

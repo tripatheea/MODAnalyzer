@@ -14,8 +14,19 @@ namespace MOD {
 			
 			const std::string tag() const;
 			const double JEC() const;
+						
+			const double area() const;
+
 			const int number_of_constituents() const;
+			const int charged_multiplicity() const;
+			const double neutral_hadron_fraction() const;
+			const double neutral_em_fraction() const;
+			const double charged_hadron_fraction() const;
+			const double charged_em_fraction() const;
+
 			const int jet_quality();
+
+			const std::string header() const;
 			
 		private:
 			std::string _tag;

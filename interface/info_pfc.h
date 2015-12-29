@@ -14,6 +14,7 @@ namespace MOD {
 			
 			const int pdgId() const;
 			const std::string tag() const;
+			const std::string header() const;
 			
 		private:
 			int _pdgId;

@@ -8,7 +8,8 @@ from collections import defaultdict
 def run_analyzer():
 	
 	location = "/home/aashish/MODMonteCarlo/data/"
-	all_mc = ["pythia", "herwig", "sherpa"]
+	# all_mc = ["pythia", "herwig", "sherpa"]
+	all_mc = ["herwig", "sherpa"]
 
 	call(['make'])
 

@@ -29,9 +29,37 @@ const double MOD::InfoCalibratedJet::JEC() const {
 		throw runtime_error("Only CMS jets have JEC factors!");
 }
 
+
+const double MOD::InfoCalibratedJet::area() const {
+	return _area;
+}
+
 const int MOD::InfoCalibratedJet::number_of_constituents() const {
 	return _number_of_constituents;
 }
+
+
+const int MOD::InfoCalibratedJet::charged_multiplicity() const {
+	return _charged_multiplicity;
+}
+
+const double MOD::InfoCalibratedJet::neutral_hadron_fraction() const {
+	return _neutral_hadron_fraction;
+}
+
+const double MOD::InfoCalibratedJet::neutral_em_fraction() const {
+	return _neutral_em_fraction;
+}
+
+const double MOD::InfoCalibratedJet::charged_hadron_fraction() const {
+	return _charged_hadron_fraction;
+}
+
+const double MOD::InfoCalibratedJet::charged_em_fraction() const {
+	return _charged_em_fraction;
+}
+
+
 
 const int MOD::InfoCalibratedJet::jet_quality() {
 
@@ -75,3 +103,16 @@ const int MOD::InfoCalibratedJet::jet_quality() {
 
 }
 
+
+
+
+const std::string MOD::InfoCalibratedJet::header() const {
+	stringstream ss;
+	
+	if (_tag == "AK5") {
+		// This is a CMS jet.
+		ss << "# AK5" << "              px              py              pz          energy             jec            area     no_of_const     chrg_multip    neu_had_frac     neu_em_frac   chrg_had_frac    chrg_em_frac" << endl;
+	}	
+	
+	return ss.str();
+}

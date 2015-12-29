@@ -14,3 +14,8 @@ const string MOD::InfoPFC::tag() const {
   return _tag;
 }
 
+const std::string MOD::InfoPFC::header() const {
+	stringstream ss;
+	ss << "# " << _tag << "              px              py              pz          energy   pdgId" << endl;
+	return ss.str();
+}

@@ -4617,22 +4617,22 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
     # =============================================================================================== z_g * theta_g^(0.5) PLOT ENDS ===========================================================================================================================
 
 
-plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
-plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.10', zg_filename='zg_10')
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
+# plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.10', zg_filename='zg_10')
 # plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.10', zg_filename='zg_10')
 # plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.10', zg_filename='zg_10')
 
 
 
-plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15')
-plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.15', zg_filename='zg_15')
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15')
+# plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.15', zg_filename='zg_15')
 # plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.15', zg_filename='zg_15')
 # # plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.15', zg_filename='zg_15')
 
 
 
-plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
-plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.20', zg_filename='zg_20')
+# plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
+# plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.20', zg_filename='zg_20')
 # plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.20', zg_filename='zg_20')
 # plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.20', zg_filename='zg_20')
 
@@ -4657,9 +4657,9 @@ plot_jet_eta()
 
 # Version 3 Begins Here.
 
-plot_jet_mass_spectrum()
-plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=200)
-plot_jet_mass_spectrum(pT_lower_cut=200, pT_upper_cut=400)
+# plot_jet_mass_spectrum()
+# plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=200)
+# plot_jet_mass_spectrum(pT_lower_cut=200, pT_upper_cut=400)
 # plot_jet_mass_spectrum(pT_lower_cut=400)
 
 
@@ -4680,9 +4680,9 @@ plot_jet_mass_spectrum(pT_lower_cut=200, pT_upper_cut=400)
 # plot_fractional_energy_loss(pT_lower_cut=200, pT_upper_cut=400)
 # plot_fractional_energy_loss(pT_lower_cut=400)
 
-plot_constituent_multiplicity_softdrop()
-plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=200)
-plot_constituent_multiplicity_softdrop(pT_lower_cut=200, pT_upper_cut=400)
+# plot_constituent_multiplicity_softdrop()
+# plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=200)
+# plot_constituent_multiplicity_softdrop(pT_lower_cut=200, pT_upper_cut=400)
 # plot_constituent_multiplicity_softdrop(pT_lower_cut=400)
 
 # plot_charged_constituent_multiplicity_softdrop()
@@ -4787,16 +4787,16 @@ plot_pts()
 
 
 
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
-plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
-plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
+# plot_zg_th_mc_data(pT_lower_cut=300, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=4, y_max_limit=15, y_limit_ratio_plot=1.0)
 
 # plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)
 # plot_zg_th_mc_data(pT_lower_cut=600, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=2, y_max_limit=15, y_limit_ratio_plot=1.0)

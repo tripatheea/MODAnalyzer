@@ -138,7 +138,6 @@ const vector<MOD::Trigger> & MOD::Event::triggers() const {
 }
 
 
-
 const int MOD::Event::weight() const {
    return _weight;
 }
@@ -147,93 +146,125 @@ void MOD::Event::set_weight(int weight) {
    _weight = weight;
 }
 
+
+const string MOD::Event::stringify_jet(PseudoJet jet) const {
+   stringstream ss;
+
+   if (jet.has_user_info() && jet.user_info<MOD::InfoCalibratedJet>().tag() == "AK5") {
+      // This is a CMS jet.
+      ss << "  " << jet.user_info<MOD::InfoCalibratedJet>().tag()
+        << setw(16) << fixed << setprecision(8) << jet.px()
+        << setw(16) << fixed << setprecision(8) << jet.py()
+        << setw(16) << fixed << setprecision(8) << jet.pz()
+        << setw(16) << fixed << setprecision(8) << jet.E()
+        << setw(16) << fixed << setprecision(8) << jet.user_info<MOD::InfoCalibratedJet>().JEC()
+        << setw(16) << fixed << setprecision(8) << jet.user_info<MOD::InfoCalibratedJet>().area()
+        << setw(16) << fixed << setprecision(8) << jet.user_info<MOD::InfoCalibratedJet>().number_of_constituents()   
+        << setw(16) << fixed << setprecision(8) << jet.user_info<MOD::InfoCalibratedJet>().charged_multiplicity()
+        << setw(16) << fixed << setprecision(8) << jet.user_info<MOD::InfoCalibratedJet>().neutral_hadron_fraction()
+        << setw(16) << fixed << setprecision(8) << jet.user_info<MOD::InfoCalibratedJet>().neutral_em_fraction()
+        << setw(16) << fixed << setprecision(8) << jet.user_info<MOD::InfoCalibratedJet>().charged_hadron_fraction()   
+        << setw(16) << fixed << setprecision(8) << jet.user_info<MOD::InfoCalibratedJet>().charged_em_fraction() 
+        << endl;
+   }
+   
+
+   return ss.str();
+}
+
+
+const string MOD::Event::stringify_pfc(PseudoJet particle) const {
+   stringstream ss;
+   ss << "  " << particle.user_info<MOD::InfoPFC>().tag()
+        << setw(16) << fixed << setprecision(8) << particle.px()
+        << setw(16) << fixed << setprecision(8) << particle.py()
+        << setw(16) << fixed << setprecision(8) << particle.pz()
+        << setw(16) << fixed << setprecision(8) << particle.E()
+        << setw(8) << noshowpos << particle.user_info<MOD::InfoPFC>().pdgId()
+        << endl;
+
+   return ss.str();
+}
+
+
 string MOD::Event::make_string() const {
    stringstream file_to_write;
    
    int data_source = _data_source;  // EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2 
 
    
-   file_to_write << "BeginEvent Version " << _version << " " << _data_type.first << " " << _data_type.second << " Prescale " << _weight << endl;      
+   file_to_write << "BeginEvent Version " << _version << " " << _data_type.first << " " << _data_type.second << endl;      
   
 
-   // if (data_source == 0) { // Data is from experiment.
+   if (data_source == 0) { // Data is from experiment.
       
-   //    // First, write out conditions.
-   //    file_to_write << _condition.make_header_string();
-   //    file_to_write << _condition;   
+      // First, write out conditions.
+      file_to_write << _condition.make_header_string();
+      file_to_write << _condition;   
 
-   //    // Then, write out all triggers. 
-   //    for(unsigned int i = 0; i < _triggers.size(); i++) {
-   //       if (i == 0)
-   //          file_to_write << _triggers[i].make_header_string();
-   //       file_to_write << _triggers[i];
-   //    }
+      // Then, write out all triggers. 
+      for(unsigned int i = 0; i < _triggers.size(); i++) {
+         if (i == 0)
+            file_to_write << _triggers[i].make_header_string();
+         file_to_write << _triggers[i];
+      }
 
-   //    // Next, write out AK5 calibrated jets.
-   //    for(unsigned int i = 0; i < _cms_jets.size(); i++) {
-   //       if (i == 0)
-   //          file_to_write << _cms_jets[i].make_header_string();
-   //       file_to_write << _cms_jets[i];
-   //    }
+      // Next, write out AK5 calibrated jets.
+      for(unsigned int i = 0; i < _cms_jets.size(); i++) {
+         if (i == 0)
+            file_to_write << _cms_jets[i].user_info<MOD::InfoCalibratedJet>().header();
+         file_to_write << stringify_jet(_cms_jets[i]);
+      }
       
-   //    // Finally, write out all particles.
-   //    for (unsigned int i = 0; i < _particles.size(); i++) {
-   //       if (i == 0)
-   //          file_to_write << _particles[i].make_header_string();
-   //       file_to_write << _particles[i];
-   //    }
+      // Finally, write out all particles.
+      for (unsigned int i = 0; i < _particles.size(); i++) {
+         if (i == 0)
+            file_to_write << _particles[i].user_info<MOD::InfoPFC>().header();
+         file_to_write << stringify_pfc(_particles[i]);
+      }
 
-   // }
-   // else if (data_source == 1) {
+   }
+   else if ( (data_source == 1) || (data_source == 2) ) {
       
-   //    for (unsigned i = 0; i < _mc_truth_particles.size(); i++) {
-   //       if (i == 0)
-   //          file_to_write << _mc_truth_particles[i].make_header_string();
-   //       file_to_write << _mc_truth_particles[i];
-   //    }
+      for (unsigned i = 0; i < _particles.size(); i++) {
+         if (i == 0)
+            file_to_write << _particles[i].user_info<MOD::InfoPFC>().header();
+         file_to_write << stringify_pfc(_particles[i]);
+      }
 
-   // }
-   // else if (data_source == 2) {
+   }
+   else if (data_source == 3) {
 
-   //    for (unsigned i = 0; i < _mc_reco_particles.size(); i++) {
-   //       if (i == 0)
-   //          file_to_write << _mc_reco_particles[i].make_header_string();
-   //       file_to_write << _mc_reco_particles[i];
-   //    }
+      // This output is for pristine form. Data in "pristine form" is used as-it-is i.e. without any consideration for things like JEC.
+      // What this means here is that we need to filter / apply all corrections here itself before outputing the event.
 
-   // }
-   // else if (data_source == 3) {
+      // We only output the constituents of the hardest jet.
+      // The reason for that is, we want to do our analysis on FastJet-clustered jets instead of on cms jets. However, we need to apply JEC to our AK5 jets. 
+      // Those JEC factors are known for cms jets but not for FastJet-clustered jets. This means, we need to figure out a correspondance between cms and FastJet-clustered jets.
+      // This is hard to do for jets other than the hardest one.
+      // So we select the hardest cms jet, use delta R to find the corresponding FastJet-clustered jet and then just output constituents of that jet.
 
-   //    // This output is for pristine form. Data in "pristine form" is used as-it-is i.e. without any consideration of things like JEC.
-   //    // What this means here is that we need to filter / apply all corrections here itself before outputing the event.
+      // While it's possible to do that for all jets, we output just the hardest jet's constituents because all analyses are going to be performed on the hardest jet anyway.
 
-   //    // We only output the constituents of the hardest jet.
-   //    // The reason for that is, we want to do our analysis on FastJet-clustered jets instead of on cms jets. However, we need to apply JEC to our AK5 jets. 
-   //    // Those JEC factors are known for cms jets but not for FastJet-clustered jets. This means, we need to figure out a correspondance between cms and FastJet-clustered jets.
-   //    // This is hard to do for jets other than the hardest one.
-   //    // So we select the hardest cms jet, use delta R to find the corresponding FastJet-clustered jet and then just output constituents of that jet.
+      // PseudoJet closest_fastjet_jet_to_trigger_jet = closest_fastjet_jet_to_trigger_jet();
 
-   //    // While it's possible to do that for all jets, we output just the hardest jet's constituents because all analyses are going to be performed on the hardest jet anyway.
+      file_to_write << "# PDPFC" << "              px              py              pz          energy   pdgId" << endl;
 
-   //    // PseudoJet closest_fastjet_jet_to_trigger_jet = closest_fastjet_jet_to_trigger_jet();
-
-   //    file_to_write << "# PDPFC" << "              px              py              pz          energy   pdgId" << endl;
-
-   //    for (unsigned i = 0; i < _pristine_particles.size(); i++) {
+      for (unsigned i = 0; i < _particles.size(); i++) {
          
-   //       file_to_write << "  PDPFC"
-   //                     << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().px()
-   //                     << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().py()
-   //                     << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().pz()
-   //                     << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().E()
-   //                     << setw(8) << noshowpos << _pristine_particles[i].pseudojet().user_index()
-   //                     << endl;
-   //    }
+         file_to_write << "  PDPFC"
+                       << setw(16) << fixed << setprecision(8) << _particles[i].px()
+                       << setw(16) << fixed << setprecision(8) << _particles[i].py()
+                       << setw(16) << fixed << setprecision(8) << _particles[i].pz()
+                       << setw(16) << fixed << setprecision(8) << _particles[i].E()
+                       << setw(8) << noshowpos << _particles[i].user_info<MOD::InfoPFC>().pdgId()
+                       << endl;
+      }
 
-   // }
-   // else {
-   //    throw runtime_error("Invalid data source!");
-   // }
+   }
+   else {
+      throw runtime_error("Invalid data source!");
+   }
 
    
    file_to_write << "EndEvent" << endl;
