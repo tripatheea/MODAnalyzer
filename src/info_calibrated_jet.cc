@@ -4,7 +4,7 @@ using namespace std;
 using namespace fastjet;
 
 
-MOD::InfoCalibratedJet::InfoCalibratedJet(std::string tag, double JEC, double area, int number_of_constituents, int charged_multiplicity, double neutral_hadron_fraction, double neutral_em_fraction, double charged_hadron_fraction, double charged_em_fraction) : 
+MOD::InfoCalibratedJet::InfoCalibratedJet(std::string tag, double JEC, double area, int number_of_constituents, int charged_multiplicity, double neutral_hadron_fraction, double neutral_em_fraction, double charged_hadron_fraction, double charged_em_fraction, double eta) : 
 	_tag(tag), 
 	_JEC(JEC),
 	_area(area),
@@ -13,7 +13,8 @@ MOD::InfoCalibratedJet::InfoCalibratedJet(std::string tag, double JEC, double ar
 	_neutral_hadron_fraction(neutral_hadron_fraction),
 	_neutral_em_fraction(neutral_em_fraction),
 	_charged_hadron_fraction(charged_hadron_fraction),
-	_charged_em_fraction(charged_em_fraction) 
+	_charged_em_fraction(charged_em_fraction),
+	_eta(eta)
 {}
 
 
@@ -28,13 +29,13 @@ const double MOD::InfoCalibratedJet::JEC() const {
 		throw runtime_error("Only CMS jets have JEC factors!");
 }
 
-const int MOD::InfoCalibratedJet::number_of_constituents() {
+const int MOD::InfoCalibratedJet::number_of_constituents() const {
 	return _number_of_constituents;
 }
 
 const int MOD::InfoCalibratedJet::jet_quality() {
 
-	if (_tag != "CMSAK5")
+	if (_tag != "AK5")
 		throw runtime_error("Only CMS jets have jet quality factors!");
 	
   // First, check if jet_quality has already been calculated or not. 
@@ -49,12 +50,12 @@ const int MOD::InfoCalibratedJet::jet_quality() {
 
     for (unsigned i = 0; i < 3; i++) {
       
-      pass = ( number_of_constituents() > 1 )     &&
-             ( neutral_hadron_fraction() < cut_offs[i] ) && 
-             ( neutral_em_fraction() < cut_offs[i] )     &&
+      pass = ( _number_of_constituents > 1 )     &&
+             ( _neutral_hadron_fraction < cut_offs[i] ) && 
+             ( _neutral_em_fraction < cut_offs[i] )     &&
              ( 
-                ( abs(uncorrected_pseudojet().eta()) >= 2.4 ) || 
-                ( charged_em_fraction() < 0.99 && charged_hadron_fraction() > 0.00 && charged_multiplicity() > 0) ); 
+                ( abs(_eta) >= 2.4 ) || 
+                ( _charged_em_fraction < 0.99 && _charged_hadron_fraction > 0.00 && _charged_multiplicity > 0) ); 
       
       // UNDETERMINED = -1, FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3
 

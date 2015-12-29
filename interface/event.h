@@ -17,17 +17,15 @@
 #include "helpers.h"
 
 #include "trigger.h"
-#include "pfcandidate.h"
-// #include "mc_pfcandidate.h"
-#include "calibrated_jet.h"
-#include "mc_calibrated_jet.h"
-
-#include "pd_pfcandidate.h"
-#include "pd_calibrated_jet.h"
-
 #include "condition.h"
 
 
+#include "info_pfc.h"
+#include "info_calibrated_jet.h"
+
+
+
+#include "fastjet/Selector.hh"
 
 namespace MOD {
 
@@ -36,7 +34,6 @@ namespace MOD {
          public:
             Event(int, int, int, double);
             Event();
-            // Event(int run_number, int Event_number, int version, std::pair<std::string, std::string> data_type, MOD::Condition condition, std::vector<MOD::Trigger> triggers, std::vector<MOD::PFCandidate> particles, std::vector<MOD::CalibratedJet> CMS_jets);
 
             int event_number() const;
             int run_number() const;
@@ -44,10 +41,9 @@ namespace MOD {
             int version() const;
             std::pair<std::string, std::string> data_type() const;
 
-            const std::vector<PFCandidate> & particles() const;
-
-            const std::vector<MOD::CalibratedJet> & CMS_jets() const;
-            const std::vector<fastjet::PseudoJet> & fastjet_clustered_pseudojets() const;
+            const std::vector<fastjet::PseudoJet> & particles() const;
+            const std::vector<fastjet::PseudoJet> & CMS_jets() const;
+            const std::vector<fastjet::PseudoJet> & jets() const;
 
             const std::vector<Trigger> & triggers() const;
 
@@ -61,7 +57,7 @@ namespace MOD {
             void add_condition(std::istringstream & input_stream); 
             
             void add_particle(std::istringstream & input_stream);
-            void add_jet(std::istringstream & input_stream);
+            void add_cms_jet(std::istringstream & input_stream);
             
             void add_trigger(std::istringstream & input_stream);
 
@@ -82,12 +78,6 @@ namespace MOD {
 
 
             fastjet::PseudoJet closest_fastjet_jet_to_trigger_jet();
-
-            const MOD::MCCalibratedJet hardest_mc_truth_jet() const;
-            const MOD::MCCalibratedJet hardest_mc_reco_jet() const;
-
-            const MOD::PDCalibratedJet hardest_pristine_jet() const;
-
             const fastjet::PseudoJet hardest_jet() const;
 
 
@@ -97,7 +87,7 @@ namespace MOD {
 
             bool trigger_jet_is_matched() const;
 
-            const MOD::CalibratedJet trigger_jet() const;
+            const fastjet::PseudoJet trigger_jet() const;
 
             const int data_source() const;
             void set_data_source(int data_source);
@@ -151,7 +141,7 @@ namespace MOD {
 
             
 
-            std::vector<MOD::CalibratedJet> apply_jet_energy_corrections(std::vector<MOD::CalibratedJet> jets) const;
+            std::vector<fastjet::PseudoJet> apply_jet_energy_corrections(std::vector<fastjet::PseudoJet> jets) const;
             
             enum data_source_t { EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2, PRISTINE = 3 };
             data_source_t _data_source;

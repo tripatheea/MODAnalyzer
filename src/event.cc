@@ -67,7 +67,7 @@ void MOD::Event::add_particle(istringstream & input_stream) {
    _particles.push_back(new_particle);
 }
 
-void MOD::Event::add_jet(istringstream & input_stream) {
+void MOD::Event::add_cms_jet(istringstream & input_stream) {
    string tag;
    double px, py, pz, energy, JEC, area;
 
@@ -77,8 +77,9 @@ void MOD::Event::add_jet(istringstream & input_stream) {
    input_stream >> tag >> px >> py >> pz >> energy >> JEC >> area >> number_of_constituents >> charged_multiplicity >> neutral_hadron_fraction >> neutral_em_fraction >> charged_hadron_fraction >> charged_em_fraction;
    
    PseudoJet new_jet = PseudoJet(px, py, pz, energy);
+   double eta = new_jet.eta();
 
-   new_jet.set_user_info(new InfoCalibratedJet(tag, JEC, area, number_of_constituents, charged_multiplicity, neutral_hadron_fraction, neutral_em_fraction, charged_hadron_fraction, charged_em_fraction));
+   new_jet.set_user_info(new InfoCalibratedJet(tag, JEC, area, number_of_constituents, charged_multiplicity, neutral_hadron_fraction, neutral_em_fraction, charged_hadron_fraction, charged_em_fraction, eta));
 
    // We never read other jets directly so the jets that reach here will always be CMS jets.
    _cms_jets.push_back(new_jet);
@@ -155,84 +156,84 @@ string MOD::Event::make_string() const {
    file_to_write << "BeginEvent Version " << _version << " " << _data_type.first << " " << _data_type.second << " Prescale " << _prescale << endl;      
   
 
-   if (data_source == 0) { // Data is from experiment.
+   // if (data_source == 0) { // Data is from experiment.
       
-      // First, write out conditions.
-      file_to_write << _condition.make_header_string();
-      file_to_write << _condition;   
+   //    // First, write out conditions.
+   //    file_to_write << _condition.make_header_string();
+   //    file_to_write << _condition;   
 
-      // Then, write out all triggers. 
-      for(unsigned int i = 0; i < _triggers.size(); i++) {
-         if (i == 0)
-            file_to_write << _triggers[i].make_header_string();
-         file_to_write << _triggers[i];
-      }
+   //    // Then, write out all triggers. 
+   //    for(unsigned int i = 0; i < _triggers.size(); i++) {
+   //       if (i == 0)
+   //          file_to_write << _triggers[i].make_header_string();
+   //       file_to_write << _triggers[i];
+   //    }
 
-      // Next, write out AK5 calibrated jets.
-      for(unsigned int i = 0; i < _CMS_jets.size(); i++) {
-         if (i == 0)
-            file_to_write << _CMS_jets[i].make_header_string();
-         file_to_write << _CMS_jets[i];
-      }
+   //    // Next, write out AK5 calibrated jets.
+   //    for(unsigned int i = 0; i < _CMS_jets.size(); i++) {
+   //       if (i == 0)
+   //          file_to_write << _CMS_jets[i].make_header_string();
+   //       file_to_write << _CMS_jets[i];
+   //    }
       
-      // Finally, write out all particles.
-      for (unsigned int i = 0; i < _particles.size(); i++) {
-         if (i == 0)
-            file_to_write << _particles[i].make_header_string();
-         file_to_write << _particles[i];
-      }
+   //    // Finally, write out all particles.
+   //    for (unsigned int i = 0; i < _particles.size(); i++) {
+   //       if (i == 0)
+   //          file_to_write << _particles[i].make_header_string();
+   //       file_to_write << _particles[i];
+   //    }
 
-   }
-   else if (data_source == 1) {
+   // }
+   // else if (data_source == 1) {
       
-      for (unsigned i = 0; i < _mc_truth_particles.size(); i++) {
-         if (i == 0)
-            file_to_write << _mc_truth_particles[i].make_header_string();
-         file_to_write << _mc_truth_particles[i];
-      }
+   //    for (unsigned i = 0; i < _mc_truth_particles.size(); i++) {
+   //       if (i == 0)
+   //          file_to_write << _mc_truth_particles[i].make_header_string();
+   //       file_to_write << _mc_truth_particles[i];
+   //    }
 
-   }
-   else if (data_source == 2) {
+   // }
+   // else if (data_source == 2) {
 
-      for (unsigned i = 0; i < _mc_reco_particles.size(); i++) {
-         if (i == 0)
-            file_to_write << _mc_reco_particles[i].make_header_string();
-         file_to_write << _mc_reco_particles[i];
-      }
+   //    for (unsigned i = 0; i < _mc_reco_particles.size(); i++) {
+   //       if (i == 0)
+   //          file_to_write << _mc_reco_particles[i].make_header_string();
+   //       file_to_write << _mc_reco_particles[i];
+   //    }
 
-   }
-   else if (data_source == 3) {
+   // }
+   // else if (data_source == 3) {
 
-      // This output is for pristine form. Data in "pristine form" is used as-it-is i.e. without any consideration of things like JEC.
-      // What this means here is that we need to filter / apply all corrections here itself before outputing the event.
+   //    // This output is for pristine form. Data in "pristine form" is used as-it-is i.e. without any consideration of things like JEC.
+   //    // What this means here is that we need to filter / apply all corrections here itself before outputing the event.
 
-      // We only output the constituents of the hardest jet.
-      // The reason for that is, we want to do our analysis on FastJet-clustered jets instead of on CMS jets. However, we need to apply JEC to our AK5 jets. 
-      // Those JEC factors are known for CMS jets but not for FastJet-clustered jets. This means, we need to figure out a correspondance between CMS and FastJet-clustered jets.
-      // This is hard to do for jets other than the hardest one.
-      // So we select the hardest CMS jet, use delta R to find the corresponding FastJet-clustered jet and then just output constituents of that jet.
+   //    // We only output the constituents of the hardest jet.
+   //    // The reason for that is, we want to do our analysis on FastJet-clustered jets instead of on CMS jets. However, we need to apply JEC to our AK5 jets. 
+   //    // Those JEC factors are known for CMS jets but not for FastJet-clustered jets. This means, we need to figure out a correspondance between CMS and FastJet-clustered jets.
+   //    // This is hard to do for jets other than the hardest one.
+   //    // So we select the hardest CMS jet, use delta R to find the corresponding FastJet-clustered jet and then just output constituents of that jet.
 
-      // While it's possible to do that for all jets, we output just the hardest jet's constituents because all analyses are going to be performed on the hardest jet anyway.
+   //    // While it's possible to do that for all jets, we output just the hardest jet's constituents because all analyses are going to be performed on the hardest jet anyway.
 
-      // PseudoJet closest_fastjet_jet_to_trigger_jet = closest_fastjet_jet_to_trigger_jet();
+   //    // PseudoJet closest_fastjet_jet_to_trigger_jet = closest_fastjet_jet_to_trigger_jet();
 
-      file_to_write << "# PDPFC" << "              px              py              pz          energy   pdgId" << endl;
+   //    file_to_write << "# PDPFC" << "              px              py              pz          energy   pdgId" << endl;
 
-      for (unsigned i = 0; i < _pristine_particles.size(); i++) {
+   //    for (unsigned i = 0; i < _pristine_particles.size(); i++) {
          
-         file_to_write << "  PDPFC"
-                       << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().px()
-                       << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().py()
-                       << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().pz()
-                       << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().E()
-                       << setw(8) << noshowpos << _pristine_particles[i].pseudojet().user_index()
-                       << endl;
-      }
+   //       file_to_write << "  PDPFC"
+   //                     << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().px()
+   //                     << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().py()
+   //                     << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().pz()
+   //                     << setw(16) << fixed << setprecision(8) << _pristine_particles[i].pseudojet().E()
+   //                     << setw(8) << noshowpos << _pristine_particles[i].pseudojet().user_index()
+   //                     << endl;
+   //    }
 
-   }
-   else {
-      throw runtime_error("Invalid data source!");
-   }
+   // }
+   // else {
+   //    throw runtime_error("Invalid data source!");
+   // }
 
    
    file_to_write << "EndEvent" << endl;
@@ -255,56 +256,35 @@ const fastjet::PseudoJet MOD::Event::hardest_jet() const {
 
 void MOD::Event::convert_to_pristine() {
 
-   // Set the data source to "Pristine".
-   _data_source = static_cast<data_source_t>(3);
+   // // Set the data source to "Pristine".
+   // _data_source = static_cast<data_source_t>(3);
 
-   _prescale = _assigned_trigger.prescale();
+   // _prescale = _assigned_trigger.prescale();
    
 
-   PseudoJet jec_corrected_jet = _closest_fastjet_jet_to_trigger_jet * _trigger_jet.JEC();
-   vector<PseudoJet> jec_corrected_jet_constituents = jec_corrected_jet.constituents();
-   MOD::PDCalibratedJet jet = PDCalibratedJet(jec_corrected_jet, "AK5");
+   // PseudoJet jec_corrected_jet = _closest_fastjet_jet_to_trigger_jet * _trigger_jet.JEC();
+   // vector<PseudoJet> jec_corrected_jet_constituents = jec_corrected_jet.constituents();
+   // MOD::PDCalibratedJet jet = PDCalibratedJet(jec_corrected_jet, "AK5");
 
-   vector<MOD::PDPFCandidate> particles;
+   // vector<MOD::PDPFCandidate> particles;
 
-   for (unsigned i = 0; i < jec_corrected_jet_constituents.size(); i++) {
-      particles.push_back( PDPFCandidate(jec_corrected_jet_constituents[i]) );
-   }
+   // for (unsigned i = 0; i < jec_corrected_jet_constituents.size(); i++) {
+   //    particles.push_back( PDPFCandidate(jec_corrected_jet_constituents[i]) );
+   // }
 
-   vector<MOD::PDCalibratedJet> jets{jet};
+   // vector<MOD::PDCalibratedJet> jets{jet};
 
-   _pristine_particles = particles;
-   _pristine_jets = jets;
+   // _pristine_particles = particles;
+   // _pristine_jets = jets;
 
-   // Empty pfcandidates, jets, triggers.
-   _particles.clear();
-   _CMS_jets.clear();
-   _triggers.clear();
-   _fastjet_clustered_pseudojets.clear();
+   // // Empty pfcandidates, jets, triggers.
+   // _particles.clear();
+   // _CMS_jets.clear();
+   // _triggers.clear();
+   // _fastjet_clustered_pseudojets.clear();
 
 }
 
-
-
-void MOD::Event::set_hardest_reco_jet() {
-
-   if (_mc_reco_jets.size() == 0) {
-      _hardest_mc_reco_jet = MCCalibratedJet();
-   }
-   else {
-
-      sort(_mc_reco_jets.begin(), _mc_reco_jets.end());
-      _hardest_mc_reco_jet = _mc_reco_jets[0];
-
-      // Recluster stuff to get the constituents.
-
-      vector<PseudoJet> reco_particles_pseudojets = MOD::convert_to_pseudojets(_mc_reco_particles);
-
-      JetDefinition jet_def(antikt_algorithm, 0.5);
-      ClusterSequence cs(reco_particles_pseudojets, jet_def);
-      vector<PseudoJet> fastjet_jets = sorted_by_pt(cs.inclusive_jets(0.0));
-   }
-}
 
 
 
@@ -339,7 +319,6 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "PFC") {
          try {
-            // cout << "PFC" << endl;
             set_data_source(0);
             add_particle(stream);
          }
@@ -349,9 +328,8 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "AK5") {
          try {
-            // cout << "AK5" << endl;
             set_data_source(0);
-            add_CMS_jet(stream);
+            add_cms_jet(stream);
          }
          catch (exception& e) {
             throw runtime_error("Invalid file format AK5! Something's wrong with the way jets have been written.");
@@ -378,7 +356,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       else if (tag == "TRUTH") {
          try {
             set_data_source(1);
-            add_mc_truth_particle(stream);
+            add_particle(stream);
          }
          catch (exception& e) {
             throw runtime_error("Invalid file format! Something's wrong with the way Truth has been written. ;)");
@@ -387,7 +365,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       else if (tag == "RPFC") {
          try {
             set_data_source(2);
-            add_mc_reco_particle(stream);
+            add_particle(stream);
          }
          catch (exception& e) {
             throw runtime_error("Invalid file format! Something's wrong with the way RPFC has been written. ;)");
@@ -396,7 +374,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       else if (tag == "PDPFC") {
          try {
             set_data_source(3);
-            add_pristine_particle(stream);
+            add_particle(stream);
          }
          catch (exception& e) {
             throw runtime_error("Invalid file format! Something's wrong with the way RPFC has been written. ;)");
@@ -444,10 +422,10 @@ void MOD::Event::set_assigned_trigger() {
    string trigger = "";
 
    // First, figure out the hardest pT.
-   MOD::CalibratedJet trigger_jet = _trigger_jet;
+   fastjet::PseudoJet trigger_jet = _trigger_jet;
 
    
-   double hardest_pT = trigger_jet.corrected_pseudojet().pt();
+   double hardest_pT = trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC();
 
 
    // Next, lookup which trigger to use based on the pT value of the hardest jet.
@@ -494,9 +472,7 @@ void MOD::Event::set_assigned_trigger() {
 void MOD::Event::set_trigger_jet() {
    // Get the hardest jet, apply JEC, and then eta cut.
 
-   vector<MOD::CalibratedJet> CMS_jets = _CMS_jets;
-
-   vector<MOD::CalibratedJet> processed_jets = apply_jet_energy_corrections(CMS_jets);
+   vector<fastjet::PseudoJet> processed_jets = apply_jet_energy_corrections(_CMS_jets);
    processed_jets = apply_eta_cut(processed_jets, 2.4);
 
 
@@ -683,12 +659,13 @@ void MOD::Event::establish_properties() {
 
 
 
-vector<MOD::CalibratedJet> MOD::Event::apply_jet_energy_corrections(vector<MOD::CalibratedJet> jets) const {
+vector<fastjet::PseudoJet> MOD::Event::apply_jet_energy_corrections(vector<fastjet::PseudoJet> jets) const {
 
-   vector<MOD::CalibratedJet> jec_corrected_jets;
+   vector<fastjet::PseudoJet> jec_corrected_jets;
 
    for (unsigned i = 0; i < jets.size(); i++) {
-      jec_corrected_jets.push_back(jets[i].corrected_jet());
+      // jec_corrected_jets.push_back( jets[i] * jets[i].user_info<InfoCalibratedJet>().JEC() );
+      jec_corrected_jets.push_back(jets[i]);
    }
 
    return jec_corrected_jets;

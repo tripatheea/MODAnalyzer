@@ -20,7 +20,7 @@ BINDIR=bin
 INCDIR=interface
 INC= -I$(INCDIR)
 
-_OBJ = info_calibrated_jet info_pfc pd_pfcandidate pd_calibrated_jet mc_pfcandidate mc_calibrated_jet calibrated_jet event fractional_jet_multiplicity pfcandidate trigger property condition helpers
+_OBJ = info_calibrated_jet info_pfc event trigger property condition helpers
 OBJ  = $(patsubst %,$(OBJDIR)/%,$(_OBJ:=.o))
 
 
