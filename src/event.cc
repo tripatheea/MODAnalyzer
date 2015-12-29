@@ -309,12 +309,12 @@ bool MOD::Event::read_event(istream & data_stream) {
          set_version(version);
          set_data_type(a, b);
 
-         // if ( (weight_keyword != NULL) && (weight != NULL)) {
+         if ( (weight_keyword != NULL) && (weight != NULL)) {     // Have to check for null for now because experimental data does not have weight information in its present data format.
             set_weight(weight);
-         // }
-         // else {
-            // set_weight(0);
-         // }
+         }
+         else {
+            set_weight(0);
+         }
 
       }
       else if (tag == "PFC") {
@@ -473,11 +473,8 @@ void MOD::Event::set_trigger_jet() {
    // Get the hardest jet, apply JEC, and then eta cut.
 
    vector<PseudoJet> processed_jets = apply_jet_energy_corrections(_cms_jets);
-   // processed_jets = apply_eta_cut(processed_jets, 2.4);
    Selector rapidity_selector = SelectorAbsRapMax(2.4);
    processed_jets = rapidity_selector(processed_jets);
-
-
 
    // Then, sort the jets and store the hardest one as _trigger_jet.
    if (processed_jets.size() > 0) {
@@ -497,11 +494,7 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
 
    if (_trigger_jet.E() > 0) {   // This ensures that trigger jet is a valid jet and not an empty PseudoJet().
 
-      // Cluster PFCandidates using FastJet.
-
-      JetDefinition jet_def(antikt_algorithm, 0.5);
-      ClusterSequence * cs = new ClusterSequence(_particles, jet_def);
-      vector<PseudoJet> fastjet_jets = sorted_by_pt(cs->inclusive_jets(3.0));
+      vector<PseudoJet> fastjet_jets = _jets;
 
       // Loop through all FastJet pseudojets, calculating delta R for each one.
       vector<double> delta_Rs;
@@ -509,7 +502,7 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
          delta_Rs.push_back( _trigger_jet.delta_R(fastjet_jets[i]) );
       }
       
-      // Find the index of the fastjet jet that has the lowest delta R. This will be the jet that's "closest" to the cms jet. 
+      // Find the index of the fastjet jet that has the lowest delta R. This will be the jet that's "closest" to the CMS jet. 
       int index = -1;
       double delta_R = numeric_limits<double>::max();
       for (unsigned i = 0; i < delta_Rs.size(); i++) {
@@ -518,9 +511,6 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
             index = i;
          }
       }
-
-      // This preserves the scope of our ClusterSequence so that later internal structure (like constituents) of the jet can be retrieved.
-      cs->delete_self_when_unused();
 
       if (index >= 0) {
          // We now have the corresponding "hardest" FastJet jet.
@@ -531,7 +521,6 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
 
    return;
 }
-
 
 
 const PseudoJet MOD::Event::trigger_jet() const {
@@ -566,80 +555,26 @@ void MOD::Event::establish_properties() {
 
    JetDefinition jet_def(antikt_algorithm, 0.5);
 
+   // Cluster PFCandidates into AK5 Jets using FastJet.
+   ClusterSequence * cs = new ClusterSequence(_particles, jet_def);
+   vector<PseudoJet> ak5_jets = sorted_by_pt(cs->inclusive_jets(3.0));
+   _jets = ak5_jets;
+
+   cs->delete_self_when_unused();
+
    if (data_source() == 0) {  // Experiment 
 
-      // // Cluster PFCandidates into AK5 Jets using FastJet.
-      // vector<MOD::PFCandidate> pfcandidates = particles();
-      // vector<PseudoJet> pfcandidates_pseudojets = MOD::convert_to_pseudojets(pfcandidates);
-   
-      // ClusterSequence * cs = new ClusterSequence(pfcandidates_pseudojets, jet_def);
-      // vector<PseudoJet> ak5_jets = sorted_by_pt(cs->inclusive_jets(3.0));
-      // _fastjet_clustered_pseudojets = ak5_jets;
+      // First, assign _trigger_jet.
+      set_trigger_jet();
 
-      // cs->delete_self_when_unused();
+      // Next, find out the specific FastJet that's closest to _trigger_jet.
+      set_closest_fastjet_jet_to_trigger_jet();
 
-      // // First of all, assign _trigger_jet.
-      // set_trigger_jet();
+      set_trigger_jet_is_matched();
 
-      // // Next, find out the specific FastJet that's closest to _trigger_jet.
-      // set_closest_fastjet_jet_to_trigger_jet();
-
-      // set_trigger_jet_is_matched();
-
-      // set_assigned_trigger();   
-   }
-   else if (data_source() == 1) {   // 1 => MC_TRUTH 
-      
-      // // Recluster all truth particles to get "Truth Jets"
-      
-      // vector<PseudoJet> truth_particles_pseudojets = convert_to_pseudojets(_mc_truth_particles);
-
-      // ClusterSequence * cs = new ClusterSequence(truth_particles_pseudojets, jet_def);
-      // vector<PseudoJet> truth_ak5_jets = sorted_by_pt(cs->inclusive_jets(0.0));
-
-      // // Create a vector of MOD::MCCalibratedJet.
-      // vector<MOD::MCCalibratedJet> truth_jets;
-      // for (unsigned i = 0; i < truth_ak5_jets.size(); i++) {
-      //    truth_jets.push_back(MOD::MCCalibratedJet( truth_ak5_jets[i], "ak5" ));
-      // }
-
-      // cs->delete_self_when_unused();
-
-      // _mc_truth_jets = truth_jets;
-
-      // // Finally, set the hardest truth jet.
-
-      // set_hardest_truth_jet();
-   }
-   else if (data_source() == 2) {   // 2 => MC_RECO.
-
-      // // Recluster all reco particles to get reco jets.
-      
-      // vector<PseudoJet> reco_particles_pseudojets = convert_to_pseudojets(_mc_reco_particles);
-      // ClusterSequence * cs = new ClusterSequence(reco_particles_pseudojets, jet_def);
-      // vector<PseudoJet> reco_ak5_jets = sorted_by_pt(cs->inclusive_jets(0.0));
-
-      // // Create a vector of MOD::MCCalibratedJet.
-      // vector<MOD::MCCalibratedJet> reco_jets;
-      // for (unsigned i = 0; i < reco_ak5_jets.size(); i++) {
-      //    reco_jets.push_back(MOD::MCCalibratedJet( reco_ak5_jets[i], "ak5" ));
-      // }
-
-      // cs->delete_self_when_unused();
-
-      // _mc_reco_jets = reco_jets;      
-
-      // // Finally, set the hardest reco jets.
-
-      // set_hardest_reco_jet();
+      set_assigned_trigger();   
    }
    else if (data_source() == 3) {
-      // // Recluster all pristine particles to get pristine jets.
-      
-      // vector<PseudoJet> pristine_particles_pseudojets = convert_to_pseudojets(_pristine_particles);
-      // ClusterSequence * cs = new ClusterSequence(pristine_particles_pseudojets, jet_def);
-      // vector<PseudoJet> pristine_ak5_jets = sorted_by_pt(cs->inclusive_jets(0.0));
-
       // // Create a vector of MOD::PDCalibratedJet.
       // vector<MOD::PDCalibratedJet> pristine_jets;
       // for (unsigned i = 0; i < pristine_ak5_jets.size(); i++) {
@@ -651,13 +586,13 @@ void MOD::Event::establish_properties() {
       // _pristine_jets = pristine_jets;      
    }
 
+   set_hardest_jet();
 
 }
 
-
-
-
-
+void MOD::Event::set_hardest_jet() {
+   _hardest_jet = sorted_by_pt(_jets)[0];
+}
 
 
 vector<PseudoJet> MOD::Event::apply_jet_energy_corrections(vector<PseudoJet> jets) const {

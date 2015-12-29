@@ -81,10 +81,7 @@ namespace MOD {
             const fastjet::PseudoJet hardest_jet() const;
 
 
-            void set_hardest_truth_jet();
-            void set_hardest_reco_jet();
-
-
+          
             bool trigger_jet_is_matched() const;
 
             const fastjet::PseudoJet trigger_jet() const;
@@ -94,7 +91,7 @@ namespace MOD {
 
       
             const int weight() const;
-            void set_weight(int weight);
+            
             void convert_to_pristine();
 
             friend std::ostream& operator<< (std::ostream&, const Event&);
@@ -131,7 +128,7 @@ namespace MOD {
             
             
             void set_assigned_trigger();
-            void set_hardest_pt();
+            void set_hardest_jet();
             void establish_properties();
 
             void set_trigger_jet();
@@ -139,7 +136,7 @@ namespace MOD {
             void set_closest_fastjet_jet_to_trigger_jet();
 
 
-            
+            void set_weight(int weight);
 
             std::vector<fastjet::PseudoJet> apply_jet_energy_corrections(std::vector<fastjet::PseudoJet> jets) const;
             

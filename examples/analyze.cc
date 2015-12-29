@@ -11,7 +11,6 @@
 #include <chrono>
 
 #include "fastjet/ClusterSequence.hh"
-
 #include "fastjet/contrib/SoftDrop.hh"
 
 
@@ -106,156 +105,155 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back(MOD::Property("hardest_pT", hardest_jet.pt()));
 
 
-   // vector<pair<string, double>> zg_cuts { make_pair("05", 0.05), make_pair("10", 0.1), make_pair("20", 0.2) };
+   vector<pair<string, double>> zg_cuts { make_pair("05", 0.05), make_pair("10", 0.1), make_pair("20", 0.2) };
 
-   // // zg, dr, and mu for zg_cuts of 0.05, 0.1 and 0.2.
+   // zg, dr, and mu for zg_cuts of 0.05, 0.1 and 0.2.
 
-   // for (unsigned i = 0; i < zg_cuts.size(); i++) {
+   for (unsigned i = 0; i < zg_cuts.size(); i++) {
 
-   //    string label = zg_cuts[i].first;
-   //    double zg_cut = zg_cuts[i].second;
+      string label = zg_cuts[i].first;
+      double zg_cut = zg_cuts[i].second;
 
-   //    SoftDrop soft_drop(0.0, zg_cut);
+      SoftDrop soft_drop(0.0, zg_cut);
    
-   //    PseudoJet soft_drop_jet = soft_drop(hardest_jet);
+      PseudoJet soft_drop_jet = soft_drop(hardest_jet);
 
-   //    double zg = soft_drop_jet.structure_of<SoftDrop>().symmetry();
-   //    double Rg = soft_drop_jet.structure_of<SoftDrop>().delta_R();
-   //    double mu = soft_drop_jet.structure_of<SoftDrop>().mu();
+      double zg = soft_drop_jet.structure_of<SoftDrop>().symmetry();
+      double Rg = soft_drop_jet.structure_of<SoftDrop>().delta_R();
+      double mu = soft_drop_jet.structure_of<SoftDrop>().mu();
 
-   //    properties.push_back(MOD::Property("zg_" + label, zg));
-   //    properties.push_back(MOD::Property("Rg_" + label, Rg));
-   //    properties.push_back(MOD::Property("mu_" + label, mu));
-   // }
+      properties.push_back(MOD::Property("zg_" + label, zg));
+      properties.push_back(MOD::Property("Rg_" + label, Rg));
+      properties.push_back(MOD::Property("mu_" + label, mu));
+   }
 
 
-   // // SoftKiller zg values.
-   // // pT cut of 1, 2, 3, 5, 10 GeV used for SoftKiller.
+   // SoftKiller zg values.
+   // pT cut of 1, 2, 3, 5, 10 GeV used for SoftKiller.
 
-   // vector<int> pT_cuts {1, 2, 3, 5, 10};
+   vector<int> pT_cuts {1, 2, 3, 5, 10};
 
-   // for (unsigned i = 0; i < pT_cuts.size(); i++) {
-   //    int pT_cut = pT_cuts[i];
+   for (unsigned i = 0; i < pT_cuts.size(); i++) {
+      int pT_cut = pT_cuts[i];
 
-   //    ClusterSequence cs = ClusterSequence(MOD::filter_by_pT(hardest_jet_constituents, pT_cut), jet_def_cambridge);
+      Selector pT_selector = SelectorPtMin(pT_cut);
+      ClusterSequence cs = ClusterSequence(pT_selector(hardest_jet_constituents), jet_def_cambridge);
 
-   //    if (cs.inclusive_jets().size() > 0) {
+      if (cs.inclusive_jets().size() > 0) {
          
-   //       PseudoJet hardest_jet_pT_cut = cs.inclusive_jets()[0];
+         PseudoJet hardest_jet_pT_cut = cs.inclusive_jets()[0];
 
 
-   //       for (unsigned j = 0; j < zg_cuts.size(); j++) {
-   //          string label = zg_cuts[j].first;
-   //          double zg_cut = zg_cuts[j].second;
+         for (unsigned j = 0; j < zg_cuts.size(); j++) {
+            string label = zg_cuts[j].first;
+            double zg_cut = zg_cuts[j].second;
 
-   //          SoftDrop soft_drop_pT(0.0, zg_cut);
-   //          PseudoJet soft_drop_jet_pT = soft_drop_pT(hardest_jet_pT_cut);
-   //          double zg = soft_drop_jet_pT.structure_of<SoftDrop>().symmetry();
-   //          properties.push_back(MOD::Property("zg_" + label + "_pT_" + to_string(pT_cut), zg));
+            SoftDrop soft_drop_pT(0.0, zg_cut);
+            PseudoJet soft_drop_jet_pT = soft_drop_pT(hardest_jet_pT_cut);
+            double zg = soft_drop_jet_pT.structure_of<SoftDrop>().symmetry();
+            properties.push_back(MOD::Property("zg_" + label + "_pT_" + to_string(pT_cut), zg));
 
-   //       }
-   //    }
-   //    else {
-   //       for (unsigned j = 0; j < zg_cuts.size(); j++) {
-   //          string label = zg_cuts[j].first;
-   //          properties.push_back(MOD::Property("zg_" + label + "_pT_" + to_string(pT_cut), -1.));   
-   //       }
-   //    }
-   // }   
+         }
+      }
+      else {
+         for (unsigned j = 0; j < zg_cuts.size(); j++) {
+            string label = zg_cuts[j].first;
+            properties.push_back(MOD::Property("zg_" + label + "_pT_" + to_string(pT_cut), -1.));   
+         }
+      }
+   }   
 
 
-   // // Analysis with charged particles only.
+   // Analysis with charged particles only.
    
-   // // Get all charged particles.
-   // std::vector<fastjet::PseudoJet> charged_constituents = MOD::filter_charged(hardest_jet_constituents);
+   // Get all charged particles.
+   std::vector<fastjet::PseudoJet> charged_constituents = MOD::filter_charged(hardest_jet_constituents);
    
-   // // Cluster them using Cambridge/Alachen with infinite radius. This makes sure that we get the same jets as "regular" ak5 jets except now with just charged particles.
-   // ClusterSequence cs_charged(charged_constituents, jet_def_cambridge);
+   // Cluster them using Cambridge/Alachen with infinite radius. This makes sure that we get the same jets as "regular" ak5 jets except now with just charged particles.
+   ClusterSequence cs_charged(charged_constituents, jet_def_cambridge);
 
-   // if (cs_charged.inclusive_jets().size() > 0 ) {
-   //    PseudoJet hardest_charged_jet = cs_charged.inclusive_jets()[0];
+   if (cs_charged.inclusive_jets().size() > 0 ) {
+      PseudoJet hardest_charged_jet = cs_charged.inclusive_jets()[0];
 
-   //    for (unsigned i = 0; i < zg_cuts.size(); i++) {
-   //       string label = zg_cuts[i].first;
-   //       double zg_cut = zg_cuts[i].second;
+      for (unsigned i = 0; i < zg_cuts.size(); i++) {
+         string label = zg_cuts[i].first;
+         double zg_cut = zg_cuts[i].second;
 
-   //       SoftDrop soft_drop_charged(0.0, zg_cut);
-   //       PseudoJet soft_drop_jet_charged = soft_drop_charged(hardest_charged_jet);
-   //       double zg_charged = soft_drop_jet_charged.structure_of<SoftDrop>().symmetry();
-   //       properties.push_back(MOD::Property("zg_charged_" + label, zg_charged));
-   //    }
-   // }
-   // else {
-   //    for (unsigned i = 0; i < zg_cuts.size(); i++) {
-   //       string label = zg_cuts[i].first;
-   //       properties.push_back(MOD::Property("zg_charged_" + label, -1.0));
-   //    }
-   // }
-   
-
-   // // Analysis related to the effects of SoftDrop- observables before and after SoftDrop.
-   
-   // properties.push_back(MOD::Property("pT_after_SD", soft_drop_jet.pt()));
-
-   // properties.push_back( MOD::Property("mul_pre_SD", (int) hardest_jet_constituents.size()) );
-   // properties.push_back( MOD::Property("mul_post_SD", (int) soft_drop(hardest_jet).constituents().size() ) );   
-
-   // properties.push_back( MOD::Property("mass_pre_SD", hardest_jet.m()) );
-   // properties.push_back( MOD::Property("mass_post_SD", soft_drop(hardest_jet).m()) );
-
-
-   // // Before and after SoftDrop for charged particles only.
-
-   // if (cs_charged.inclusive_jets().size() > 0 ) {
-   //    PseudoJet hardest_charged_jet = cs_charged.inclusive_jets()[0];
-
-   //    properties.push_back( MOD::Property("chrg_mul_pre_SD", (int) hardest_charged_jet.constituents().size()) );
-   //    properties.push_back( MOD::Property("chrg_mul_post_SD", (int) soft_drop(hardest_charged_jet).constituents().size()) );
-
-   //    properties.push_back( MOD::Property("chrg_mass_pre_SD", hardest_charged_jet.m()) );
-   //    properties.push_back( MOD::Property("chrg_mass_post_SD", soft_drop(hardest_charged_jet).m()) );
-   // }
-   // else {
-   //    properties.push_back( MOD::Property("chrg_mul_pre_SD", -1. ));
-   //    properties.push_back( MOD::Property("chrg_mul_post_SD", -1. ));
-
-   //    properties.push_back( MOD::Property("chrg_mass_pre_SD", -1. ));
-   //    properties.push_back( MOD::Property("chrg_mass_post_SD", -1. ));
-   // }
-   
+         SoftDrop soft_drop_charged(0.0, zg_cut);
+         PseudoJet soft_drop_jet_charged = soft_drop_charged(hardest_charged_jet);
+         double zg_charged = soft_drop_jet_charged.structure_of<SoftDrop>().symmetry();
+         properties.push_back(MOD::Property("zg_charged_" + label, zg_charged));
+      }
+   }
+   else {
+      for (unsigned i = 0; i < zg_cuts.size(); i++) {
+         string label = zg_cuts[i].first;
+         properties.push_back(MOD::Property("zg_charged_" + label, -1.0));
+      }
+   }
    
 
-   // properties.push_back( MOD::Property("fra_energy_loss", (hardest_jet.E() - soft_drop(hardest_jet).E()) / hardest_jet.E() ) );
-   // properties.push_back( MOD::Property("hardest_eta", hardest_jet.eta()) );
+   // Analysis related to the effects of SoftDrop- observables before and after SoftDrop.
+   
+   properties.push_back(MOD::Property("pT_after_SD", soft_drop_jet.pt()));
+
+   properties.push_back( MOD::Property("mul_pre_SD", (int) hardest_jet_constituents.size()) );
+   properties.push_back( MOD::Property("mul_post_SD", (int) soft_drop(hardest_jet).constituents().size() ) );   
+
+   properties.push_back( MOD::Property("mass_pre_SD", hardest_jet.m()) );
+   properties.push_back( MOD::Property("mass_post_SD", soft_drop(hardest_jet).m()) );
 
 
+   // Before and after SoftDrop for charged particles only.
+
+   if (cs_charged.inclusive_jets().size() > 0 ) {
+      PseudoJet hardest_charged_jet = cs_charged.inclusive_jets()[0];
+
+      properties.push_back( MOD::Property("chrg_mul_pre_SD", (int) hardest_charged_jet.constituents().size()) );
+      properties.push_back( MOD::Property("chrg_mul_post_SD", (int) soft_drop(hardest_charged_jet).constituents().size()) );
+
+      properties.push_back( MOD::Property("chrg_mass_pre_SD", hardest_charged_jet.m()) );
+      properties.push_back( MOD::Property("chrg_mass_post_SD", soft_drop(hardest_charged_jet).m()) );
+   }
+   else {
+      properties.push_back( MOD::Property("chrg_mul_pre_SD", -1. ));
+      properties.push_back( MOD::Property("chrg_mul_post_SD", -1. ));
+
+      properties.push_back( MOD::Property("chrg_mass_pre_SD", -1. ));
+      properties.push_back( MOD::Property("chrg_mass_post_SD", -1. ));
+   }
+   
+   
+
+   properties.push_back( MOD::Property("fra_energy_loss", (hardest_jet.E() - soft_drop(hardest_jet).E()) / hardest_jet.E() ) );
+   properties.push_back( MOD::Property("hardest_eta", hardest_jet.eta()) );
 
 
-   // // zg and Rg (to eventually calculate theta_g) for  zg_cut ranging from 0.10 to 0.20 with increments of 0.01.
+   // zg and Rg (to eventually calculate theta_g) for  zg_cut ranging from 0.10 to 0.20 with increments of 0.01.
 
-   // for (unsigned i = 11; i < 20; i++) {
-   //    string label = to_string(i);
-   //    double zg_cut = i / 100;
+   for (unsigned i = 11; i < 20; i++) {
+      string label = to_string(i);
+      double zg_cut = i / 100;
 
-   //    SoftDrop soft_drop(0.0, zg_cut);
-   //    PseudoJet soft_drop_jet = soft_drop(hardest_jet);
-   //    properties.push_back(MOD::Property("Rg_" + label, soft_drop_jet.structure_of<SoftDrop>().delta_R()));
-   //    properties.push_back(MOD::Property("zg_" + label, soft_drop_jet.structure_of<SoftDrop>().symmetry()));
+      SoftDrop soft_drop(0.0, zg_cut);
+      PseudoJet soft_drop_jet = soft_drop(hardest_jet);
+      properties.push_back(MOD::Property("Rg_" + label, soft_drop_jet.structure_of<SoftDrop>().delta_R()));
+      properties.push_back(MOD::Property("zg_" + label, soft_drop_jet.structure_of<SoftDrop>().symmetry()));
 
-   //    if (cs_charged.inclusive_jets().size() > 0) {
-   //       PseudoJet hardest_charged_jet = cs_charged.inclusive_jets()[0];
+      if (cs_charged.inclusive_jets().size() > 0) {
+         PseudoJet hardest_charged_jet = cs_charged.inclusive_jets()[0];
       
-   //       SoftDrop charged_soft_drop(0.0, zg_cut);
-   //       PseudoJet charged_soft_drop_jet = charged_soft_drop(hardest_charged_jet);
-   //       properties.push_back(MOD::Property("chrg_Rg_" + label, charged_soft_drop_jet.structure_of<SoftDrop>().delta_R()));
-   //       properties.push_back(MOD::Property("chrg_zg_" + label, charged_soft_drop_jet.structure_of<SoftDrop>().symmetry()));
-   //    }
-   //    else {
-   //       properties.push_back(MOD::Property("chrg_Rg_" + label, -1.));
-   //       properties.push_back(MOD::Property("chrg_zg_" + label, -1.));
-   //    }
+         SoftDrop charged_soft_drop(0.0, zg_cut);
+         PseudoJet charged_soft_drop_jet = charged_soft_drop(hardest_charged_jet);
+         properties.push_back(MOD::Property("chrg_Rg_" + label, charged_soft_drop_jet.structure_of<SoftDrop>().delta_R()));
+         properties.push_back(MOD::Property("chrg_zg_" + label, charged_soft_drop_jet.structure_of<SoftDrop>().symmetry()));
+      }
+      else {
+         properties.push_back(MOD::Property("chrg_Rg_" + label, -1.));
+         properties.push_back(MOD::Property("chrg_zg_" + label, -1.));
+      }
 
-   // } 
+   } 
 
    // Now that we've calculated all observables, write them out.
 
