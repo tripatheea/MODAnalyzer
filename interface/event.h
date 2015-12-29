@@ -84,7 +84,7 @@ namespace MOD {
           
             bool trigger_jet_is_matched() const;
 
-            const fastjet::PseudoJet trigger_jet() const;
+            const fastjet::PseudoJet & trigger_jet() const;
 
             const int data_source() const;
             void set_data_source(int data_source);
@@ -97,6 +97,7 @@ namespace MOD {
             
             void convert_to_pristine();
 
+       
             friend std::ostream& operator<< (std::ostream&, const Event&);
             
          private:

@@ -193,11 +193,13 @@ string MOD::Event::make_string() const {
    int data_source = _data_source;  // EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2 
 
    
-   file_to_write << "BeginEvent Version " << _version << " " << _data_type.first << " " << _data_type.second << endl;      
+   file_to_write << "BeginEvent Version " << _version << " " << _data_type.first << " " << _data_type.second;  // Don't put an endl here because for "pristine", we'll put a "Hardest_Jet_Selection" here. 
   
 
    if (data_source == 0) { // Data is from experiment.
       
+      file_to_write << endl;
+
       // First, write out conditions.
       file_to_write << _condition.make_header_string();
       file_to_write << _condition;   
@@ -226,6 +228,8 @@ string MOD::Event::make_string() const {
    }
    else if ( (data_source == 1) || (data_source == 2) ) {
       
+      file_to_write << endl;
+
       for (unsigned i = 0; i < _particles.size(); i++) {
          if (i == 0)
             file_to_write << _particles[i].user_info<MOD::InfoPFC>().header();
@@ -234,6 +238,8 @@ string MOD::Event::make_string() const {
 
    }
    else if (data_source == 3) {
+
+      file_to_write << " Hardest_Jet_Selection" << endl;
 
       // This output is for pristine form. Data in "pristine form" is used as-it-is i.e. without any consideration for things like JEC.
       // What this means here is that we need to filter / apply all corrections here itself before outputing the event.
@@ -247,6 +253,17 @@ string MOD::Event::make_string() const {
       // While it's possible to do that for all jets, we output just the hardest jet's constituents because all analyses are going to be performed on the hardest jet anyway.
 
       // PseudoJet closest_fastjet_jet_to_trigger_jet = closest_fastjet_jet_to_trigger_jet();
+
+      PseudoJet jec_corrected_hardest_jet = _hardest_jet * _hardest_jet.user_info<MOD::InfoCalibratedJet>().JEC();
+
+      file_to_write << "# 1JET" << "              px              py              pz          energy   weight" << endl;
+      file_to_write  << "  1JET"
+                     << setw(16) << fixed << setprecision(8) << jec_corrected_hardest_jet.px()
+                     << setw(16) << fixed << setprecision(8) << jec_corrected_hardest_jet.py()
+                     << setw(16) << fixed << setprecision(8) << jec_corrected_hardest_jet.pz()
+                     << setw(16) << fixed << setprecision(8) << jec_corrected_hardest_jet.E()
+                     << setw(8) << noshowpos << _weight
+                     << endl;
 
       file_to_write << "# PDPFC" << "              px              py              pz          energy   pdgId" << endl;
 
@@ -287,32 +304,27 @@ const PseudoJet MOD::Event::hardest_jet() const {
 
 void MOD::Event::convert_to_pristine() {
 
-   // // Set the data source to "Pristine".
-   // _data_source = static_cast<data_source_t>(3);
 
-   // _prescale = _assigned_trigger.prescale();
-   
+   PseudoJet jec_corrected_jet = _closest_fastjet_jet_to_trigger_jet * _trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC();
+   vector<PseudoJet> jec_corrected_jet_constituents = jec_corrected_jet.constituents();
 
-   // PseudoJet jec_corrected_jet = _closest_fastjet_jet_to_trigger_jet * _trigger_jet.JEC();
-   // vector<PseudoJet> jec_corrected_jet_constituents = jec_corrected_jet.constituents();
-   // MOD::PDCalibratedJet jet = PDCalibratedJet(jec_corrected_jet, "AK5");
+   for (unsigned i = 0; i < jec_corrected_jet_constituents.size(); i++) {
+      jec_corrected_jet_constituents[i].set_user_info( new MOD::InfoCalibratedJet("PDPFC") );
+   }
 
-   // vector<MOD::PDPFCandidate> particles;
+   vector<PseudoJet> jets{jec_corrected_jet};
 
-   // for (unsigned i = 0; i < jec_corrected_jet_constituents.size(); i++) {
-   //    particles.push_back( PDPFCandidate(jec_corrected_jet_constituents[i]) );
-   // }
+   _particles = jec_corrected_jet_constituents;
+   _jets = jets;
 
-   // vector<MOD::PDCalibratedJet> jets{jet};
+   _data_source = static_cast<data_source_t>(3);   // Set the data source to "Pristine".
+   _weight = _assigned_trigger.prescale();
 
-   // _pristine_particles = particles;
-   // _pristine_jets = jets;
+   // Empty CMS jets and triggers.
+   _cms_jets.clear();
+   _triggers.clear();
 
-   // // Empty pfcandidates, jets, triggers.
-   // _particles.clear();
-   // _cms_jets.clear();
-   // _triggers.clear();
-   // _fastjet_clustered_pseudojets.clear();
+   establish_properties();
 
 }
 
@@ -554,13 +566,11 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
 }
 
 
-const PseudoJet MOD::Event::trigger_jet() const {
+const PseudoJet & MOD::Event::trigger_jet() const {
    return _trigger_jet;
 }
 
 void MOD::Event::set_trigger_jet_is_matched() {
-
-   PseudoJet trigger_fastjet = _trigger_jet;
 
    // Compare the number of constituents first.
    if ((unsigned) _trigger_jet.user_info<MOD::InfoCalibratedJet>().number_of_constituents() != (unsigned) _closest_fastjet_jet_to_trigger_jet.constituents().size()) {
@@ -570,7 +580,7 @@ void MOD::Event::set_trigger_jet_is_matched() {
 
    // Next, compare if the 4-vector matches upto 10e-4 precision or not.
    double tolerance = pow(10, -3);
-   if ( ( abs(trigger_fastjet.px() - _closest_fastjet_jet_to_trigger_jet.px()) < tolerance ) && ( abs(trigger_fastjet.py() - _closest_fastjet_jet_to_trigger_jet.py()) < tolerance ) && ( abs(trigger_fastjet.pz() - _closest_fastjet_jet_to_trigger_jet.pz()) < tolerance ) && ( abs(trigger_fastjet.E() - _closest_fastjet_jet_to_trigger_jet.E()) < tolerance ) ) {      
+   if ( ( abs(_trigger_jet.px() - _closest_fastjet_jet_to_trigger_jet.px()) < tolerance ) && ( abs(_trigger_jet.py() - _closest_fastjet_jet_to_trigger_jet.py()) < tolerance ) && ( abs(_trigger_jet.pz() - _closest_fastjet_jet_to_trigger_jet.pz()) < tolerance ) && ( abs(_trigger_jet.E() - _closest_fastjet_jet_to_trigger_jet.E()) < tolerance ) ) {      
       _trigger_jet_is_matched = true;
       return;
    }
@@ -603,27 +613,19 @@ void MOD::Event::establish_properties() {
 
       set_trigger_jet_is_matched();
 
-      set_assigned_trigger();   
-   }
-   else if (data_source() == 3) {
-      // // Create a vector of MOD::PDCalibratedJet.
-      // vector<MOD::PDCalibratedJet> pristine_jets;
-      // for (unsigned i = 0; i < pristine_ak5_jets.size(); i++) {
-      //    pristine_jets.push_back(MOD::PDCalibratedJet( pristine_ak5_jets[i], "ak5" ));
-      // }
+      set_assigned_trigger();
 
-      // cs->delete_self_when_unused();
-
-      // _pristine_jets = pristine_jets;      
    }
 
    set_hardest_jet();
-
 }
+
+
 
 void MOD::Event::set_hardest_jet() {
    _hardest_jet = sorted_by_pt(_jets)[0];
 }
+
 
 
 vector<PseudoJet> MOD::Event::apply_jet_energy_corrections(vector<PseudoJet> jets) const {
@@ -631,8 +633,7 @@ vector<PseudoJet> MOD::Event::apply_jet_energy_corrections(vector<PseudoJet> jet
    vector<PseudoJet> jec_corrected_jets;
 
    for (unsigned i = 0; i < jets.size(); i++) {
-      // jec_corrected_jets.push_back( jets[i] * jets[i].user_info<InfoCalibratedJet>().JEC() );
-      jec_corrected_jets.push_back(jets[i]);
+      jec_corrected_jets.push_back( jets[i] * jets[i].user_info<InfoCalibratedJet>().JEC() );
    }
 
    return jec_corrected_jets;
@@ -645,9 +646,9 @@ bool MOD::Event::trigger_jet_is_matched() const {
 
 
 
-// namespace MOD {
-//    ostream& operator<< (ostream& os, const Event& event) {
-//       os << event.make_string();
-//       return os;
-//    }
-// }
+namespace MOD {
+   ostream& operator<< (ostream& os, const Event& event) {
+      os << event.make_string();
+      return os;
+   }
+}

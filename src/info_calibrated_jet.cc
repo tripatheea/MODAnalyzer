@@ -15,6 +15,11 @@ MOD::InfoCalibratedJet::InfoCalibratedJet(std::string tag, double JEC, double ar
 	_charged_hadron_fraction(charged_hadron_fraction),
 	_charged_em_fraction(charged_em_fraction),
 	_eta(eta)
+{
+	set_jet_quality_level();
+}
+
+MOD::InfoCalibratedJet::InfoCalibratedJet(std::string tag) : _tag(tag) 
 {}
 
 
@@ -59,20 +64,14 @@ const double MOD::InfoCalibratedJet::charged_em_fraction() const {
 	return _charged_em_fraction;
 }
 
+const int MOD::InfoCalibratedJet::jet_quality() const {
+  return _jet_quality;
+}
 
 
-const int MOD::InfoCalibratedJet::jet_quality() {
-
-	if (_tag != "AK5")
-		throw runtime_error("Only CMS jets have jet quality factors!");
-	
-  // First, check if jet_quality has already been calculated or not. 
-
-  if ((int) _jet_quality == -1) {
-    
-    // This is the first time we're determining jet quality. Calculate it.
-
-    double cut_offs [3] = { 0.90, 0.95, 0.99 }; // Tight, Medium and Loose.
+void MOD::InfoCalibratedJet::set_jet_quality_level() {
+	if (_tag == "AK5") {
+		double cut_offs [3] = { 0.90, 0.95, 0.99 }; // Tight, Medium and Loose.
     
     bool pass = false;
 
@@ -89,22 +88,16 @@ const int MOD::InfoCalibratedJet::jet_quality() {
 
       if (pass) {
         _jet_quality =  static_cast<JetQualityLevels_t>(3 - i);
-        return _jet_quality;
       }
     } 
 
     // If the code reached here, this means it didn't pass any quality cut. 
     _jet_quality = static_cast<JetQualityLevels_t>(0);
-    
-    return _jet_quality;
-  }
+	}
 
-  return _jet_quality;
+	_jet_quality = static_cast<JetQualityLevels_t>(4);
 
 }
-
-
-
 
 const std::string MOD::InfoCalibratedJet::header() const {
 	stringstream ss;

@@ -11,7 +11,8 @@ namespace MOD {
 
 		public:
 			InfoCalibratedJet(std::string tag, double JEC, double area, int number_of_constituents, int charged_multiplicity, double neutral_hadron_fraction, double neutral_em_fraction, double charged_hadron_fraction, double charged_em_fraction, double eta);
-			
+			InfoCalibratedJet(std::string tag);
+
 			const std::string tag() const;
 			const double JEC() const;
 						
@@ -24,7 +25,9 @@ namespace MOD {
 			const double charged_hadron_fraction() const;
 			const double charged_em_fraction() const;
 
-			const int jet_quality();
+			const int jet_quality() const;
+
+			void set_jet_quality_level();
 
 			const std::string header() const;
 			
