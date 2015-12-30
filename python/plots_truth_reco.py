@@ -286,12 +286,12 @@ def plot_zg(pT_lower_cut):
 	for prop_reco, prop_truth, label in zip(properties_reco, properties_truth, labels):
 
 	
-		x = prop_truth['zg_05']
-		y = prop_reco['zg_05']
+		x = prop_truth['zg_10']
+		y = prop_reco['zg_10']
 
 
 
-		H, xedges, yedges = np.histogram2d(x, y, bins=50, normed=1 )
+		H, xedges, yedges = np.histogram2d(x, y, bins=10, normed=1 )
 		
 
 		H = np.rot90(H)
@@ -313,7 +313,7 @@ def plot_zg(pT_lower_cut):
 		plt.gcf().set_size_inches(30, 30, forward=1)
 		plt.gcf().set_snap(True)
 
-		plt.savefig("plots/With MC/2D/zg_05_" + str(label) + ".pdf")
+		plt.savefig("plots/With MC/2D/zg_10_" + str(label) + ".pdf")
 		# plt.show()
 
 		plt.clf()
@@ -322,12 +322,12 @@ def plot_zg(pT_lower_cut):
 plot_zg(150)
 
 
-plot_pt(150)
+# plot_pt(150)
 
-plot_jet_multiplicity(150, charged=True)
-plot_jet_multiplicity(150, charged=False)
+# plot_jet_multiplicity(150, charged=True)
+# plot_jet_multiplicity(150, charged=False)
 
-plot_jet_mass(150, charged=True)
-plot_jet_mass(150, charged=False)
+# plot_jet_mass(150, charged=True)
+# plot_jet_mass(150, charged=False)
 
-plot_eta(150)
+# plot_eta(150)

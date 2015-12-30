@@ -67,7 +67,7 @@ plt.rc('font', family='serif', size=43)
 
 
 plot_labels = { "data": "CMS 2010 Open Data", "pythia": "Pythia 8.212", "herwig": "Herwig++ 2.7.1", "sherpa": "Sherpa 2.2.0", "theory": "Theory (MLL)" }
-plot_colors = {"theory": "red", "pythia": "blue", "herwig": "green", "sherpa": "orange"}
+plot_colors = {"theory": "red", "pythia": "blue", "herwig": "green", "sherpa": "orange", "pythia_post": "magenta"}
 
 
 
@@ -2025,24 +2025,17 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
     pythia_pre = pythia_properties['mul_pre_SD']
     pythia_post = pythia_properties['mul_post_SD']
 
-    herwig_properties = parse_file("/home/aashish/herwig_" + mc_label + ".dat")
-    herwig_pre = herwig_properties['mul_pre_SD']
-    herwig_post = herwig_properties['mul_post_SD']
-
-    sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_label + ".dat")
-    sherpa_pre = sherpa_properties['mul_pre_SD']
-    sherpa_post = sherpa_properties['mul_post_SD']
 
 
     # Data.
     
-    multi_before_SD_hist = Hist(100, 0, 150, title='Before SoftDrop', markersize=3.0, color='black')
+    multi_before_SD_hist = Hist(50, 1, 101, title='Before SoftDrop', markersize=3.0, color='black')
     bin_width_before = (multi_before_SD_hist.upperbound() - multi_before_SD_hist.lowerbound()) / multi_before_SD_hist.nbins()
     map(multi_before_SD_hist.Fill, multi_before_SD, prescales)
     multi_before_SD_hist.Scale(1.0 / (multi_before_SD_hist.GetSumOfWeights() * bin_width_before))
     pT_before_SD_plot = rplt.errorbar(multi_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-    multi_after_SD_hist = Hist(100, 0, 150, title='After SoftDrop', markersize=3.0, color='red')
+    multi_after_SD_hist = Hist(50, 1, 101, title='After SoftDrop', markersize=3.0, color='red')
     bin_width_after = (multi_after_SD_hist.upperbound() - multi_after_SD_hist.lowerbound()) / multi_after_SD_hist.nbins()
     map(multi_after_SD_hist.Fill, multi_after_SD, prescales)
     multi_after_SD_hist.Scale(1.0 / (multi_after_SD_hist.GetSumOfWeights() * bin_width_after))
@@ -2054,46 +2047,18 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
     # Monte Carlo.
 
     # Pythia.
-    pythia_pre_hist = Hist(100, 0, 150, title=plot_labels['pythia'], linewidth=5, color=plot_colors['pythia'])
+    pythia_pre_hist = Hist(50, 1, 101, title=(plot_labels['pythia'] + " Before SoftDrop"), linewidth=5, color=plot_colors['pythia'])
     bin_width_before = (pythia_pre_hist.upperbound() - pythia_pre_hist.lowerbound()) / pythia_pre_hist.nbins()
     map(pythia_pre_hist.Fill, pythia_pre)
     pythia_pre_hist.Scale(1.0 / (pythia_pre_hist.GetSumOfWeights() * bin_width_before))
     rplt.hist(pythia_pre_hist)
 
-    pythia_post_hist = Hist(100, 0, 150, linewidth=5, linestyle='dashed', color=plot_colors['pythia'])
+    pythia_post_hist = Hist(50, 1, 101, linewidth=5, title=(plot_labels['pythia'] + " After SoftDrop"), color=plot_colors['pythia_post'])
     bin_width_after = (pythia_post_hist.upperbound() - pythia_post_hist.lowerbound()) / pythia_post_hist.nbins()
     map(pythia_post_hist.Fill, pythia_post)
     pythia_post_hist.Scale(1.0 / (pythia_post_hist.GetSumOfWeights() * bin_width_after))
     rplt.hist(pythia_post_hist)
     # Pythia Ends.
-
-    # herwig.
-    herwig_pre_hist = Hist(100, 0, 150, title=plot_labels['herwig'], linewidth=5, color=plot_colors['herwig'])
-    bin_width_before = (herwig_pre_hist.upperbound() - herwig_pre_hist.lowerbound()) / herwig_pre_hist.nbins()
-    map(herwig_pre_hist.Fill, herwig_pre)
-    herwig_pre_hist.Scale(1.0 / (herwig_pre_hist.GetSumOfWeights() * bin_width_before))
-    rplt.hist(herwig_pre_hist)
-
-    herwig_post_hist = Hist(100, 0, 150, linewidth=5, linestyle='dashed', color=plot_colors['herwig'])
-    bin_width_after = (herwig_post_hist.upperbound() - herwig_post_hist.lowerbound()) / herwig_post_hist.nbins()
-    map(herwig_post_hist.Fill, herwig_post)
-    herwig_post_hist.Scale(1.0 / (herwig_post_hist.GetSumOfWeights() * bin_width_after))
-    rplt.hist(herwig_post_hist)
-    # herwig Ends.
-
-    # sherpa.
-    sherpa_pre_hist = Hist(100, 0, 150, title=plot_labels['sherpa'], linewidth=5, color=plot_colors['sherpa'])
-    bin_width_before = (sherpa_pre_hist.upperbound() - sherpa_pre_hist.lowerbound()) / sherpa_pre_hist.nbins()
-    map(sherpa_pre_hist.Fill, sherpa_pre)
-    sherpa_pre_hist.Scale(1.0 / (sherpa_pre_hist.GetSumOfWeights() * bin_width_before))
-    rplt.hist(sherpa_pre_hist)
-
-    sherpa_post_hist = Hist(100, 0, 150, linewidth=5, linestyle='dashed', color=plot_colors['sherpa'])
-    bin_width_after = (sherpa_post_hist.upperbound() - sherpa_post_hist.lowerbound()) / sherpa_post_hist.nbins()
-    map(sherpa_post_hist.Fill, sherpa_post)
-    sherpa_post_hist.Scale(1.0 / (sherpa_post_hist.GetSumOfWeights() * bin_width_after))
-    rplt.hist(sherpa_post_hist)
-    # sherpa Ends.
 
     # Monte Carlo Ends.
 
@@ -2102,7 +2067,7 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
 
     # Legends Begin.
 
-    legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.89, 1.0])
+    legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
     plt.gca().add_artist(legend)
 
     extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
@@ -2110,7 +2075,7 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
       labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
     else:
       labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
-    plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.50])
+    plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.60])
 
     # Legends End.
 
@@ -2127,7 +2092,7 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
     plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
     plt.gca().autoscale(True)
-    plt.gca().set_ylim(0., 1.1 * plt.gca().get_ylim()[1])
+    plt.gca().set_ylim(0., 1.5 * plt.gca().get_ylim()[1])
     plt.xlim(0, 60)
 
     plt.gca().xaxis.set_minor_locator(MultipleLocator(5))
@@ -2446,18 +2411,11 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
 
   for mc_label in ["truth", "reco"]:
     pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
-    herwig_properties = parse_file("/home/aashish/herwig_" + mc_label + ".dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
-    sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_label + ".dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
-
+    
     pythia_pre_SD = pythia_properties['mass_pre_SD']
     pythia_post_SD = pythia_properties['mass_post_SD']
 
-    herwig_pre_SD = herwig_properties['mass_pre_SD']
-    herwig_post_SD = herwig_properties['mass_post_SD']
-
-    sherpa_pre_SD = sherpa_properties['mass_pre_SD']
-    sherpa_post_SD = sherpa_properties['mass_post_SD']
-
+    
 
     # Data.
 
@@ -2478,13 +2436,13 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
     # Monte Carlo.
 
     # Pythia.
-    pythia_pre_SD_hist = Hist(100, 0, 150, title=plot_labels['pythia'], linewidth=5, color=plot_colors['pythia'])
+    pythia_pre_SD_hist = Hist(100, 0, 150, title=(plot_labels['pythia'] + " Before SoftDrop"), linewidth=5, color=plot_colors['pythia'])
     bin_width_before = (pythia_pre_SD_hist.upperbound() - pythia_pre_SD_hist.lowerbound()) / pythia_pre_SD_hist.nbins()
     map(pythia_pre_SD_hist.Fill, pythia_pre_SD)
     pythia_pre_SD_hist.Scale(1.0 / (pythia_pre_SD_hist.GetSumOfWeights() * bin_width_before))
     rplt.hist(pythia_pre_SD_hist)
 
-    pythia_post_SD_hist = Hist(100, 0, 150, linewidth=5, linestyle="dashed", color=plot_colors['pythia'])
+    pythia_post_SD_hist = Hist(100, 0, 150, linewidth=5, title=(plot_labels['pythia'] + " After SoftDrop"), color=plot_colors['pythia_post'])
     bin_width_before = (pythia_post_SD_hist.upperbound() - pythia_post_SD_hist.lowerbound()) / pythia_post_SD_hist.nbins()
     map(pythia_post_SD_hist.Fill, pythia_post_SD)
     pythia_post_SD_hist.Scale(1.0 / (pythia_post_SD_hist.GetSumOfWeights() * bin_width_before))
@@ -2492,39 +2450,10 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
     # Pythia Ends.
 
 
-    # herwig.
-    herwig_pre_SD_hist = Hist(100, 0, 150, title=plot_labels['herwig'], linewidth=5, color=plot_colors['herwig'])
-    bin_width_before = (herwig_pre_SD_hist.upperbound() - herwig_pre_SD_hist.lowerbound()) / herwig_pre_SD_hist.nbins()
-    map(herwig_pre_SD_hist.Fill, herwig_pre_SD)
-    herwig_pre_SD_hist.Scale(1.0 / (herwig_pre_SD_hist.GetSumOfWeights() * bin_width_before))
-    rplt.hist(herwig_pre_SD_hist)
-
-    herwig_post_SD_hist = Hist(100, 0, 150, linewidth=5, linestyle="dashed", color=plot_colors['herwig'])
-    bin_width_before = (herwig_post_SD_hist.upperbound() - herwig_post_SD_hist.lowerbound()) / herwig_post_SD_hist.nbins()
-    map(herwig_post_SD_hist.Fill, herwig_post_SD)
-    herwig_post_SD_hist.Scale(1.0 / (herwig_post_SD_hist.GetSumOfWeights() * bin_width_before))
-    rplt.hist(herwig_post_SD_hist)
-    # herwig Ends.
-
-    # sherpa.
-    sherpa_pre_SD_hist = Hist(100, 0, 150, title=plot_labels['sherpa'], linewidth=5, color=plot_colors['sherpa'])
-    bin_width_before = (sherpa_pre_SD_hist.upperbound() - sherpa_pre_SD_hist.lowerbound()) / sherpa_pre_SD_hist.nbins()
-    map(sherpa_pre_SD_hist.Fill, sherpa_pre_SD)
-    sherpa_pre_SD_hist.Scale(1.0 / (sherpa_pre_SD_hist.GetSumOfWeights() * bin_width_before))
-    rplt.hist(sherpa_pre_SD_hist)
-
-    sherpa_post_SD_hist = Hist(100, 0, 150, linewidth=5, linestyle="dashed", color=plot_colors['sherpa'])
-    bin_width_before = (sherpa_post_SD_hist.upperbound() - sherpa_post_SD_hist.lowerbound()) / sherpa_post_SD_hist.nbins()
-    map(sherpa_post_SD_hist.Fill, sherpa_post_SD)
-    sherpa_post_SD_hist.Scale(1.0 / (sherpa_post_SD_hist.GetSumOfWeights() * bin_width_before))
-    rplt.hist(sherpa_post_SD_hist)
-    # sherpa Ends.
-
-
 
     # Legends Begin.
 
-    legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.89, 1.0])
+    legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
     plt.gca().add_artist(legend)
 
     extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
@@ -2535,7 +2464,7 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
       labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
     
 
-    plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.49])
+    plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[1.0, 0.49])
 
     # # Legends End.
 
@@ -2557,10 +2486,9 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
     plt.tick_params(which='minor', width=3, length=15)
 
     plt.gca().autoscale(True)
-    plt.gca().set_ylim(0., plt.gca().get_ylim()[1])
+    plt.gca().set_ylim(0., plt.gca().get_ylim()[1] * 1.5)
 
-    if pT_upper_cut == 20000:
-      plt.gca().set_xlim(0., 40.)
+    plt.gca().set_xlim(0, 80)
 
     plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
@@ -4619,31 +4547,31 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
 
 # plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 # plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.10', zg_filename='zg_10')
-# plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.10', zg_filename='zg_10')
-# plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.10', zg_filename='zg_10')
+# # plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.10', zg_filename='zg_10')
+# # plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.10', zg_filename='zg_10')
 
 
 
 # plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15')
 # plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.15', zg_filename='zg_15')
-# plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.15', zg_filename='zg_15')
-# # plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.15', zg_filename='zg_15')
+# # plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.15', zg_filename='zg_15')
+# # # plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.15', zg_filename='zg_15')
 
 
 
 # plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
 # plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.20', zg_filename='zg_20')
-# plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.20', zg_filename='zg_20')
-# plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.20', zg_filename='zg_20')
+# # plot_theta_g_plots(pT_lower_cut=500, zg_cut='0.20', zg_filename='zg_20')
+# # plot_theta_g_plots(pT_lower_cut=600, zg_cut='0.20', zg_filename='zg_20')
 
 
 
 
-plot_jet_eta()
+# plot_jet_eta()
 
 # 
 
-# zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05')
+zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05')
 # zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.1', zg_filename='zg_10')
 # zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.2', zg_filename='zg_20')
 
@@ -4699,7 +4627,7 @@ plot_jet_eta()
 
 # plot_hardest_pt_softdrop()
 
-plot_pts()
+# plot_pts()
 
 # plot_pts_variable_bin()
 
