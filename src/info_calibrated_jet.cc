@@ -23,15 +23,15 @@ MOD::InfoCalibratedJet::InfoCalibratedJet(std::string tag) : _tag(tag)
 {}
 
 
+MOD::InfoCalibratedJet::InfoCalibratedJet(std::string tag, double JEC) : _tag(tag), _JEC(JEC)
+{}
+
 const string MOD::InfoCalibratedJet::tag() const {
   return _tag;
 }
 
 const double MOD::InfoCalibratedJet::JEC() const {
-	if (_tag == "AK5")
-		return _JEC;
-	else
-		throw runtime_error("Only CMS jets have JEC factors!");
+	return _JEC;
 }
 
 

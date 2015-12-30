@@ -6,11 +6,6 @@ using namespace fastjet;
 
 MOD::Event::Event(int run_number, int event_number, int lumi_block, double inst_lumi) : _run_number(run_number), _event_number(event_number) {}
 
-// MOD::Event::Event(int run_number, int event_number, int version, pair<string, string> data_type, MOD::Condition condition, vector<MOD::Trigger> triggers, vector<MOD::PFCandidate> particles, vector<MOD::CalibratedJet> cms_jets) : 
-// _run_number(run_number), _event_number(event_number),  _version(version), _data_type(data_type), _condition(condition), _triggers(triggers), _particles(particles), _cms_jets(cms_jets) 
-// {}
-
-
 
 MOD::Event::Event() {}
 
@@ -248,14 +243,13 @@ string MOD::Event::make_string() const {
 
       // While it's possible to do that for all jets, we output just the hardest jet's constituents because all analyses are going to be performed on the hardest jet anyway.
 
-      // If this is already in "Pristine" form, jet energy corrections would already have had been applied to this.
-
-      file_to_write << "#  1JET" << "              px              py              pz          energy  weight" << endl;
+      file_to_write << "#  1JET" << "              px              py              pz          energy             jec  weight" << endl;
       file_to_write  << "   1JET"
-                     << setw(16) << fixed << setprecision(8) << _hardest_jet.px()
-                     << setw(16) << fixed << setprecision(8) << _hardest_jet.py()
-                     << setw(16) << fixed << setprecision(8) << _hardest_jet.pz()
-                     << setw(16) << fixed << setprecision(8) << _hardest_jet.E()
+                     << setw(16) << fixed << setprecision(8) << _cms_jets[0].px()
+                     << setw(16) << fixed << setprecision(8) << _cms_jets[0].py()
+                     << setw(16) << fixed << setprecision(8) << _cms_jets[0].pz()
+                     << setw(16) << fixed << setprecision(8) << _cms_jets[0].E()
+                     << setw(16) << fixed << setprecision(8) << _cms_jets[0].user_info<MOD::InfoCalibratedJet>().JEC()
                      << setw(8) << _weight
                      << endl;
 
@@ -298,19 +292,20 @@ const PseudoJet & MOD::Event::hardest_jet() const {
 
 void MOD::Event::convert_to_pristine() {
 
+   PseudoJet jet = _closest_fastjet_jet_to_trigger_jet;
+   jet.set_user_info(new MOD::InfoCalibratedJet("1JET", _trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC()));
 
-   PseudoJet jec_corrected_jet = _closest_fastjet_jet_to_trigger_jet * _trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC();
-   vector<PseudoJet> jec_corrected_jet_constituents = jec_corrected_jet.constituents();
+   vector<PseudoJet> particles = jet.constituents();
 
    int pdgId;
-   for (unsigned i = 0; i < jec_corrected_jet_constituents.size(); i++) {
-      pdgId = jec_corrected_jet_constituents[i].user_info<MOD::InfoPFC>().pdgId();
-      jec_corrected_jet_constituents[i].set_user_info( new MOD::InfoPFC(pdgId, "PDPFC") );
+   for (unsigned i = 0; i < particles.size(); i++) {
+      pdgId = particles[i].user_info<MOD::InfoPFC>().pdgId();
+      particles[i].set_user_info( new MOD::InfoPFC(pdgId, "PDPFC") );
    }
 
-   vector<PseudoJet> jets{jec_corrected_jet};
+   vector<PseudoJet> jets{jet};
 
-   _particles = jec_corrected_jet_constituents;
+   _particles = particles;
    _jets = jets;
 
    _data_source = static_cast<data_source_t>(3);   // Set the data source to "Pristine".
@@ -325,6 +320,38 @@ void MOD::Event::convert_to_pristine() {
 }
 
 
+void MOD::Event::establish_properties() {
+
+   JetDefinition jet_def(antikt_algorithm, 0.5);
+   ClusterSequence * cs = new ClusterSequence(_particles, jet_def);
+   vector<PseudoJet> ak5_jets = sorted_by_pt(cs->inclusive_jets(3.0));
+   _jets = ak5_jets;
+
+   cs->delete_self_when_unused();
+
+   if (data_source() == 0) {  // Experiment 
+
+      // First, assign _trigger_jet.
+      set_trigger_jet();
+
+      // Next, find out the specific FastJet that's closest to _trigger_jet.
+      set_closest_fastjet_jet_to_trigger_jet();
+
+      set_trigger_jet_is_matched();
+
+      set_assigned_trigger();
+
+   }
+   else if (data_source() == 3) {
+      double JEC = _cms_jets[0].user_info<MOD::InfoCalibratedJet>().JEC();
+      vector<PseudoJet> jec_corrected_jets{ ak5_jets[0] * JEC };
+      _jets = jec_corrected_jets;
+   }
+
+   set_hardest_jet();
+}
+
+
 
 
 bool MOD::Event::read_event(istream & data_stream) {
@@ -335,7 +362,7 @@ bool MOD::Event::read_event(istream & data_stream) {
 
       int version, weight;
       string tag, version_keyword, a, b;
-      double px, py, pz, energy;
+      double px, py, pz, energy, jec;
 
       iss >> tag;      
       istringstream stream(line);
@@ -352,15 +379,15 @@ bool MOD::Event::read_event(istream & data_stream) {
          try {
             set_data_source(3);
             
-            stream >> tag >> px >> py >> pz >> energy >> weight;
-         
+            stream >> tag >> px >> py >> pz >> energy >> jec >> weight;
+
             _weight = weight;
 
             PseudoJet jet = PseudoJet(px, py, pz, energy);
-            jet.set_user_info( new MOD::InfoCalibratedJet("1JET") );
+            jet.set_user_info( new MOD::InfoCalibratedJet("1JET", jec) );
             vector<PseudoJet> jets{jet};
             
-            _jets = jets;
+            _cms_jets = jets;
 
          }
          catch (exception& e) {
@@ -601,36 +628,6 @@ void MOD::Event::set_trigger_jet_is_matched() {
 }
 
 
-
-
-void MOD::Event::establish_properties() {
-
-   JetDefinition jet_def(antikt_algorithm, 0.5);
-
-   if (data_source() != 3) {   // 3 => Pristine. For pristine, we don't want to cluster our PFCandidates into jets because the jet we've added to _jets has JEC applied to it while the jet we'll get by just clustering PFCs won't have JEC applied to it.
-      ClusterSequence * cs = new ClusterSequence(_particles, jet_def);
-      vector<PseudoJet> ak5_jets = sorted_by_pt(cs->inclusive_jets(3.0));
-      _jets = ak5_jets;
-
-      cs->delete_self_when_unused();
-   }
-   
-   if (data_source() == 0) {  // Experiment 
-
-      // First, assign _trigger_jet.
-      set_trigger_jet();
-
-      // Next, find out the specific FastJet that's closest to _trigger_jet.
-      set_closest_fastjet_jet_to_trigger_jet();
-
-      set_trigger_jet_is_matched();
-
-      set_assigned_trigger();
-
-   }
-
-   set_hardest_jet();
-}
 
 
 
