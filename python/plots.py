@@ -44,7 +44,8 @@ from matplotlib import gridspec
 from matplotlib.cbook import get_sample_data
 from matplotlib._png import read_png
 
-from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+
+from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
 
 from scipy.stats import norm
 from scipy.stats import gamma
@@ -1833,8 +1834,8 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
 
 
     # Legends Begin.
-
-    legend = ax0.legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+    handles, labels = ax0.get_legend_handles_labels()
+    legend = ax0.legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
     ax0.add_artist(legend)
 
     extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
@@ -1842,22 +1843,22 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
       labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$"]
     else:
       labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
-    ax0.legend([extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.95, 0.57])
+    ax0.legend([extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.97, 0.59])
 
     # Legends End.
 
 
 
-    ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
-    ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
+    ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75, labelpad=45)
+    ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75, labelpad=45)
     ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
     ax1.set_ylabel("Ratio           \nto           \n" + "Data" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
 
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.94), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
-    plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+    plt.gcf().text(0.305, 0.93, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
     # Ratio Plot.
     pythia_pt_hist.Divide(experiment_pt_hist)
@@ -1875,9 +1876,6 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
     ax0.autoscale(True)
     ax1.autoscale(True)
     
-    ax1.set_ylim(0., 2.)
-
-
 
     if ((pT_lower_cut == 150 and pT_upper_cut == 250)):
       ax0.set_xlim(150, 250)
@@ -1902,12 +1900,13 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
     else:
       ax0.set_xlim(150, 1000)
       ax1.set_xlim(150, 1000)
-      ax0.set_ylim(10e-8, 10e-2)
-      pT_minor_ticks = 50
+      ax0.set_ylim(10e-8, 0.5 * 10e-1)
+      pT_minor_ticks = 20
 
 
     ax0.set_xlim(0, 700)
     ax1.set_xlim(0, 700)
+    ax1.set_ylim(0, 2)
 
     plt.gcf().set_size_inches(30, 30, forward=1)
 
@@ -2416,44 +2415,50 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
     pythia_post_SD = pythia_properties['mass_post_SD']
 
     
+    data_before_label = "Before SoftDrop"
+    data_after_label = "After SoftDrop"
+    pythia_before_label = plot_labels['pythia'] + " (Before)"
+    pythia_after_label = plot_labels['pythia'] + " (After)"
 
     # Data.
 
-    jet_mass_before_SD_hist = Hist(100, 0, 150, title='Before SoftDrop', markersize=3.0, color='black')
+    jet_mass_before_SD_hist = Hist(100, 0, 150, markersize=3.0, color='black')
     bin_width_before = (jet_mass_before_SD_hist.upperbound() - jet_mass_before_SD_hist.lowerbound()) / jet_mass_before_SD_hist.nbins()
     map(jet_mass_before_SD_hist.Fill, jet_mass_before_SD, prescales)
     jet_mass_before_SD_hist.Scale(1.0 / (jet_mass_before_SD_hist.GetSumOfWeights() * bin_width_before))
-    rplt.errorbar(jet_mass_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    data_before_plot = rplt.errorbar(jet_mass_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-    jet_mass_after_SD_hist = Hist(100, 0, 150, title='After SoftDrop', markersize=3.0, color='red')
+    jet_mass_after_SD_hist = Hist(100, 0, 150, markersize=3.0, color='red')
     bin_width_after = (jet_mass_after_SD_hist.upperbound() - jet_mass_after_SD_hist.lowerbound()) / jet_mass_after_SD_hist.nbins()
     map(jet_mass_after_SD_hist.Fill, jet_mass_after_SD, prescales)
     jet_mass_after_SD_hist.Scale(1.0 / (jet_mass_after_SD_hist.GetSumOfWeights() * bin_width_after))
-    rplt.errorbar(jet_mass_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    data_after_plot = rplt.errorbar(jet_mass_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
     
     # Data Ends.
 
     # Monte Carlo.
 
     # Pythia.
-    pythia_pre_SD_hist = Hist(100, 0, 150, title=(plot_labels['pythia'] + " Before SoftDrop"), linewidth=5, color=plot_colors['pythia'])
+    pythia_pre_SD_hist = Hist(100, 0, 150, linewidth=5, color=plot_colors['pythia'])
     bin_width_before = (pythia_pre_SD_hist.upperbound() - pythia_pre_SD_hist.lowerbound()) / pythia_pre_SD_hist.nbins()
     map(pythia_pre_SD_hist.Fill, pythia_pre_SD)
     pythia_pre_SD_hist.Scale(1.0 / (pythia_pre_SD_hist.GetSumOfWeights() * bin_width_before))
-    rplt.hist(pythia_pre_SD_hist)
+    pythia_before_plot = rplt.hist(pythia_pre_SD_hist)
 
-    pythia_post_SD_hist = Hist(100, 0, 150, linewidth=5, title=(plot_labels['pythia'] + " After SoftDrop"), color=plot_colors['pythia_post'])
+    pythia_post_SD_hist = Hist(100, 0, 150, linewidth=5, color=plot_colors['pythia_post'])
     bin_width_before = (pythia_post_SD_hist.upperbound() - pythia_post_SD_hist.lowerbound()) / pythia_post_SD_hist.nbins()
     map(pythia_post_SD_hist.Fill, pythia_post_SD)
     pythia_post_SD_hist.Scale(1.0 / (pythia_post_SD_hist.GetSumOfWeights() * bin_width_before))
-    rplt.hist(pythia_post_SD_hist)
+    pythia_after_plot = rplt.hist(pythia_post_SD_hist)
     # Pythia Ends.
 
 
 
     # Legends Begin.
+    handles = [data_before_plot, data_after_plot, pythia_before_plot, pythia_after_plot]
+    labels = [data_before_label, data_after_label, pythia_before_label, pythia_after_label]
 
-    legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+    legend = plt.gca().legend(handles, labels, loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
     plt.gca().add_artist(legend)
 
     extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
@@ -3832,8 +3837,8 @@ def weird_pt(reco=True):
   plt.clf()
 
 
-def plot_jet_eta():
-  pT_lower_cut = 100
+def plot_jet_eta(pT_lower_cut=100):
+  
   properties = parse_file(input_analysis_file, pT_lower_cut)
   
 
@@ -3872,27 +3877,35 @@ def plot_jet_eta():
     sherpa_hist.Scale(1.0 / ( sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
 
     
-
-
     rplt.errorbar(data_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
     rplt.hist(pythia_hist, normed=1, histtype='step')
     rplt.hist(herwig_hist, normed=1, histtype='step')
     rplt.hist(sherpa_hist, normed=1, histtype='step')
     
-    plt.xlabel('$\\eta$', fontsize=75)
+    handles, labels = plt.gca().get_legend_handles_labels()
+    legend = plt.gca().legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60)
+    plt.gca().add_artist(legend)
+
+
+    plt.xlabel('Jet $\\eta$', fontsize=75)
     plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.245, 0.90), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
-    plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+    plt.gcf().text(0.31, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+    extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+    labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+    plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.32, 0.77])
+
 
     plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
-    legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
-    plt.gca().add_artist(legend)
-
     
+
+    plt.autoscale()
+    plt.ylim( plt.gca().get_ylim()[0], plt.gca().get_ylim()[1] * 1.35 )
 
     plt.gca().xaxis.set_minor_locator(MultipleLocator(0.2))
     plt.gca().yaxis.set_minor_locator(MultipleLocator(0.01))
@@ -4571,7 +4584,7 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
 
 # 
 
-zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05')
+# zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05')
 # zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.1', zg_filename='zg_10')
 # zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.2', zg_filename='zg_20')
 
@@ -4812,6 +4825,46 @@ zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05')
 
 
 # Version 3 Ends Here.
+
+
+
+
+
+
+
+
+
+
+
+
+# Aspen Begins.
+
+
+# Basic.
+
+# plot_jet_eta(pT_lower_cut=100)
+# plot_pts(pT_lower_cut=100)
+
+# Basic Ends.
+
+
+# Bonus.
+
+plot_jet_mass_spectrum(pT_lower_cut=150)
+
+# Bonus Ends.
+
+
+# Aspen Ends.
+
+
+
+
+
+
+
+
+
 
 
 # call(["python", "/home/aashish/root-6.04.06/macros/MODAnalyzer/utilities/sync_plots.py"])
