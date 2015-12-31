@@ -2024,21 +2024,24 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
     pythia_pre = pythia_properties['mul_pre_SD']
     pythia_post = pythia_properties['mul_post_SD']
 
-
+    data_before_label = "Before SoftDrop"
+    data_after_label = "After SoftDrop"
+    pythia_before_label = plot_labels['pythia'] + " (Before)"
+    pythia_after_label = plot_labels['pythia'] + " (After)"
 
     # Data.
     
-    multi_before_SD_hist = Hist(50, 1, 101, title='Before SoftDrop', markersize=3.0, color='black')
+    multi_before_SD_hist = Hist(50, -1, 101, markersize=3.0, color='black')
     bin_width_before = (multi_before_SD_hist.upperbound() - multi_before_SD_hist.lowerbound()) / multi_before_SD_hist.nbins()
     map(multi_before_SD_hist.Fill, multi_before_SD, prescales)
     multi_before_SD_hist.Scale(1.0 / (multi_before_SD_hist.GetSumOfWeights() * bin_width_before))
-    pT_before_SD_plot = rplt.errorbar(multi_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    data_before_plot = rplt.errorbar(multi_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-    multi_after_SD_hist = Hist(50, 1, 101, title='After SoftDrop', markersize=3.0, color='red')
+    multi_after_SD_hist = Hist(50, -1, 101, markersize=3.0, color='red')
     bin_width_after = (multi_after_SD_hist.upperbound() - multi_after_SD_hist.lowerbound()) / multi_after_SD_hist.nbins()
     map(multi_after_SD_hist.Fill, multi_after_SD, prescales)
     multi_after_SD_hist.Scale(1.0 / (multi_after_SD_hist.GetSumOfWeights() * bin_width_after))
-    pT_after_SD_plot = rplt.errorbar(multi_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    data_after_plot = rplt.errorbar(multi_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
     
     # Data Ends.
 
@@ -2046,17 +2049,17 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
     # Monte Carlo.
 
     # Pythia.
-    pythia_pre_hist = Hist(50, 1, 101, title=(plot_labels['pythia'] + " Before SoftDrop"), linewidth=5, color=plot_colors['pythia'])
+    pythia_pre_hist = Hist(50, -1, 101, linewidth=5, color=plot_colors['pythia'])
     bin_width_before = (pythia_pre_hist.upperbound() - pythia_pre_hist.lowerbound()) / pythia_pre_hist.nbins()
     map(pythia_pre_hist.Fill, pythia_pre)
     pythia_pre_hist.Scale(1.0 / (pythia_pre_hist.GetSumOfWeights() * bin_width_before))
-    rplt.hist(pythia_pre_hist)
+    pythia_before_plot = rplt.hist(pythia_pre_hist)
 
-    pythia_post_hist = Hist(50, 1, 101, linewidth=5, title=(plot_labels['pythia'] + " After SoftDrop"), color=plot_colors['pythia_post'])
+    pythia_post_hist = Hist(50, -1, 101, linewidth=5, color=plot_colors['pythia_post'])
     bin_width_after = (pythia_post_hist.upperbound() - pythia_post_hist.lowerbound()) / pythia_post_hist.nbins()
     map(pythia_post_hist.Fill, pythia_post)
     pythia_post_hist.Scale(1.0 / (pythia_post_hist.GetSumOfWeights() * bin_width_after))
-    rplt.hist(pythia_post_hist)
+    pythia_after_plot = rplt.hist(pythia_post_hist)
     # Pythia Ends.
 
     # Monte Carlo Ends.
@@ -2066,15 +2069,18 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
 
     # Legends Begin.
 
-    legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+    handles = [data_before_plot, data_after_plot, pythia_before_plot, pythia_after_plot]
+    labels = [data_before_label, data_after_label, pythia_before_label, pythia_after_label]
+
+    legend = plt.gca().legend(handles, labels, loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.96, 1.0])
     plt.gca().add_artist(legend)
 
     extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
     if pT_upper_cut != 20000:
-      labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+      labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
     else:
-      labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
-    plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.60])
+      labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
+    plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.58])
 
     # Legends End.
 
@@ -2091,10 +2097,10 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
     plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
     plt.gca().autoscale(True)
-    plt.gca().set_ylim(0., 1.5 * plt.gca().get_ylim()[1])
+    plt.gca().set_ylim(0., 1.8 * plt.gca().get_ylim()[1])
     plt.xlim(0, 60)
 
-    plt.gca().xaxis.set_minor_locator(MultipleLocator(5))
+    plt.gca().xaxis.set_minor_locator(MultipleLocator(2))
     plt.gca().yaxis.set_minor_locator(MultipleLocator(0.002))
     plt.tick_params(which='major', width=5, length=25, labelsize=70)
     plt.tick_params(which='minor', width=3, length=15)
@@ -2458,25 +2464,25 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
     handles = [data_before_plot, data_after_plot, pythia_before_plot, pythia_after_plot]
     labels = [data_before_label, data_after_label, pythia_before_label, pythia_after_label]
 
-    legend = plt.gca().legend(handles, labels, loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+    legend = plt.gca().legend(handles, labels, loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.96, 1.0])
     plt.gca().add_artist(legend)
 
     extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
     
     if pT_upper_cut != 20000:
-      labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+      labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
     else:
-      labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
+      labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.05}$"]
     
 
-    plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[1.0, 0.49])
+    plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[1.0, 0.55])
 
     # # Legends End.
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.91), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
-    plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+    plt.gcf().text(0.30, 0.90, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
     plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
@@ -2485,7 +2491,7 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
     
     plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
-    plt.gca().xaxis.set_minor_locator(MultipleLocator(5))
+    plt.gca().xaxis.set_minor_locator(MultipleLocator(2))
     plt.gca().yaxis.set_minor_locator(MultipleLocator(0.005))
     plt.tick_params(which='major', width=5, length=25, labelsize=70)
     plt.tick_params(which='minor', width=3, length=15)
@@ -3923,6 +3929,93 @@ def plot_jet_eta(pT_lower_cut=100):
 
 
 
+
+def plot_jet_phi(pT_lower_cut=100):
+  
+  properties = parse_file(input_analysis_file, pT_lower_cut)
+  
+
+  for mc_type in ["truth", "reco"]:
+
+    pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
+    herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
+    sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+
+    jet_phi = properties['hardest_phi']
+    prescales = properties['prescale']
+
+    pythia_phi = pythia_properties['hardest_phi']
+    herwig_phi = herwig_properties['hardest_phi']
+    sherpa_phi = sherpa_properties['hardest_phi']
+
+    max_phi = max( [ max(pythia_phi), max(herwig_phi), max(sherpa_phi) ]  )
+
+    data_hist = Hist(50, -5, 5, title=plot_labels['data'])
+    map(data_hist.Fill, jet_phi, prescales)
+    bin_width_data = (data_hist.upperbound() - data_hist.lowerbound()) / data_hist.nbins()
+    data_hist.Scale(1.0 / ( data_hist.GetSumOfWeights() * bin_width_data ))
+
+    pythia_hist = Hist(50, 0, max_phi, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=5)
+    map(pythia_hist.Fill, pythia_phi)
+    bin_width_pythia = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
+    pythia_hist.Scale(1.0 / ( pythia_hist.GetSumOfWeights() * bin_width_pythia ))
+
+    herwig_hist = Hist(50, 0, max_phi, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=5)
+    map(herwig_hist.Fill, herwig_phi)
+    bin_width_herwig = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
+    herwig_hist.Scale(1.0 / ( herwig_hist.GetSumOfWeights() * bin_width_herwig ))
+
+    sherpa_hist = Hist(50, 0, max_phi, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=5)
+    map(sherpa_hist.Fill, sherpa_phi)
+    bin_width_sherpa = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
+    sherpa_hist.Scale(1.0 / ( sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
+
+    
+    rplt.errorbar(data_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+    rplt.hist(pythia_hist, normed=1, histtype='step')
+    rplt.hist(herwig_hist, normed=1, histtype='step')
+    rplt.hist(sherpa_hist, normed=1, histtype='step')
+    
+    handles, labels = plt.gca().get_legend_handles_labels()
+    legend = plt.gca().legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60)
+    plt.gca().add_artist(legend)
+
+
+    plt.xlabel('Jet $\\phi$', fontsize=75)
+    plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
+
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.245, 0.90), xycoords='figure fraction', frameon=0)
+    plt.gca().add_artist(ab)
+    preliminary_text = "Prelim. (20\%)"
+    plt.gcf().text(0.31, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+    extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+    labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+    plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.32, 0.77])
+
+
+    plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+    
+
+    plt.autoscale()
+    plt.ylim( plt.gca().get_ylim()[0], plt.gca().get_ylim()[1] * 1.35 )
+
+    plt.gca().xaxis.set_minor_locator(MultipleLocator(0.2))
+    plt.gca().yaxis.set_minor_locator(MultipleLocator(0.01))
+    plt.tick_params(which='major', width=5, length=25, labelsize=70)
+    plt.tick_params(which='minor', width=3, length=15)
+
+    plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+    print "Printing hardest jet phi."
+
+    plt.savefig("plots/" + get_version(input_analysis_file) + "/phi/" + mc_type + "_jet_phi.pdf")
+
+    plt.clf()
+
+
+
 def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
   
 
@@ -4843,6 +4936,7 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
 # Basic.
 
 # plot_jet_eta(pT_lower_cut=100)
+plot_jet_phi(pT_lower_cut=100)
 # plot_pts(pT_lower_cut=100)
 
 # Basic Ends.
@@ -4850,7 +4944,8 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
 
 # Bonus.
 
-plot_jet_mass_spectrum(pT_lower_cut=150)
+# plot_jet_mass_spectrum(pT_lower_cut=150)
+# plot_constituent_multiplicity_softdrop(pT_lower_cut=150)
 
 # Bonus Ends.
 

@@ -227,6 +227,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    properties.push_back( MOD::Property("fra_energy_loss", (hardest_jet.E() - soft_drop(hardest_jet).E()) / hardest_jet.E() ) );
    properties.push_back( MOD::Property("hardest_eta", hardest_jet.eta()) );
+   properties.push_back( MOD::Property("hardest_phi", hardest_jet.phi()) );
 
 
    // zg and Rg (to eventually calculate theta_g) for  zg_cut ranging from 0.10 to 0.20 with increments of 0.01.
