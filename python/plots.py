@@ -68,7 +68,7 @@ plt.rc('font', family='serif', size=43)
 
 
 plot_labels = { "data": "CMS 2010 Open Data", "pythia": "Pythia 8.212", "herwig": "Herwig++ 2.7.1", "sherpa": "Sherpa 2.2.0", "theory": "Theory (MLL)" }
-plot_colors = {"theory": "red", "pythia": "blue", "herwig": "green", "sherpa": "orange", "pythia_post": "magenta"}
+plot_colors = {"theory": "red", "pythia": "blue", "herwig": "green", "sherpa": "orange", "pythia_post": "magenta", "data": "black"}
 
 
 
@@ -556,11 +556,11 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
     
 
 
-    data_label = "CMS 2010 Open Data"
-    pythia_label = "Pythia 8.212" if mc else ""
-    herwig_label = "Herwig++ 2.7.1" if mc else ""
-    sherpa_label = "Sherpa 2.2.0" if mc else ""
-    theory_label = "Theory (MLL)" if theory else ""
+    data_label   = plot_labels['data']
+    pythia_label = plot_labels['pythia'] if mc else ""
+    herwig_label = plot_labels['herwig'] if mc else ""
+    sherpa_label = plot_labels['sherpa'] if mc else ""
+    theory_label = plot_labels['theory'] if theory else ""
 
     
     gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
@@ -609,20 +609,20 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
       area_theory_y_max = simps(theory_y_max, theory_x)
       # weighted_theory_y_max = map(lambda x: x / area_theory_y_max, theory_y_max)
       weighted_theory_y_max = theory_y_max
-      ax0.plot(theory_x, weighted_theory_y_max, alpha=0.0, color='red')
+      ax0.plot(theory_x, weighted_theory_y_max, alpha=0.0, color=plot_colors['theory'])
       
       area_theory_y_line = simps(theory_y_line, theory_x)
       # weighted_theory_y_line = map(lambda x: x / area_theory_y_line, theory_y_line)
       weighted_theory_y_line = theory_y_line
-      ax0.plot(theory_x, weighted_theory_y_line, label=theory_label, alpha=1.0, color='red', linewidth=5)
+      ax0.plot(theory_x, weighted_theory_y_line, label=theory_label, alpha=1.0, color=plot_colors['theory'], linewidth=5)
 
       area_theory_y_min = simps(theory_y_min, theory_x)
       # weighted_theory_y_min = map(lambda x: x / area_theory_y_min, theory_y_min)
       weighted_theory_y_min = theory_y_min
-      ax0.plot(theory_x, weighted_theory_y_min, alpha=0.0, color='red')
+      ax0.plot(theory_x, weighted_theory_y_min, alpha=0.0, color=plot_colors['theory'])
 
 
-      ax0.fill_between(theory_x, theory_y_max, theory_y_min, norm=1, where=np.less_equal(theory_y_min, theory_y_max), facecolor='red', color='red', interpolate=True, alpha=0.3, linewidth=0.0)
+      ax0.fill_between(theory_x, theory_y_max, theory_y_min, norm=1, where=np.less_equal(theory_y_min, theory_y_max), facecolor=plot_colors['theory'], color=plot_colors['theory'], interpolate=True, alpha=0.3, linewidth=0.0)
 
 
     # Theory Plot Ends.
@@ -671,7 +671,7 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
     
     # Data Plot Begins.
     
-    zg_data_hist = Hist(6 * n_bins, 0.0, 0.6, title=data_label, markersize=2.5, color='black')
+    zg_data_hist = Hist(6 * n_bins, 0.0, 0.6, title=data_label, markersize=2.5, color=plot_colors['data'])
     bin_width_data = (zg_data_hist.upperbound() - zg_data_hist.lowerbound()) / zg_data_hist.nbins()
 
     map(zg_data_hist.Fill, zg_data, prescales)
@@ -705,7 +705,7 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
     
     # Pythia.
     
-    zg_pythia_hist = Hist(6 * n_bins, 0, 0.6, title=pythia_label, markersize=5.0, color='blue', linewidth=5)
+    zg_pythia_hist = Hist(6 * n_bins, 0, 0.6, title=pythia_label, markersize=5.0, color=plot_colors['pythia'], linewidth=5)
     bin_width_pythia = (zg_pythia_hist.upperbound() - zg_pythia_hist.lowerbound()) / zg_pythia_hist.nbins()
 
     map(zg_pythia_hist.Fill, zg_pythias)
@@ -714,16 +714,16 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 
     if mc:
       # pythia_plot = rplt.hist(zg_pythia_hist, axes=ax0)
-      pythia_plot = ax0.hist(zg_pythias, label=pythia_label, bins=5 * n_bins, normed=1, histtype='step', color='blue', linewidth=5)
+      pythia_plot = ax0.hist(zg_pythias, label=pythia_label, bins=5 * n_bins, normed=1, histtype='step', color=plot_colors['pythia'], linewidth=5)
     else:
-      pythia_plot = ax0.hist(zg_pythias, bins=5 * n_bins, normed=1, histtype='step', color='blue', linewidth=0)
+      pythia_plot = ax0.hist(zg_pythias, bins=5 * n_bins, normed=1, histtype='step', color=plot_colors['pythia'], linewidth=0)
 
     
     # Pythia Ends.
     
     # Herwig. 
     
-    zg_herwig_hist = Hist(6 * n_bins, 0, 0.6, title=herwig_label, markersize=5.0, color='green', linewidth=5)
+    zg_herwig_hist = Hist(6 * n_bins, 0, 0.6, title=herwig_label, markersize=5.0, color=plot_colors['herwig'], linewidth=5)
     bin_width_herwig = (zg_herwig_hist.upperbound() - zg_herwig_hist.lowerbound()) / zg_herwig_hist.nbins()
 
     map(zg_herwig_hist.Fill, zg_herwigs)
@@ -732,15 +732,15 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 
     if mc:
       # herwig_plot = rplt.hist(zg_herwig_hist, axes=ax0)
-      herwig_plot = ax0.hist(zg_herwigs, label=herwig_label, bins=5 * n_bins, normed=1, histtype='step', color='green', linewidth=5)
+      herwig_plot = ax0.hist(zg_herwigs, label=herwig_label, bins=5 * n_bins, normed=1, histtype='step', color=plot_colors['herwig'], linewidth=5)
     else:
-      herwig_plot = ax0.hist(zg_herwigs, bins=5 * n_bins, normed=1, histtype='step', color='green', linewidth=0)
+      herwig_plot = ax0.hist(zg_herwigs, bins=5 * n_bins, normed=1, histtype='step', color=plot_colors['herwig'], linewidth=0)
     
     # Herwig Ends.
 
     # Sherpa.
 
-    zg_sherpa_hist = Hist(6 * n_bins, 0, 0.6, title=sherpa_label, markersize=5.0, color='orange', linewidth=5)
+    zg_sherpa_hist = Hist(6 * n_bins, 0, 0.6, title=sherpa_label, markersize=5.0, color=plot_colors['sherpa'], linewidth=5)
     bin_width_sherpa = (zg_sherpa_hist.upperbound() - zg_sherpa_hist.lowerbound()) / zg_sherpa_hist.nbins()
 
     map(zg_sherpa_hist.Fill, zg_sherpas)
@@ -749,9 +749,9 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 
     if mc:
       # sherpa_plot = rplt.hist(zg_sherpa_hist, axes=ax0)
-      sherpa_plot = ax0.hist(zg_sherpas, label=sherpa_label, bins=5 * n_bins, normed=1, histtype='step', color='orange', linewidth=5)
+      sherpa_plot = ax0.hist(zg_sherpas, label=sherpa_label, bins=5 * n_bins, normed=1, histtype='step', color=plot_colors['sherpa'], linewidth=5)
     else:
-      sherpa_plot = ax0.hist(zg_sherpas, bins=5 * n_bins, normed=1, histtype='step', color='orange', linewidth=0)
+      sherpa_plot = ax0.hist(zg_sherpas, bins=5 * n_bins, normed=1, histtype='step', color=plot_colors['sherpa'], linewidth=0)
 
     # Sherpa Ends.
 
@@ -783,24 +783,24 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
     if ratio_denominator == "data":
 
       if mc:
-        zg_herwig_hist.Divide(zg_data_hist)
-        zg_herwig_line_plot = convert_hist_to_line_plot(zg_herwig_hist, n_bins)
-        plt.plot(zg_herwig_line_plot[0], zg_herwig_line_plot[1], linewidth=5, color='green')
-
         zg_pythia_hist.Divide(zg_data_hist)
         zg_pythia_line_plot = convert_hist_to_line_plot(zg_pythia_hist, n_bins)
-        plt.plot(zg_pythia_line_plot[0], zg_pythia_line_plot[1], linewidth=5, color='blue')
+        plt.plot(zg_pythia_line_plot[0], zg_pythia_line_plot[1], linewidth=5, color=plot_colors['pythia'])
+
+        zg_herwig_hist.Divide(zg_data_hist)
+        zg_herwig_line_plot = convert_hist_to_line_plot(zg_herwig_hist, n_bins)
+        plt.plot(zg_herwig_line_plot[0], zg_herwig_line_plot[1], linewidth=5, color=plot_colors['herwig'])
 
         zg_sherpa_hist.Divide(zg_data_hist)
         zg_sherpa_line_plot = convert_hist_to_line_plot(zg_sherpa_hist, n_bins)
-        plt.plot(zg_sherpa_line_plot[0], zg_sherpa_line_plot[1], linewidth=5, color='orange')
+        plt.plot(zg_sherpa_line_plot[0], zg_sherpa_line_plot[1], linewidth=5, color=plot_colors['sherpa'])
 
       if data:
         ratio_data_to_data = [None if n == 0 else m / n for m, n in zip(data_plot_points_y, data_plot_points_y)]
         data_to_data_y_err = [(b / m) for b, m in zip(data_y_errors, data_plot_points_y)]
         data_to_data_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(data_plot_points_y))]
         
-        plt.errorbar(data_plot_points_x, ratio_data_to_data, xerr=data_to_data_x_err, yerr=data_to_data_y_err, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, color='black')
+        plt.errorbar(data_plot_points_x, ratio_data_to_data, xerr=data_to_data_x_err, yerr=data_to_data_y_err, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, color=plot_colors['data'])
 
       if theory:
         ratio_theory_line_to_data = [m / n for m, n in zip(theory_extrapolated_line, data_plot_points_y)]
@@ -810,7 +810,7 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
         zg_theory_line_to_data_hist = Hist(6 * n_bins, 0.0, 0.6)
         map(zg_theory_line_to_data_hist.Fill, data_plot_points_x, ratio_theory_line_to_data)
         zg_theory_line_to_data_plot = convert_hist_to_line_plot(zg_theory_line_to_data_hist, n_bins)
-        plt.plot(zg_theory_line_to_data_plot[0], zg_theory_line_to_data_plot[1], linewidth=5, color='red')
+        plt.plot(zg_theory_line_to_data_plot[0], zg_theory_line_to_data_plot[1], linewidth=5, color=plot_colors['theory'])
 
         zg_theory_min_to_data_hist = Hist(6 * n_bins, 0.0, 0.6)
         map(zg_theory_min_to_data_hist.Fill, data_plot_points_x, ratio_theory_min_to_data)
@@ -820,39 +820,39 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
         map(zg_theory_max_to_data_hist.Fill, data_plot_points_x, ratio_theory_max_to_data)
         zg_theory_max_to_data_plot = convert_hist_to_line_plot(zg_theory_max_to_data_hist, n_bins)
 
-        ax1.fill_between(zg_theory_max_to_data_plot[0], zg_theory_max_to_data_plot[1], zg_theory_min_to_data_plot[1], norm=1, where=np.less_equal(zg_theory_min_to_data_plot[1], zg_theory_max_to_data_plot[1]), color='red', facecolor='red', interpolate=True, alpha=0.3, linewidth=0.0)
+        ax1.fill_between(zg_theory_max_to_data_plot[0], zg_theory_max_to_data_plot[1], zg_theory_min_to_data_plot[1], norm=1, where=np.less_equal(zg_theory_min_to_data_plot[1], zg_theory_max_to_data_plot[1]), color=plot_colors['theory'], facecolor=plot_colors['theory'], interpolate=True, alpha=0.3, linewidth=0.0)
         
     elif ratio_denominator == "theory":
 
-      zg_theory_line_hist = Hist(6 * n_bins, 0.0, 0.6, color='red')
+      zg_theory_line_hist = Hist(6 * n_bins, 0.0, 0.6, color=plot_colors['theory'])
       map(zg_theory_line_hist.Fill, data_plot_points_x, theory_extrapolated_line)
 
-      zg_theory_min_hist = Hist(6 * n_bins, 0.0, 0.6, color='pink')
+      zg_theory_min_hist = Hist(6 * n_bins, 0.0, 0.6, color=plot_colors['theory'])
       map(zg_theory_min_hist.Fill, data_plot_points_x, theory_extrapolated_min)
 
-      zg_theory_max_hist = Hist(6 * n_bins, 0.0, 0.6, color='red')
+      zg_theory_max_hist = Hist(6 * n_bins, 0.0, 0.6, color=plot_colors['theory'])
       map(zg_theory_max_hist.Fill, data_plot_points_x, theory_extrapolated_max)
 
 
       if mc:
-        zg_herwig_hist.Divide(zg_theory_line_hist)
-        zg_herwig_line_plot = convert_hist_to_line_plot(zg_herwig_hist, n_bins)
-        plt.plot(zg_herwig_line_plot[0], zg_herwig_line_plot[1], linewidth=5, color='green')
-
         zg_pythia_hist.Divide(zg_theory_line_hist)
         zg_pythia_line_plot = convert_hist_to_line_plot(zg_pythia_hist, n_bins)
-        plt.plot(zg_pythia_line_plot[0], zg_pythia_line_plot[1], linewidth=5, color='blue')
+        plt.plot(zg_pythia_line_plot[0], zg_pythia_line_plot[1], linewidth=5, color=plot_colors['pythia'])
+
+        zg_herwig_hist.Divide(zg_theory_line_hist)
+        zg_herwig_line_plot = convert_hist_to_line_plot(zg_herwig_hist, n_bins)
+        plt.plot(zg_herwig_line_plot[0], zg_herwig_line_plot[1], linewidth=5, color=plot_colors['herwig'])
 
         zg_sherpa_hist.Divide(zg_theory_line_hist)
         zg_sherpa_line_plot = convert_hist_to_line_plot(zg_sherpa_hist, n_bins)
-        plt.plot(zg_sherpa_line_plot[0], zg_sherpa_line_plot[1], linewidth=5, color='orange')
+        plt.plot(zg_sherpa_line_plot[0], zg_sherpa_line_plot[1], linewidth=5, color=plot_colors['sherpa'])
 
       if data:
         zg_data_to_th_y = [b / m for b, m in zip(data_plot_points_y, theory_extrapolated_line)]
         zg_data_to_th_y_err = [b / m for b, m in zip(data_y_errors, theory_extrapolated_line)]
         data_to_th_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(zg_data_to_th_y_err))]
 
-        plt.errorbar(data_plot_points_x, zg_data_to_th_y, xerr=data_to_th_x_err, yerr=zg_data_to_th_y_err, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, color='black')
+        plt.errorbar(data_plot_points_x, zg_data_to_th_y, xerr=data_to_th_x_err, yerr=zg_data_to_th_y_err, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, color=plot_colors['data'])
      
       if theory:
         
@@ -868,11 +868,11 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
         x_min, y_min = zg_theory_min_line.get_xdata(), zg_theory_min_line.get_ydata()
         x_max, y_max = zg_theory_max_line.get_xdata(), zg_theory_max_line.get_ydata()
 
-        ax1.fill_between(x_max, y_max, y_min, norm=1, where=np.less_equal(y_min, y_max), facecolor='red', color='red', interpolate=True, alpha=0.3, linewidth=0.0)
+        ax1.fill_between(x_max, y_max, y_min, norm=1, where=np.less_equal(y_min, y_max), facecolor=plot_colors['theory'], color=plot_colors['theory'], interpolate=True, alpha=0.3, linewidth=0.0)
 
         zg_theory_line_hist.Divide(zg_theory_line_hist)
         zg_theory_line_plot = convert_hist_to_line_plot(zg_theory_line_hist, n_bins)
-        plt.plot(zg_theory_line_plot[0], zg_theory_line_plot[1], linewidth=5, color='red')
+        plt.plot(zg_theory_line_plot[0], zg_theory_line_plot[1], linewidth=5, color=plot_colors['theory'])
 
     else:
       raise ValueError("Only 'theory' or 'data' are valid options for calculating ratios!")
@@ -928,7 +928,7 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 
     # labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     
-    ax0.legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.97, 0.52])
+    ax0.legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.98, 0.52])
 
 
     # Legend Ends.
@@ -2109,7 +2109,7 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
 
     print "Printing constituent multiplicity with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
 
-    plt.savefig("plots/" + get_version(input_analysis_file) + "/constituent_multiplicity_softdrop/" + mc_label + "/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
+    plt.savefig("plots/" + get_version(input_analysis_file) + "/constituent_multiplicity_softdrop/" + mc_label + "/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_multiplicity.pdf")
     # plt.show()
     plt.clf()
 
@@ -2505,7 +2505,7 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
 
     print "Printing jet mass spectrum with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
 
-    plt.savefig("plots/" + get_version(input_analysis_file) + "/jet_mass_spectrum/" + mc_label + "/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
+    plt.savefig("plots/" + get_version(input_analysis_file) + "/jet_mass_spectrum/" + mc_label + "/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_jet_mass.pdf")
     # plt.show()
     plt.clf()
 
@@ -4016,7 +4016,7 @@ def plot_jet_phi(pT_lower_cut=100):
 
 
 
-def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
+def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10'):
   
 
   properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
@@ -4193,7 +4193,7 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
     plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
     plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-    plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/z_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+    plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/z_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
     plt.clf()
 
     # =============================================================================================== z_g PLOT ENDS ===========================================================================================================================
@@ -4306,7 +4306,7 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
     plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
     plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-    plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/theta_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+    plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/theta_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
     plt.clf()
 
     # =============================================================================================== theta_g PLOT ENDS ===========================================================================================================================
@@ -4420,7 +4420,7 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
     plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
     plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-    plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+    plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
     plt.clf()
 
     # =============================================================================================== theta_g * z_g PLOT ENDS ===========================================================================================================================
@@ -4533,7 +4533,7 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
     plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
     plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-    plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/z_g_times_theta_g^2/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+    plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/z_g_times_theta_g^2/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
     plt.clf()
 
     # =============================================================================================== z_g * theta_g^2 PLOT ENDS ===========================================================================================================================
@@ -4645,7 +4645,7 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
     plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
     plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-    plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/z_g_times_sqrt_theta_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+    plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/z_g_times_sqrt_theta_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
     plt.clf()
 
     # =============================================================================================== z_g * theta_g^(0.5) PLOT ENDS ===========================================================================================================================
@@ -4933,21 +4933,58 @@ def plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.15', zg_filename='zg_15'):
 # Aspen Begins.
 
 
-# Basic.
+# ======================================================================= Basic ======================================================================= 
 
 # plot_jet_eta(pT_lower_cut=100)
-plot_jet_phi(pT_lower_cut=100)
+# plot_jet_phi(pT_lower_cut=100)
 # plot_pts(pT_lower_cut=100)
 
-# Basic Ends.
+# ======================================================================= Basic Ends ======================================================================= 
 
 
-# Bonus.
+# ======================================================================= Core Substructure =======================================================================
+
+
+# ******************** Ratio zg ******************** 
+
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+
+# ******************** Ratio zg Ends ******************** 
+
+
+
+# ******************** Log Plots ******************** 
+
+# plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05')
+# plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
+# plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
+
+# ******************** Log Plots End ******************** 
+
+
+# ******************** Linear Plots ******************** 
+
+# plot_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05')
+# plot_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
+# plot_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
+
+# ******************** Linear Plots End ******************** 
+
+# ======================================================================= Core Substructure Ends ======================================================================= 
+
+
+# ======================================================================= Bonus ======================================================================= 
 
 # plot_jet_mass_spectrum(pT_lower_cut=150)
 # plot_constituent_multiplicity_softdrop(pT_lower_cut=150)
 
-# Bonus Ends.
+# ======================================================================= Bonus Ends ======================================================================= 
 
 
 # Aspen Ends.
