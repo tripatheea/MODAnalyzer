@@ -315,13 +315,13 @@ def plot_hardest_pt_corresponding_triggers():
   prescales = properties['prescale']
 
   expected_trigger_names = ["HLT_Jet180U", "HLT_Jet140U", "HLT_Jet100U", "HLT_Jet70U", "HLT_Jet50U", "HLT_Jet30U", "HLT_Jet15U"]
-  labels = ["Jet180U", "Jet141U", "Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15U"]
+  labels = ["Jet180u", "Jet140u", "Jet100u", "Jet70u", "Jet50u", "Jet30u", "Jet15u"]
 
   colors = ['purple', 'orange', 'brown', 'red', 'blue', 'magenta', 'green']
 
   pt_hists = []
   for i in range(0, len(expected_trigger_names)):
-    pt_hists.append(Hist(50, 0, 1000, title=labels[i], markersize=1.0, color=colors[i], linewidth=5))
+    pt_hists.append(Hist(50, 0, 1000, title=labels[i].upper(), markersize=1.0, color=colors[i], linewidth=5))
 
   found = False
   for i in range(0, len(pTs)):
