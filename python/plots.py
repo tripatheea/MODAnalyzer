@@ -4548,11 +4548,12 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
     data_plot = rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-    charged_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=plot_colors['data_post'])
-    bin_width = (charged_theta_g_hist.upperbound() - charged_theta_g_hist.lowerbound()) / charged_theta_g_hist.nbins()
-    map(charged_theta_g_hist.Fill, np.log(charged_theta_g), prescales)
-    charged_theta_g_hist.Scale(1.0 / (charged_theta_g_hist.GetSumOfWeights() * bin_width))
-    charged_data_plot = rplt.errorbar(charged_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    for i in range(len(softcut_pTs)):
+      softcut_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=softcut_colors[i])
+      bin_width = (softcut_theta_g_hist.upperbound() - softcut_theta_g_hist.lowerbound()) / softcut_theta_g_hist.nbins()
+      map(softcut_theta_g_hist.Fill, np.log(softcut_theta_gs[i]), prescales)
+      softcut_theta_g_hist.Scale(1.0 / (softcut_theta_g_hist.GetSumOfWeights() * bin_width))
+      softcut_plots.append( rplt.errorbar(softcut_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5) )
 
     # Data Ends.
 
@@ -4566,11 +4567,12 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, histtype='step')
 
-    charged_pythia_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=plot_colors['pythia_post'], linewidth=5)
-    bin_width = (charged_pythia_theta_g_hist.upperbound() - charged_pythia_theta_g_hist.lowerbound()) / charged_pythia_theta_g_hist.nbins()
-    map(charged_pythia_theta_g_hist.Fill, np.log(charged_pythia_theta_g))
-    charged_pythia_theta_g_hist.Scale(1.0 / (charged_pythia_theta_g_hist.GetSumOfWeights() * bin_width))
-    charged_pythia_plot = rplt.hist(charged_pythia_theta_g_hist, histtype='step')
+    for i in range(len(softcut_pTs)):
+      pythia_softcut_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=pythia_softcut_colors[i], linewidth=5)
+      bin_width = (pythia_softcut_theta_g_hist.upperbound() - pythia_softcut_theta_g_hist.lowerbound()) / pythia_softcut_theta_g_hist.nbins()
+      map(pythia_softcut_theta_g_hist.Fill, np.log(pythia_softcut_theta_gs[i]))
+      pythia_softcut_theta_g_hist.Scale(1.0 / (pythia_softcut_theta_g_hist.GetSumOfWeights() * bin_width))
+      pythia_softcut_plots.append( rplt.hist(pythia_softcut_theta_g_hist, histtype='step') )
 
     # Pythia Ends.
 
@@ -4629,11 +4631,12 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
     data_plot = rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-    charged_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=plot_colors['data_post'])
-    bin_width = (charged_theta_g_hist.upperbound() - charged_theta_g_hist.lowerbound()) / charged_theta_g_hist.nbins()
-    map(charged_theta_g_hist.Fill, np.log(np.multiply(charged_theta_g, z_g)), prescales)
-    charged_theta_g_hist.Scale(1.0 / (charged_theta_g_hist.GetSumOfWeights() * bin_width))
-    charged_data_plot = rplt.errorbar(charged_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    for i in range(len(softcut_pTs)):
+      softcut_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=softcut_colors[i])
+      bin_width = (softcut_theta_g_hist.upperbound() - softcut_theta_g_hist.lowerbound()) / softcut_theta_g_hist.nbins()
+      map(softcut_theta_g_hist.Fill, np.log(np.multiply(softcut_theta_gs[i], softcut_z_gs[i])), prescales)
+      softcut_theta_g_hist.Scale(1.0 / (softcut_theta_g_hist.GetSumOfWeights() * bin_width))
+      softcut_plots.append( rplt.errorbar(softcut_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5) )
 
     # Data Ends.
 
@@ -4647,11 +4650,12 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, histtype='step')
 
-    charged_pythia_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=plot_colors['pythia_post'], linewidth=5)
-    bin_width = (charged_pythia_theta_g_hist.upperbound() - charged_pythia_theta_g_hist.lowerbound()) / charged_pythia_theta_g_hist.nbins()
-    map(charged_pythia_theta_g_hist.Fill, np.log(np.multiply(charged_pythia_theta_g, charged_pythia_z_g)))
-    charged_pythia_theta_g_hist.Scale(1.0 / (charged_pythia_theta_g_hist.GetSumOfWeights() * bin_width))
-    charged_pythia_plot = rplt.hist(charged_pythia_theta_g_hist, histtype='step')
+    for i in range(len(softcut_pTs)):
+      pythia_softcut_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=pythia_softcut_colors[i], linewidth=5)
+      bin_width = (pythia_softcut_theta_g_hist.upperbound() - pythia_softcut_theta_g_hist.lowerbound()) / pythia_softcut_theta_g_hist.nbins()
+      map(pythia_softcut_theta_g_hist.Fill, np.log(np.multiply(pythia_softcut_theta_gs[i], pythia_softcut_z_gs[i])))
+      pythia_softcut_theta_g_hist.Scale(1.0 / (pythia_softcut_theta_g_hist.GetSumOfWeights() * bin_width))
+      pythia_softcut_plots.append( rplt.hist(pythia_softcut_theta_g_hist, histtype='step') )
 
     # Pythia Ends.
 
@@ -4704,15 +4708,16 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=plot_colors['data'])
     bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
-    map(theta_g_hist.Fill, np.log( np.multiply( z_g, np.square(theta_g) )), prescales)
+    map(theta_g_hist.Fill, np.log( np.multiply( z_g, np.square(theta_g) ) ), prescales)
     theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
     data_plot = rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-    charged_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=plot_colors['data_post'])
-    bin_width = (charged_theta_g_hist.upperbound() - charged_theta_g_hist.lowerbound()) / charged_theta_g_hist.nbins()
-    map(charged_theta_g_hist.Fill, np.log( np.multiply( z_g, np.square(charged_theta_g) )), prescales)
-    charged_theta_g_hist.Scale(1.0 / (charged_theta_g_hist.GetSumOfWeights() * bin_width))
-    charged_data_plot = rplt.errorbar(charged_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    for i in range(len(softcut_pTs)):
+      softcut_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=softcut_colors[i])
+      bin_width = (softcut_theta_g_hist.upperbound() - softcut_theta_g_hist.lowerbound()) / softcut_theta_g_hist.nbins()
+      map(softcut_theta_g_hist.Fill, np.log( np.multiply( softcut_z_gs[i], np.square(softcut_theta_gs[i]) ) ), prescales)
+      softcut_theta_g_hist.Scale(1.0 / (softcut_theta_g_hist.GetSumOfWeights() * bin_width))
+      softcut_plots.append( rplt.errorbar(softcut_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5) )
 
     # Data Ends.
 
@@ -4722,15 +4727,16 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     pythia_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
-    map(pythia_theta_g_hist.Fill, np.log( np.multiply( pythia_z_g, np.square(pythia_theta_g) )))
+    map(pythia_theta_g_hist.Fill, np.log( np.multiply( pythia_z_g, np.square(pythia_theta_g) ) ))
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, histtype='step')
 
-    charged_pythia_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=plot_colors['pythia_post'], linewidth=5)
-    bin_width = (charged_pythia_theta_g_hist.upperbound() - charged_pythia_theta_g_hist.lowerbound()) / charged_pythia_theta_g_hist.nbins()
-    map(charged_pythia_theta_g_hist.Fill, np.log( np.multiply( charged_pythia_z_g, np.square(charged_pythia_theta_g) )))
-    charged_pythia_theta_g_hist.Scale(1.0 / (charged_pythia_theta_g_hist.GetSumOfWeights() * bin_width))
-    charged_pythia_plot = rplt.hist(charged_pythia_theta_g_hist, histtype='step')
+    for i in range(len(softcut_pTs)):
+      pythia_softcut_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=pythia_softcut_colors[i], linewidth=5)
+      bin_width = (pythia_softcut_theta_g_hist.upperbound() - pythia_softcut_theta_g_hist.lowerbound()) / pythia_softcut_theta_g_hist.nbins()
+      map(pythia_softcut_theta_g_hist.Fill, np.log( np.multiply( pythia_softcut_z_gs[i], np.square(pythia_softcut_theta_gs[i]) )  ) )
+      pythia_softcut_theta_g_hist.Scale(1.0 / (pythia_softcut_theta_g_hist.GetSumOfWeights() * bin_width))
+      pythia_softcut_plots.append( rplt.hist(pythia_softcut_theta_g_hist, histtype='step') )
 
     # Pythia Ends.
 
@@ -4783,15 +4789,16 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=plot_colors['data'])
     bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
-    map(theta_g_hist.Fill, np.log( np.multiply( z_g, np.sqrt(theta_g) )), prescales)
+    map(theta_g_hist.Fill, np.log( np.multiply( z_g, np.sqrt(theta_g) ) ), prescales)
     theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
     data_plot = rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-    charged_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=plot_colors['data'])
-    bin_width = (charged_theta_g_hist.upperbound() - charged_theta_g_hist.lowerbound()) / charged_theta_g_hist.nbins()
-    map(charged_theta_g_hist.Fill, np.log( np.multiply( z_g, np.sqrt(charged_theta_g) )), prescales)
-    charged_theta_g_hist.Scale(1.0 / (charged_theta_g_hist.GetSumOfWeights() * bin_width))
-    charged_data_plot = rplt.errorbar(charged_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    for i in range(len(softcut_pTs)):
+      softcut_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=softcut_colors[i])
+      bin_width = (softcut_theta_g_hist.upperbound() - softcut_theta_g_hist.lowerbound()) / softcut_theta_g_hist.nbins()
+      map(softcut_theta_g_hist.Fill, np.log( np.multiply( softcut_z_gs[i], np.sqrt(softcut_theta_gs[i]) ) ), prescales)
+      softcut_theta_g_hist.Scale(1.0 / (softcut_theta_g_hist.GetSumOfWeights() * bin_width))
+      softcut_plots.append( rplt.errorbar(softcut_theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5) )
 
     # Data Ends.
 
@@ -4801,15 +4808,16 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     pythia_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
-    map(pythia_theta_g_hist.Fill, np.log( np.multiply( pythia_z_g, np.sqrt(pythia_theta_g) )))
+    map(pythia_theta_g_hist.Fill, np.log( np.multiply( pythia_z_g, np.sqrt(pythia_theta_g) ) ) )
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, histtype='step')
 
-    charged_pythia_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=plot_colors['pythia_post'], linewidth=5)
-    bin_width = (charged_pythia_theta_g_hist.upperbound() - charged_pythia_theta_g_hist.lowerbound()) / charged_pythia_theta_g_hist.nbins()
-    map(charged_pythia_theta_g_hist.Fill, np.log( np.multiply( charged_pythia_z_g, np.sqrt(charged_pythia_theta_g) )))
-    charged_pythia_theta_g_hist.Scale(1.0 / (charged_pythia_theta_g_hist.GetSumOfWeights() * bin_width))
-    charged_pythia_plot = rplt.hist(charged_pythia_theta_g_hist, histtype='step')
+    for i in range(len(softcut_pTs)):
+      pythia_softcut_theta_g_hist = Hist(bins_linear_log, markersize=3.0, color=pythia_softcut_colors[i], linewidth=5)
+      bin_width = (pythia_softcut_theta_g_hist.upperbound() - pythia_softcut_theta_g_hist.lowerbound()) / pythia_softcut_theta_g_hist.nbins()
+      map(pythia_softcut_theta_g_hist.Fill, np.log( np.multiply( pythia_softcut_z_gs[i], np.sqrt(pythia_softcut_theta_gs[i]) ) ) )
+      pythia_softcut_theta_g_hist.Scale(1.0 / (pythia_softcut_theta_g_hist.GetSumOfWeights() * bin_width))
+      pythia_softcut_plots.append( rplt.hist(pythia_softcut_theta_g_hist, histtype='step') )
 
     # Pythia Ends.
 
