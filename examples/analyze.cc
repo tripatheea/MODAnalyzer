@@ -179,14 +179,18 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
          SoftDrop soft_drop_charged(0.0, zg_cut);
          PseudoJet soft_drop_jet_charged = soft_drop_charged(hardest_charged_jet);
-         double zg_charged = soft_drop_jet_charged.structure_of<SoftDrop>().symmetry();
-         properties.push_back(MOD::Property("charged_zg_" + label, zg_charged));
+
+         properties.push_back(MOD::Property("charged_zg_" + label, soft_drop_jet_charged.structure_of<SoftDrop>().symmetry()));
+         properties.push_back(MOD::Property("charged_Rg_" + label, soft_drop_jet_charged.structure_of<SoftDrop>().delta_R()));
+         properties.push_back(MOD::Property("charged_mu_" + label, soft_drop_jet_charged.structure_of<SoftDrop>().mu()));
       }
    }
    else {
       for (unsigned i = 0; i < zg_cuts.size(); i++) {
          string label = zg_cuts[i].first;
          properties.push_back(MOD::Property("charged_zg_" + label, -1.0));
+         properties.push_back(MOD::Property("charged_Rg_" + label, -1.0));
+         properties.push_back(MOD::Property("charged_mu_" + label, -1.0));
       }
    }
    
@@ -225,6 +229,18 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back( MOD::Property("frac_pT_loss", (hardest_jet.pt() - soft_drop(hardest_jet).pt()) / hardest_jet.pt() ) );
    properties.push_back( MOD::Property("hardest_eta", hardest_jet.eta()) );
    properties.push_back( MOD::Property("hardest_phi", hardest_jet.phi()) );
+
+
+   double pT_square_sum = 0.0;
+   double pT_sum = 0.0;
+   for (unsigned i = 0; i < hardest_jet_constituents.size(); i++) {
+      double pT = hardest_jet_constituents[i].pt();
+      pT_square_sum += pT * pT;
+      pT_sum += pT;
+   }
+
+   double pT_D = sqrt(pT_square_sum) / pT_sum;
+   properties.push_back( MOD::Property("pT_D", pT_D) );
 
 
    // Now that we've calculated all observables, write them out.
