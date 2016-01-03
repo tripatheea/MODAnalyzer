@@ -92,7 +92,7 @@ void MOD::Event::add_trigger(istringstream & input_stream) {
    _triggers.push_back(MOD::Trigger(input_stream));
 }
 
-const int MOD::Event::data_source() const {
+const MOD::Event::data_source_t MOD::Event::data_source() const {
    return _data_source;
 }
 
@@ -182,13 +182,11 @@ const string MOD::Event::stringify_pfc(PseudoJet particle) const {
 string MOD::Event::make_string() const {
    stringstream file_to_write;
    
-   int data_source = _data_source;  // EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2 
-
-   
+ 
    file_to_write << "BeginEvent Version " << _version << " " << _data_type.first << " " << _data_type.second;  // Don't put an endl here because for "pristine", we'll put a "Hardest_Jet_Selection" here. 
   
 
-   if (data_source == 0) { // Data is from experiment.
+   if (_data_source == EXPERIMENT) { // Data is from experiment.
       
       file_to_write << endl;
 
@@ -218,7 +216,7 @@ string MOD::Event::make_string() const {
       }
 
    }
-   else if ( (data_source == 1) || (data_source == 2) ) {
+   else if ( (_data_source == MC_TRUTH) || (_data_source == MC_RECO) ) {
       
       file_to_write << endl;
 
@@ -229,7 +227,7 @@ string MOD::Event::make_string() const {
       }
 
    }
-   else if (data_source == 3) {
+   else if (_data_source == PRISTINE) {
 
       file_to_write << " Hardest_Jet_Selection" << endl;
 
@@ -283,7 +281,7 @@ const PseudoJet & MOD::Event::hardest_jet() const {
    
    // EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2, PRISTINE = 3 
    
-   if (_data_source == 0)
+   if (_data_source == EXPERIMENT)
       return _closest_fastjet_jet_to_trigger_jet;
    
    return _hardest_jet;
@@ -308,7 +306,7 @@ void MOD::Event::convert_to_pristine() {
    _particles = particles;
    _jets = jets;
 
-   _data_source = static_cast<data_source_t>(3);   // Set the data source to "Pristine".
+   _data_source = PRISTINE;   // Set the data source to "Pristine".
    _weight = _assigned_trigger.prescale();
 
    // Empty CMS jets and triggers.
@@ -329,7 +327,7 @@ void MOD::Event::establish_properties() {
 
    cs->delete_self_when_unused();
 
-   if (data_source() == 0) {  // Experiment 
+   if (data_source() == EXPERIMENT) {  // Experiment 
 
       // First, assign _trigger_jet.
       set_trigger_jet();
@@ -342,7 +340,7 @@ void MOD::Event::establish_properties() {
       set_assigned_trigger();
 
    }
-   else if (data_source() == 3) {
+   else if (data_source() == PRISTINE) {
       double JEC = _cms_jets[0].user_info<MOD::InfoCalibratedJet>().JEC();
       vector<PseudoJet> jec_corrected_jets{ ak5_jets[0] * JEC };
       _jets = jec_corrected_jets;
@@ -377,7 +375,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "1JET") {
          try {
-            set_data_source(3);
+            set_data_source(PRISTINE);
             
             stream >> tag >> px >> py >> pz >> energy >> jec >> weight;
 
@@ -396,7 +394,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "PFC") {
          try {
-            set_data_source(0);
+            set_data_source(EXPERIMENT);
             add_particle(stream);
          }
          catch (exception& e) {
@@ -405,7 +403,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "AK5") {
          try {
-            set_data_source(0);
+            set_data_source(EXPERIMENT);
             add_cms_jet(stream);
          }
          catch (exception& e) {
@@ -432,7 +430,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "TRUTH") {
          try {
-            set_data_source(1);
+            set_data_source(MC_TRUTH);
             add_particle(stream);
          }
          catch (exception& e) {
@@ -441,7 +439,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "RPFC") {
          try {
-            set_data_source(2);
+            set_data_source(MC_RECO);
             add_particle(stream);
          }
          catch (exception& e) {
@@ -450,7 +448,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       }
       else if (tag == "PDPFC") {
          try {
-            set_data_source(3);
+            set_data_source(PRISTINE);
             add_particle(stream);
          }
          catch (exception& e) {

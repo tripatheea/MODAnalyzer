@@ -64,7 +64,7 @@ const double MOD::InfoCalibratedJet::charged_em_fraction() const {
 	return _charged_em_fraction;
 }
 
-const int MOD::InfoCalibratedJet::jet_quality() const {
+const MOD::InfoCalibratedJet::JetQualityLevels_t MOD::InfoCalibratedJet::jet_quality() const {
   return _jet_quality;
 }
 

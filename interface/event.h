@@ -32,6 +32,9 @@ namespace MOD {
       class Event {
 
          public:
+            enum data_source_t { EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2, PRISTINE = 3 };
+
+
             Event(int, int, int, double);
             Event();
 
@@ -39,7 +42,7 @@ namespace MOD {
             const int run_number() const;
 
             const int version() const;
-            const int data_source() const;
+            const data_source_t data_source() const;
             const int weight() const;
             
             const std::pair<std::string, std::string> data_type() const;
@@ -71,11 +74,7 @@ namespace MOD {
             void add_cms_jet(std::istringstream & input_stream);
             void add_trigger(std::istringstream & input_stream);
 
-            void set_event_number(int event_number);
-            void set_run_number(int run_number);
-            void set_version(int version);
-            void set_data_type(std::string a, std::string b);
-            void set_data_source(int data_source);
+            
             
             void convert_to_pristine();
 
@@ -104,7 +103,7 @@ namespace MOD {
 
             bool _trigger_jet_is_matched;
 
-            enum data_source_t { EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2, PRISTINE = 3 };
+            
             data_source_t _data_source;
 
 
@@ -116,6 +115,12 @@ namespace MOD {
             void set_trigger_jet();
             void set_trigger_jet_is_matched();
             void set_closest_fastjet_jet_to_trigger_jet();
+
+            void set_event_number(int event_number);
+            void set_run_number(int run_number);
+            void set_version(int version);
+            void set_data_type(std::string a, std::string b);
+            void set_data_source(int data_source);
 
             std::vector<fastjet::PseudoJet> apply_jet_energy_corrections(std::vector<fastjet::PseudoJet> jets) const;
 
