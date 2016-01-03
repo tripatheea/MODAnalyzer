@@ -322,7 +322,7 @@ void MOD::Event::establish_properties() {
 
    JetDefinition jet_def(antikt_algorithm, 0.5);
    ClusterSequence * cs = new ClusterSequence(_particles, jet_def);
-   vector<PseudoJet> ak5_jets = sorted_by_pt(cs->inclusive_jets(3.0));
+   vector<PseudoJet> ak5_jets = sorted_by_pt(cs->inclusive_jets(0.0));
    _jets = ak5_jets;
 
    cs->delete_self_when_unused();
@@ -365,109 +365,115 @@ bool MOD::Event::read_event(istream & data_stream) {
       iss >> tag;      
       istringstream stream(line);
 
-      if (tag == "BeginEvent") {
-
-         stream >> tag >> version_keyword >> version >> a >> b;
-
-         set_version(version);
-         set_data_type(a, b);
-
-      }
-      else if (tag == "1JET") {
-         try {
-            set_data_source(PRISTINE);
-            
-            stream >> tag >> px >> py >> pz >> energy >> jec >> weight;
-
-            _weight = weight;
-
-            PseudoJet jet = PseudoJet(px, py, pz, energy);
-            jet.set_user_info( new MOD::InfoCalibratedJet("1JET", jec) );
-            vector<PseudoJet> jets{jet};
-            
-            _cms_jets = jets;
-
-         }
-         catch (exception& e) {
-            throw runtime_error("Invalid file format 1JET! Something's wrong the way 1JETs have been written!");
-         }
-      }
-      else if (tag == "PFC") {
-         try {
-            set_data_source(EXPERIMENT);
-            add_particle(stream);
-         }
-         catch (exception& e) {
-            throw runtime_error("Invalid file format PFC! Something's wrong with the way PFCs have been written.");
-         }
-      }
-      else if (tag == "AK5") {
-         try {
-            set_data_source(EXPERIMENT);
-            add_cms_jet(stream);
-         }
-         catch (exception& e) {
-            throw runtime_error("Invalid file format AK5! Something's wrong with the way jets have been written.");
-         }
-      }
-      else if (tag == "Trig") {
-         try {
-            // cout << "Trig" << endl;
-            add_trigger(stream);
-         }
-         catch (exception& e) {
-            throw runtime_error("Invalid file format! Something's wrong with the way triggers have been written.");
-         }
-      }
-      else if (tag == "Cond") {
-         try {
-            // cout << "Cond" << endl;
-            add_condition(stream);
-         }
-         catch (exception& e) {
-            throw runtime_error("Invalid file format! Something's wrong with the way conditions have been written.");
-         }
-      }
-      else if (tag == "TRUTH") {
-         try {
-            set_data_source(MC_TRUTH);
-            add_particle(stream);
-         }
-         catch (exception& e) {
-            throw runtime_error("Invalid file format! Something's wrong with the way Truth has been written. ;)");
-         }
-      }
-      else if (tag == "RPFC") {
-         try {
-            set_data_source(MC_RECO);
-            add_particle(stream);
-         }
-         catch (exception& e) {
-            throw runtime_error("Invalid file format! Something's wrong with the way RPFC has been written. ;)");
-         }
-      }
-      else if (tag == "PDPFC") {
-         try {
-            set_data_source(PRISTINE);
-            add_particle(stream);
-         }
-         catch (exception& e) {
-            throw runtime_error("Invalid file format! Something's wrong with the way RPFC has been written. ;)");
-         }
-      }
-      else if (tag == "EndEvent") {
-         
-         // cout << "EndEvent" << endl;
-
-         establish_properties();
-         return true;
-      }
-      else if (tag == "#") {
-         // This line in the data file represents a comment. Just ignore it.
+      if (line.empty()) {
+         continue;
       }
       else {
-         throw runtime_error("Invalid file format! Unrecognized tag: " + tag + "!");
+         if (tag == "BeginEvent") {
+
+            stream >> tag >> version_keyword >> version >> a >> b;
+
+            set_version(version);
+            set_data_type(a, b);
+
+         }
+         else if (tag == "1JET") {
+            try {
+               set_data_source(PRISTINE);
+               
+               stream >> tag >> px >> py >> pz >> energy >> jec >> weight;
+
+               _weight = weight;
+
+               PseudoJet jet = PseudoJet(px, py, pz, energy);
+               jet.set_user_info( new MOD::InfoCalibratedJet("1JET", jec) );
+               vector<PseudoJet> jets{jet};
+               
+               _cms_jets = jets;
+
+            }
+            catch (exception& e) {
+               throw runtime_error("Invalid file format 1JET! Something's wrong the way 1JETs have been written!");
+            }
+         }
+         else if (tag == "PFC") {
+            try {
+               set_data_source(EXPERIMENT);
+               add_particle(stream);
+            }
+            catch (exception& e) {
+               throw runtime_error("Invalid file format PFC! Something's wrong with the way PFCs have been written.");
+            }
+         }
+         else if (tag == "AK5") {
+            try {
+               set_data_source(EXPERIMENT);
+               add_cms_jet(stream);
+            }
+            catch (exception& e) {
+               throw runtime_error("Invalid file format AK5! Something's wrong with the way jets have been written.");
+            }
+         }
+         else if (tag == "Trig") {
+            try {
+               // cout << "Trig" << endl;
+               add_trigger(stream);
+            }
+            catch (exception& e) {
+               throw runtime_error("Invalid file format! Something's wrong with the way triggers have been written.");
+            }
+         }
+         else if (tag == "Cond") {
+            try {
+               // cout << "Cond" << endl;
+               add_condition(stream);
+            }
+            catch (exception& e) {
+               throw runtime_error("Invalid file format! Something's wrong with the way conditions have been written.");
+            }
+         }
+         else if (tag == "TRUTH") {
+            try {
+               set_data_source(MC_TRUTH);
+               add_particle(stream);
+            }
+            catch (exception& e) {
+               throw runtime_error("Invalid file format! Something's wrong with the way Truth has been written. ;)");
+            }
+         }
+         else if (tag == "RPFC") {
+            try {
+               set_data_source(MC_RECO);
+               add_particle(stream);
+            }
+            catch (exception& e) {
+               throw runtime_error("Invalid file format! Something's wrong with the way RPFC has been written. ;)");
+            }
+         }
+         else if (tag == "PDPFC") {
+            try {
+               set_data_source(PRISTINE);
+               add_particle(stream);
+            }
+            catch (exception& e) {
+               throw runtime_error("Invalid file format! Something's wrong with the way RPFC has been written. ;)");
+            }
+         }
+         else if (tag == "EndEvent") {
+            
+            // cout << "EndEvent" << endl;
+
+            establish_properties();
+            return true;
+         }
+         else if (tag == "#") {
+            // This line in the data file represents a comment. Just ignore it.
+         }
+         else {
+            throw runtime_error("Invalid file format! Unrecognized tag: " + tag + "!");
+         }
       }
+      
    }
 
    return false;
