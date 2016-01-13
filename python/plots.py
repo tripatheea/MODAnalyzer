@@ -67,7 +67,7 @@ plt.rc('font', family='serif', size=43)
 
 
 plot_labels = { "data": "CMS 2010 Open Data", "pythia": "Pythia 8.212", "herwig": "Herwig++ 2.7.1", "sherpa": "Sherpa 2.2.0", "theory": "Theory (MLL)" }
-plot_colors = {"theory": "red", "pythia": "blue", "herwig": "green", "sherpa": "orange", "pythia_post": "magenta", "data": "black", "data_post": "red"}
+plot_colors = {"theory": "red", "pythia": "blue", "herwig": "green", "sherpa": "orange", "pythia_post": "magenta", "data": "black", "data_post": "orange"}
 
 
 
@@ -302,7 +302,7 @@ def plot_zg_pfc_pt_cut(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
   plt.ylabel("$\displaystyle \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=80, rotation=0, labelpad=115, y=0.39)
   
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -395,9 +395,9 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 
     properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
 
-    properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-    properties_herwig = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-    properties_sherpa = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    properties_pythia = parse_file("/Users/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    properties_herwig = parse_file("/Users/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    properties_sherpa = parse_file("/Users/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
 
     zg_data = properties[zg_filename]
     prescales = properties['prescale']
@@ -427,8 +427,8 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 
     # Theory Plots Begin.
     
-    points_th_gluon = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_gluon_pt" + str(pT_lower_cut) + "_zc" + str(zg_cut).replace(".", "") + ".dat")
-    points_th_quark = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_quark_pt" + str(pT_lower_cut) + "_zc" + str(zg_cut).replace(".", "") + ".dat")
+    points_th_gluon = parse_theory_file("/Users/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_gluon_pt" + str(pT_lower_cut) + "_zc" + str(zg_cut).replace(".", "") + ".dat")
+    points_th_quark = parse_theory_file("/Users/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_quark_pt" + str(pT_lower_cut) + "_zc" + str(zg_cut).replace(".", "") + ".dat")
 
     points = defaultdict(list)
 
@@ -802,7 +802,7 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 
     # 1 - ((1 - 0.895) * 21.429)/30
     if data:
-      ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+      ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
       plt.gca().add_artist(ab)
       preliminary_text = "Prelim. (20\%)"
       plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -985,7 +985,7 @@ def plot_JEC():
   plt.autoscale(True)
 
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1037,7 +1037,7 @@ def plot_jet_area():
   plt.xlabel('Jet Area', fontsize=75)
   plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1110,7 +1110,7 @@ def plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05'
   plt.ylabel("$\displaystyle \\frac{1}{\sigma} \\frac{ \mathrm{d} \sigma}{ \mathrm{d} z_g}$", fontsize=80, rotation=0, labelpad=115, y=0.39)
   
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1146,9 +1146,9 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
 
   for mc_type in ["truth", "reco"]:
 
-    pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-    herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-    sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    pythia_properties = parse_file("/Users/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    herwig_properties = parse_file("/Users/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    sherpa_properties = parse_file("/Users/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
 
     pythia_pTs = pythia_properties['hardest_pT']
     herwig_pTs = herwig_properties['hardest_pT']
@@ -1156,16 +1156,16 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
 
 
 
-    pythia_pt_hist = Hist(100, 0, 700, title="Pythia 8.212", linewidth=5, markersize=5.0, color="red")
+    pythia_pt_hist = Hist(100, 0, 700, title=plot_labels['pythia'], linewidth=5, markersize=5.0, color=plot_colors['pythia'])
     bin_width_pythia = (pythia_pt_hist.upperbound() - pythia_pt_hist.lowerbound()) / pythia_pt_hist.nbins()
 
-    herwig_pt_hist = Hist(100, 0, 700, title="Herwig++ 2.7.1", linewidth=5, markersize=5.0, color="green")
+    herwig_pt_hist = Hist(100, 0, 700, title=plot_labels['herwig'], linewidth=5, markersize=5.0, color=plot_colors['herwig'])
     bin_width_herwig = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
 
-    sherpa_pt_hist = Hist(100, 0, 700, title="Sherpa 2.2.0", linewidth=5, markersize=5.0, color="blue")
+    sherpa_pt_hist = Hist(100, 0, 700, title=plot_labels['sherpa'], linewidth=5, markersize=5.0, color=plot_colors['sherpa'])
     bin_width_sherpa = (sherpa_pt_hist.upperbound() - sherpa_pt_hist.lowerbound()) / sherpa_pt_hist.nbins()
 
-    experiment_pt_hist = Hist(100, 0, 700, title='CMS Open Data 2010', markersize=3.0, color='black')
+    experiment_pt_hist = Hist(100, 0, 700, title=plot_labels['data'], markersize=3.0, color=plot_colors['data'])
     bin_width_experiment = (experiment_pt_hist.upperbound() - experiment_pt_hist.lowerbound()) / experiment_pt_hist.nbins()
 
 
@@ -1190,10 +1190,10 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
 
 
 
-    data_plot = rplt.errorbar(experiment_pt_hist, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-    rplt.hist(pythia_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-    rplt.hist(herwig_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-    rplt.hist(sherpa_pt_hist, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    rplt.hist(sherpa_pt_hist, zorder=1, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    rplt.hist(herwig_pt_hist, zorder=2, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    rplt.hist(pythia_pt_hist, zorder=3, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    data_plot = rplt.errorbar(experiment_pt_hist, zorder=10, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
     
 
     data_x_errors, data_y_errors = [], []
@@ -1239,7 +1239,7 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
     ax1.set_ylabel("Ratio           \nto           \n" + "Data" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
 
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.94), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.94), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.305, 0.93, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1353,7 +1353,7 @@ def plot_hardest_pt_softdrop(pT_lower_cut=100, pT_upper_cut=20000):
 
   # Legends End.
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1404,7 +1404,7 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
 
   for mc_label in ["truth", "reco"]:
 
-    pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat")
+    pythia_properties = parse_file("/Users/aashish/pythia_" + mc_label + ".dat")
     pythia_pre = pythia_properties['mul_pre_SD']
     pythia_post = pythia_properties['mul_post_SD']
 
@@ -1415,17 +1415,17 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
 
     # Data.
     
-    multi_before_SD_hist = Hist(50, -1, 101, markersize=3.0, color='black')
+    multi_before_SD_hist = Hist(50, -1, 101, markersize=3.0, color=plot_colors['data'])
     bin_width_before = (multi_before_SD_hist.upperbound() - multi_before_SD_hist.lowerbound()) / multi_before_SD_hist.nbins()
     map(multi_before_SD_hist.Fill, multi_before_SD, prescales)
     multi_before_SD_hist.Scale(1.0 / (multi_before_SD_hist.GetSumOfWeights() * bin_width_before))
-    data_before_plot = rplt.errorbar(multi_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    data_before_plot = rplt.errorbar(multi_before_SD_hist, zorder=20, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-    multi_after_SD_hist = Hist(50, -1, 101, markersize=3.0, color='red')
+    multi_after_SD_hist = Hist(50, -1, 101, markersize=3.0, color=plot_colors['data_post'])
     bin_width_after = (multi_after_SD_hist.upperbound() - multi_after_SD_hist.lowerbound()) / multi_after_SD_hist.nbins()
     map(multi_after_SD_hist.Fill, multi_after_SD, prescales)
     multi_after_SD_hist.Scale(1.0 / (multi_after_SD_hist.GetSumOfWeights() * bin_width_after))
-    data_after_plot = rplt.errorbar(multi_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    data_after_plot = rplt.errorbar(multi_after_SD_hist, zorder=10, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
     
     # Data Ends.
 
@@ -1437,13 +1437,13 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
     bin_width_before = (pythia_pre_hist.upperbound() - pythia_pre_hist.lowerbound()) / pythia_pre_hist.nbins()
     map(pythia_pre_hist.Fill, pythia_pre)
     pythia_pre_hist.Scale(1.0 / (pythia_pre_hist.GetSumOfWeights() * bin_width_before))
-    pythia_before_plot = rplt.hist(pythia_pre_hist)
+    pythia_before_plot = rplt.hist(pythia_pre_hist, zorder=2)
 
     pythia_post_hist = Hist(50, -1, 101, linewidth=5, color=plot_colors['pythia_post'])
     bin_width_after = (pythia_post_hist.upperbound() - pythia_post_hist.lowerbound()) / pythia_post_hist.nbins()
     map(pythia_post_hist.Fill, pythia_post)
     pythia_post_hist.Scale(1.0 / (pythia_post_hist.GetSumOfWeights() * bin_width_after))
-    pythia_after_plot = rplt.hist(pythia_post_hist)
+    pythia_after_plot = rplt.hist(pythia_post_hist, zorder=1)
     # Pythia Ends.
 
     # Monte Carlo Ends.
@@ -1468,10 +1468,10 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
 
     # Legends End.
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.91), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
-    plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+    plt.gcf().text(0.29, 0.905, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
     plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
@@ -1503,69 +1503,104 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
 def plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000):
   properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
-  multi_before_SD = properties['charged_multiplicity_before_SD']
-  multi_after_SD = properties['charged_multiplicity_after_SD']  
+  multi_before_SD = properties['chrg_mul_pre_SD']
+  multi_after_SD = properties['chrg_mul_post_SD']  
   prescales = properties['prescale']
 
-  multi_before_SD_hist = Hist(150, 0, 150, title='Before SoftDrop (Charged Jets)', markersize=3.0, color='black')
-  bin_width_before = (multi_before_SD_hist.upperbound() - multi_before_SD_hist.lowerbound()) / multi_before_SD_hist.nbins()
+  for mc_label in ["truth", "reco"]:
 
-  multi_after_SD_hist = Hist(150, 0, 150, title='After SoftDrop (Charged Jets)', markersize=3.0, color='red')
-  bin_width_after = (multi_after_SD_hist.upperbound() - multi_after_SD_hist.lowerbound()) / multi_after_SD_hist.nbins()
+    pythia_properties = parse_file("/Users/aashish/pythia_" + mc_label + ".dat")
+    pythia_pre = pythia_properties['chrg_mul_pre_SD']
+    pythia_post = pythia_properties['chrg_mul_post_SD']
 
-  map(multi_before_SD_hist.Fill, multi_before_SD, prescales)
-  map(multi_after_SD_hist.Fill, multi_after_SD, prescales)
-  
-  multi_before_SD_hist.Scale(1.0 / (multi_before_SD_hist.GetSumOfWeights() * bin_width_before))
-  multi_after_SD_hist.Scale(1.0 / (multi_after_SD_hist.GetSumOfWeights() * bin_width_after))
-  
-  pT_before_SD_plot = rplt.errorbar(multi_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-  pT_after_SD_plot = rplt.errorbar(multi_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-  
-  # plt.yscale('log')
+    data_before_label = "Before SoftDrop"
+    data_after_label = "After SoftDrop"
+    pythia_before_label = plot_labels['pythia'] + " (Before)"
+    pythia_after_label = plot_labels['pythia'] + " (After)"
 
-  # Legends Begin.
+    # Data.
+    
+    multi_before_SD_hist = Hist(50, -1, 101, markersize=3.0, color=plot_colors['data'])
+    bin_width_before = (multi_before_SD_hist.upperbound() - multi_before_SD_hist.lowerbound()) / multi_before_SD_hist.nbins()
+    map(multi_before_SD_hist.Fill, multi_before_SD, prescales)
+    multi_before_SD_hist.Scale(1.0 / (multi_before_SD_hist.GetSumOfWeights() * bin_width_before))
+    data_before_plot = rplt.errorbar(multi_before_SD_hist, zorder=20, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-  legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
-  plt.gca().add_artist(legend)
-
-  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-  if pT_upper_cut != 20000:
-    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
-  else:
-    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
-  plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.86, 0.70])
-
-  # Legends End.
-
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
-  plt.gca().add_artist(ab)
-  preliminary_text = "Prelim. (20\%)"
-  plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
-
-  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
-
-  plt.xlabel('Constituent Multiplicity', fontsize=75)
-  plt.ylabel('$\mathrm{A.U.}$', fontsize=55, rotation=0, labelpad=75.)
-  
-  plt.gcf().set_size_inches(30, 21.4285714, forward=1)
-
-  plt.gca().autoscale(True)
-  plt.gca().set_ylim(0., 1.1 * plt.gca().get_ylim()[1])
-
-  plt.gca().xaxis.set_minor_locator(MultipleLocator(5))
-  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.002))
-  plt.tick_params(which='major', width=5, length=25, labelsize=70)
-  plt.tick_params(which='minor', width=3, length=15)
-
-  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+    multi_after_SD_hist = Hist(50, -1, 101, markersize=3.0, color=plot_colors['data_post'])
+    bin_width_after = (multi_after_SD_hist.upperbound() - multi_after_SD_hist.lowerbound()) / multi_after_SD_hist.nbins()
+    map(multi_after_SD_hist.Fill, multi_after_SD, prescales)
+    multi_after_SD_hist.Scale(1.0 / (multi_after_SD_hist.GetSumOfWeights() * bin_width_after))
+    data_after_plot = rplt.errorbar(multi_after_SD_hist, zorder=10, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    
+    # Data Ends.
 
 
-  print "Printing charged constituent multiplicity softdrop with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+    # Monte Carlo.
 
-  plt.savefig("plots/" + get_version(input_analysis_file) + "/charged_constituent_multiplicity_softdrop/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
-  # plt.show()
-  plt.clf()
+    # Pythia.
+    pythia_pre_hist = Hist(50, -1, 101, linewidth=5, color=plot_colors['pythia'])
+    bin_width_before = (pythia_pre_hist.upperbound() - pythia_pre_hist.lowerbound()) / pythia_pre_hist.nbins()
+    map(pythia_pre_hist.Fill, pythia_pre)
+    pythia_pre_hist.Scale(1.0 / (pythia_pre_hist.GetSumOfWeights() * bin_width_before))
+    pythia_before_plot = rplt.hist(pythia_pre_hist, zorder=2)
+
+    pythia_post_hist = Hist(50, -1, 101, linewidth=5, color=plot_colors['pythia_post'])
+    bin_width_after = (pythia_post_hist.upperbound() - pythia_post_hist.lowerbound()) / pythia_post_hist.nbins()
+    map(pythia_post_hist.Fill, pythia_post)
+    pythia_post_hist.Scale(1.0 / (pythia_post_hist.GetSumOfWeights() * bin_width_after))
+    pythia_after_plot = rplt.hist(pythia_post_hist, zorder=1)
+    # Pythia Ends.
+
+    # Monte Carlo Ends.
+
+
+    # plt.yscale('log')
+
+    # Legends Begin.
+
+    handles = [data_before_plot, data_after_plot, pythia_before_plot, pythia_after_plot]
+    labels = [data_before_label, data_after_label, pythia_before_label, pythia_after_label]
+
+    legend = plt.gca().legend(handles, labels, loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.96, 1.0])
+    plt.gca().add_artist(legend)
+
+    extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+    if pT_upper_cut != 20000:
+      labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
+    else:
+      labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
+    plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.58])
+
+    # Legends End.
+
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    plt.gca().add_artist(ab)
+    preliminary_text = "Prelim. (20\%)"
+    plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+    plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+    plt.xlabel('Charged Constituent Multiplicity', fontsize=75)
+    plt.ylabel('$\mathrm{A.U.}$', fontsize=55, rotation=0, labelpad=75.)
+    
+    plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+    plt.gca().autoscale(True)
+    plt.gca().set_ylim(0., 1.8 * plt.gca().get_ylim()[1])
+    plt.xlim(0, 60)
+
+    plt.gca().xaxis.set_minor_locator(MultipleLocator(2))
+    plt.gca().yaxis.set_minor_locator(MultipleLocator(0.002))
+    plt.tick_params(which='major', width=5, length=25, labelsize=70)
+    plt.tick_params(which='minor', width=3, length=15)
+
+    plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+    print "Printing charged constituent multiplicity with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+    plt.savefig("plots/" + get_version(input_analysis_file) + "/charged_constituent_multiplicity_softdrop/" + mc_label + "/pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_multiplicity.pdf")
+    # plt.show()
+    plt.clf()
 
 
 
@@ -1618,7 +1653,7 @@ def plot_constituent_multiplicity_softdrop_multiple_jet_correction_level(pT_lowe
 
   # Legends End.
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1657,27 +1692,27 @@ def plot_fractional_pT_loss(pT_lower_cut=100, pT_upper_cut=20000):
 
   for mc_type in ["truth", "reco"]:
 
-    pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat")
-    herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat")
-    sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat")
+    pythia_properties = parse_file("/Users/aashish/pythia_" + mc_type + ".dat")
+    herwig_properties = parse_file("/Users/aashish/herwig_" + mc_type + ".dat")
+    sherpa_properties = parse_file("/Users/aashish/sherpa_" + mc_type + ".dat")
 
-    log_fractional_energy_loss = np.log(properties['frac_pT_loss'])
-    log_pythia_fractional_energy_loss = np.log(pythia_properties['frac_pT_loss'])
-    log_herwig_fractional_energy_loss = np.log(herwig_properties['frac_pT_loss'])
-    log_sherpa_fractional_energy_loss = np.log(sherpa_properties['frac_pT_loss'])
+    log_fractional_energy_loss = properties['frac_pT_loss']
+    log_pythia_fractional_energy_loss = pythia_properties['frac_pT_loss']
+    log_herwig_fractional_energy_loss = herwig_properties['frac_pT_loss']
+    log_sherpa_fractional_energy_loss = sherpa_properties['frac_pT_loss']
 
-    bins_linear_log = np.linspace(math.log(0.005, math.e), math.log(0.5, math.e), 50)
+    bins_log = np.logspace(math.log(0.001, math.e), math.log(0.5, math.e), 50, base=np.e)
 
-    fractional_energy_loss_hist = Hist(bins_linear_log, title=plot_labels['data'], markersize=3.0, color='black')
+    fractional_energy_loss_hist = Hist(bins_log, title=plot_labels['data'], markersize=3.0, color=plot_colors['data'])
     bin_width_data = (fractional_energy_loss_hist.upperbound() - fractional_energy_loss_hist.lowerbound()) / fractional_energy_loss_hist.nbins()
 
-    pythia_hist = Hist(bins_linear_log, title=plot_labels['pythia'], linewidth=5, color=plot_colors['pythia'])
+    pythia_hist = Hist(bins_log, title=plot_labels['pythia'], linewidth=5, color=plot_colors['pythia'])
     bin_width_pythia = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
 
-    herwig_hist = Hist(bins_linear_log, title=plot_labels['herwig'], linewidth=5, color=plot_colors['herwig'])
+    herwig_hist = Hist(bins_log, title=plot_labels['herwig'], linewidth=5, color=plot_colors['herwig'])
     bin_width_herwig = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
 
-    sherpa_hist = Hist(bins_linear_log, title=plot_labels['sherpa'], linewidth=5, color=plot_colors['sherpa'])
+    sherpa_hist = Hist(bins_log, title=plot_labels['sherpa'], linewidth=5, color=plot_colors['sherpa'])
     bin_width_sherpa = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
 
     map(fractional_energy_loss_hist.Fill, log_fractional_energy_loss, prescales)
@@ -1690,14 +1725,16 @@ def plot_fractional_pT_loss(pT_lower_cut=100, pT_upper_cut=20000):
     herwig_hist.Scale(1.0 / (herwig_hist.GetSumOfWeights() * bin_width_herwig))
     sherpa_hist.Scale(1.0 / (sherpa_hist.GetSumOfWeights() * bin_width_sherpa))
 
-    rplt.errorbar(fractional_energy_loss_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-    rplt.hist(pythia_hist, normed=1, histtype='step')
-    rplt.hist(herwig_hist, normed=1, histtype='step')
-    rplt.hist(sherpa_hist, normed=1, histtype='step')
+    rplt.hist(sherpa_hist, zorder=1, normed=1, histtype='step')
+    rplt.hist(herwig_hist, zorder=2, normed=1, histtype='step')
+    rplt.hist(pythia_hist, zorder=3, normed=1, histtype='step')
+    rplt.errorbar(fractional_energy_loss_hist, zorder=10, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    
 
     # Legends Begin.
 
-    legend = plt.gca().legend(loc=1, frameon=0, fontsize=60)
+    handles, labels = plt.gca().get_legend_handles_labels()
+    legend = plt.gca().legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60)
     plt.gca().add_artist(legend)
 
     extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
@@ -1705,14 +1742,14 @@ def plot_fractional_pT_loss(pT_lower_cut=100, pT_upper_cut=20000):
       labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
     else:
       labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
-    plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.51, 0.60])
+    plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.60])
 
     # Legends End.
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.21, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
-    plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+    plt.gcf().text(0.27, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
     plt.xlabel('Fractional pT Loss', fontsize=75)
     plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
@@ -1722,13 +1759,13 @@ def plot_fractional_pT_loss(pT_lower_cut=100, pT_upper_cut=20000):
     plt.gca().autoscale(True)
     plt.gca().set_ylim(0., plt.gca().get_ylim()[1] * 1.5)
 
-    x = np.linspace(math.log(0.005, math.e), math.log(0.5, math.e), 5)
-    labels = [str(round(math.exp(i), 2)) for i in x]
-    plt.xticks(x, labels)
+    plt.xscale('log')
 
+  
+    plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
 
-    plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
-    plt.gca().yaxis.set_minor_locator(MultipleLocator(0.05))
+    plt.gca().yaxis.set_minor_locator(MultipleLocator(0.5))
+    
     plt.tick_params(which='major', width=5, length=25, labelsize=70)
     plt.tick_params(which='minor', width=3, length=15)
 
@@ -1786,7 +1823,7 @@ def plot_charged_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
 
   # # Legends End.
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1800,6 +1837,7 @@ def plot_charged_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
 
   plt.gca().xaxis.set_minor_locator(MultipleLocator(5))
   plt.gca().yaxis.set_minor_locator(MultipleLocator(0.005))
+
   plt.tick_params(which='major', width=5, length=25, labelsize=70)
   plt.tick_params(which='minor', width=3, length=15)
 
@@ -1826,7 +1864,7 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
   prescales = properties['prescale']
 
   for mc_label in ["truth", "reco"]:
-    pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+    pythia_properties = parse_file("/Users/aashish/pythia_" + mc_label + ".dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
     
     pythia_pre_SD = pythia_properties['mass_pre_SD']
     pythia_post_SD = pythia_properties['mass_post_SD']
@@ -1839,17 +1877,17 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
 
     # Data.
 
-    jet_mass_before_SD_hist = Hist(100, 0, 150, markersize=3.0, color='black')
+    jet_mass_before_SD_hist = Hist(100, 0, 150, markersize=3.0, color=plot_colors['data'])
     bin_width_before = (jet_mass_before_SD_hist.upperbound() - jet_mass_before_SD_hist.lowerbound()) / jet_mass_before_SD_hist.nbins()
     map(jet_mass_before_SD_hist.Fill, jet_mass_before_SD, prescales)
     jet_mass_before_SD_hist.Scale(1.0 / (jet_mass_before_SD_hist.GetSumOfWeights() * bin_width_before))
-    data_before_plot = rplt.errorbar(jet_mass_before_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    data_before_plot = rplt.errorbar(jet_mass_before_SD_hist, zorder=20, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-    jet_mass_after_SD_hist = Hist(100, 0, 150, markersize=3.0, color='red')
+    jet_mass_after_SD_hist = Hist(100, 0, 150, markersize=3.0, color=plot_colors['data_post'])
     bin_width_after = (jet_mass_after_SD_hist.upperbound() - jet_mass_after_SD_hist.lowerbound()) / jet_mass_after_SD_hist.nbins()
     map(jet_mass_after_SD_hist.Fill, jet_mass_after_SD, prescales)
     jet_mass_after_SD_hist.Scale(1.0 / (jet_mass_after_SD_hist.GetSumOfWeights() * bin_width_after))
-    data_after_plot = rplt.errorbar(jet_mass_after_SD_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    data_after_plot = rplt.errorbar(jet_mass_after_SD_hist, zorder=10, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
     
     # Data Ends.
 
@@ -1860,13 +1898,13 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
     bin_width_before = (pythia_pre_SD_hist.upperbound() - pythia_pre_SD_hist.lowerbound()) / pythia_pre_SD_hist.nbins()
     map(pythia_pre_SD_hist.Fill, pythia_pre_SD)
     pythia_pre_SD_hist.Scale(1.0 / (pythia_pre_SD_hist.GetSumOfWeights() * bin_width_before))
-    pythia_before_plot = rplt.hist(pythia_pre_SD_hist)
+    pythia_before_plot = rplt.hist(pythia_pre_SD_hist, zorder=2)
 
     pythia_post_SD_hist = Hist(100, 0, 150, linewidth=5, color=plot_colors['pythia_post'])
     bin_width_before = (pythia_post_SD_hist.upperbound() - pythia_post_SD_hist.lowerbound()) / pythia_post_SD_hist.nbins()
     map(pythia_post_SD_hist.Fill, pythia_post_SD)
     pythia_post_SD_hist.Scale(1.0 / (pythia_post_SD_hist.GetSumOfWeights() * bin_width_before))
-    pythia_after_plot = rplt.hist(pythia_post_SD_hist)
+    pythia_after_plot = rplt.hist(pythia_post_SD_hist, zorder=1)
     # Pythia Ends.
 
 
@@ -1890,7 +1928,7 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
 
     # # Legends End.
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.91), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.91), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.30, 0.90, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -1997,7 +2035,7 @@ def plot_log_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
 
   # # # Legends End.
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -2161,8 +2199,8 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   zg_cut = float(zg_cut)
 
   properties = parse_file(input_analysis_file, pT_lower_cut, pT_upper_cut)
-  properties_pythia = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pT_upper_cut)
-  properties_herwig = parse_mc_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pT_upper_cut)
+  properties_pythia = parse_mc_file("/Users/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_pythia_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pT_upper_cut)
+  properties_herwig = parse_mc_file("/Users/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_sudakov_safe_herwig_pp2jj_" + str(pT_lower_cut) + "pTcut_7TeV.dat", pT_lower_cut, pT_upper_cut)
 
   zg_data = properties[zg_filename]
   
@@ -2195,8 +2233,8 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
 
   # Theory Plots Begin.
   
-  points_th_gluon = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_gluon_pt" + str(pT_lower_cut) + "_zc" + str(zg_cut).replace(".", "") + ".dat")
-  points_th_quark = parse_theory_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_quark_pt" + str(pT_lower_cut) + "_zc" + str(zg_cut).replace(".", "") + ".dat")
+  points_th_gluon = parse_theory_file("/Users/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_gluon_pt" + str(pT_lower_cut) + "_zc" + str(zg_cut).replace(".", "") + ".dat")
+  points_th_quark = parse_theory_file("/Users/aashish/Dropbox (MIT)/Research/CMSOpenData/Simone/results_7_24_15/band_quark_pt" + str(pT_lower_cut) + "_zc" + str(zg_cut).replace(".", "") + ".dat")
 
   points = defaultdict(list)
 
@@ -2542,7 +2580,7 @@ def plot_log_zg_th_mc_data(pT_lower_cut, pT_upper_cut, zg_cut, zg_filename, rati
   ax1.set_ylim(1.0 - y_limit_ratio_plot, 1.0 + y_limit_ratio_plot)
 
   if data:
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -2621,8 +2659,8 @@ def plot_pts_variable_bin():
   #     print int(event_numbers[i]), int(run_numbers[i])
 
 
-  herwig_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_herwig_pp2jj_150pTcut_7TeV.dat")
-  pythia_pTs = parse_mc_pt_file("/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_pythia_pp2jj_150pTcut_7TeV.dat")
+  herwig_pTs = parse_mc_pt_file("/Users/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_herwig_pp2jj_150pTcut_7TeV.dat")
+  pythia_pTs = parse_mc_pt_file("/Users/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/fastjet_pt_pythia_pp2jj_150pTcut_7TeV.dat")
 
   bins = [80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 340, 380, 420, 460, 500, 600, 700, 800, 900, 1000]
 
@@ -2721,7 +2759,7 @@ def plot_pts_variable_bin():
   ax1.set_ylabel("Ratio           \nto           \n" + "Data" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
 
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -2804,7 +2842,7 @@ def plot_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05'):
 
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -2872,7 +2910,7 @@ def plot_log_delta_R(pT_lower_cut=150, dr_cut='0.05', dr_filename='dr_05'):
 
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -3126,7 +3164,7 @@ def zg_different_pT_cuts(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05'):
 
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -3149,7 +3187,7 @@ def zg_new_mc():
   pT_data = properties['corrected_hardest_pts']
   prescales = properties['prescale']
 
-  monte_carlo_file_name = "/home/aashish/MODMonteCarlo/data/zg_output.dat"
+  monte_carlo_file_name = "/Users/aashish/MODMonteCarlo/data/zg_output.dat"
 
   f = open(monte_carlo_file_name, 'r')
   lines = f.read().split("\n")
@@ -3229,9 +3267,9 @@ def weird_pt(reco=True):
   else:
     tag = "truth"
 
-  pythia_properties = parse_mc("/home/aashish/pythia_" + tag + ".dat")
-  herwig_properties = parse_mc("/home/aashish/herwig_" + tag + ".dat")
-  sherpa_properties = parse_mc("/home/aashish/sherpa_" + tag + ".dat")
+  pythia_properties = parse_mc("/Users/aashish/pythia_" + tag + ".dat")
+  herwig_properties = parse_mc("/Users/aashish/herwig_" + tag + ".dat")
+  sherpa_properties = parse_mc("/Users/aashish/sherpa_" + tag + ".dat")
 
   pythia_pTs = pythia_properties['hardest_pts']
   herwig_pTs = herwig_properties['hardest_pts']
@@ -3261,9 +3299,9 @@ def plot_jet_eta(pT_lower_cut=100):
 
   for mc_type in ["truth", "reco"]:
 
-    pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
-    herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
-    sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+    pythia_properties = parse_file("/Users/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
+    herwig_properties = parse_file("/Users/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
+    sherpa_properties = parse_file("/Users/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
 
     jet_eta = properties['hardest_eta']
     prescales = properties['prescale']
@@ -3294,20 +3332,21 @@ def plot_jet_eta(pT_lower_cut=100):
     sherpa_hist.Scale(1.0 / ( sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
 
     
-    rplt.errorbar(data_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
-    rplt.hist(pythia_hist, normed=1, histtype='step')
-    rplt.hist(herwig_hist, normed=1, histtype='step')
-    rplt.hist(sherpa_hist, normed=1, histtype='step')
+    rplt.errorbar(data_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+    rplt.hist(pythia_hist, zorder=3, normed=1, histtype='step')
+    rplt.hist(herwig_hist, zorder=2, normed=1, histtype='step')
+    rplt.hist(sherpa_hist, zorder=1, normed=1, histtype='step')
     
     handles, labels = plt.gca().get_legend_handles_labels()
-    legend = plt.gca().legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60)
+    handles, labels = handles[::-1], labels[::-1]
+    legend = plt.gca().legend([handles[0]] + handles[1:][::-1], [labels[0]] + labels[1:][::-1], loc=1, frameon=0, fontsize=60)
     plt.gca().add_artist(legend)
 
 
     plt.xlabel('Jet $\\eta$', fontsize=75)
     plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.245, 0.90), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.245, 0.90), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.31, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -3348,9 +3387,9 @@ def plot_jet_phi(pT_lower_cut=100):
 
   for mc_type in ["truth", "reco"]:
 
-    pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
-    herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
-    sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+    pythia_properties = parse_file("/Users/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
+    herwig_properties = parse_file("/Users/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
+    sherpa_properties = parse_file("/Users/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
 
     jet_phi = properties['hardest_phi']
     prescales = properties['prescale']
@@ -3359,9 +3398,9 @@ def plot_jet_phi(pT_lower_cut=100):
     herwig_phi = herwig_properties['hardest_phi']
     sherpa_phi = sherpa_properties['hardest_phi']
 
-    max_phi = max( [ max(pythia_phi), max(herwig_phi), max(sherpa_phi) ]  )
+    max_phi = 2 * np.pi
 
-    data_hist = Hist(50, -5, 5, title=plot_labels['data'])
+    data_hist = Hist(50, 0, max_phi, title=plot_labels['data'])
     map(data_hist.Fill, jet_phi, prescales)
     bin_width_data = (data_hist.upperbound() - data_hist.lowerbound()) / data_hist.nbins()
     data_hist.Scale(1.0 / ( data_hist.GetSumOfWeights() * bin_width_data ))
@@ -3382,20 +3421,21 @@ def plot_jet_phi(pT_lower_cut=100):
     sherpa_hist.Scale(1.0 / ( sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
 
     
-    rplt.errorbar(data_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
-    rplt.hist(pythia_hist, normed=1, histtype='step')
-    rplt.hist(herwig_hist, normed=1, histtype='step')
-    rplt.hist(sherpa_hist, normed=1, histtype='step')
+    rplt.errorbar(data_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+    rplt.hist(pythia_hist, zorder=3, normed=1, histtype='step')
+    rplt.hist(herwig_hist, zorder=2, normed=1, histtype='step')
+    rplt.hist(sherpa_hist, zorder=1, normed=1, histtype='step')
     
     handles, labels = plt.gca().get_legend_handles_labels()
-    legend = plt.gca().legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60)
+    handles, labels = handles[::-1], labels[::-1]
+    legend = plt.gca().legend([handles[0]] + handles[1:][::-1], [labels[0]] + labels[1:][::-1], loc=1, frameon=0, fontsize=60)
     plt.gca().add_artist(legend)
 
 
     plt.xlabel('Jet $\\phi$', fontsize=75)
     plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.245, 0.90), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.245, 0.90), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.31, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -3412,8 +3452,12 @@ def plot_jet_phi(pT_lower_cut=100):
     plt.autoscale()
     plt.ylim( plt.gca().get_ylim()[0], plt.gca().get_ylim()[1] * 1.35 )
 
-    plt.gca().xaxis.set_minor_locator(MultipleLocator(0.2))
-    plt.gca().yaxis.set_minor_locator(MultipleLocator(0.01))
+    # plt.gca().xaxis.set_minor_locator(MultipleLocator(0.2))
+    # plt.gca().yaxis.set_minor_locator(MultipleLocator(0.01))
+    plt.gca().set_xticks( [0, round(0.5*np.pi, 3), round(np.pi, 3), round(1.5*np.pi, 3), round(2*np.pi, 3)] )
+    plt.gca().set_xticklabels( ["0", "$\pi / 2$", "$\pi$", "$3 \pi / 2$", "$2 \pi$"] )
+
+
     plt.tick_params(which='major', width=5, length=25, labelsize=70)
     plt.tick_params(which='minor', width=3, length=15)
 
@@ -3434,9 +3478,9 @@ def plot_hardest_pT_D(pT_lower_cut=100):
 
   for mc_type in ["truth", "reco"]:
 
-    pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
-    herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
-    sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+    pythia_properties = parse_file("/Users/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
+    herwig_properties = parse_file("/Users/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
+    sherpa_properties = parse_file("/Users/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
 
     jet_pT_D = properties['pT_D']
     prescales = properties['prescale']
@@ -3467,10 +3511,13 @@ def plot_hardest_pT_D(pT_lower_cut=100):
     sherpa_hist.Scale(1.0 / ( sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
 
     
-    rplt.errorbar(data_hist, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
-    rplt.hist(pythia_hist, normed=1, histtype='step')
-    rplt.hist(herwig_hist, normed=1, histtype='step')
-    rplt.hist(sherpa_hist, normed=1, histtype='step')
+    rplt.hist(sherpa_hist, zorder=1, normed=1, histtype='step')
+    rplt.hist(herwig_hist, zorder=2, normed=1, histtype='step')
+    rplt.hist(pythia_hist, zorder=3, normed=1, histtype='step')
+    rplt.errorbar(data_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+    
+    
+    
     
     handles, labels = plt.gca().get_legend_handles_labels()
     legend = plt.gca().legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60)
@@ -3480,7 +3527,7 @@ def plot_hardest_pT_D(pT_lower_cut=100):
     plt.xlabel('$p_T^D$', fontsize=75)
     plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.20, 0.90), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.20, 0.90), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.27, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -3499,6 +3546,8 @@ def plot_hardest_pT_D(pT_lower_cut=100):
 
     plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
     plt.gca().yaxis.set_minor_locator(MultipleLocator(0.2))
+    
+
     plt.tick_params(which='major', width=5, length=25, labelsize=70)
     plt.tick_params(which='minor', width=3, length=15)
 
@@ -3521,9 +3570,9 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
   for mc_type in ["truth", "reco"]:
 
   
-    pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-    herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-    sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    pythia_properties = parse_file("/Users/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    herwig_properties = parse_file("/Users/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    sherpa_properties = parse_file("/Users/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
 
 
     prescales = properties['prescale']
@@ -3602,7 +3651,7 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -3689,7 +3738,7 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -3777,7 +3826,7 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -3864,7 +3913,7 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -3950,7 +3999,7 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -3990,9 +4039,9 @@ def plot_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_1
   for mc_type in ["truth", "reco"]:
 
   
-    pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-    herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-    sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    pythia_properties = parse_file("/Users/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    herwig_properties = parse_file("/Users/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    sherpa_properties = parse_file("/Users/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
 
 
     prescales = properties['prescale']
@@ -4071,7 +4120,7 @@ def plot_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_1
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -4158,7 +4207,7 @@ def plot_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_1
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -4244,7 +4293,7 @@ def plot_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_1
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -4329,7 +4378,7 @@ def plot_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_1
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -4413,7 +4462,7 @@ def plot_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_1
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -4452,7 +4501,7 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
   for mc_type in ["truth", "reco"]:
 
   
-    pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    pythia_properties = parse_file("/Users/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
 
     prescales = properties['prescale']
 
@@ -4527,7 +4576,7 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.53, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -4605,7 +4654,7 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.53, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -4686,7 +4735,7 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.53, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -4765,7 +4814,7 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.53, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -4844,7 +4893,7 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.53, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -4881,7 +4930,7 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
   for mc_type in ["truth", "reco"]:
 
   
-    pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    pythia_properties = parse_file("/Users/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
 
     prescales = properties['prescale']
 
@@ -4969,7 +5018,7 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.51, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -5052,7 +5101,7 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.51, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -5137,7 +5186,7 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.51, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -5221,7 +5270,7 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.51, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -5305,7 +5354,7 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.51, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -5343,7 +5392,7 @@ def plot_charged_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
   for mc_type in ["truth", "reco"]:
 
   
-    pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    pythia_properties = parse_file("/Users/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
 
     prescales = properties['prescale']
 
@@ -5419,7 +5468,7 @@ def plot_charged_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.53, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -5498,7 +5547,7 @@ def plot_charged_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.53, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -5579,7 +5628,7 @@ def plot_charged_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.53, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -5658,7 +5707,7 @@ def plot_charged_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.53, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -5737,7 +5786,7 @@ def plot_charged_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.53, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -5779,7 +5828,7 @@ def plot_softcut_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
   for mc_type in ["truth", "reco"]:
 
   
-    pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+    pythia_properties = parse_file("/Users/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
 
     prescales = properties['prescale']
 
@@ -5867,7 +5916,7 @@ def plot_softcut_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.51, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -5950,7 +5999,7 @@ def plot_softcut_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.51, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -6035,7 +6084,7 @@ def plot_softcut_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.51, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -6119,7 +6168,7 @@ def plot_softcut_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.51, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -6203,7 +6252,7 @@ def plot_softcut_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.51, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
     plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -6233,6 +6282,81 @@ def plot_softcut_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
     # =============================================================================================== z_g * theta_g^(0.5) PLOT ENDS ===========================================================================================================================
 
 
+
+
+
+def plot_log_plot():
+  x = np.arange(1, 1000, 5)
+  y = 1 / x
+
+  # plt.semilogx(x, y, lw=5)
+  plt.plot(x, y, lw=5)
+
+  plt.xscale('log')
+
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
+
+  plt.gcf().set_size_inches(30, 21, forward=1)
+  
+  
+  plt.savefig("plots/reciprocal.pdf")
+  plt.clf()
+
+def log_plot():
+  properties = parse_file(input_analysis_file, pT_lower_cut=150)
+
+  zg = properties['zg_05']
+  prescales = properties['prescale']
+
+  # zg = np.linspace(0.1, 0.5, 100)
+  # prescales = 1 / zg
+
+  bins_linear_log = np.logspace(np.log(0.10), np.log(0.5), 30, base=np.e)
+
+
+
+
+  theta_g_hist = Hist(bins_linear_log, markersize=3.0, color='black')
+  bin_width = (theta_g_hist.upperbound() - theta_g_hist.lowerbound()) / theta_g_hist.nbins()
+  map(theta_g_hist.Fill, zg, prescales)
+  theta_g_hist.Scale(1.0 / (theta_g_hist.GetSumOfWeights() * bin_width))
+  rplt.errorbar(theta_g_hist, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+
+
+  
+  
+  plt.autoscale(True)
+
+  plt.xlim(0.01, 1)
+
+  # plt.ylim(0, 1.6)
+  plt.xscale('log')
+
+  
+  plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+
+
+  
+
+  plt.tick_params(which='major', width=5, length=45, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=25)
+
+  plt.gcf().set_size_inches(30, 21, forward=1)
+
+  plt.savefig("plots/zg_log.pdf")
+
+  plt.clf()
+
+
+
+
+
+# plot_log_plot()
+
+# log_plot()
 
 # plot_theta_g_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 # plot_theta_g_plots(pT_lower_cut=300, zg_cut='0.10', zg_filename='zg_10')
@@ -6518,7 +6642,7 @@ def plot_softcut_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
 
 # ======================================================================= Basic ======================================================================= 
 
-plot_jet_eta(pT_lower_cut=100)
+# plot_jet_eta(pT_lower_cut=100)
 # plot_jet_phi(pT_lower_cut=100)
 # plot_pts(pT_lower_cut=100)
 
@@ -6574,6 +6698,7 @@ plot_jet_eta(pT_lower_cut=100)
 
 # plot_jet_mass_spectrum(pT_lower_cut=150)
 # plot_constituent_multiplicity_softdrop(pT_lower_cut=150)
+# plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=150)
 # plot_hardest_pT_D(pT_lower_cut=150)
 # plot_fractional_pT_loss(pT_lower_cut=150)
 
@@ -6592,4 +6717,4 @@ plot_jet_eta(pT_lower_cut=100)
 
 
 
-# call(["python", "/home/aashish/root-6.04.06/macros/MODAnalyzer/utilities/sync_plots.py"])
+# call(["python", "/Users/aashish/root/macros/MODAnalyzer/utilities/sync_plots.py"])

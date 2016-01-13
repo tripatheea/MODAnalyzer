@@ -206,13 +206,14 @@ def plot_turn_on_curves():
 
   expected_trigger_names = ["HLT\_Jet180U", "HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U", "HLT\_Jet15U\_HcalNoiseFiltered" ]
   labels = ["Jet180U", "Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15\_HNF" ]
+  lower_pTs = [180, 140, 100, 70, 50, 30, 15]
 
   colors = ['purple', 'orange', 'brown', 'red', 'blue', 'magenta', 'green']
   colors = colors[::-1]
 
   pt_hists = []
   for i in range(0, len(expected_trigger_names)):
-    pt_hists.append(Hist(60, 0, 300, title=labels[i], markersize=1.0, color=colors[i], linewidth=5))
+    pt_hists.append(Hist( int( (300 - lower_pTs[i]) / 5), lower_pTs[i], 300, title=labels[i], markersize=1.0, color=colors[i], linewidth=5))
 
   for i in range(0, len(pTs)):
     for j in range(0, len(expected_trigger_names)):
@@ -243,9 +244,9 @@ def plot_turn_on_curves():
   plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
   plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
 
-  fn = get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
+  fn = get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.9249985), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.9249985), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.30, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -330,7 +331,7 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
   plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   plt.gcf().text(0.29, 0.885, "Prelim. (20\%)", fontsize=50, weight='bold', color='#444444', multialignment='center')
 
@@ -448,12 +449,14 @@ def plot_all_trigger_efficiency_curves():
   colors = ['purple', 'orange', 'brown', 'red', 'blue', 'magenta', 'green']
   expected_trigger_names = ["HLT\_Jet180U", "HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U", "HLT\_Jet15U\_HcalNoiseFiltered" ]
   labels = ["Jet180U / 140U", "Jet140U / 100U", "Jet100U / 70U", "Jet70U / 50U", "Jet50U / 30U", "Jet30U / 15U\_HNF", "" ]
+  lower_pTs = [180, 140, 100, 70, 50, 30, 15]
+  lower_pTs = lower_pTs[::-1]
 
-  cms_turn_on_pTs = [0, 0, 0, 153, 114, 84]
+  cms_turn_on_pTs = [325, 260, 196, 153, 114, 84]
 
   pt_hists = []
   for j in range(0, len(expected_trigger_names)):
-    pt_hists.append(Hist(60, 0, 300, color=colors[j], title=labels[j], markersize=1.0, linewidth=5))
+    pt_hists.append(Hist( 300, 0, 300, color='white', markersize=0.0, linewidth=0))
 
 
   for i in range(0, len(expected_trigger_names)):
@@ -468,18 +471,48 @@ def plot_all_trigger_efficiency_curves():
     ratio_hists.append(pt_hists[i] / pt_hists[i + 1])
 
 
+  error_plots_x, error_plots_y = [], []
   for i in range(len(ratio_hists) - 1, -1, -1):
-    rplt.errorbar(ratio_hists[i], emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    error_plot = rplt.errorbar(ratio_hists[i], markerfacecolor='white', color='white', markersize=0, pickradius=0, capthick=0, capsize=0, elinewidth=0)
+    error_plots_x.append( error_plot[0].get_xdata() )
+    error_plots_y.append( error_plot[0].get_ydata() )
+
+  filtered_x_s, filtered_y_s = [], []
+  for i in range(len(error_plots_x) - 1, -1, -1):
+    filtered_x, filtered_y = [], []
+    for j in range(len(error_plots_x[i])):
+      x = error_plots_x[i][j]
+      y = error_plots_y[i][j]
+      if x > lower_pTs[i]:
+        filtered_x.append(x)
+        filtered_y.append(y)
+
+    filtered_x_s.append(filtered_x)
+    filtered_y_s.append(filtered_y)
+
+
+
+  for i in range(len(ratio_hists) - 1, -1, -1):
+    new_hist = Hist(30, min(filtered_x_s[i]), max(filtered_x_s[i]), color=colors[i], title=labels[i])
+    
+    map(new_hist.Fill, filtered_x_s[i], filtered_y_s[i])
+
+    rplt.errorbar(new_hist, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    # rplt.errorbar(ratio_hists[i], emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
     
     if cms_turn_on_pTs[i] != 0:
       # plt.plot([cms_turn_on_pTs[i], cms_turn_on_pTs[i]], [plt.gca().get_ylim()[0], 1.], color=colors[i], linewidth=5, linestyle="dashed")
-      plt.gca().annotate("CMS\n" + str(cms_turn_on_pTs[i]) + " GeV", xy=(cms_turn_on_pTs[i], 1.), xycoords='data', xytext=(-100, 250),  textcoords='offset points', color=colors[i], size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[i], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
+      if cms_turn_on_pTs[i] > 153:
+        source = "MOD"
+      else:
+        source = "CMS"
+      plt.gca().annotate(source + "\n" + str(cms_turn_on_pTs[i]) + " GeV", xy=(cms_turn_on_pTs[i], 1.), xycoords='data', xytext=(-100, 250),  textcoords='offset points', color=colors[i], size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[i], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
 
 
   plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -487,7 +520,7 @@ def plot_all_trigger_efficiency_curves():
   plt.gcf().set_snap(1)
 
   # Horizontal Line.
-  plt.plot(list(pt_hists[0].x()), [1] * len(list(pt_hists[0].x())), color="black", linewidth=5, linestyle="dashed")
+  plt.plot([0] + list(pt_hists[0].x()), [1] * (1 + len(list(pt_hists[0].x()))), color="black", linewidth=5, linestyle="dashed")
 
 
   plt.yscale('log')
@@ -531,4 +564,4 @@ def plot_all_trigger_efficiency_curves():
 
 
 # plot_turn_on_curves()
-# plot_all_trigger_efficiency_curves()
+plot_all_trigger_efficiency_curves()
