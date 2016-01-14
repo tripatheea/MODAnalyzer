@@ -13,7 +13,6 @@
 
 #include "fastjet/ClusterSequence.hh"
 #include "../interface/event.h"
-#include "../interface/fractional_jet_multiplicity.h"
 
 using namespace std;
 using namespace fastjet;

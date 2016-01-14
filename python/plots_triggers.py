@@ -237,7 +237,7 @@ def plot_turn_on_curves():
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra]
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5} $"]
+  labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$\n$\eta<2.4$"]
   plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.62])
 
 
@@ -441,7 +441,7 @@ def plot_all_trigger_efficiency_curves():
   trigger_names = properties['trigger_names']
   prescales = properties['prescale']
 
-
+ 
   # colors = ['orange', 'red', 'green', 'blue', 'magenta', 'black']
   # colors = colors[::-1]
 
@@ -456,7 +456,7 @@ def plot_all_trigger_efficiency_curves():
 
   pt_hists = []
   for j in range(0, len(expected_trigger_names)):
-    pt_hists.append(Hist( 300, 0, 300, color='white', markersize=0.0, linewidth=0))
+    pt_hists.append(Hist(50, 0, 300, color=colors[j], title=labels[j], markersize=1.0, linewidth=5))
 
 
   for i in range(0, len(expected_trigger_names)):
@@ -471,34 +471,8 @@ def plot_all_trigger_efficiency_curves():
     ratio_hists.append(pt_hists[i] / pt_hists[i + 1])
 
 
-  error_plots_x, error_plots_y = [], []
   for i in range(len(ratio_hists) - 1, -1, -1):
-    error_plot = rplt.errorbar(ratio_hists[i], markerfacecolor='white', color='white', markersize=0, pickradius=0, capthick=0, capsize=0, elinewidth=0)
-    error_plots_x.append( error_plot[0].get_xdata() )
-    error_plots_y.append( error_plot[0].get_ydata() )
-
-  filtered_x_s, filtered_y_s = [], []
-  for i in range(len(error_plots_x) - 1, -1, -1):
-    filtered_x, filtered_y = [], []
-    for j in range(len(error_plots_x[i])):
-      x = error_plots_x[i][j]
-      y = error_plots_y[i][j]
-      if x > lower_pTs[i]:
-        filtered_x.append(x)
-        filtered_y.append(y)
-
-    filtered_x_s.append(filtered_x)
-    filtered_y_s.append(filtered_y)
-
-
-
-  for i in range(len(ratio_hists) - 1, -1, -1):
-    new_hist = Hist(30, min(filtered_x_s[i]), max(filtered_x_s[i]), color=colors[i], title=labels[i])
-    
-    map(new_hist.Fill, filtered_x_s[i], filtered_y_s[i])
-
-    rplt.errorbar(new_hist, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-    # rplt.errorbar(ratio_hists[i], emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+    rplt.errorbar(ratio_hists[i], emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
     
     if cms_turn_on_pTs[i] != 0:
       # plt.plot([cms_turn_on_pTs[i], cms_turn_on_pTs[i]], [plt.gca().get_ylim()[0], 1.], color=colors[i], linewidth=5, linestyle="dashed")
@@ -506,8 +480,9 @@ def plot_all_trigger_efficiency_curves():
         source = "MOD"
       else:
         source = "CMS"
-      plt.gca().annotate(source + "\n" + str(cms_turn_on_pTs[i]) + " GeV", xy=(cms_turn_on_pTs[i], 1.), xycoords='data', xytext=(-100, 250),  textcoords='offset points', color=colors[i], size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[i], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
+      plt.gca().annotate(source + "\n" + str(cms_turn_on_pTs[i]) + " GeV", xy=(cms_turn_on_pTs[i], 1.), xycoords='data', xytext=(-100, 350),  textcoords='offset points', color=colors[i], size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[i], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
 
+  
 
   plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
@@ -524,7 +499,9 @@ def plot_all_trigger_efficiency_curves():
 
 
   plt.yscale('log')
-  plt.gca().set_ylim(plt.gca().get_ylim()[0], 2000)
+  plt.gca().set_ylim(0.0001, 20000)
+
+
 
   # Legend.
   handles, labels = plt.gca().get_legend_handles_labels()
@@ -534,8 +511,8 @@ def plot_all_trigger_efficiency_curves():
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra]
-  labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5} $"]
-  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.87, 0.67])
+  labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$"]
+  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.46, 0.85])
 
 
 
@@ -563,5 +540,5 @@ def plot_all_trigger_efficiency_curves():
 
 
 
-# plot_turn_on_curves()
-plot_all_trigger_efficiency_curves()
+plot_turn_on_curves()
+# plot_all_trigger_efficiency_curves()
