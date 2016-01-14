@@ -3745,10 +3745,17 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.20, 0.91), xycoords='figure fraction', frameon=0)
+    if zg_cut == "0.10":
+      logo_coords = (0.20, 0.91)
+      text_coords = (0.26, 0.90)
+    else:
+      logo_coords = (0.22, 0.91)
+      text_coords = (0.28, 0.90)
+
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), logo_coords, xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
-    plt.gcf().text(0.26, 0.90, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+    plt.gcf().text(text_coords[0], text_coords[1], preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
     plt.xlabel('$ \\theta_g $', fontsize=75)
     plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
@@ -3832,10 +3839,10 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.54, 0.74])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.22, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
-    plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+    plt.gcf().text(0.28, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
     plt.xlabel('$ z_g \\theta_g $', fontsize=75)
     plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
@@ -3918,10 +3925,10 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.54, 0.74])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.91), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.89), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
-    plt.gcf().text(0.29, 0.90, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+    plt.gcf().text(0.29, 0.88, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
     plt.xlabel('$ z_g \\theta_g^2 $', fontsize=75)
     plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
@@ -6429,7 +6436,8 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     # ============================================================================================= z_g PLOT OF BEGINS ===========================================================================================================================
 
-    bins_log = np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 30, base=np.e)
+
+    bins_log = np.logspace(math.log(0.01, math.e), math.log(1.0, math.e), 30, base=np.e)
 
     # Data.
 
@@ -6491,6 +6499,8 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     
     plt.xscale('log')
+
+
   
     plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
 
@@ -6500,7 +6510,9 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     plt.tick_params(which='minor', width=3, length=15)
 
     plt.gca().autoscale(True)
+
     plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+    
     plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
     plt.savefig("plots/" + get_version(input_analysis_file) + "/charged_theta_g/" + mc_type + "/log/z_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
@@ -8593,14 +8605,14 @@ def log_plot():
 
 # ******************** Log Plots ******************** 
 
-# plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05')
-# plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
-# plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
+plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05')
+plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
+plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
 
-plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
+# plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 
-plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', softcut_pTs = [2])
-plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', softcut_pTs = [5])
+# plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', softcut_pTs = [2])
+# plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', softcut_pTs = [5])
 
 # ******************** Log Plots End ******************** 
 

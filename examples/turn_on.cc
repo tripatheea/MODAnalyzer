@@ -14,7 +14,6 @@
 
 
 #include "../interface/event.h"
-#include "../interface/fractional_jet_multiplicity.h"
 #include "../interface/property.h"
 
 using namespace std;
@@ -63,7 +62,7 @@ int main(int argc, char * argv[]) {
    int event_serial_number = 1;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
       
-      if( (event_serial_number % 1000) == 0 )
+      if( (event_serial_number % 5000) == 0 )
          cout << "Processing event number " << event_serial_number << endl;
 
       analyze_event(event_being_read, output_file, event_serial_number);
@@ -82,9 +81,12 @@ int main(int argc, char * argv[]) {
 
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number) {
 
+   fastjet::PseudoJet trigger_jet = event_being_read.trigger_jet();
+   fastjet::PseudoJet closest_jet_to_trigger_jet = event_being_read.closest_fastjet_jet_to_trigger_jet();
+
    vector<MOD::Property> properties;
    
-   if (event_being_read.CMS_jets().size() == 0) {
+   if ( (event_being_read.cms_jets().size() == 0) or (event_being_read.jets().size() == 0)) {
       return;
    }
 
@@ -95,7 +97,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
          
          if (triggers[i].fired()) {
 
-            MOD::CalibratedJet trigger_jet = event_being_read.trigger_jet();
+            fastjet::PseudoJet trigger_jet = event_being_read.trigger_jet();
 
             properties.push_back(MOD::Property("# Entry", "  Entry"));
 
@@ -103,9 +105,9 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
             properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
 
             properties.push_back(MOD::Property("trig_jet_matched", (int) event_being_read.trigger_jet_is_matched())); 
-            properties.push_back(MOD::Property("jet_quality", trigger_jet.jet_quality())); 
+            properties.push_back(MOD::Property("jet_quality", trigger_jet.user_info<MOD::InfoCalibratedJet>().jet_quality())); 
    
-            properties.push_back(MOD::Property("Cor_Hardest_pT", trigger_jet.corrected_pseudojet().pt()));   
+            properties.push_back(MOD::Property("Cor_Hardest_pT", trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC()));  
             properties.push_back(MOD::Property("Prescale", triggers[i].prescale()));
             properties.push_back(MOD::Property("Trigger_Name", triggers[i].name()));         
        
