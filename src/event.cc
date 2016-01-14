@@ -59,6 +59,9 @@ void MOD::Event::add_particle(istringstream & input_stream) {
    PseudoJet new_particle = PseudoJet(px, py, pz, energy);
    new_particle.set_user_info(new InfoPFC(pdgId, tag));
 
+   cout << "Adding particle! " << endl;
+   cout << input_stream.str() << endl;
+
    _particles.push_back(new_particle);
 }
 
@@ -329,14 +332,17 @@ void MOD::Event::establish_properties() {
 
    if (data_source() == EXPERIMENT) {  // Experiment 
 
-      // First, assign _trigger_jet.
+      // cout << "Setting trigger jet!" << endl;
       set_trigger_jet();
 
       // Next, find out the specific FastJet that's closest to _trigger_jet.
+      // cout << "Closest Jet" << endl;
       set_closest_fastjet_jet_to_trigger_jet();
 
+      // cout << "Trigger jet matched!" << endl;
       set_trigger_jet_is_matched();
 
+      // cout << "Assigned trigger!" << endl;
       set_assigned_trigger();
 
    }
@@ -369,6 +375,8 @@ bool MOD::Event::read_event(istream & data_stream) {
          continue;
       }
       else {
+         
+
          if (tag == "BeginEvent") {
 
             stream >> tag >> version_keyword >> version >> a >> b;
@@ -399,6 +407,7 @@ bool MOD::Event::read_event(istream & data_stream) {
          else if (tag == "PFC") {
             try {
                set_data_source(EXPERIMENT);
+               // cout << "Adding PFC" << endl;
                add_particle(stream);
             }
             catch (exception& e) {
@@ -408,6 +417,7 @@ bool MOD::Event::read_event(istream & data_stream) {
          else if (tag == "AK5") {
             try {
                set_data_source(EXPERIMENT);
+               // cout << "Adding AK5" << endl;
                add_cms_jet(stream);
             }
             catch (exception& e) {
@@ -505,47 +515,55 @@ void MOD::Event::set_assigned_trigger() {
    // First, figure out the hardest pT.
    PseudoJet trigger_jet = _trigger_jet;
 
-   
-   double hardest_pT = trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC();
-
-
-   // Next, lookup which trigger to use based on the pT value of the hardest jet.
-
-   if ( (hardest_pT > 325) && trigger_exists("HLT_Jet180U") ) {
-      trigger = "HLT_Jet180U";
-   }
-   else if ( (hardest_pT > 260) && trigger_exists("HLT_Jet140U") ) {
-      trigger = "HLT_Jet140U";
-   }
-   else if ( (hardest_pT > 196) && trigger_exists("HLT_Jet100U") ) {
-      trigger = "HLT_Jet100U";
-   }
-   else if ( (hardest_pT > 153) && trigger_exists("HLT_Jet70U") ) {
-      trigger = "HLT_Jet70U";
-   }
-   else if ( (hardest_pT > 114) && trigger_exists("HLT_Jet50U") ) {
-      trigger = "HLT_Jet50U";
-   }
-   else if ( (hardest_pT > 84) && trigger_exists("HLT_Jet30U") ) {
-      trigger = "HLT_Jet30U";
-   }
-   else if ( (hardest_pT > 56) && trigger_exists("HLT_Jet15U") ) {
-      trigger = "HLT_Jet15U";
-   }
-   else if ( (hardest_pT > 37) && trigger_exists("HLT_L1Jet6U") ) {
-      trigger = "HLT_L1Jet6U";
-   }
-
-   trigger_to_use = trigger;
-
-   if (trigger_to_use != "") {
-      _assigned_trigger_name = trigger_to_use;
-      _assigned_trigger = trigger_by_short_name(trigger_to_use);   
-   }
-   else {
+   if (trigger_jet.E() == 0.0) {
       _assigned_trigger_name = "";
       _assigned_trigger = Trigger();
    }
+   else {
+      double hardest_pT = trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC();
+
+
+      // Next, lookup which trigger to use based on the pT value of the hardest jet.
+
+      if ( (hardest_pT > 325) && trigger_exists("HLT_Jet180U") ) {
+         trigger = "HLT_Jet180U";
+      }
+      else if ( (hardest_pT > 260) && trigger_exists("HLT_Jet140U") ) {
+         trigger = "HLT_Jet140U";
+      }
+      else if ( (hardest_pT > 196) && trigger_exists("HLT_Jet100U") ) {
+         trigger = "HLT_Jet100U";
+      }
+      else if ( (hardest_pT > 153) && trigger_exists("HLT_Jet70U") ) {
+         trigger = "HLT_Jet70U";
+      }
+      else if ( (hardest_pT > 114) && trigger_exists("HLT_Jet50U") ) {
+         trigger = "HLT_Jet50U";
+      }
+      else if ( (hardest_pT > 84) && trigger_exists("HLT_Jet30U") ) {
+         trigger = "HLT_Jet30U";
+      }
+      else if ( (hardest_pT > 56) && trigger_exists("HLT_Jet15U") ) {
+         trigger = "HLT_Jet15U";
+      }
+      else if ( (hardest_pT > 37) && trigger_exists("HLT_L1Jet6U") ) {
+         trigger = "HLT_L1Jet6U";
+      }
+
+      trigger_to_use = trigger;
+
+      if (trigger_to_use != "") {
+         _assigned_trigger_name = trigger_to_use;
+         _assigned_trigger = trigger_by_short_name(trigger_to_use);   
+      }
+      else {
+         _assigned_trigger_name = "";
+         _assigned_trigger = Trigger();
+      }
+   }
+
+   
+   
 
 }
 
@@ -613,6 +631,12 @@ const PseudoJet & MOD::Event::trigger_jet() const {
 }
 
 void MOD::Event::set_trigger_jet_is_matched() {
+
+   if (_trigger_jet.E() == 0.0) {
+      return;
+   }
+
+   cout << _trigger_jet.E() << endl;
 
    // Compare the number of constituents first.
    if ((unsigned) _trigger_jet.user_info<MOD::InfoCalibratedJet>().number_of_constituents() != (unsigned) _closest_fastjet_jet_to_trigger_jet.constituents().size()) {
