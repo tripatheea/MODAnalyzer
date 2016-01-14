@@ -8581,7 +8581,7 @@ def log_plot():
 # plot_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
 
-# plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
+plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
 # plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
 # plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
 
@@ -8605,9 +8605,9 @@ def log_plot():
 
 # ******************** Log Plots ******************** 
 
-plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05')
-plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
-plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
+# plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05')
+# plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
+# plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
 
 # plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 

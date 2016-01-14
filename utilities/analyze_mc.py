@@ -17,7 +17,7 @@ def run_analyzer():
 		# call(['rm', "/Users/aashish/" + mc + "_truth.dat"])
 		# call(['rm', "/Users/aashish/" + mc + "_reco.dat"])
 
-		call(['./bin/analyze', location + mc + "_truth.mod", "/Users/aashish/" + mc + "_truth_different.dat"])
+		call(['./bin/analyze', location + mc + "_truth.mod", "/Users/aashish/" + mc + "_truth_final.dat"])
 		# call(['./bin/analyze', location + mc + "_reco.mod", "/Users/aashish/" + mc + "_reco.dat"])
 
 
