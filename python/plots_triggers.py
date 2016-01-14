@@ -204,11 +204,11 @@ def plot_turn_on_curves():
   trigger_names = properties['trigger_names']
   prescales = properties['prescale']
 
-  expected_trigger_names = ["HLT\_Jet180U", "HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U", "HLT\_Jet15U\_HcalNoiseFiltered" ]
-  labels = ["Jet180U", "Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15\_HNF" ]
-  lower_pTs = [180, 140, 100, 70, 50, 30, 15]
+  expected_trigger_names = ["HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U", "HLT\_Jet15U\_HcalNoiseFiltered" ]
+  labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15\_HNF" ]
+  lower_pTs = [140, 100, 70, 50, 30, 15]
 
-  colors = ['purple', 'orange', 'brown', 'red', 'blue', 'magenta', 'green']
+  colors = ['orange', 'brown', 'red', 'blue', 'magenta', 'green']
   colors = colors[::-1]
 
   pt_hists = []
@@ -446,17 +446,17 @@ def plot_all_trigger_efficiency_curves():
   # colors = colors[::-1]
 
 
-  colors = ['purple', 'orange', 'brown', 'red', 'blue', 'magenta', 'green']
-  expected_trigger_names = ["HLT\_Jet180U", "HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U", "HLT\_Jet15U\_HcalNoiseFiltered" ]
-  labels = ["Jet180U / 140U", "Jet140U / 100U", "Jet100U / 70U", "Jet70U / 50U", "Jet50U / 30U", "Jet30U / 15U\_HNF", "" ]
-  lower_pTs = [180, 140, 100, 70, 50, 30, 15]
-  lower_pTs = lower_pTs[::-1]
+  colors = ['orange', 'brown', 'red', 'blue', 'magenta', 'green']
+  expected_trigger_names = ["HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U", "HLT\_Jet15U\_HcalNoiseFiltered" ]
+  labels = ["Jet140U / 100U", "Jet100U / 70U", "Jet70U / 50U", "Jet50U / 30U", "Jet30U / 15U\_HNF", "" ]
+  lower_pTs = [140, 100, 70, 50, 30, 15]
+  # lower_pTs = lower_pTs[::-1]
 
-  cms_turn_on_pTs = [325, 260, 196, 153, 114, 84]
+  cms_turn_on_pTs = [260, 196, 153, 114, 84]
 
   pt_hists = []
-  for j in range(0, len(expected_trigger_names)):
-    pt_hists.append(Hist(50, 0, 300, color=colors[j], title=labels[j], markersize=1.0, linewidth=5))
+  for j in range(len(expected_trigger_names) - 1, -1, -1):
+    pt_hists.append(Hist(50, 0, 300))
 
 
   for i in range(0, len(expected_trigger_names)):
@@ -471,9 +471,11 @@ def plot_all_trigger_efficiency_curves():
     ratio_hists.append(pt_hists[i] / pt_hists[i + 1])
 
 
-  for i in range(len(ratio_hists) - 1, -1, -1):
-    rplt.errorbar(ratio_hists[i], emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-    
+  data_plots = []
+  for i in range(0, len(pt_hists) - 1):
+    data_plot = rplt.errorbar(ratio_hists[i], emptybins=False, alpha=0.0)
+    data_plots.append(data_plot)
+
     if cms_turn_on_pTs[i] != 0:
       # plt.plot([cms_turn_on_pTs[i], cms_turn_on_pTs[i]], [plt.gca().get_ylim()[0], 1.], color=colors[i], linewidth=5, linestyle="dashed")
       if cms_turn_on_pTs[i] > 153:
@@ -483,6 +485,31 @@ def plot_all_trigger_efficiency_curves():
       plt.gca().annotate(source + "\n" + str(cms_turn_on_pTs[i]) + " GeV", xy=(cms_turn_on_pTs[i], 1.), xycoords='data', xytext=(-100, 350),  textcoords='offset points', color=colors[i], size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[i], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
 
   
+
+
+
+  for i in range(len(ratio_hists) - 1, -1, -1):
+    data_plot = data_plots[i]
+
+
+    data_x_errors, data_y_errors = [], []
+    for x_segment in data_plot[2][0].get_segments():
+      data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+    for y_segment in data_plot[2][1].get_segments():
+      data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+
+    data_points_x = data_plot[0].get_xdata()
+    data_points_y = data_plot[0].get_ydata()
+
+    filtered_x, filtered_y, filtered_x_err, filtered_y_err = [], [], [], []
+    for x, y, xerr, yerr in zip(data_points_x, data_points_y, data_x_errors, data_y_errors):
+      if x > lower_pTs[i]:
+        filtered_x.append(x)
+        filtered_y.append(y)
+        filtered_x_err.append(xerr)
+        filtered_y_err.append(yerr)
+
+    plt.errorbar(filtered_x, filtered_y, color=colors[i], markeredgecolor=colors[i], label=labels[i], xerr=filtered_x_err, yerr=filtered_y_err, ls='None', alpha=1.0, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
   plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
