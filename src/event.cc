@@ -59,8 +59,6 @@ void MOD::Event::add_particle(istringstream & input_stream) {
    PseudoJet new_particle = PseudoJet(px, py, pz, energy);
    new_particle.set_user_info(new InfoPFC(pdgId, tag));
 
-   cout << "Adding particle! " << endl;
-   cout << input_stream.str() << endl;
 
    _particles.push_back(new_particle);
 }
