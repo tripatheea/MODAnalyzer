@@ -634,7 +634,6 @@ void MOD::Event::set_trigger_jet_is_matched() {
       return;
    }
 
-   cout << _trigger_jet.E() << endl;
 
    // Compare the number of constituents first.
    if ((unsigned) _trigger_jet.user_info<MOD::InfoCalibratedJet>().number_of_constituents() != (unsigned) _closest_fastjet_jet_to_trigger_jet.constituents().size()) {
