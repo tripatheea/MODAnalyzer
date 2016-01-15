@@ -12,8 +12,7 @@ FASTINC = `$(PATH_TO_FASTJET) --cxxflags`
 FASTLIB = `$(PATH_TO_FASTJET) --libs --plugins` -lRecursiveTools
 
 ROOTINC = `root-config --cflags --glibs`
-PYTHIA_INC = $(PYTHIA8)/include
-PYTHIA_LIB = $(PYTHIA8)/lib
+
 
 OBJDIR=src
 EXECDIR=examples
@@ -35,13 +34,13 @@ BIN=$(patsubst %,$(BINDIR)/%,$(_EXEC))
 all: $(BIN)
 
 $(OBJDIR)/%.o : $(OBJDIR)/%.cc
-	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC) -I$(PYTHIA_INC)
+	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC)
 
 $(EXECDIR)/%.o : $(EXECDIR)/%.cc
-	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC) -I$(PYTHIA_INC)
+	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC)
 	
 $(BINDIR)/% : $(EXECDIR)/%.o $(OBJ)
-	$(CXX) $< $(OBJ) -o $@ $(CXXFLAGS) $(FASTLIB) -lpythia8 -ldl -L$(PYTHIA_LIB)
+	$(CXX) $< $(OBJ) -o $@ $(CXXFLAGS) $(FASTLIB) 
 
 .PHONY: clean
 .PRECIOUS: $(OBJ) $(EXEC)
