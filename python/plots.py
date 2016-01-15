@@ -6,6 +6,7 @@ from matplotlib.ticker import AutoMinorLocator
 from matplotlib.ticker import MultipleLocator
 from matplotlib.ticker import FixedLocator
 from matplotlib.ticker import LogLocator
+from matplotlib.ticker import FormatStrFormatter
 
 from sets import Set
 
@@ -67,7 +68,7 @@ plt.rc('font', family='serif', size=43)
 
 
 plot_labels = { "data": "CMS 2010 Open Data", "pythia": "Pythia 8.212", "herwig": "Herwig++ 2.7.1", "sherpa": "Sherpa 2.2.0", "theory": "Theory (MLL)" }
-plot_colors = {"theory": "red", "pythia": "blue", "herwig": "green", "sherpa": "purple", "pythia_post": "magenta", "data": "black", "data_post": "orange"}
+plot_colors = {"theory": "red", "pythia": "blue", "herwig": "green", "sherpa": "purple", "pythia_post": "red", "data": "black", "data_post": "red"}
 
 
 
@@ -1435,13 +1436,13 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
     # Monte Carlo.
 
     # Pythia.
-    pythia_pre_hist = Hist(50, -1, 101, linewidth=5, color=plot_colors['pythia'])
+    pythia_pre_hist = Hist(50, -1, 101, linewidth=8, color='black', linestyle="dashed")
     bin_width_before = (pythia_pre_hist.upperbound() - pythia_pre_hist.lowerbound()) / pythia_pre_hist.nbins()
     map(pythia_pre_hist.Fill, pythia_pre)
     pythia_pre_hist.Scale(1.0 / (pythia_pre_hist.GetSumOfWeights() * bin_width_before))
     pythia_before_plot = rplt.hist(pythia_pre_hist, zorder=2)
 
-    pythia_post_hist = Hist(50, -1, 101, linewidth=5, color=plot_colors['pythia_post'])
+    pythia_post_hist = Hist(50, -1, 101, linewidth=8, color=plot_colors['pythia_post'], linestyle="dashed")
     bin_width_after = (pythia_post_hist.upperbound() - pythia_post_hist.lowerbound()) / pythia_post_hist.nbins()
     map(pythia_post_hist.Fill, pythia_post)
     pythia_post_hist.Scale(1.0 / (pythia_post_hist.GetSumOfWeights() * bin_width_after))
@@ -1540,13 +1541,13 @@ def plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cu
     # Monte Carlo.
 
     # Pythia.
-    pythia_pre_hist = Hist(50, -1, 101, linewidth=5, color=plot_colors['pythia'])
+    pythia_pre_hist = Hist(50, -1, 101, linewidth=8, color='black', linestyle="dashed")
     bin_width_before = (pythia_pre_hist.upperbound() - pythia_pre_hist.lowerbound()) / pythia_pre_hist.nbins()
     map(pythia_pre_hist.Fill, pythia_pre)
     pythia_pre_hist.Scale(1.0 / (pythia_pre_hist.GetSumOfWeights() * bin_width_before))
     pythia_before_plot = rplt.hist(pythia_pre_hist, zorder=2)
 
-    pythia_post_hist = Hist(50, -1, 101, linewidth=5, color=plot_colors['pythia_post'])
+    pythia_post_hist = Hist(50, -1, 101, linewidth=8, color=plot_colors['pythia_post'], linestyle="dashed")
     bin_width_after = (pythia_post_hist.upperbound() - pythia_post_hist.lowerbound()) / pythia_post_hist.nbins()
     map(pythia_post_hist.Fill, pythia_post)
     pythia_post_hist.Scale(1.0 / (pythia_post_hist.GetSumOfWeights() * bin_width_after))
@@ -1588,11 +1589,12 @@ def plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cu
     plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
     plt.gca().autoscale(True)
-    plt.gca().set_ylim(0., 1.8 * plt.gca().get_ylim()[1])
+    plt.gca().set_ylim(0., 1.5 * plt.gca().get_ylim()[1])
     plt.xlim(0, 60)
 
     plt.gca().xaxis.set_minor_locator(MultipleLocator(2))
-    plt.gca().yaxis.set_minor_locator(MultipleLocator(0.002))
+    plt.gca().yaxis.set_minor_locator(MultipleLocator(0.005))
+
     plt.tick_params(which='major', width=5, length=25, labelsize=70)
     plt.tick_params(which='minor', width=3, length=15)
 
@@ -1670,10 +1672,11 @@ def plot_constituent_multiplicity_softdrop_multiple_jet_correction_level(pT_lowe
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
   plt.gca().autoscale(True)
-  plt.gca().set_ylim(0., 1.1 * plt.gca().get_ylim()[1])
+  plt.gca().set_ylim(0., 1.0 * plt.gca().get_ylim()[1])
 
   plt.gca().xaxis.set_minor_locator(MultipleLocator(5))
-  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.002))
+  plt.gca().yaxis.set_minor_locator(MultipleLocator(0.005))
+
   plt.tick_params(which='major', width=5, length=25, labelsize=70)
   plt.tick_params(which='minor', width=3, length=15)
 
@@ -1896,13 +1899,13 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
     # Monte Carlo.
 
     # Pythia.
-    pythia_pre_SD_hist = Hist(100, 0, 150, linewidth=5, color=plot_colors['pythia'])
+    pythia_pre_SD_hist = Hist(100, 0, 150, linewidth=8, color='black', linestyle="dashed")
     bin_width_before = (pythia_pre_SD_hist.upperbound() - pythia_pre_SD_hist.lowerbound()) / pythia_pre_SD_hist.nbins()
     map(pythia_pre_SD_hist.Fill, pythia_pre_SD)
     pythia_pre_SD_hist.Scale(1.0 / (pythia_pre_SD_hist.GetSumOfWeights() * bin_width_before))
     pythia_before_plot = rplt.hist(pythia_pre_SD_hist, zorder=2)
 
-    pythia_post_SD_hist = Hist(100, 0, 150, linewidth=5, color=plot_colors['pythia_post'])
+    pythia_post_SD_hist = Hist(100, 0, 150, linewidth=8, color=plot_colors['pythia_post'], linestyle="dashed")
     bin_width_before = (pythia_post_SD_hist.upperbound() - pythia_post_SD_hist.lowerbound()) / pythia_post_SD_hist.nbins()
     map(pythia_post_SD_hist.Fill, pythia_post_SD)
     pythia_post_SD_hist.Scale(1.0 / (pythia_post_SD_hist.GetSumOfWeights() * bin_width_before))
@@ -1948,7 +1951,7 @@ def plot_jet_mass_spectrum(pT_lower_cut=100, pT_upper_cut=20000):
     plt.tick_params(which='minor', width=3, length=15)
 
     plt.gca().autoscale(True)
-    plt.gca().set_ylim(0., plt.gca().get_ylim()[1] * 1.5)
+    plt.gca().set_ylim(0., plt.gca().get_ylim()[1] * 1.)
 
     plt.gca().set_xlim(0, 80)
 
@@ -3546,7 +3549,7 @@ def plot_hardest_pT_D(pT_lower_cut=100):
     
 
     plt.autoscale()
-    plt.ylim( plt.gca().get_ylim()[0], plt.gca().get_ylim()[1] * 1.35 )
+    plt.ylim( plt.gca().get_ylim()[0], plt.gca().get_ylim()[1] * 1. )
 
     plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
     plt.gca().yaxis.set_minor_locator(MultipleLocator(0.2))
@@ -3599,7 +3602,7 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 
     # ============================================================================================= z_g PLOT OF BEGINS ===========================================================================================================================
 
-    bins_log = np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 30, base=np.e)
+    bins_log = np.logspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 30, base=np.e)
 
     # Data.
 
@@ -3679,6 +3682,8 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
     plt.tick_params(which='minor', width=3, length=15)
 
     plt.gca().autoscale(True)
+
+    plt.gca().set_xlim(float(zg_cut), 1)
     plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.55)
     plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
@@ -3746,11 +3751,14 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
 
     if zg_cut == "0.10":
-      logo_coords = (0.20, 0.91)
-      text_coords = (0.26, 0.90)
-    else:
       logo_coords = (0.22, 0.91)
       text_coords = (0.28, 0.90)
+    elif zg_cut == "0.05":
+      logo_coords = (0.20, 0.91)
+      text_coords = (0.26, 0.90)
+    elif zg_cut == "0.20":
+      logo_coords = (0.22, 0.89)
+      text_coords = (0.28, 0.88)
 
     ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), logo_coords, xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
@@ -3784,7 +3792,7 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 
     # ============================================================================================= theta_g * z_g PLOT BEGINS ===========================================================================================================================
 
-    bins_log = np.logspace(math.log(float(0.0001), math.e), math.log(1.0, math.e), 30, base=np.e)
+    bins_log = np.logspace(math.log(float(0.001), math.e), math.log(1.0, math.e), 30, base=np.e)
 
     # Data Begins.
 
@@ -3940,6 +3948,7 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
     plt.xscale('log')
   
     plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+    plt.gca().xaxis.set_major_formatter(FormatStrFormatter('%.4f'))
 
     plt.gca().yaxis.set_minor_locator(MultipleLocator(0.05))
     
@@ -6437,7 +6446,7 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     # ============================================================================================= z_g PLOT OF BEGINS ===========================================================================================================================
 
 
-    bins_log = np.logspace(math.log(0.01, math.e), math.log(1.0, math.e), 30, base=np.e)
+    bins_log = np.logspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 30, base=np.e)
 
     # Data.
 
@@ -6459,13 +6468,13 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     # Pythia.
 
-    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, (pythia_z_g))
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=2, histtype='step')
 
-    charged_pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia_post'], linewidth=5)
+    charged_pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
     bin_width = (charged_pythia_theta_g_hist.upperbound() - charged_pythia_theta_g_hist.lowerbound()) / charged_pythia_theta_g_hist.nbins()
     map(charged_pythia_theta_g_hist.Fill, (charged_pythia_z_g))
     charged_pythia_theta_g_hist.Scale(1.0 / (charged_pythia_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -6511,6 +6520,7 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     plt.gca().autoscale(True)
 
+    plt.gca().set_xlim(float(zg_cut), 1)
     plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
     
     plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
@@ -6543,13 +6553,13 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     # Pythia.
 
-    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, (pythia_theta_g))
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=2, histtype='step')
 
-    charged_pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia_post'], linewidth=5)
+    charged_pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
     bin_width = (charged_pythia_theta_g_hist.upperbound() - charged_pythia_theta_g_hist.lowerbound()) / charged_pythia_theta_g_hist.nbins()
     map(charged_pythia_theta_g_hist.Fill, (charged_pythia_theta_g))
     charged_pythia_theta_g_hist.Scale(1.0 / (charged_pythia_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -6602,7 +6612,7 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     # ============================================================================================= theta_g * z_g PLOT BEGINS ===========================================================================================================================
 
-    bins_log = np.logspace(math.log(float(0.0001), math.e), math.log(1.0, math.e), 30, base=np.e)
+    bins_log = np.logspace(math.log(float(0.001), math.e), math.log(1.0, math.e), 30, base=np.e)
 
 
     # Data Begins.
@@ -6625,13 +6635,13 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     # Pythia.
     
-    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, (np.multiply(pythia_theta_g, pythia_z_g)))
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=2, histtype='step')
 
-    charged_pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia_post'], linewidth=5)
+    charged_pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
     bin_width = (charged_pythia_theta_g_hist.upperbound() - charged_pythia_theta_g_hist.lowerbound()) / charged_pythia_theta_g_hist.nbins()
     map(charged_pythia_theta_g_hist.Fill, (np.multiply(charged_pythia_theta_g, charged_pythia_z_g)))
     charged_pythia_theta_g_hist.Scale(1.0 / (charged_pythia_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -6651,10 +6661,10 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
     plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.53, 0.72])
 
-    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
+    ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.21, 0.895), xycoords='figure fraction', frameon=0)
     plt.gca().add_artist(ab)
     preliminary_text = "Prelim. (20\%)"
-    plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+    plt.gcf().text(0.27, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
     plt.xlabel('$ z_g \\theta_g $', fontsize=75)
     plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=80.)
@@ -6705,13 +6715,13 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     # Pythia Begins.
 
-    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, ( np.multiply( pythia_z_g, np.square(pythia_theta_g) )))
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=2, histtype='step')
 
-    charged_pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia_post'], linewidth=5)
+    charged_pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
     bin_width = (charged_pythia_theta_g_hist.upperbound() - charged_pythia_theta_g_hist.lowerbound()) / charged_pythia_theta_g_hist.nbins()
     map(charged_pythia_theta_g_hist.Fill, ( np.multiply( charged_pythia_z_g, np.square(charged_pythia_theta_g) )))
     charged_pythia_theta_g_hist.Scale(1.0 / (charged_pythia_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -6746,6 +6756,7 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     plt.xscale('log')
   
     plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+    plt.gca().xaxis.set_major_formatter(FormatStrFormatter('%.4f'))
 
 
     plt.gca().yaxis.set_minor_locator(MultipleLocator(0.05))
@@ -6785,13 +6796,13 @@ def plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     # Pythia.
 
-    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, ( np.multiply( pythia_z_g, np.sqrt(pythia_theta_g) )))
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=2, histtype='step')
 
-    charged_pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia_post'], linewidth=5)
+    charged_pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
     bin_width = (charged_pythia_theta_g_hist.upperbound() - charged_pythia_theta_g_hist.lowerbound()) / charged_pythia_theta_g_hist.nbins()
     map(charged_pythia_theta_g_hist.Fill, ( np.multiply( charged_pythia_z_g, np.sqrt(charged_pythia_theta_g) )))
     charged_pythia_theta_g_hist.Scale(1.0 / (charged_pythia_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -6884,7 +6895,7 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     # ============================================================================================= z_g PLOT OF BEGINS ===========================================================================================================================
 
-    bins_log = np.logspace(math.log(0.01, math.e), math.log(1.0, math.e), 30, base=np.e)
+    bins_log = np.logspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 30, base=np.e)
 
     # Data.
 
@@ -6907,14 +6918,14 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     # Pythia.
 
-    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, (pythia_z_g))
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=50, histtype='step')
 
     for i in range(len(softcut_pTs)):
-      pythia_softcut_theta_g_hist = Hist(bins_log, markersize=3.0, color=pythia_softcut_colors[i], linewidth=5)
+      pythia_softcut_theta_g_hist = Hist(bins_log, markersize=3.0, color=pythia_softcut_colors[i], linewidth=8, linestyle='dashed')
       bin_width = (pythia_softcut_theta_g_hist.upperbound() - pythia_softcut_theta_g_hist.lowerbound()) / pythia_softcut_theta_g_hist.nbins()
       map(pythia_softcut_theta_g_hist.Fill, (pythia_softcut_z_gs[i]))
       pythia_softcut_theta_g_hist.Scale(1.0 / (pythia_softcut_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -6956,7 +6967,10 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     plt.tick_params(which='minor', width=3, length=15)
 
     plt.gca().autoscale(True)
+
+    plt.gca().set_xlim(float(zg_cut), 1)
     plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+    
     plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
     plt.savefig("plots/" + get_version(input_analysis_file) + "/softcut_theta_g/" + mc_type + "/log/z_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + "_" + str(softcut_pTs) + ".pdf")
@@ -6991,14 +7005,14 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     # Pythia.
 
-    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, (pythia_theta_g))
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=50, histtype='step')
 
     for i in range(len(softcut_pTs)):
-      pythia_softcut_theta_g_hist = Hist(bins_log, markersize=3.0, color=pythia_softcut_colors[i], linewidth=5)
+      pythia_softcut_theta_g_hist = Hist(bins_log, markersize=3.0, color=pythia_softcut_colors[i], linewidth=8, linestyle='dashed')
       bin_width = (pythia_softcut_theta_g_hist.upperbound() - pythia_softcut_theta_g_hist.lowerbound()) / pythia_softcut_theta_g_hist.nbins()
       map(pythia_softcut_theta_g_hist.Fill, (pythia_softcut_theta_gs[i]))
       pythia_softcut_theta_g_hist.Scale(1.0 / (pythia_softcut_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -7049,7 +7063,7 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     # ============================================================================================= theta_g * z_g PLOT BEGINS ===========================================================================================================================
 
-    bins_log = np.logspace(math.log(0.0001, math.e), math.log(1.0, math.e), 30, base=np.e)
+    bins_log = np.logspace(math.log(0.001, math.e), math.log(1.0, math.e), 30, base=np.e)
 
     softcut_plots = []
     pythia_softcut_plots = []
@@ -7075,14 +7089,14 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     # Pythia.
     
-    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, (np.multiply(pythia_theta_g, pythia_z_g)))
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=50, histtype='step')
 
     for i in range(len(softcut_pTs)):
-      pythia_softcut_theta_g_hist = Hist(bins_log, markersize=3.0, color=pythia_softcut_colors[i], linewidth=5)
+      pythia_softcut_theta_g_hist = Hist(bins_log, markersize=3.0, color=pythia_softcut_colors[i], linewidth=8, linestyle='dashed')
       bin_width = (pythia_softcut_theta_g_hist.upperbound() - pythia_softcut_theta_g_hist.lowerbound()) / pythia_softcut_theta_g_hist.nbins()
       map(pythia_softcut_theta_g_hist.Fill, (np.multiply(pythia_softcut_theta_gs[i], pythia_softcut_z_gs[i])))
       pythia_softcut_theta_g_hist.Scale(1.0 / (pythia_softcut_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -7158,14 +7172,14 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     # Pythia Begins.
 
-    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, ( np.multiply( pythia_z_g, np.square(pythia_theta_g) ) ))
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, histtype='step', zorder=50)
 
     for i in range(len(softcut_pTs)):
-      pythia_softcut_theta_g_hist = Hist(bins_log, markersize=3.0, color=pythia_softcut_colors[i], linewidth=5)
+      pythia_softcut_theta_g_hist = Hist(bins_log, markersize=3.0, color=pythia_softcut_colors[i], linewidth=8, linestyle='dashed')
       bin_width = (pythia_softcut_theta_g_hist.upperbound() - pythia_softcut_theta_g_hist.lowerbound()) / pythia_softcut_theta_g_hist.nbins()
       map(pythia_softcut_theta_g_hist.Fill, ( np.multiply( pythia_softcut_z_gs[i], np.square(pythia_softcut_theta_gs[i]) )  ) )
       pythia_softcut_theta_g_hist.Scale(1.0 / (pythia_softcut_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -7198,6 +7212,7 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
     plt.xscale('log')
   
     plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter())
+    plt.gca().xaxis.set_major_formatter(FormatStrFormatter('%.4f'))
 
     plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
     plt.tick_params(which='major', width=5, length=25, labelsize=70)
@@ -7240,14 +7255,14 @@ def plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename=
 
     # Pythia.
 
-    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(bins_log, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, ( np.multiply( pythia_z_g, np.sqrt(pythia_theta_g) ) ) )
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=50, histtype='step')
 
     for i in range(len(softcut_pTs)):
-      pythia_softcut_theta_g_hist = Hist(bins_log, markersize=3.0, color=pythia_softcut_colors[i], linewidth=5)
+      pythia_softcut_theta_g_hist = Hist(bins_log, markersize=3.0, color=pythia_softcut_colors[i], linewidth=8, linestyle='dashed')
       bin_width = (pythia_softcut_theta_g_hist.upperbound() - pythia_softcut_theta_g_hist.lowerbound()) / pythia_softcut_theta_g_hist.nbins()
       map(pythia_softcut_theta_g_hist.Fill, ( np.multiply( pythia_softcut_z_gs[i], np.sqrt(pythia_softcut_theta_gs[i]) ) ) )
       pythia_softcut_theta_g_hist.Scale(1.0 / (pythia_softcut_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -7351,13 +7366,13 @@ def plot_charged_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
 
     # Pythia.
 
-    pythia_theta_g_hist = Hist(30, 0, 0.5, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(30, 0, 0.5, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, pythia_z_g)
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=2, histtype='step')
 
-    charged_pythia_theta_g_hist = Hist(30, 0, 0.5, markersize=3.0, color=plot_colors['pythia_post'], linewidth=5)
+    charged_pythia_theta_g_hist = Hist(30, 0, 0.5, markersize=3.0, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
     bin_width = (charged_pythia_theta_g_hist.upperbound() - charged_pythia_theta_g_hist.lowerbound()) / charged_pythia_theta_g_hist.nbins()
     map(charged_pythia_theta_g_hist.Fill, charged_pythia_z_g)
     charged_pythia_theta_g_hist.Scale(1.0 / (charged_pythia_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -7431,13 +7446,13 @@ def plot_charged_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
 
     # Pythia.
 
-    pythia_theta_g_hist = Hist(30, 0, 1.2, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(30, 0, 1.2, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, pythia_theta_g)
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=2, histtype='step')
 
-    charged_pythia_theta_g_hist = Hist(30, 0, 1.2, markersize=3.0, color=plot_colors['pythia_post'], linewidth=5)
+    charged_pythia_theta_g_hist = Hist(30, 0, 1.2, markersize=3.0, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
     bin_width = (charged_pythia_theta_g_hist.upperbound() - charged_pythia_theta_g_hist.lowerbound()) / charged_pythia_theta_g_hist.nbins()
     map(charged_pythia_theta_g_hist.Fill, charged_pythia_theta_g)
     charged_pythia_theta_g_hist.Scale(1.0 / (charged_pythia_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -7511,13 +7526,13 @@ def plot_charged_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
 
     # Pythia.
     
-    pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, np.multiply(pythia_theta_g, pythia_z_g))
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=2, histtype='step')
 
-    charged_pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=plot_colors['pythia_post'], linewidth=5)
+    charged_pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
     bin_width = (charged_pythia_theta_g_hist.upperbound() - charged_pythia_theta_g_hist.lowerbound()) / charged_pythia_theta_g_hist.nbins()
     map(charged_pythia_theta_g_hist.Fill, np.multiply(charged_pythia_theta_g, charged_pythia_z_g))
     charged_pythia_theta_g_hist.Scale(1.0 / (charged_pythia_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -7590,13 +7605,13 @@ def plot_charged_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
 
     # Pythia Begins.
 
-    pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill,  np.multiply( pythia_z_g, np.square(pythia_theta_g) ))
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=2, histtype='step')
 
-    charged_pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=plot_colors['pythia_post'], linewidth=5)
+    charged_pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
     bin_width = (charged_pythia_theta_g_hist.upperbound() - charged_pythia_theta_g_hist.lowerbound()) / charged_pythia_theta_g_hist.nbins()
     map(charged_pythia_theta_g_hist.Fill,  np.multiply( charged_pythia_z_g, np.square(charged_pythia_theta_g) ))
     charged_pythia_theta_g_hist.Scale(1.0 / (charged_pythia_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -7669,13 +7684,13 @@ def plot_charged_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
 
     # Pythia.
 
-    pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill,  np.multiply( pythia_z_g, np.sqrt(pythia_theta_g) ))
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=2, histtype='step')
 
-    charged_pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=plot_colors['pythia_post'], linewidth=5)
+    charged_pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
     bin_width = (charged_pythia_theta_g_hist.upperbound() - charged_pythia_theta_g_hist.lowerbound()) / charged_pythia_theta_g_hist.nbins()
     map(charged_pythia_theta_g_hist.Fill,  np.multiply( charged_pythia_z_g, np.sqrt(charged_pythia_theta_g) ))
     charged_pythia_theta_g_hist.Scale(1.0 / (charged_pythia_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -7796,14 +7811,14 @@ def plot_softcut_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
 
     # Pythia.
 
-    pythia_theta_g_hist = Hist(30, 0, 0.5, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(30, 0, 0.5, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, pythia_z_g)
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=50, histtype='step')
 
     for i in range(len(softcut_pTs)):
-      pythia_softcut_theta_g_hist = Hist(30, 0, 0.5, markersize=3.0, color=pythia_softcut_colors[i], linewidth=5)
+      pythia_softcut_theta_g_hist = Hist(30, 0, 0.5, markersize=3.0, color=pythia_softcut_colors[i], linewidth=8, linestyle='dashed')
       bin_width = (pythia_softcut_theta_g_hist.upperbound() - pythia_softcut_theta_g_hist.lowerbound()) / pythia_softcut_theta_g_hist.nbins()
       map(pythia_softcut_theta_g_hist.Fill, pythia_softcut_z_gs[i])
       pythia_softcut_theta_g_hist.Scale(1.0 / (pythia_softcut_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -7881,14 +7896,14 @@ def plot_softcut_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
 
     # Pythia.
 
-    pythia_theta_g_hist = Hist(30, 0, 1.2, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(30, 0, 1.2, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, pythia_theta_g)
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=50, histtype='step')
 
     for i in range(len(softcut_pTs)):
-      pythia_softcut_theta_g_hist = Hist(30, 0, 1.2, markersize=3.0, color=pythia_softcut_colors[i], linewidth=5)
+      pythia_softcut_theta_g_hist = Hist(30, 0, 1.2, markersize=3.0, color=pythia_softcut_colors[i], linewidth=8, linestyle='dashed')
       bin_width = (pythia_softcut_theta_g_hist.upperbound() - pythia_softcut_theta_g_hist.lowerbound()) / pythia_softcut_theta_g_hist.nbins()
       map(pythia_softcut_theta_g_hist.Fill, pythia_softcut_theta_gs[i])
       pythia_softcut_theta_g_hist.Scale(1.0 / (pythia_softcut_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -7966,14 +7981,14 @@ def plot_softcut_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
 
     # Pythia.
     
-    pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill, np.multiply(pythia_theta_g, pythia_z_g))
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, zorder=50, histtype='step')
 
     for i in range(len(softcut_pTs)):
-      pythia_softcut_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=pythia_softcut_colors[i], linewidth=5)
+      pythia_softcut_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=pythia_softcut_colors[i], linewidth=8, linestyle='dashed')
       bin_width = (pythia_softcut_theta_g_hist.upperbound() - pythia_softcut_theta_g_hist.lowerbound()) / pythia_softcut_theta_g_hist.nbins()
       map(pythia_softcut_theta_g_hist.Fill, np.multiply(pythia_softcut_theta_gs[i], pythia_softcut_z_gs[i]))
       pythia_softcut_theta_g_hist.Scale(1.0 / (pythia_softcut_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -8050,14 +8065,14 @@ def plot_softcut_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
 
     # Pythia Begins.
 
-    pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill,  np.multiply( pythia_z_g, np.square(pythia_theta_g) ) )
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, histtype='step', zorder=50)
 
     for i in range(len(softcut_pTs)):
-      pythia_softcut_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=pythia_softcut_colors[i], linewidth=5)
+      pythia_softcut_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=pythia_softcut_colors[i], linewidth=8, linestyle='dashed')
       bin_width = (pythia_softcut_theta_g_hist.upperbound() - pythia_softcut_theta_g_hist.lowerbound()) / pythia_softcut_theta_g_hist.nbins()
       map(pythia_softcut_theta_g_hist.Fill,  np.multiply( pythia_softcut_z_gs[i], np.square(pythia_softcut_theta_gs[i]) )  ) 
       pythia_softcut_theta_g_hist.Scale(1.0 / (pythia_softcut_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -8134,14 +8149,14 @@ def plot_softcut_theta_g_linear_plots(pT_lower_cut=150, zg_cut='0.10', zg_filena
 
     # Pythia.
 
-    pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=plot_colors['pythia'], linewidth=5)
+    pythia_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color='black', linewidth=8, linestyle='dashed')
     bin_width = (pythia_theta_g_hist.upperbound() - pythia_theta_g_hist.lowerbound()) / pythia_theta_g_hist.nbins()
     map(pythia_theta_g_hist.Fill,  np.multiply( pythia_z_g, np.sqrt(pythia_theta_g) ) ) 
     pythia_theta_g_hist.Scale(1.0 / (pythia_theta_g_hist.GetSumOfWeights() * bin_width))
     pythia_plot = rplt.hist(pythia_theta_g_hist, histtype='step', zorder=50)
 
     for i in range(len(softcut_pTs)):
-      pythia_softcut_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=pythia_softcut_colors[i], linewidth=5)
+      pythia_softcut_theta_g_hist = Hist(30, 0, 0.6, markersize=3.0, color=pythia_softcut_colors[i], linewidth=8, linestyle='dashed')
       bin_width = (pythia_softcut_theta_g_hist.upperbound() - pythia_softcut_theta_g_hist.lowerbound()) / pythia_softcut_theta_g_hist.nbins()
       map(pythia_softcut_theta_g_hist.Fill,  np.multiply( pythia_softcut_z_gs[i], np.sqrt(pythia_softcut_theta_gs[i]) ) ) 
       pythia_softcut_theta_g_hist.Scale(1.0 / (pythia_softcut_theta_g_hist.GetSumOfWeights() * bin_width))
@@ -8581,7 +8596,7 @@ def log_plot():
 # plot_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
 
-plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
+# plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
 # plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
 # plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
 
@@ -8606,13 +8621,13 @@ plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', 
 # ******************** Log Plots ******************** 
 
 # plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05')
-# plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
+plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 # plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
 
-# plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
+plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 
-# plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', softcut_pTs = [2])
-# plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', softcut_pTs = [5])
+plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', softcut_pTs = [2])
+plot_softcut_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', softcut_pTs = [5])
 
 # ******************** Log Plots End ******************** 
 
@@ -8632,10 +8647,10 @@ plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', 
 
 # ======================================================================= Bonus ======================================================================= 
 
-# plot_jet_mass_spectrum(pT_lower_cut=150)
-# plot_constituent_multiplicity_softdrop(pT_lower_cut=150)
-# plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=150)
-# plot_hardest_pT_D(pT_lower_cut=150)
+plot_jet_mass_spectrum(pT_lower_cut=150)
+plot_constituent_multiplicity_softdrop(pT_lower_cut=150)
+plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=150)
+plot_hardest_pT_D(pT_lower_cut=150)
 # plot_fractional_pT_loss(pT_lower_cut=150)
 
 # ======================================================================= Bonus Ends ======================================================================= 

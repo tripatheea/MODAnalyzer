@@ -226,7 +226,7 @@ def plot_turn_on_curves():
   plt.autoscale(True)
   plt.yscale('log')
 
-  plt.gca().set_ylim(0.1, 10e8)
+  plt.gca().set_ylim(0.1, 10e9)
 
   
   # Legend.
@@ -445,8 +445,8 @@ def plot_all_trigger_efficiency_curves():
   # colors = ['orange', 'red', 'green', 'blue', 'magenta', 'black']
   # colors = colors[::-1]
 
-
-  colors = ['orange', 'brown', 'red', 'blue', 'magenta', 'green']
+  
+  colors = ['green', 'magenta', 'blue', 'red', 'brown', 'orange']
   expected_trigger_names = ["HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U", "HLT\_Jet15U\_HcalNoiseFiltered" ]
   labels = ["Jet140U / 100U", "Jet100U / 70U", "Jet70U / 50U", "Jet50U / 30U", "Jet30U / 15U\_HNF", "" ]
   lower_pTs = [140, 100, 70, 50, 30, 15]
@@ -567,5 +567,5 @@ def plot_all_trigger_efficiency_curves():
 
 
 
-plot_turn_on_curves()
-# plot_all_trigger_efficiency_curves()
+# plot_turn_on_curves()
+plot_all_trigger_efficiency_curves()

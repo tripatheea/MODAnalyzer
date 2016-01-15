@@ -240,7 +240,45 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    }
 
    double pT_D = sqrt(pT_square_sum) / pT_sum;
-   properties.push_back( MOD::Property("pT_D", pT_D) );
+   properties.push_back( MOD::Property("pT_D_pre_SD", pT_D) );
+
+   pT_square_sum = 0.0;
+   pT_sum = 0.0;
+   for (unsigned i = 0; i < soft_drop(hardest_jet).constituents().size(); i++) {
+      double pT = soft_drop(hardest_jet).constituents()[i].pt();
+      pT_square_sum += pT * pT;
+      pT_sum += pT;
+   }
+
+   double pT_D_SD = sqrt(pT_square_sum) / pT_sum;
+   properties.push_back( MOD::Property("pT_D_post_SD", pT_D_SD) );
+
+
+
+   // // List pdgID.
+   // ofstream id_output("ids.dat", ios::out | ios::app);
+   // std::ifstream infile("ids.dat");
+   
+   // for (unsigned i = 0; i < hardest_jet.constituents().size(); i++) {
+   //    int mc_id = hardest_jet.constituents()[i].user_info<MOD::InfoPFC>().pdgId();
+
+   //    int id = 0;
+
+   //    vector<int> all_ids;
+
+   //    while (infile >> id) {
+   //       all_ids.push_back(id);
+   //    }
+
+   //    std::vector<int>::iterator it = find (all_ids.begin(), all_ids.end(), mc_id);
+   //    if (it != all_ids.end()) {
+   //     // std::cout << "Element found in all_ids: " << *it << '\n';
+   //    }
+   //    else {
+   //       id_output << mc_id << endl;
+   //    }
+   // }
+      
 
 
    // Now that we've calculated all observables, write them out.

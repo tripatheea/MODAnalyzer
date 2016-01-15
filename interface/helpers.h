@@ -17,8 +17,6 @@
 #include "info_calibrated_jet.h"
 
 
-#include "Pythia8/Pythia.h"
-
 
 
 
