@@ -17,6 +17,10 @@ const int MOD::Event::run_number() const {
    return _condition.run_number();
 }
 
+const MOD::Condition MOD::Event::condition() const {
+   return _condition;
+}
+
 const int MOD::Event::version() const {
    return _version;
 }

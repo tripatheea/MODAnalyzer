@@ -14,12 +14,20 @@ MOD::Property::Property(std::string name, std::string value) : _name(name), _str
 
 }
 
+MOD::Property::Property(std::string name, long value) : _name(name), _long_value(value), _value_data_type("long") {
+
+}
+
 void MOD::Property::value(int & value) const {
   value = _int_value;
 }
 
 void MOD::Property::value(double & value) const {
   value = _double_value;
+}
+
+void MOD::Property::value(long & value) const {
+  value = _long_value;
 }
 
 void MOD::Property::value(string & value) const {
@@ -50,6 +58,11 @@ namespace MOD {
     }
     else if (property.value_data_type() == "double") {
       double v;
+      property.value(v);
+      os << v;
+    }
+    else if (property.value_data_type() == "long") {
+      long v;
       property.value(v);
       os << v;
     }

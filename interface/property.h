@@ -15,11 +15,13 @@ namespace MOD {
       public:
          Property(std::string name, int value);
          Property(std::string name, double value);
+         Property(std::string name, long value);
          Property(std::string name, std::string value);
          
          void value(std::string &) const;
          void value(int &) const;
          void value(double &) const;
+         void value(long &) const;
 
          std::string name() const;
 
@@ -33,6 +35,7 @@ namespace MOD {
 
          int _int_value;
          double _double_value;
+         long _long_value;
          std::string _string_value;
 
          std::string _value_data_type;

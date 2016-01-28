@@ -13,13 +13,18 @@ namespace MOD {
    class Condition {
 
       public:
-         Condition(int run_number, int event_number, int lumi_block, double avg_inst_lumi, int npv);
          Condition(std::istringstream & input_stream);
          Condition();
 
          const int lumi_block() const;
-         const double avg_inst_lumi() const;
+         const double average_instantaneous_lumi() const;
          const int npv() const;
+
+         const bool valid_lumi() const;
+         const double integrated_delivered_lumi() const;
+         const double integrated_recorded_lumi() const;
+         const long time() const;
+
 
          const int event_number() const;
          const int run_number() const;
@@ -34,8 +39,15 @@ namespace MOD {
          int _event_number;
 
          int _lumi_block;
-         double _avg_inst_lumi;
+         double _average_instantaneous_lumi;
          int _npv;
+
+         bool _valid_lumi;
+         double _integrated_delivered_lumi;
+         double _integrated_recorded_lumi;
+         long _timestamp;
+         long _ms_offset;
+
          
    };
 }

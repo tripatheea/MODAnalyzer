@@ -41,6 +41,8 @@ namespace MOD {
             const int event_number() const;
             const int run_number() const;
 
+            const MOD::Condition condition() const;
+
             const int version() const;
             const data_source_t data_source() const;
             const int weight() const;
