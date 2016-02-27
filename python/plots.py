@@ -1159,16 +1159,16 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
 
 
 
-		pythia_pt_hist = Hist(100, 0, 700, title=plot_labels['pythia'], linewidth=5, markersize=5.0, color=plot_colors['pythia'])
+		pythia_pt_hist = Hist(70, 0, 700, title=plot_labels['pythia'], linewidth=5, markersize=5.0, color=plot_colors['pythia'])
 		bin_width_pythia = (pythia_pt_hist.upperbound() - pythia_pt_hist.lowerbound()) / pythia_pt_hist.nbins()
 
-		herwig_pt_hist = Hist(100, 0, 700, title=plot_labels['herwig'], linewidth=5, markersize=5.0, color=plot_colors['herwig'])
+		herwig_pt_hist = Hist(70, 0, 700, title=plot_labels['herwig'], linewidth=5, markersize=5.0, color=plot_colors['herwig'])
 		bin_width_herwig = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
 
-		sherpa_pt_hist = Hist(100, 0, 700, title=plot_labels['sherpa'], linewidth=5, markersize=5.0, color=plot_colors['sherpa'])
+		sherpa_pt_hist = Hist(70, 0, 700, title=plot_labels['sherpa'], linewidth=5, markersize=5.0, color=plot_colors['sherpa'])
 		bin_width_sherpa = (sherpa_pt_hist.upperbound() - sherpa_pt_hist.lowerbound()) / sherpa_pt_hist.nbins()
 
-		experiment_pt_hist = Hist(100, 0, 700, title=plot_labels['data'], markersize=3.0, color=plot_colors['data'])
+		experiment_pt_hist = Hist(70, 0, 700, title=plot_labels['data'], markersize=3.0, color=plot_colors['data'])
 		bin_width_experiment = (experiment_pt_hist.upperbound() - experiment_pt_hist.lowerbound()) / experiment_pt_hist.nbins()
 
 
@@ -1523,13 +1523,13 @@ def plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cu
 
 		# Data.
 		
-		multi_before_SD_hist = Hist(25, -1, 26, markersize=3.0, color=plot_colors['data'])
+		multi_before_SD_hist = Hist(25, -1, 24, markersize=3.0, color=plot_colors['data'])
 		bin_width_before = (multi_before_SD_hist.upperbound() - multi_before_SD_hist.lowerbound()) / multi_before_SD_hist.nbins()
 		map(multi_before_SD_hist.Fill, multi_before_SD, prescales)
 		multi_before_SD_hist.Scale(1.0 / (multi_before_SD_hist.GetSumOfWeights() * bin_width_before))
 		data_before_plot = rplt.errorbar(multi_before_SD_hist, zorder=20, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-		multi_after_SD_hist = Hist(25, -1, 26, markersize=3.0, color=plot_colors['data_post'])
+		multi_after_SD_hist = Hist(25, -1, 24, markersize=3.0, color=plot_colors['data_post'])
 		bin_width_after = (multi_after_SD_hist.upperbound() - multi_after_SD_hist.lowerbound()) / multi_after_SD_hist.nbins()
 		map(multi_after_SD_hist.Fill, multi_after_SD, prescales)
 		multi_after_SD_hist.Scale(1.0 / (multi_after_SD_hist.GetSumOfWeights() * bin_width_after))
@@ -1541,13 +1541,13 @@ def plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cu
 		# Monte Carlo.
 
 		# Pythia.
-		pythia_pre_hist = Hist(25, -1, 26, linewidth=8, color='black', linestyle="dashed")
+		pythia_pre_hist = Hist(25, -1, 24, linewidth=8, color='black', linestyle="dashed")
 		bin_width_before = (pythia_pre_hist.upperbound() - pythia_pre_hist.lowerbound()) / pythia_pre_hist.nbins()
 		map(pythia_pre_hist.Fill, pythia_pre)
 		pythia_pre_hist.Scale(1.0 / (pythia_pre_hist.GetSumOfWeights() * bin_width_before))
 		pythia_before_plot = rplt.hist(pythia_pre_hist, zorder=2)
 
-		pythia_post_hist = Hist(25, -1, 26, linewidth=8, color=plot_colors['pythia_post'], linestyle="dashed")
+		pythia_post_hist = Hist(25, -1, 24, linewidth=8, color=plot_colors['pythia_post'], linestyle="dashed")
 		bin_width_after = (pythia_post_hist.upperbound() - pythia_post_hist.lowerbound()) / pythia_post_hist.nbins()
 		map(pythia_post_hist.Fill, pythia_post)
 		pythia_post_hist.Scale(1.0 / (pythia_post_hist.GetSumOfWeights() * bin_width_after))
@@ -8514,9 +8514,9 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 
 			if labels[counter] == 'data':
-				H, xedges, yedges = np.histogram2d(z_g_s, theta_g_s, bins=bins, weights=prescales, normed=1)
+				H, xedges, yedges = np.histogram2d(z_g_s, theta_g_s, bins=bins, weights=prescales)
 			else:
-				H, xedges, yedges = np.histogram2d(z_g_s, theta_g_s, bins=bins, normed=1 )
+				H, xedges, yedges = np.histogram2d(z_g_s, theta_g_s, bins=bins)
 
 			# H_normalized = []
 			# for i in range(0, 25):
@@ -8580,8 +8580,8 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 
 
-plot_2d_theta_g_zg(pT_lower_cut=150, log=True)
-plot_2d_theta_g_zg(pT_lower_cut=150, log=False)
+# plot_2d_theta_g_zg(pT_lower_cut=150, log=True)
+# plot_2d_theta_g_zg(pT_lower_cut=150, log=False)
 
 
 # plot_jet_rho(pT_lower_cut=100)
@@ -8966,7 +8966,7 @@ plot_2d_theta_g_zg(pT_lower_cut=150, log=False)
 # plot_charged_jet_mass(pT_lower_cut=150)
 
 # plot_constituent_multiplicity_softdrop(pT_lower_cut=150)
-# plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=150)
+plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=150)
 
 # plot_hardest_pT_D(pT_lower_cut=150)
 # plot_fractional_pT_loss(pT_lower_cut=150)

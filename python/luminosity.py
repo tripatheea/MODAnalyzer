@@ -102,9 +102,29 @@ def parse_file(input_file):
 
   return properties
 
+def filter_run_lumi(data):
+  lumis = {}
+  for lumi_block, run_number, avg_inst_lumi, intg_del_lumi, intg_rec_lumi, time in zip(data['lumi_block'], data['Run_Number'], data['avg_inst_lumi'], data['intg_del_lumi'], data['intg_rec_lumi'], data['time']):
+    
+    key = (run_number, lumi_block)
+    # key = lumi_block
+    # key = run_number
 
-def plot_integrated_recorded_lumi(cumulative=False, number=False):
-  properties = parse_file(input_analysis_file)
+    value = {'avg_inst_lumi': avg_inst_lumi, 'intg_del_lumi': intg_del_lumi, 'intg_rec_lumi': intg_rec_lumi, 'time': time}
+    lumis[key] = value
+
+  properties = defaultdict(list)
+
+  for key in lumis:
+    current_element = lumis[key]
+    for prop in current_element:
+      properties[prop].append( current_element[prop] )
+
+  return properties
+
+
+def plot_integrated_recorded_lumi(cumulative=False):
+  properties = filter_run_lumi( parse_file(input_analysis_file) )
 
   timestamps = sorted(properties['time'])
   intg_rec_lumi = [x for (y,x) in sorted(zip(properties['time'], properties['intg_rec_lumi']))]
@@ -124,15 +144,9 @@ def plot_integrated_recorded_lumi(cumulative=False, number=False):
   # dates = [datetime.datetime.fromtimestamp( int(time) ).strftime('%m-%d') for time in timestamps]
 
   if cumulative:
-    if number:
-      label = "CMS Recorded: " + str(round(total_lumi, 2)) + " $\mathrm{pb}^{-1}$"
-    else:
-      label = "CMS Recorded"
+    label = "CMS Recorded: " + str(round(total_lumi, 2)) + " $\mathrm{pb}^{-1}$"
   else:
-    if number:
-      label = "CMS Recorded, max " + str(round(max_lumi, 2)) + " $\mathrm{pb}^{-1}$/day"
-    else:
-      label = "CMS Recorded"
+    label = "CMS Recorded, max " + str(round(max_lumi, 2)) + " $\mathrm{pb}^{-1}$/day"
 
   plt.hist(mpl.dates.date2num(dates), label=label, weights=intg_rec_lumi, bins=25, cumulative=cumulative, color='orange', edgecolor='darkorange')
 
@@ -174,9 +188,9 @@ def plot_integrated_recorded_lumi(cumulative=False, number=False):
 
 
   if cumulative:
-    plt.savefig("plots/Version 5/lumi/intg_rec_lumi_cumulative_number_" + str(number) + ".pdf")
+    plt.savefig("plots/Version 5/lumi/intg_rec_lumi_cumulative.pdf")
   else:
-    plt.savefig("plots/Version 5/lumi/intg_rec_lumi_number_" + str(number) + ".pdf")
+    plt.savefig("plots/Version 5/lumi/intg_rec_lumi_number.pdf")
 
   plt.clf()
    
@@ -188,7 +202,7 @@ def plot_integrated_recorded_lumi(cumulative=False, number=False):
 
 
 
-def plot_inst_lumi(number=False):
+def plot_inst_lumi():
   properties = parse_file(input_analysis_file)
 
   timestamps = sorted(properties['time'])
@@ -204,10 +218,7 @@ def plot_inst_lumi(number=False):
   # dates = [datetime.datetime.fromtimestamp( int(time) ).strftime('%m-%d') for time in timestamps]
 
   
-  if number:
-    label = "Max. Inst. Lumi.: " + str(round(max_lumi, 2)) + " Hz/$\mathrm{\mu b}$"
-  else:
-    label = "CMS Recorded"
+  label = "Max. Inst. Lumi.: " + str(round(max_lumi, 2)) + " Hz/$\mathrm{\mu b}$"
 
   plt.hist(mpl.dates.date2num(dates), label=label, weights=inst_lumi, bins=25, color='orange', edgecolor='darkorange')
 
@@ -246,19 +257,25 @@ def plot_inst_lumi(number=False):
   plt.gcf().text(0.270, 0.825, preliminary_text, fontsize=60, weight='bold', color='#444444', multialignment='center')
 
 
-  plt.savefig("plots/Version 5/lumi/inst_lumi_number_" + str(number) + ".pdf")
+  plt.savefig("plots/Version 5/lumi/inst_lumi_number.pdf")
 
   plt.clf()
 
 
 
 
-plot_integrated_recorded_lumi(cumulative=True, number=True)
-plot_integrated_recorded_lumi(cumulative=True, number=False)
+plot_integrated_recorded_lumi(cumulative=True)
+# plot_integrated_recorded_lumi(cumulative=True)
 
-plot_integrated_recorded_lumi(cumulative=False, number=True)
-plot_integrated_recorded_lumi(cumulative=False, number=False)
+# plot_integrated_recorded_lumi(cumulative=False)
+# plot_integrated_recorded_lumi(cumulative=False)
 
 
-plot_inst_lumi(number=False)
-plot_inst_lumi(number=True)
+# plot_inst_lumi(number=False)
+# plot_inst_lumi(number=True)
+
+
+
+
+
+call(["python", "/home/aashish/root/macros/MODAnalyzer/utilities/sync_plots.py"])

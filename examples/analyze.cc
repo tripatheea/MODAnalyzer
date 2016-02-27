@@ -193,18 +193,6 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
          properties.push_back(MOD::Property("charged_mu_" + label, -1.0));
       }
    }
-   
-
-   // Analysis related to the effects of SoftDrop- observables before and after SoftDrop.
-   
-   properties.push_back(MOD::Property("pT_after_SD", soft_drop_jet.pt()));
-
-   properties.push_back( MOD::Property("mul_pre_SD", (int) hardest_jet_constituents.size()) );
-   properties.push_back( MOD::Property("mul_post_SD", (int) soft_drop(hardest_jet).constituents().size() ) );   
-
-   properties.push_back( MOD::Property("mass_pre_SD", hardest_jet.m()) );
-   properties.push_back( MOD::Property("mass_post_SD", soft_drop(hardest_jet).m()) );
-
 
    // Before and after SoftDrop for charged particles only.
 
@@ -224,6 +212,75 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
       properties.push_back( MOD::Property("chrg_mass_pre_SD", -1. ));
       properties.push_back( MOD::Property("chrg_mass_post_SD", -1. ));
    }
+
+
+   // Analysis with 1 GeV removed track particles. 
+
+   Selector pT_1_GeV_selector = SelectorPtMin(1.0);
+
+   // Get all charged particles with 1 GeV particles removed.
+   std::vector<fastjet::PseudoJet> charged_1GeV_constituents = pT_1_GeV_selector(MOD::filter_charged(hardest_jet_constituents));
+
+   // Cluster them using Cambridge/Alachen with infinite radius. This makes sure that we get the same jets as "regular" ak5 jets except now with just charged particles.
+   ClusterSequence cs_charged_1_GeV(charged_1GeV_constituents, jet_def_cambridge);
+
+   if (cs_charged_1_GeV.inclusive_jets().size() > 0 ) {
+
+      PseudoJet hardest_charged_1_GeV_removed_jet = cs_charged_1_GeV.inclusive_jets()[0];
+
+      for (unsigned i = 0; i < zg_cuts.size(); i++) {
+         string label = zg_cuts[i].first;
+         double zg_cut = zg_cuts[i].second;
+
+         SoftDrop soft_drop_charged(0.0, zg_cut);
+         PseudoJet soft_drop_jet_charged = soft_drop_charged(hardest_charged_1_GeV_removed_jet);
+
+         properties.push_back(MOD::Property("charged_1_GeV_zg_" + label, soft_drop_jet_charged.structure_of<SoftDrop>().symmetry()));
+         properties.push_back(MOD::Property("charged_1_GeV_Rg_" + label, soft_drop_jet_charged.structure_of<SoftDrop>().delta_R()));
+         properties.push_back(MOD::Property("charged_1_GeV_mu_" + label, soft_drop_jet_charged.structure_of<SoftDrop>().mu()));
+      }
+   }
+   else {
+      for (unsigned i = 0; i < zg_cuts.size(); i++) {
+         string label = zg_cuts[i].first;
+         properties.push_back(MOD::Property("charged_1_GeV_zg_" + label, -1.0));
+         properties.push_back(MOD::Property("charged_1_GeV_Rg_" + label, -1.0));
+         properties.push_back(MOD::Property("charged_1_GeV_mu_" + label, -1.0));
+      }
+   }
+
+
+   // Before and after SoftDrop for 1 GeV removed charged particles only.
+
+   if (cs_charged_1_GeV.inclusive_jets().size() > 0 ) {
+      PseudoJet hardest_charged_1_GeV_removed_jet = cs_charged_1_GeV.inclusive_jets()[0];
+
+      properties.push_back( MOD::Property("chrg_1_GeV_mul_pre_SD", (int) hardest_charged_1_GeV_removed_jet.constituents().size()) );
+      properties.push_back( MOD::Property("chrg_1_GeV_mul_post_SD", (int) soft_drop(hardest_charged_1_GeV_removed_jet).constituents().size()) );
+
+      properties.push_back( MOD::Property("chrg_1_GeV_mass_pre_SD", hardest_charged_1_GeV_removed_jet.m()) );
+      properties.push_back( MOD::Property("chrg_1_GeV_mass_post_SD", soft_drop(hardest_charged_1_GeV_removed_jet).m()) );
+   }
+   else {
+      properties.push_back( MOD::Property("chrg_1_GeV_mul_pre_SD", -1. ));
+      properties.push_back( MOD::Property("chrg_1_GeV_mul_post_SD", -1. ));
+
+      properties.push_back( MOD::Property("chrg_1_GeV_mass_pre_SD", -1. ));
+      properties.push_back( MOD::Property("chrg_1_GeV_mass_post_SD", -1. ));
+   }
+
+
+
+   // Analysis related to the effects of SoftDrop- observables before and after SoftDrop.
+   
+   properties.push_back(MOD::Property("pT_after_SD", soft_drop_jet.pt()));
+
+   properties.push_back( MOD::Property("mul_pre_SD", (int) hardest_jet_constituents.size()) );
+   properties.push_back( MOD::Property("mul_post_SD", (int) soft_drop(hardest_jet).constituents().size() ) );   
+
+   properties.push_back( MOD::Property("mass_pre_SD", hardest_jet.m()) );
+   properties.push_back( MOD::Property("mass_post_SD", soft_drop(hardest_jet).m()) );
+
    
    
    properties.push_back( MOD::Property("frac_pT_loss", (hardest_jet.pt() - soft_drop(hardest_jet).pt()) / hardest_jet.pt() ) );
