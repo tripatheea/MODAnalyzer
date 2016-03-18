@@ -161,7 +161,6 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
       }
    }   
 
-
    // Analysis with charged particles only.
    
    // Get all charged particles.
@@ -212,7 +211,6 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
       properties.push_back( MOD::Property("chrg_mass_pre_SD", -1. ));
       properties.push_back( MOD::Property("chrg_mass_post_SD", -1. ));
    }
-
 
    // Analysis with 1 GeV removed track particles. 
 
@@ -269,8 +267,6 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
       properties.push_back( MOD::Property("chrg_1_GeV_mass_post_SD", -1. ));
    }
 
-
-
    // Analysis related to the effects of SoftDrop- observables before and after SoftDrop.
    
    properties.push_back(MOD::Property("pT_after_SD", soft_drop_jet.pt()));
@@ -310,39 +306,11 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    double pT_D_SD = sqrt(pT_square_sum) / pT_sum;
    properties.push_back( MOD::Property("pT_D_post_SD", pT_D_SD) );
 
-
-
-   // // List pdgID.
-   // ofstream id_output("ids.dat", ios::out | ios::app);
-   // std::ifstream infile("ids.dat");
-
-   // for (unsigned i = 0; i < hardest_jet.constituents().size(); i++) {
-   //    int mc_id = hardest_jet.constituents()[i].user_info<MOD::InfoPFC>().pdgId();
-
-   //    int id = 0;
-
-   //    vector<int> all_ids;
-
-   //    while (infile >> id) {
-   //       all_ids.push_back(id);
-   //    }
-
-   //    std::vector<int>::iterator it = find (all_ids.begin(), all_ids.end(), mc_id);
-   //    if (it != all_ids.end()) {
-   //     // std::cout << "Element found in all_ids: " << *it << '\n';
-   //    }
-   //    else {
-   //       id_output << mc_id << endl;
-   //    }
-   // }
-      
-
-
    // Now that we've calculated all observables, write them out.
 
    string name;
    
-   int padding = 20;
+   int padding = 30;
 
    if (event_serial_number == 1) {
       for (unsigned p = 0; p < properties.size(); p++) {

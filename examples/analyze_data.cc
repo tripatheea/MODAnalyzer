@@ -114,7 +114,6 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
 	
 	properties.push_back( MOD::Property("JEC", trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC()) );
 
-
 	string name;
 
 	int padding = 20;

@@ -1503,6 +1503,112 @@ def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000)
 
 
 
+
+def plot_track_softkill_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000):
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
+	multi_before_SD = properties['mul_pre_SD']
+	multi_after_SD = properties['mul_post_SD']  
+	prescales = properties['prescale']
+
+	for mc_label in ["truth", "reco"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat")
+		pythia_pre = pythia_properties['mul_pre_SD']
+		pythia_post = pythia_properties['mul_post_SD']
+
+		data_before_label = "Before SoftDrop"
+		data_after_label = "After SoftDrop"
+		pythia_before_label = plot_labels['pythia'] + " (Before)"
+		pythia_after_label = plot_labels['pythia'] + " (After)"
+
+		# Data.
+		
+		multi_before_SD_hist = Hist(50, -1, 101, markersize=3.0, color=plot_colors['data'])
+		bin_width_before = (multi_before_SD_hist.upperbound() - multi_before_SD_hist.lowerbound()) / multi_before_SD_hist.nbins()
+		map(multi_before_SD_hist.Fill, multi_before_SD, prescales)
+		multi_before_SD_hist.Scale(1.0 / (multi_before_SD_hist.GetSumOfWeights() * bin_width_before))
+		data_before_plot = rplt.errorbar(multi_before_SD_hist, zorder=20, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+		multi_after_SD_hist = Hist(50, -1, 101, markersize=3.0, color=plot_colors['data_post'])
+		bin_width_after = (multi_after_SD_hist.upperbound() - multi_after_SD_hist.lowerbound()) / multi_after_SD_hist.nbins()
+		map(multi_after_SD_hist.Fill, multi_after_SD, prescales)
+		multi_after_SD_hist.Scale(1.0 / (multi_after_SD_hist.GetSumOfWeights() * bin_width_after))
+		data_after_plot = rplt.errorbar(multi_after_SD_hist, zorder=10, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+		
+		# Data Ends.
+
+
+		# Monte Carlo.
+
+		# Pythia.
+		pythia_pre_hist = Hist(50, -1, 101, linewidth=8, color='black', linestyle="dashed")
+		bin_width_before = (pythia_pre_hist.upperbound() - pythia_pre_hist.lowerbound()) / pythia_pre_hist.nbins()
+		map(pythia_pre_hist.Fill, pythia_pre)
+		pythia_pre_hist.Scale(1.0 / (pythia_pre_hist.GetSumOfWeights() * bin_width_before))
+		pythia_before_plot = rplt.hist(pythia_pre_hist, zorder=2)
+
+		pythia_post_hist = Hist(50, -1, 101, linewidth=8, color=plot_colors['pythia_post'], linestyle="dashed")
+		bin_width_after = (pythia_post_hist.upperbound() - pythia_post_hist.lowerbound()) / pythia_post_hist.nbins()
+		map(pythia_post_hist.Fill, pythia_post)
+		pythia_post_hist.Scale(1.0 / (pythia_post_hist.GetSumOfWeights() * bin_width_after))
+		pythia_after_plot = rplt.hist(pythia_post_hist, zorder=1)
+		# Pythia Ends.
+
+		# Monte Carlo Ends.
+
+
+		# plt.yscale('log')
+
+		# Legends Begin.
+
+		handles = [data_before_plot, data_after_plot, pythia_before_plot, pythia_after_plot]
+		labels = [data_before_label, data_after_label, pythia_before_label, pythia_after_label]
+
+		legend = plt.gca().legend(handles, labels, loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.96, 1.0])
+		plt.gca().add_artist(legend)
+
+		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+		if pT_upper_cut != 20000:
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
+		else:
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.58])
+
+		# Legends End.
+
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.91), xycoords='figure fraction', frameon=0)
+		plt.gca().add_artist(ab)
+		preliminary_text = "Prelim. (20\%)"
+		plt.gcf().text(0.29, 0.905, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		plt.xlabel('Constituent Multiplicity', fontsize=75)
+		plt.ylabel('$\mathrm{A.U.}$', fontsize=55, rotation=0, labelpad=75.)
+		
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		plt.gca().autoscale(True)
+		plt.gca().set_ylim(0., 1.25 * plt.gca().get_ylim()[1])
+		plt.xlim(0, 60)
+
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(2))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.002))
+		plt.tick_params(which='major', width=5, length=25, labelsize=70)
+		plt.tick_params(which='minor', width=3, length=15)
+
+		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+		print "Printing constituent multiplicity with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/constituent_multiplicity_softdrop/" + mc_label + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_multiplicity.pdf")
+		# plt.show()
+		plt.close(plt.gcf())
+
+
+
+
 def plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000):
 	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
@@ -8966,7 +9072,7 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 # plot_charged_jet_mass(pT_lower_cut=150)
 
 # plot_constituent_multiplicity_softdrop(pT_lower_cut=150)
-plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=150)
+# plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=150)
 
 # plot_hardest_pT_D(pT_lower_cut=150)
 # plot_fractional_pT_loss(pT_lower_cut=150)
