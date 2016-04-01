@@ -210,74 +210,74 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    Selector pT_1_GeV_selector = SelectorPtMin(1.0);
 
    // Get all charged particles with 1 GeV particles removed.
-   std::vector<fastjet::PseudoJet> charged_1GeV_constituents = pT_1_GeV_selector(MOD::filter_charged(hardest_jet_constituents));
+   std::vector<fastjet::PseudoJet> track_constituents = pT_1_GeV_selector(MOD::filter_charged(hardest_jet_constituents));
 
    // Cluster them using Cambridge/Alachen with infinite radius. This makes sure that we get the same jets as "regular" ak5 jets except now with just charged particles.
-   ClusterSequence cs_charged_1_GeV(charged_1GeV_constituents, jet_def_cambridge);
+   ClusterSequence cs_track(track_constituents, jet_def_cambridge);
 
-   if (cs_charged_1_GeV.inclusive_jets().size() > 0 ) {
+   if (cs_track.inclusive_jets().size() > 0 ) {
 
-      PseudoJet hardest_charged_1_GeV_removed_jet = cs_charged_1_GeV.inclusive_jets()[0];
+      PseudoJet hardest_track_jet = cs_track.inclusive_jets()[0];
 
       for (unsigned i = 0; i < zg_cuts.size(); i++) {
          string label = zg_cuts[i].first;
          double zg_cut = zg_cuts[i].second;
 
-         SoftDrop soft_drop_charged(0.0, zg_cut);
-         PseudoJet soft_drop_jet_charged = soft_drop_charged(hardest_charged_1_GeV_removed_jet);
+         SoftDrop soft_drop_track(0.0, zg_cut);
+         PseudoJet soft_drop_jet_track = soft_drop_track(hardest_track_jet);
 
-         properties.push_back(MOD::Property("charged_1_GeV_zg_" + label, soft_drop_jet_charged.structure_of<SoftDrop>().symmetry()));
-         properties.push_back(MOD::Property("charged_1_GeV_Rg_" + label, soft_drop_jet_charged.structure_of<SoftDrop>().delta_R()));
-         properties.push_back(MOD::Property("charged_1_GeV_mu_" + label, soft_drop_jet_charged.structure_of<SoftDrop>().mu()));
+         properties.push_back(MOD::Property("track_zg_" + label, soft_drop_jet_track.structure_of<SoftDrop>().symmetry()));
+         properties.push_back(MOD::Property("track_Rg_" + label, soft_drop_jet_track.structure_of<SoftDrop>().delta_R()));
+         properties.push_back(MOD::Property("track_mu_" + label, soft_drop_jet_track.structure_of<SoftDrop>().mu()));
       }
 
-      properties.push_back( MOD::Property("chrg_1_GeV_mul_pre_SD", (int) hardest_charged_1_GeV_removed_jet.constituents().size()) );
-      properties.push_back( MOD::Property("chrg_1_GeV_mul_post_SD", (int) soft_drop(hardest_charged_1_GeV_removed_jet).constituents().size()) );
+      properties.push_back( MOD::Property("track_mul_pre_SD", (int) hardest_track_jet.constituents().size()) );
+      properties.push_back( MOD::Property("track_mul_post_SD", (int) soft_drop(hardest_track_jet).constituents().size()) );
 
-      properties.push_back( MOD::Property("chrg_1_GeV_mass_pre_SD", hardest_charged_1_GeV_removed_jet.m()) );
-      properties.push_back( MOD::Property("chrg_1_GeV_mass_post_SD", soft_drop(hardest_charged_1_GeV_removed_jet).m()) );
+      properties.push_back( MOD::Property("track_mass_pre_SD", hardest_track_jet.m()) );
+      properties.push_back( MOD::Property("track_mass_post_SD", soft_drop(hardest_track_jet).m()) );
 
 
-      properties.push_back( MOD::Property("chrg_1_GeV_pT_D_pre_SD", angularity_lambda(hardest_charged_1_GeV_removed_jet, 2, 0)) );
-      properties.push_back( MOD::Property("chrg_1_GeV_pT_D_post_SD", angularity_lambda(soft_drop(hardest_charged_1_GeV_removed_jet), 2, 0)) );
+      properties.push_back( MOD::Property("track_pT_D_pre_SD", angularity_lambda(hardest_track_jet, 2, 0)) );
+      properties.push_back( MOD::Property("track_pT_D_post_SD", angularity_lambda(soft_drop(hardest_track_jet), 2, 0)) );
 
-      properties.push_back( MOD::Property("chrg_1_GeV_LHA_pre_SD", angularity_lambda(hardest_charged_1_GeV_removed_jet, 1, 0.5)) );
-      properties.push_back( MOD::Property("chrg_1_GeV_LHA_post_SD", angularity_lambda(soft_drop(hardest_charged_1_GeV_removed_jet), 1, 0.5)) );
+      properties.push_back( MOD::Property("track_LHA_pre_SD", angularity_lambda(hardest_track_jet, 1, 0.5)) );
+      properties.push_back( MOD::Property("track_LHA_post_SD", angularity_lambda(soft_drop(hardest_track_jet), 1, 0.5)) );
 
-      properties.push_back( MOD::Property("chrg_1_GeV_width_pre_SD", angularity_lambda(hardest_charged_1_GeV_removed_jet, 1, 1)) );
-      properties.push_back( MOD::Property("chrg_1_GeV_width_post_SD", angularity_lambda(soft_drop(hardest_charged_1_GeV_removed_jet), 1, 1)) );
+      properties.push_back( MOD::Property("track_width_pre_SD", angularity_lambda(hardest_track_jet, 1, 1)) );
+      properties.push_back( MOD::Property("track_width_post_SD", angularity_lambda(soft_drop(hardest_track_jet), 1, 1)) );
 
-      properties.push_back( MOD::Property("chrg_1_GeV_thrust_pre_SD", angularity_lambda(hardest_charged_1_GeV_removed_jet, 1, 2)) );
-      properties.push_back( MOD::Property("chrg_1_GeV_thrust_post_SD", angularity_lambda(soft_drop(hardest_charged_1_GeV_removed_jet), 1, 2)) );
+      properties.push_back( MOD::Property("track_thrust_pre_SD", angularity_lambda(hardest_track_jet, 1, 2)) );
+      properties.push_back( MOD::Property("track_thrust_post_SD", angularity_lambda(soft_drop(hardest_track_jet), 1, 2)) );
 
    }
    else {
 
       for (unsigned i = 0; i < zg_cuts.size(); i++) {
          string label = zg_cuts[i].first;
-         properties.push_back(MOD::Property("charged_1_GeV_zg_" + label, -1.0));
-         properties.push_back(MOD::Property("charged_1_GeV_Rg_" + label, -1.0));
-         properties.push_back(MOD::Property("charged_1_GeV_mu_" + label, -1.0));
+         properties.push_back(MOD::Property("track_zg_" + label, -1.0));
+         properties.push_back(MOD::Property("track_Rg_" + label, -1.0));
+         properties.push_back(MOD::Property("track_mu_" + label, -1.0));
       }
 
-      properties.push_back( MOD::Property("chrg_1_GeV_mul_pre_SD", -1. ));
-      properties.push_back( MOD::Property("chrg_1_GeV_mul_post_SD", -1. ));
+      properties.push_back( MOD::Property("track_mul_pre_SD", -1. ));
+      properties.push_back( MOD::Property("track_mul_post_SD", -1. ));
 
-      properties.push_back( MOD::Property("chrg_1_GeV_mass_pre_SD", -1. ));
-      properties.push_back( MOD::Property("chrg_1_GeV_mass_post_SD", -1. ));
+      properties.push_back( MOD::Property("track_mass_pre_SD", -1. ));
+      properties.push_back( MOD::Property("track_mass_post_SD", -1. ));
 
 
-      properties.push_back( MOD::Property("chrg_1_GeV_pT_D_pre_SD", -1.) );
-      properties.push_back( MOD::Property("chrg_1_GeV_pT_D_post_SD", -1.) );
+      properties.push_back( MOD::Property("track_pT_D_pre_SD", -1.) );
+      properties.push_back( MOD::Property("track_pT_D_post_SD", -1.) );
 
-      properties.push_back( MOD::Property("chrg_1_GeV_LHA_pre_SD", -1.) );
-      properties.push_back( MOD::Property("chrg_1_GeV_LHA_post_SD", -1.) );
+      properties.push_back( MOD::Property("track_LHA_pre_SD", -1.) );
+      properties.push_back( MOD::Property("track_LHA_post_SD", -1.) );
 
-      properties.push_back( MOD::Property("chrg_1_GeV_width_pre_SD", -1.) );
-      properties.push_back( MOD::Property("chrg_1_GeV_width_post_SD", -1.) );
+      properties.push_back( MOD::Property("track_width_pre_SD", -1.) );
+      properties.push_back( MOD::Property("track_width_post_SD", -1.) );
 
-      properties.push_back( MOD::Property("chrg_1_GeV_thrust_pre_SD", -1.) );
-      properties.push_back( MOD::Property("chrg_1_GeV_thrust_post_SD", -1.) );
+      properties.push_back( MOD::Property("track_thrust_pre_SD", -1.) );
+      properties.push_back( MOD::Property("track_thrust_post_SD", -1.) );
 
 
    }
@@ -309,7 +309,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    ClusterSequence cs_preclustered(preclustered_constituents, jet_def_cambridge);
 
    if (cs_preclustered.inclusive_jets().size() > 0) {
-      
+
       PseudoJet preclustered_hardest_jet = cs_preclustered.inclusive_jets()[0];
 
       for (unsigned i = 0; i < zg_cuts.size(); i++) {
