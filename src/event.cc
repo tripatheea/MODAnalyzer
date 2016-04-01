@@ -530,19 +530,19 @@ void MOD::Event::set_assigned_trigger() {
       if ( (hardest_pT > 325) && trigger_exists("HLT_Jet180U") ) {
          trigger = "HLT_Jet180U";
       }
-      else if ( (hardest_pT > 260) && trigger_exists("HLT_Jet140U") ) {
+      else if ( (hardest_pT > 250) && trigger_exists("HLT_Jet140U") ) {
          trigger = "HLT_Jet140U";
       }
-      else if ( (hardest_pT > 196) && trigger_exists("HLT_Jet100U") ) {
+      else if ( (hardest_pT > 200) && trigger_exists("HLT_Jet100U") ) {
          trigger = "HLT_Jet100U";
       }
-      else if ( (hardest_pT > 153) && trigger_exists("HLT_Jet70U") ) {
+      else if ( (hardest_pT > 150) && trigger_exists("HLT_Jet70U") ) {
          trigger = "HLT_Jet70U";
       }
-      else if ( (hardest_pT > 114) && trigger_exists("HLT_Jet50U") ) {
+      else if ( (hardest_pT > 115) && trigger_exists("HLT_Jet50U") ) {
          trigger = "HLT_Jet50U";
       }
-      else if ( (hardest_pT > 84) && trigger_exists("HLT_Jet30U") ) {
+      else if ( (hardest_pT > 85) && trigger_exists("HLT_Jet30U") ) {
          trigger = "HLT_Jet30U";
       }
       else if ( (hardest_pT > 56) && trigger_exists("HLT_Jet15U") ) {
@@ -574,8 +574,8 @@ void MOD::Event::set_trigger_jet() {
    // Get the hardest jet, apply JEC, and then eta cut.
 
    vector<PseudoJet> processed_jets = apply_jet_energy_corrections(_cms_jets);
-   Selector rapidity_selector = SelectorAbsRapMax(2.4);
-   processed_jets = rapidity_selector(processed_jets);
+   // Selector rapidity_selector = SelectorAbsRapMax(2.4);
+   // processed_jets = rapidity_selector(processed_jets);
 
    // Then, sort the jets and store the hardest one as _trigger_jet.
    if (processed_jets.size() > 0) {
@@ -599,29 +599,34 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
 
    if (_trigger_jet.E() > 0) {   // This ensures that trigger jet is a valid jet and not an empty PseudoJet().
 
-      vector<PseudoJet> fastjet_jets = _jets;
-
-      // Loop through all FastJet pseudojets, calculating delta R for each one.
-      vector<double> delta_Rs;
-      for (unsigned i = 0; i < fastjet_jets.size(); i++) {
-         delta_Rs.push_back( _trigger_jet.delta_R(fastjet_jets[i]) );
-      }
+      // Next, check if the trigger jet has a rapidity of < 2.4.
       
-      // Find the index of the fastjet jet that has the lowest delta R. This will be the jet that's "closest" to the CMS jet. 
-      int index = -1;
-      double delta_R = numeric_limits<double>::max();
-      for (unsigned i = 0; i < delta_Rs.size(); i++) {
-         if (delta_Rs[i] <= delta_R) {
-            delta_R = delta_Rs[i];
-            index = i;
+      if ( abs(_trigger_jet.eta()) < 2.4 ) {
+         vector<PseudoJet> fastjet_jets = _jets;
+
+         // Loop through all FastJet pseudojets, calculating delta R for each one.
+         vector<double> delta_Rs;
+         for (unsigned i = 0; i < fastjet_jets.size(); i++) {
+            delta_Rs.push_back( _trigger_jet.delta_R(fastjet_jets[i]) );
+         }
+         
+         // Find the index of the fastjet jet that has the lowest delta R. This will be the jet that's "closest" to the CMS jet. 
+         int index = -1;
+         double delta_R = numeric_limits<double>::max();
+         for (unsigned i = 0; i < delta_Rs.size(); i++) {
+            if (delta_Rs[i] <= delta_R) {
+               delta_R = delta_Rs[i];
+               index = i;
+            }
+         }
+
+         if (index >= 0) {
+            // We now have the corresponding "hardest" FastJet jet.
+            _closest_fastjet_jet_to_trigger_jet = fastjet_jets[index];
+            return;   
          }
       }
 
-      if (index >= 0) {
-         // We now have the corresponding "hardest" FastJet jet.
-         _closest_fastjet_jet_to_trigger_jet = fastjet_jets[index];
-         return;   
-      }
    }
 
    return;
@@ -635,6 +640,7 @@ const PseudoJet & MOD::Event::trigger_jet() const {
 void MOD::Event::set_trigger_jet_is_matched() {
 
    if (_trigger_jet.E() == 0.0) {
+      _trigger_jet_is_matched = false;
       return;
    }
 
