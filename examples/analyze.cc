@@ -23,7 +23,7 @@ using namespace contrib;
 
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number);
 
-double angularity_lambda(PseudoJet jet, int k, int beta);
+double angularity_lambda(PseudoJet jet, float k, float beta);
 
 int main(int argc, char * argv[]) {
 
@@ -416,7 +416,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
 
-double angularity_lambda(PseudoJet jet, int k, int beta) {
+double angularity_lambda(PseudoJet jet, float k, float beta) {
    
    double lambda = 0.0;
 
