@@ -128,9 +128,16 @@ def plot_integrated_recorded_lumi(cumulative=False):
 
   timestamps = sorted(properties['time'])
   intg_rec_lumi = [x for (y,x) in sorted(zip(properties['time'], properties['intg_rec_lumi']))]
+  intg_del_lumi = [x for (y,x) in sorted(zip(properties['time'], properties['intg_del_lumi']))]
 
   # Convert from (ub)-1 to (pb)-1
-  intg_rec_lumi = [x * 1e-6 for x in intg_rec_lumi]
+  # intg_rec_lumi = [x * 1e-6 for x in intg_rec_lumi]
+  # intg_del_lumi = [x * 1e-6 for x in intg_del_lumi]
+
+
+
+  dates = [datetime.datetime.fromtimestamp( int(time) ) for time in timestamps]
+
 
   total_lumi = sum(intg_rec_lumi)
   max_lumi = max(intg_rec_lumi)
@@ -140,7 +147,7 @@ def plot_integrated_recorded_lumi(cumulative=False):
 
   
 
-  dates = [datetime.datetime.fromtimestamp( int(time) ) for time in timestamps]
+  
   # dates = [datetime.datetime.fromtimestamp( int(time) ).strftime('%m-%d') for time in timestamps]
 
   if cumulative:
@@ -148,35 +155,43 @@ def plot_integrated_recorded_lumi(cumulative=False):
   else:
     label = "CMS Recorded, max " + str(round(max_lumi, 2)) + " $\mathrm{pb}^{-1}$/day"
 
-  plt.hist(mpl.dates.date2num(dates), label=label, weights=intg_rec_lumi, bins=25, cumulative=cumulative, color='orange', edgecolor='darkorange')
+  plt.hist(mpl.dates.date2num(dates), label="Recorded Lumi", weights=intg_rec_lumi, lw=8, bins=50, cumulative=cumulative, histtype='step', color='orange')
+  plt.hist(mpl.dates.date2num(dates), label="Delivered Lumi", weights=intg_del_lumi, lw=8, bins=50, cumulative=cumulative, histtype='step', color='green')
+  
 
   years = mdates.YearLocator()   # every year
   months = mdates.MonthLocator()  # every month
   yearsFmt = mdates.DateFormatter('%Y-%M')
 
-  # format the ticks
+  # Format the ticks
   plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d %b'))
-  plt.gca().xaxis.set_major_locator(mdates.MonthLocator())
+  # plt.gca().xaxis.set_major_locator(mdates.MonthLocator())
 
   plt.xlabel("Date (UTC)", labelpad=40, fontsize=60)
 
+  plt.gca().ticklabel_format(axis='y', style='sci')
+
   if cumulative:
-    plt.ylabel("Total Integrated Luminosity ($\mathrm{pb}^{-1}$)", labelpad=50, fontsize=60)
+    plt.ylabel("Total Integrated Luminosity ($\mathrm{b}^{-1}$)", labelpad=50, fontsize=60)
   else:
-    plt.ylabel("Integrated Luminosity ($\mathrm{pb}^{-1}$/day)", labelpad=50, fontsize=60)
+    plt.ylabel("Integrated Luminosity ($\mathrm{b}^{-1}$/day)", labelpad=50, fontsize=60)
 
 
+  print max(intg_rec_lumi),
   
   plt.legend(bbox_to_anchor=[0.007, 0.85], frameon=False, loc='upper left', fontsize=50)
 
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
-  plt.gcf().autofmt_xdate()
+
+
+  plt.gca().get_yaxis().get_major_formatter().set_powerlimits((0, 0))
 
   plt.autoscale()
-  plt.xlim(datetime.date(2010, 3, 30), datetime.date(2010, 10, 31))
+  # plt.ylim(0, 0.05)
+  # plt.xlim(datetime.date(2010, 3, 30), datetime.date(2010, 10, 31))
 
-  # plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+  plt.locator_params(axis='x', nbins=5)
 
   
   plt.tick_params(which='major', width=5, length=15, labelsize=60)
@@ -190,7 +205,7 @@ def plot_integrated_recorded_lumi(cumulative=False):
   if cumulative:
     plt.savefig("plots/Version 5/lumi/intg_rec_lumi_cumulative.pdf")
   else:
-    plt.savefig("plots/Version 5/lumi/intg_rec_lumi_number.pdf")
+    plt.savefig("plots/Version 5/lumi/intg_rec_lumi.pdf")
 
   plt.clf()
    
@@ -265,10 +280,7 @@ def plot_inst_lumi():
 
 
 plot_integrated_recorded_lumi(cumulative=True)
-# plot_integrated_recorded_lumi(cumulative=True)
-
-# plot_integrated_recorded_lumi(cumulative=False)
-# plot_integrated_recorded_lumi(cumulative=False)
+plot_integrated_recorded_lumi(cumulative=False)
 
 
 # plot_inst_lumi(number=False)

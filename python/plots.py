@@ -74,15 +74,17 @@ plot_colors = {"theory": "red", "pythia": "blue", "herwig": "green", "sherpa": "
 
 def get_version(input_file):
 
-	f = open(input_file, 'r')
-	lines = f.read().split("\n")
+	# f = open(input_file, 'r')
+	# lines = f.read().split("\n")
 
-	properties = defaultdict(list)
+	# properties = defaultdict(list)
 
-	for line in lines:
-		numbers = line.split()
-		if numbers[0] == "%":
-			return numbers[1] + " " + numbers[2] 
+	# for line in lines:
+	# 	numbers = line.split()
+	# 	if numbers[0] == "%":
+	# 		return numbers[1] + " " + numbers[2] 
+
+	return "Version 5"
 
 
 def parse_file(input_file, pT_lower_cut=150., pT_upper_cut=20000., softdrop_pT_lower_cut=0., softdrop_pT_upper_cut=20000.):
@@ -391,6 +393,10 @@ def plot_2d_hist():
 def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
 
 	zg_cut = float(zg_cut)
+
+	zg_filename = "preclustered_R_0_01_" + zg_filename
+
+	print zg_filename
 
 	for mc_type in ["truth", "reco"]:
 
@@ -1896,7 +1902,7 @@ def plot_fractional_pT_loss(pT_lower_cut=100, pT_upper_cut=20000):
 
 
 
-def plot_jet_mass(pT_lower_cut=100, pT_upper_cut=20000):
+def plot_jet_mass_softdrop(pT_lower_cut=100, pT_upper_cut=20000):
 	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
 	jet_mass_before_SD = properties['mass_pre_SD']
@@ -3620,7 +3626,7 @@ def plot_jet_phi(pT_lower_cut=100):
 
 
 
-def plot_hardest_pT_D(pT_lower_cut=100):
+def plot_hardest_pT_D_softdrop(pT_lower_cut=100):
 	
 	properties = parse_file(input_analysis_file, pT_lower_cut)
 	
@@ -8583,7 +8589,7 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 	
 
 	labels = ['data', 'pythia', 'herwig', 'sherpa']
-
+	colors = ['Greys', 'Blues', 'Greens', 'BuPu'] 
 	for mc_type in ['truth', 'reco']:
 
 		properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
@@ -8649,7 +8655,7 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 			
 			Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
 
-			plt.pcolormesh(xedges,yedges, Hmasked, cmap='Reds')
+			plt.pcolormesh(xedges,yedges, Hmasked, cmap=colors[counter])
 				
 			if log:
 				plt.xscale('log')
@@ -8684,6 +8690,1272 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 			plt.close(plt.gcf())
 
+
+
+
+
+
+
+def plot_constituent_multiplicity_track_and_preclustered(pT_lower_cut=100, pT_upper_cut=20000, R_sub=0.01):
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
+	
+
+	R_sub_label = "{:.2f}".format(R_sub).replace(".", "_")
+	
+
+
+
+	track_multiplicity = properties['track_mul_pre_SD']
+	preclustered_multiplicity = properties['preclustered_R_' + R_sub_label + '_mul_pre_SD']
+
+	
+
+	prescales = properties['prescale']
+
+	for mc_label in ["truth", "reco"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat")
+		pythia_track_multiplicity = pythia_properties['track_mul_pre_SD']
+		pythia_preclustered_multiplicity = pythia_properties['preclustered_R_' + R_sub_label + '_mul_pre_SD']
+
+		data_track_label = "Track"
+		data_preclustered_label = "Preclustered $R_{sub} = " + str(R_sub) + "$"
+		pythia_track_label = plot_labels['pythia'] + " (Track)"
+		pythia_preclustered_label = plot_labels['pythia'] + " (Preclustered)"
+
+		# Data.
+		
+		track_multi_hist = Hist(25, -1, 49, markersize=3.0, color=plot_colors['data'])
+		bin_width = (track_multi_hist.upperbound() - track_multi_hist.lowerbound()) / track_multi_hist.nbins()
+		map(track_multi_hist.Fill, track_multiplicity, prescales)
+		track_multi_hist.Scale(1.0 / (track_multi_hist.GetSumOfWeights() * bin_width))
+		data_track_plot = rplt.errorbar(track_multi_hist, zorder=20, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+		preclustered_multi_hist = Hist(25, -1, 49, markersize=3.0, color=plot_colors['data_post'])
+		bin_width = (preclustered_multi_hist.upperbound() - preclustered_multi_hist.lowerbound()) / preclustered_multi_hist.nbins()
+		map(preclustered_multi_hist.Fill, preclustered_multiplicity, prescales)
+		preclustered_multi_hist.Scale(1.0 / (preclustered_multi_hist.GetSumOfWeights() * bin_width))
+		data_preclustered_plot = rplt.errorbar(preclustered_multi_hist, zorder=10, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+		
+		# Data Ends.
+
+
+		# Monte Carlo.
+
+		# Pythia.
+		pythia_track_multi_hist = Hist(25, -1, 49, linewidth=8, color='black', linestyle="dashed")
+		bin_width = (pythia_track_multi_hist.upperbound() - pythia_track_multi_hist.lowerbound()) / pythia_track_multi_hist.nbins()
+		map(pythia_track_multi_hist.Fill, pythia_track_multiplicity)
+		pythia_track_multi_hist.Scale(1.0 / (pythia_track_multi_hist.GetSumOfWeights() * bin_width))
+		pythia_track_plot = rplt.hist(pythia_track_multi_hist, zorder=2)
+
+		pythia_preclustered_multi_hist = Hist(25, -1, 49, linewidth=8, color=plot_colors['pythia_post'], linestyle="dashed")
+		bin_width = (pythia_preclustered_multi_hist.upperbound() - pythia_preclustered_multi_hist.lowerbound()) / pythia_preclustered_multi_hist.nbins()
+		map(pythia_preclustered_multi_hist.Fill, pythia_preclustered_multiplicity)
+		pythia_preclustered_multi_hist.Scale(1.0 / (pythia_preclustered_multi_hist.GetSumOfWeights() * bin_width))
+		pythia_preclustered_plot = rplt.hist(pythia_preclustered_multi_hist, zorder=1)
+		# Pythia Ends.
+
+		# Monte Carlo Ends.
+
+
+		# plt.yscale('log')
+
+		# Legends Begin.
+
+		handles = [data_track_plot, data_preclustered_plot, pythia_track_plot, pythia_preclustered_plot]
+		labels = [data_track_label, data_preclustered_label, pythia_track_label, pythia_preclustered_label]
+
+		legend = plt.gca().legend(handles, labels, loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+		plt.gca().add_artist(legend)
+
+		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+		if pT_upper_cut != 20000:
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
+		else:
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.93, 0.58])
+
+		# Legends End.
+
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.91), xycoords='figure fraction', frameon=0)
+		plt.gca().add_artist(ab)
+		preliminary_text = "Prelim. (20\%)"
+		plt.gcf().text(0.29, 0.905, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		plt.xlabel('Constituent Multiplicity', fontsize=75)
+		plt.ylabel('$\mathrm{A.U.}$', fontsize=55, rotation=0, labelpad=75.)
+		
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		plt.gca().autoscale(True)
+		plt.gca().set_ylim(0., 1.25 * plt.gca().get_ylim()[1])
+		plt.xlim(0, 50)
+
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(2))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.01))
+		plt.tick_params(which='major', width=5, length=25, labelsize=70)
+		plt.tick_params(which='minor', width=3, length=15)
+
+		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+		print "Printing track and preclustered constituent multiplicity with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/constituent_multiplicity_track_preclustered/" + mc_label + "_R_sub_" + R_sub_label + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_multiplicity.pdf")
+		# plt.show()
+		plt.close(plt.gcf())
+
+
+
+
+def plot_jet_mass_track_and_preclustered(pT_lower_cut=150, pT_upper_cut=20000, R_sub=0.01):
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
+	R_sub_label = "{:.2f}".format(R_sub).replace(".", "_")
+
+	track_mass = properties['track_mass_pre_SD']
+	preclustered_mass = properties['preclustered_R_' + R_sub_label + '_mass_pre_SD']
+
+	prescales = properties['prescale']
+
+	for mc_label in ["truth", "reco"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat")
+		pythia_track_mass = pythia_properties['track_mass_pre_SD']
+		pythia_preclustered_mass = pythia_properties['preclustered_R_' + R_sub_label + '_mass_pre_SD']
+
+		data_track_label = "Track"
+		data_preclustered_label = "Preclustered $R_{sub} = " + str(R_sub) + "$"
+		pythia_track_label = plot_labels['pythia'] + " (Track)"
+		pythia_preclustered_label = plot_labels['pythia'] + " (Preclustered)"
+
+		# Data.
+		
+		track_mass_hist = Hist(100, 0, 150, markersize=3.0, color=plot_colors['data'])
+		bin_width = (track_mass_hist.upperbound() - track_mass_hist.lowerbound()) / track_mass_hist.nbins()
+		map(track_mass_hist.Fill, track_mass, prescales)
+		track_mass_hist.Scale(1.0 / (track_mass_hist.GetSumOfWeights() * bin_width))
+		data_track_plot = rplt.errorbar(track_mass_hist, zorder=20, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+		preclustered_mass_hist = Hist(100, 0, 150, markersize=3.0, color=plot_colors['data_post'])
+		bin_width = (preclustered_mass_hist.upperbound() - preclustered_mass_hist.lowerbound()) / preclustered_mass_hist.nbins()
+		map(preclustered_mass_hist.Fill, preclustered_mass, prescales)
+		preclustered_mass_hist.Scale(1.0 / (preclustered_mass_hist.GetSumOfWeights() * bin_width))
+		data_preclustered_plot = rplt.errorbar(preclustered_mass_hist, zorder=10, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+		
+		# Data Ends.
+
+
+		# Monte Carlo.
+
+		# Pythia.
+		pythia_track_mass_hist = Hist(100, 0, 150, linewidth=8, color='black', linestyle="dashed")
+		bin_width = (pythia_track_mass_hist.upperbound() - pythia_track_mass_hist.lowerbound()) / pythia_track_mass_hist.nbins()
+		map(pythia_track_mass_hist.Fill, pythia_track_mass)
+		pythia_track_mass_hist.Scale(1.0 / (pythia_track_mass_hist.GetSumOfWeights() * bin_width))
+		pythia_track_plot = rplt.hist(pythia_track_mass_hist, zorder=2)
+
+		pythia_preclustered_mass_hist = Hist(100, 0, 150, linewidth=8, color=plot_colors['pythia_post'], linestyle="dashed")
+		bin_width = (pythia_preclustered_mass_hist.upperbound() - pythia_preclustered_mass_hist.lowerbound()) / pythia_preclustered_mass_hist.nbins()
+		map(pythia_preclustered_mass_hist.Fill, pythia_preclustered_mass)
+		pythia_preclustered_mass_hist.Scale(1.0 / (pythia_preclustered_mass_hist.GetSumOfWeights() * bin_width))
+		pythia_preclustered_plot = rplt.hist(pythia_preclustered_mass_hist, zorder=1)
+		# Pythia Ends.
+
+		# Monte Carlo Ends.
+
+
+		# plt.yscale('log')
+
+		# Legends Begin.
+
+		handles = [data_track_plot, data_preclustered_plot, pythia_track_plot, pythia_preclustered_plot]
+		labels = [data_track_label, data_preclustered_label, pythia_track_label, pythia_preclustered_label]
+
+		legend = plt.gca().legend(handles, labels, loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+		plt.gca().add_artist(legend)
+
+		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+		if pT_upper_cut != 20000:
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$"]
+		else:
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.93, 0.58])
+
+		# Legends End.
+
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.91), xycoords='figure fraction', frameon=0)
+		plt.gca().add_artist(ab)
+		preliminary_text = "Prelim. (20\%)"
+		plt.gcf().text(0.29, 0.905, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		plt.xlabel('Jet Mass', fontsize=75)
+		plt.ylabel('$\mathrm{A.U.}$', fontsize=55, rotation=0, labelpad=75.)
+		
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		plt.gca().autoscale(True)
+		plt.gca().set_ylim(0., 1.25 * plt.gca().get_ylim()[1])
+		plt.xlim(0, 50)
+
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(2))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.005))
+
+		plt.tick_params(which='major', width=5, length=25, labelsize=70)
+		plt.tick_params(which='minor', width=3, length=15)
+
+		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+		print "Printing track and preclustered jet mass with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/jet_mass_track_preclustered/" + mc_label + "_R_sub_" + R_sub_label + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_mass.pdf")
+		# plt.show()
+		plt.close(plt.gcf())
+
+
+
+
+def plot_hardest_pT_D_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
+	
+	properties = parse_file(input_analysis_file, pT_lower_cut)
+	
+	R_sub_label = "{:.2f}".format(R_sub).replace(".", "_")
+
+	for mc_type in ["truth", "reco"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+
+		data_track_label = "Track"
+		data_preclustered_label = "Preclustered $R_{sub} = " + str(R_sub) + "$"
+		pythia_track_label = plot_labels['pythia'] + " (Track)"
+		pythia_preclustered_label = plot_labels['pythia'] + " (Preclustered)"
+
+
+		jet_pT_D_track = properties['track_pT_D_pre_SD']
+		jet_pT_D_preclustered = properties['preclustered_R_' + R_sub_label + '_pT_D_pre_SD']
+		
+		prescales = properties['prescale']
+
+		pythia_pT_D_track = pythia_properties['track_pT_D_pre_SD']
+		pythia_pT_D_preclustered = pythia_properties['preclustered_R_' + R_sub_label + '_pT_D_pre_SD']
+		
+
+
+		data_track_hist = Hist(25, 0, 1, title=data_track_label)
+		map(data_track_hist.Fill, jet_pT_D_track, prescales)
+		bin_width_data = (data_track_hist.upperbound() - data_track_hist.lowerbound()) / data_track_hist.nbins()
+		data_track_hist.Scale(1.0 / ( data_track_hist.GetSumOfWeights() * bin_width_data ))
+
+		data_preclustered_hist = Hist(25, 0, 1, title=data_preclustered_label, color='red')
+		map(data_preclustered_hist.Fill, jet_pT_D_preclustered, prescales)
+		bin_width_data = (data_preclustered_hist.upperbound() - data_preclustered_hist.lowerbound()) / data_preclustered_hist.nbins()
+		data_preclustered_hist.Scale(1.0 / ( data_preclustered_hist.GetSumOfWeights() * bin_width_data ))
+
+
+		pythia_track_hist = Hist(25, 0, 1, title=pythia_track_label, color='black', linewidth=8, linestyle='dashed')
+		map(pythia_track_hist.Fill, pythia_pT_D_track)
+		bin_width_pythia = (pythia_track_hist.upperbound() - pythia_track_hist.lowerbound()) / pythia_track_hist.nbins()
+		pythia_track_hist.Scale(1.0 / ( pythia_track_hist.GetSumOfWeights() * bin_width_pythia ))
+
+		pythia_preclustered_hist = Hist(25, 0, 1, title=pythia_preclustered_label, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
+		map(pythia_preclustered_hist.Fill, pythia_pT_D_preclustered)
+		bin_width_pythia = (pythia_preclustered_hist.upperbound() - pythia_preclustered_hist.lowerbound()) / pythia_preclustered_hist.nbins()
+		pythia_preclustered_hist.Scale(1.0 / ( pythia_preclustered_hist.GetSumOfWeights() * bin_width_pythia ))
+
+		rplt.hist(pythia_track_hist, zorder=3, normed=1, histtype='step')
+		rplt.hist(pythia_preclustered_hist, zorder=3, normed=1, histtype='step')
+		rplt.errorbar(data_track_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+		rplt.errorbar(data_preclustered_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+		
+		
+		handles, labels = plt.gca().get_legend_handles_labels()
+		legend = plt.gca().legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60)
+		plt.gca().add_artist(legend)
+
+
+		plt.xlabel('$p_T^D$', fontsize=75)
+		plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
+
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.20, 0.90), xycoords='figure fraction', frameon=0)
+		plt.gca().add_artist(ab)
+		preliminary_text = "Prelim. (20\%)"
+		plt.gcf().text(0.27, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.835, 0.57])
+
+
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		
+
+		plt.autoscale()
+		# plt.ylim( plt.gca().get_ylim()[0], plt.gca().get_ylim()[1] * 1.2 )
+		plt.ylim( 0, 7 )
+
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.2))
+		
+
+		plt.tick_params(which='major', width=5, length=25, labelsize=70)
+		plt.tick_params(which='minor', width=3, length=15)
+
+		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+		print "Printing track and preclustered hardest pT_D."
+
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/pT_D_track_preclustered/" + mc_type + "_R_sub_" + R_sub_label + "_jet_pT_D.pdf")
+
+		plt.close(plt.gcf())
+
+
+
+
+def plot_hardest_LHA_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
+	
+	properties = parse_file(input_analysis_file, pT_lower_cut)
+	R_sub_label = "{:.2f}".format(R_sub).replace(".", "_")
+
+	for mc_type in ["truth", "reco"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+
+		data_track_label = "Track"
+		data_preclustered_label = "Preclustered $R_{sub} = " + str(R_sub) + "$"
+		pythia_track_label = plot_labels['pythia'] + " (Track)"
+		pythia_preclustered_label = plot_labels['pythia'] + " (Preclustered)"
+
+
+		jet_LHA_track = properties['track_LHA_pre_SD']
+		jet_LHA_preclustered = properties['preclustered_R_' + R_sub_label + '_LHA_pre_SD']
+		
+		prescales = properties['prescale']
+
+		pythia_LHA_track = pythia_properties['track_LHA_pre_SD']
+		pythia_LHA_preclustered = pythia_properties['preclustered_R_' + R_sub_label + '_LHA_pre_SD']
+		
+
+
+		data_track_hist = Hist(25, 0, 1, title=data_track_label)
+		map(data_track_hist.Fill, jet_LHA_track, prescales)
+		bin_width_data = (data_track_hist.upperbound() - data_track_hist.lowerbound()) / data_track_hist.nbins()
+		data_track_hist.Scale(1.0 / ( data_track_hist.GetSumOfWeights() * bin_width_data ))
+
+		data_preclustered_hist = Hist(25, 0, 1, title=data_preclustered_label, color='red')
+		map(data_preclustered_hist.Fill, jet_LHA_preclustered, prescales)
+		bin_width_data = (data_preclustered_hist.upperbound() - data_preclustered_hist.lowerbound()) / data_preclustered_hist.nbins()
+		data_preclustered_hist.Scale(1.0 / ( data_preclustered_hist.GetSumOfWeights() * bin_width_data ))
+
+
+		pythia_track_hist = Hist(25, 0, 1, title=pythia_track_label, color='black', linewidth=8, linestyle='dashed')
+		map(pythia_track_hist.Fill, pythia_LHA_track)
+		bin_width_pythia = (pythia_track_hist.upperbound() - pythia_track_hist.lowerbound()) / pythia_track_hist.nbins()
+		pythia_track_hist.Scale(1.0 / ( pythia_track_hist.GetSumOfWeights() * bin_width_pythia ))
+
+		pythia_preclustered_hist = Hist(25, 0, 1, title=pythia_preclustered_label, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
+		map(pythia_preclustered_hist.Fill, pythia_LHA_preclustered)
+		bin_width_pythia = (pythia_preclustered_hist.upperbound() - pythia_preclustered_hist.lowerbound()) / pythia_preclustered_hist.nbins()
+		pythia_preclustered_hist.Scale(1.0 / ( pythia_preclustered_hist.GetSumOfWeights() * bin_width_pythia ))
+
+		rplt.hist(pythia_track_hist, zorder=3, normed=1, histtype='step')
+		rplt.hist(pythia_preclustered_hist, zorder=3, normed=1, histtype='step')
+		rplt.errorbar(data_track_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+		rplt.errorbar(data_preclustered_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+		
+		
+		handles, labels = plt.gca().get_legend_handles_labels()
+		legend = plt.gca().legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60)
+		plt.gca().add_artist(legend)
+
+
+		plt.xlabel('LHA', fontsize=75)
+		plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
+
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.90), xycoords='figure fraction', frameon=0)
+		plt.gca().add_artist(ab)
+		preliminary_text = "Prelim. (20\%)"
+		plt.gcf().text(0.31, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.835, 0.57])
+
+
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		
+
+		plt.autoscale()
+		# plt.ylim( plt.gca().get_ylim()[0], plt.gca().get_ylim()[1] * 1.2 )
+		plt.ylim( 0, 5 )
+
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.2))
+		
+
+		plt.tick_params(which='major', width=5, length=25, labelsize=70)
+		plt.tick_params(which='minor', width=3, length=15)
+
+		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+		print "Printing track and preclustered hardest LHA."
+
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/LHA_track_preclustered/" + mc_type + "_R_sub_" + R_sub_label + "_jet_LHA.pdf")
+
+		plt.close(plt.gcf())
+
+
+
+def plot_hardest_width_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
+	
+	properties = parse_file(input_analysis_file, pT_lower_cut)
+	R_sub_label = "{:.2f}".format(R_sub).replace(".", "_")
+
+	for mc_type in ["truth", "reco"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+
+		data_track_label = "Track"
+		data_preclustered_label = "Preclustered $R_{sub} = " + str(R_sub) + "$"
+		pythia_track_label = plot_labels['pythia'] + " (Track)"
+		pythia_preclustered_label = plot_labels['pythia'] + " (Preclustered)"
+
+
+		jet_width_track = properties['track_width_pre_SD']
+		jet_width_preclustered = properties['preclustered_R_' + R_sub_label + '_width_pre_SD']
+		
+		prescales = properties['prescale']
+
+		pythia_width_track = pythia_properties['track_width_pre_SD']
+		pythia_width_preclustered = pythia_properties['preclustered_R_' + R_sub_label + '_width_pre_SD']
+		
+		
+
+		data_track_hist = Hist(25, 0, 1, title=data_track_label)
+		map(data_track_hist.Fill, jet_width_track, prescales)
+		bin_width_data = (data_track_hist.upperbound() - data_track_hist.lowerbound()) / data_track_hist.nbins()
+		data_track_hist.Scale(1.0 / ( data_track_hist.GetSumOfWeights() * bin_width_data ))
+
+		data_preclustered_hist = Hist(25, 0, 1, title=data_preclustered_label, color='red')
+		map(data_preclustered_hist.Fill, jet_width_preclustered, prescales)
+		bin_width_data = (data_preclustered_hist.upperbound() - data_preclustered_hist.lowerbound()) / data_preclustered_hist.nbins()
+		data_preclustered_hist.Scale(1.0 / ( data_preclustered_hist.GetSumOfWeights() * bin_width_data ))
+
+
+		pythia_track_hist = Hist(25, 0, 1, title=pythia_track_label, color='black', linewidth=8, linestyle='dashed')
+		map(pythia_track_hist.Fill, pythia_width_track)
+		bin_width_pythia = (pythia_track_hist.upperbound() - pythia_track_hist.lowerbound()) / pythia_track_hist.nbins()
+		pythia_track_hist.Scale(1.0 / ( pythia_track_hist.GetSumOfWeights() * bin_width_pythia ))
+
+		pythia_preclustered_hist = Hist(25, 0, 1, title=pythia_preclustered_label, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
+		map(pythia_preclustered_hist.Fill, pythia_width_preclustered)
+		bin_width_pythia = (pythia_preclustered_hist.upperbound() - pythia_preclustered_hist.lowerbound()) / pythia_preclustered_hist.nbins()
+		pythia_preclustered_hist.Scale(1.0 / ( pythia_preclustered_hist.GetSumOfWeights() * bin_width_pythia ))
+
+		rplt.hist(pythia_track_hist, zorder=3, normed=1, histtype='step')
+		rplt.hist(pythia_preclustered_hist, zorder=3, normed=1, histtype='step')
+		rplt.errorbar(data_track_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+		rplt.errorbar(data_preclustered_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+		
+		
+		handles, labels = plt.gca().get_legend_handles_labels()
+		legend = plt.gca().legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60)
+		plt.gca().add_artist(legend)
+
+
+		plt.xlabel('Jet Width', fontsize=75)
+		plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
+
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.27, 0.90), xycoords='figure fraction', frameon=0)
+		plt.gca().add_artist(ab)
+		preliminary_text = "Prelim. (20\%)"
+		plt.gcf().text(0.34, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.39, 0.80])
+
+
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		
+
+		plt.autoscale()
+		# plt.ylim( 0, plt.gca().get_ylim()[1] * 1.4 )
+		plt.ylim( 0, 8 )
+
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+		# plt.gca().yaxis.set_minor_locator(MultipleLocator(0.005))
+		
+
+		plt.tick_params(which='major', width=5, length=25, labelsize=70)
+		plt.tick_params(which='minor', width=3, length=15)
+
+		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+		print "Printing track and preclustered hardest width."
+
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/width_track_preclustered/" + mc_type + "_R_sub_" + R_sub_label + "_jet_width.pdf")
+
+		plt.close(plt.gcf())
+
+
+
+
+
+
+
+
+def plot_hardest_thrust_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
+	
+	properties = parse_file(input_analysis_file, pT_lower_cut)
+	R_sub_label = "{:.2f}".format(R_sub).replace(".", "_")
+
+	for mc_type in ["truth", "reco"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+
+		data_track_label = "Track"
+		data_preclustered_label = "Preclustered $R_{sub} = " + str(R_sub) + "$"
+		pythia_track_label = plot_labels['pythia'] + " (Track)"
+		pythia_preclustered_label = plot_labels['pythia'] + " (Preclustered)"
+
+
+		jet_thrust_track = properties['track_thrust_pre_SD']
+		jet_thrust_preclustered = properties['preclustered_R_' + R_sub_label + '_thrust_pre_SD']
+		
+		prescales = properties['prescale']
+
+		pythia_thrust_track = pythia_properties['track_thrust_pre_SD']
+		pythia_thrust_preclustered = pythia_properties['preclustered_R_' + R_sub_label + '_thrust_pre_SD']
+		
+	
+		data_track_hist = Hist(25, 0, 1, title=data_track_label)
+		map(data_track_hist.Fill, jet_thrust_track, prescales)
+		bin_width_data = (data_track_hist.upperbound() - data_track_hist.lowerbound()) / data_track_hist.nbins()
+		data_track_hist.Scale(1.0 / ( data_track_hist.GetSumOfWeights() * bin_width_data ))
+
+		data_preclustered_hist = Hist(25, 0, 1, title=data_preclustered_label, color='red')
+		map(data_preclustered_hist.Fill, jet_thrust_preclustered, prescales)
+		bin_width_data = (data_preclustered_hist.upperbound() - data_preclustered_hist.lowerbound()) / data_preclustered_hist.nbins()
+		data_preclustered_hist.Scale(1.0 / ( data_preclustered_hist.GetSumOfWeights() * bin_width_data ))
+
+
+		pythia_track_hist = Hist(25, 0, 1, title=pythia_track_label, color='black', linewidth=8, linestyle='dashed')
+		map(pythia_track_hist.Fill, pythia_thrust_track)
+		bin_width_pythia = (pythia_track_hist.upperbound() - pythia_track_hist.lowerbound()) / pythia_track_hist.nbins()
+		pythia_track_hist.Scale(1.0 / ( pythia_track_hist.GetSumOfWeights() * bin_width_pythia ))
+
+		pythia_preclustered_hist = Hist(25, 0, 1, title=pythia_preclustered_label, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
+		map(pythia_preclustered_hist.Fill, pythia_thrust_preclustered)
+		bin_width_pythia = (pythia_preclustered_hist.upperbound() - pythia_preclustered_hist.lowerbound()) / pythia_preclustered_hist.nbins()
+		pythia_preclustered_hist.Scale(1.0 / ( pythia_preclustered_hist.GetSumOfWeights() * bin_width_pythia ))
+
+		rplt.hist(pythia_track_hist, zorder=3, normed=1, histtype='step')
+		rplt.hist(pythia_preclustered_hist, zorder=3, normed=1, histtype='step')
+		rplt.errorbar(data_track_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+		rplt.errorbar(data_preclustered_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+		
+		
+		handles, labels = plt.gca().get_legend_handles_labels()
+		legend = plt.gca().legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60)
+		plt.gca().add_artist(legend)
+
+
+		plt.xlabel('Jet Thrust', fontsize=75)
+		plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
+
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.27, 0.90), xycoords='figure fraction', frameon=0)
+		plt.gca().add_artist(ab)
+		preliminary_text = "Prelim. (20\%)"
+		plt.gcf().text(0.34, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.80, 0.57])
+
+
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		
+
+		plt.autoscale()
+		plt.ylim( 0, 16 )
+
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+		# plt.gca().yaxis.set_minor_locator(MultipleLocator(0.001))
+		
+
+		plt.tick_params(which='major', width=5, length=25, labelsize=70)
+		plt.tick_params(which='minor', width=3, length=15)
+
+		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+		print "Printing track and preclustered hardest width."
+
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/thrust_track_preclustered/" + mc_type + "_R_sub_" + R_sub_label + "_jet_thrust.pdf")
+
+		plt.close(plt.gcf())
+
+
+
+
+
+def plot_hardest_LHA(pT_lower_cut=150):
+	
+	properties = parse_file(input_analysis_file, pT_lower_cut)
+	
+
+	for mc_type in ["truth", "reco"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+
+
+		jet_LHA_track = properties['LHA_pre_SD']
+		prescales = properties['prescale']
+
+		pythia_LHA = pythia_properties['LHA_pre_SD']
+		herwig_LHA = herwig_properties['LHA_pre_SD']
+		sherpa_LHA = sherpa_properties['LHA_pre_SD']
+		
+
+
+		data_hist = Hist(25, 0, 1, title=plot_labels['data'])
+		map(data_hist.Fill, jet_LHA_track, prescales)
+		bin_width_data = (data_hist.upperbound() - data_hist.lowerbound()) / data_hist.nbins()
+		data_hist.Scale(1.0 / ( data_hist.GetSumOfWeights() * bin_width_data ))
+
+
+		pythia_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=5)
+		map(pythia_hist.Fill, pythia_LHA)
+		bin_width_pythia = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
+		pythia_hist.Scale(1.0 / ( pythia_hist.GetSumOfWeights() * bin_width_pythia ))
+
+		herwig_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=5)
+		map(herwig_hist.Fill, herwig_LHA)
+		bin_width_herwig = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
+		herwig_hist.Scale(1.0 / ( herwig_hist.GetSumOfWeights() * bin_width_herwig ))
+
+		sherpa_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=5)
+		map(sherpa_hist.Fill, sherpa_LHA)
+		bin_width_sherpa = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
+		sherpa_hist.Scale(1.0 / ( sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
+
+		rplt.hist(pythia_hist, zorder=3, normed=1, histtype='step')
+		rplt.hist(herwig_hist, zorder=2, normed=1, histtype='step')
+		rplt.hist(sherpa_hist, zorder=1, normed=1, histtype='step')
+
+		rplt.errorbar(data_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+		handles, labels = plt.gca().get_legend_handles_labels()
+		handles, labels = handles[::-1], labels[::-1]
+		legend = plt.gca().legend([handles[0]] + handles[1:][::-1], [labels[0]] + labels[1:][::-1], loc=1, frameon=0, fontsize=60)
+		plt.gca().add_artist(legend)
+
+
+		plt.xlabel('LHA', fontsize=75)
+		plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
+
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.90), xycoords='figure fraction', frameon=0)
+		plt.gca().add_artist(ab)
+		preliminary_text = "Prelim. (20\%)"
+		plt.gcf().text(0.31, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.835, 0.57])
+
+
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+
+		plt.autoscale()
+		plt.ylim( 0, plt.gca().get_ylim()[1] * 1.2 )
+
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+		# plt.gca().yaxis.set_minor_locator(MultipleLocator(0.2))
+		
+
+		plt.tick_params(which='major', width=5, length=25, labelsize=70)
+		plt.tick_params(which='minor', width=3, length=15)
+
+		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+		print "Printing hardest LHA."
+
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/LHA/" + mc_type + "_jet_LHA.pdf")
+
+		plt.close(plt.gcf())
+
+
+
+
+
+def plot_hardest_width(pT_lower_cut=100):
+	
+	properties = parse_file(input_analysis_file, pT_lower_cut)
+	
+
+	for mc_type in ["truth", "reco"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+
+
+		jet_width_track = properties['width_pre_SD']
+		prescales = properties['prescale']
+
+		pythia_width = pythia_properties['width_pre_SD']
+		herwig_width = herwig_properties['width_pre_SD']
+		sherpa_width = sherpa_properties['width_pre_SD']
+		
+
+
+		data_hist = Hist(25, 0, 1, title=plot_labels['data'])
+		map(data_hist.Fill, jet_width_track, prescales)
+		bin_width_data = (data_hist.upperbound() - data_hist.lowerbound()) / data_hist.nbins()
+		data_hist.Scale(1.0 / ( data_hist.GetSumOfWeights() * bin_width_data ))
+
+
+		pythia_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=5)
+		map(pythia_hist.Fill, pythia_width)
+		bin_width_pythia = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
+		pythia_hist.Scale(1.0 / ( pythia_hist.GetSumOfWeights() * bin_width_pythia ))
+
+		herwig_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=5)
+		map(herwig_hist.Fill, herwig_width)
+		bin_width_herwig = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
+		herwig_hist.Scale(1.0 / ( herwig_hist.GetSumOfWeights() * bin_width_herwig ))
+
+		sherpa_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=5)
+		map(sherpa_hist.Fill, sherpa_width)
+		bin_width_sherpa = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
+		sherpa_hist.Scale(1.0 / ( sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
+
+		rplt.hist(pythia_hist, zorder=3, normed=1, histtype='step')
+		rplt.hist(herwig_hist, zorder=2, normed=1, histtype='step')
+		rplt.hist(sherpa_hist, zorder=1, normed=1, histtype='step')
+
+		rplt.errorbar(data_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+		handles, labels = plt.gca().get_legend_handles_labels()
+		handles, labels = handles[::-1], labels[::-1]
+		legend = plt.gca().legend([handles[0]] + handles[1:][::-1], [labels[0]] + labels[1:][::-1], loc=1, frameon=0, fontsize=60)
+		plt.gca().add_artist(legend)
+
+
+		plt.xlabel('Width', fontsize=75)
+		plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
+
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.27, 0.90), xycoords='figure fraction', frameon=0)
+		plt.gca().add_artist(ab)
+		preliminary_text = "Prelim. (20\%)"
+		plt.gcf().text(0.34, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.39, 0.80])
+
+
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		
+
+		plt.autoscale()
+		plt.ylim( 0, plt.gca().get_ylim()[1] * 1.4 )
+
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+		# plt.gca().yaxis.set_minor_locator(MultipleLocator(0.005))
+		
+
+		plt.tick_params(which='major', width=5, length=25, labelsize=70)
+		plt.tick_params(which='minor', width=3, length=15)
+
+		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+		print "Printing hardest width."
+
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/width/" + mc_type + "_jet_width.pdf")
+
+		plt.close(plt.gcf())
+
+
+
+def plot_hardest_thrust(pT_lower_cut=150):
+	
+	properties = parse_file(input_analysis_file, pT_lower_cut)
+	
+
+	for mc_type in ["truth", "reco"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+
+
+		jet_thrust_track = properties['thrust_pre_SD']
+		prescales = properties['prescale']
+
+		pythia_thrust = pythia_properties['thrust_pre_SD']
+		herwig_thrust = herwig_properties['thrust_pre_SD']
+		sherpa_thrust = sherpa_properties['thrust_pre_SD']
+		
+
+
+		data_hist = Hist(25, 0, 1, title=plot_labels['data'])
+		map(data_hist.Fill, jet_thrust_track, prescales)
+		bin_width_data = (data_hist.upperbound() - data_hist.lowerbound()) / data_hist.nbins()
+		data_hist.Scale(1.0 / ( data_hist.GetSumOfWeights() * bin_width_data ))
+
+
+		pythia_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=5)
+		map(pythia_hist.Fill, pythia_thrust)
+		bin_width_pythia = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
+		pythia_hist.Scale(1.0 / ( pythia_hist.GetSumOfWeights() * bin_width_pythia ))
+
+		herwig_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=5)
+		map(herwig_hist.Fill, herwig_thrust)
+		bin_width_herwig = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
+		herwig_hist.Scale(1.0 / ( herwig_hist.GetSumOfWeights() * bin_width_herwig ))
+
+		sherpa_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=5)
+		map(sherpa_hist.Fill, sherpa_thrust)
+		bin_width_sherpa = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
+		sherpa_hist.Scale(1.0 / ( sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
+
+		rplt.hist(pythia_hist, zorder=3, normed=1, histtype='step')
+		rplt.hist(herwig_hist, zorder=2, normed=1, histtype='step')
+		rplt.hist(sherpa_hist, zorder=1, normed=1, histtype='step')
+
+		rplt.errorbar(data_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+		handles, labels = plt.gca().get_legend_handles_labels()
+		handles, labels = handles[::-1], labels[::-1]
+		legend = plt.gca().legend([handles[0]] + handles[1:][::-1], [labels[0]] + labels[1:][::-1], loc=1, frameon=0, fontsize=60)
+		plt.gca().add_artist(legend)
+
+
+		plt.xlabel('Thrust', fontsize=75)
+		plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
+
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.27, 0.90), xycoords='figure fraction', frameon=0)
+		plt.gca().add_artist(ab)
+		preliminary_text = "Prelim. (20\%)"
+		plt.gcf().text(0.34, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.80, 0.57])
+
+
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		
+
+		plt.autoscale()
+		plt.ylim( 0, plt.gca().get_ylim()[1] * 1.2 )
+
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+		# plt.gca().yaxis.set_minor_locator(MultipleLocator(0.001))
+		
+
+		plt.tick_params(which='major', width=5, length=25, labelsize=70)
+		plt.tick_params(which='minor', width=3, length=15)
+
+		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+		print "Printing hardest thrust."
+
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/thrust/" + mc_type + "_jet_thrust.pdf")
+
+		plt.close(plt.gcf())
+
+
+
+
+def plot_hardest_pT_D(pT_lower_cut=150):
+	
+	properties = parse_file(input_analysis_file, pT_lower_cut)
+	
+
+	for mc_type in ["truth", "reco"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+
+
+		jet_pT_D_track = properties['pT_D_pre_SD']
+		prescales = properties['prescale']
+
+		pythia_pT_D = pythia_properties['pT_D_pre_SD']
+		herwig_pT_D = herwig_properties['pT_D_pre_SD']
+		sherpa_pT_D = sherpa_properties['pT_D_pre_SD']
+		
+
+
+		data_hist = Hist(25, 0, 1, title=plot_labels['data'])
+		map(data_hist.Fill, jet_pT_D_track, prescales)
+		bin_width_data = (data_hist.upperbound() - data_hist.lowerbound()) / data_hist.nbins()
+		data_hist.Scale(1.0 / ( data_hist.GetSumOfWeights() * bin_width_data ))
+
+
+		pythia_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=5)
+		map(pythia_hist.Fill, pythia_pT_D)
+		bin_width_pythia = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
+		pythia_hist.Scale(1.0 / ( pythia_hist.GetSumOfWeights() * bin_width_pythia ))
+
+		herwig_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=5)
+		map(herwig_hist.Fill, herwig_pT_D)
+		bin_width_herwig = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
+		herwig_hist.Scale(1.0 / ( herwig_hist.GetSumOfWeights() * bin_width_herwig ))
+
+		sherpa_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=5)
+		map(sherpa_hist.Fill, sherpa_pT_D)
+		bin_width_sherpa = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
+		sherpa_hist.Scale(1.0 / ( sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
+
+		rplt.hist(pythia_hist, zorder=3, normed=1, histtype='step')
+		rplt.hist(herwig_hist, zorder=2, normed=1, histtype='step')
+		rplt.hist(sherpa_hist, zorder=1, normed=1, histtype='step')
+
+		rplt.errorbar(data_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+		handles, labels = plt.gca().get_legend_handles_labels()
+		handles, labels = handles[::-1], labels[::-1]
+		legend = plt.gca().legend([handles[0]] + handles[1:][::-1], [labels[0]] + labels[1:][::-1], loc=1, frameon=0, fontsize=60)
+		plt.gca().add_artist(legend)
+
+
+		plt.xlabel('$p_T^D$', fontsize=75)
+		plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
+
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.20, 0.90), xycoords='figure fraction', frameon=0)
+		plt.gca().add_artist(ab)
+		preliminary_text = "Prelim. (20\%)"
+		plt.gcf().text(0.27, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.835, 0.57])
+
+
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		
+
+		plt.autoscale()
+		plt.ylim( plt.gca().get_ylim()[0], plt.gca().get_ylim()[1] * 1.2 )
+
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.2))
+		
+
+		plt.tick_params(which='major', width=5, length=25, labelsize=70)
+		plt.tick_params(which='minor', width=3, length=15)
+
+		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+		print "Printing hardest pT_D."
+
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/pT_D/" + mc_type + "_jet_pT_D.pdf")
+
+		plt.close(plt.gcf())
+
+
+
+
+
+def plot_jet_mass(pT_lower_cut=150, pT_upper_cut=20000):
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
+	jet_mass = properties['mass_pre_SD']
+	
+
+	prescales = properties['prescale']
+
+	for mc_label in ["truth", "reco"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat")
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_label + ".dat")
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_label + ".dat")
+		
+		pythia_jet_mass = pythia_properties['mass_pre_SD']
+		herwig_jet_mass = herwig_properties['mass_pre_SD']
+		sherpa_jet_mass = sherpa_properties['mass_pre_SD']
+		
+		# Data.
+		
+		data_hist = Hist(100, 0, 150, markersize=3.0, title=plot_labels['data'], color=plot_colors['data'])
+		bin_width = (data_hist.upperbound() - data_hist.lowerbound()) / data_hist.nbins()
+		map(data_hist.Fill, jet_mass, prescales)
+		data_hist.Scale(1.0 / (data_hist.GetSumOfWeights() * bin_width))
+		
+
+		# Data Ends.
+
+
+		# Monte Carlo.
+
+
+		pythia_hist = Hist(100, 0, 150, linewidth=8, color=plot_colors['pythia'], title=plot_labels['pythia'])
+		bin_width = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
+		map(pythia_hist.Fill, pythia_jet_mass)
+		pythia_hist.Scale(1.0 / (pythia_hist.GetSumOfWeights() * bin_width))
+		
+		herwig_hist = Hist(100, 0, 150, linewidth=8, color=plot_colors['herwig'], title=plot_labels['herwig'])
+		bin_width = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
+		map(herwig_hist.Fill, herwig_jet_mass)
+		herwig_hist.Scale(1.0 / (herwig_hist.GetSumOfWeights() * bin_width))
+
+		sherpa_hist = Hist(100, 0, 150, linewidth=8, color=plot_colors['sherpa'], title=plot_labels['sherpa'])
+		bin_width = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
+		map(sherpa_hist.Fill, sherpa_jet_mass)
+		sherpa_hist.Scale(1.0 / (sherpa_hist.GetSumOfWeights() * bin_width))
+
+		
+		data_plot = rplt.errorbar(data_hist, zorder=20, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+		pythia_plot = rplt.hist(pythia_hist, zorder=3, normed=1, histtype='step')
+		herwig_plot = rplt.hist(herwig_hist, zorder=2, normed=1, histtype='step')
+		sherpa_plot = rplt.hist(sherpa_hist, zorder=1, normed=1, histtype='step')
+
+		# Monte Carlo Ends.
+
+		# plt.yscale('log')
+
+		# Legends Begin.
+
+		handles, labels = plt.gca().get_legend_handles_labels()
+		handles, labels = handles[::-1], labels[::-1]
+		legend = plt.gca().legend([handles[0]] + handles[1:][::-1], [labels[0]] + labels[1:][::-1], loc=1, frameon=0, fontsize=60)
+		plt.gca().add_artist(legend)
+
+
+		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+		if pT_upper_cut != 20000:
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$"]
+		else:
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.58])
+
+		# Legends End.
+
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.91), xycoords='figure fraction', frameon=0)
+		plt.gca().add_artist(ab)
+		preliminary_text = "Prelim. (20\%)"
+		plt.gcf().text(0.29, 0.905, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		plt.xlabel('Jet Mass', fontsize=75)
+		plt.ylabel('$\mathrm{A.U.}$', fontsize=55, rotation=0, labelpad=75.)
+		
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		plt.gca().autoscale(True)
+		plt.gca().set_ylim(0., 1.25 * plt.gca().get_ylim()[1])
+		plt.xlim(0, 80)
+
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(2))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.005))
+
+		plt.tick_params(which='major', width=5, length=25, labelsize=70)
+		plt.tick_params(which='minor', width=3, length=15)
+
+		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+		print "Printing jet mass with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/jet_mass/" + mc_label + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_mass.pdf")
+		# plt.show()
+		plt.close(plt.gcf())
+
+
+
+
+def plot_constituent_multiplicity(pT_lower_cut=150, pT_upper_cut=20000):
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
+	jet_multi = properties['mul_pre_SD']
+	
+
+	prescales = properties['prescale']
+
+	for mc_label in ["truth", "reco"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat")
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_label + ".dat")
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_label + ".dat")
+		
+		pythia_jet_multi = pythia_properties['mul_pre_SD']
+		herwig_jet_multi = herwig_properties['mul_pre_SD']
+		sherpa_jet_multi = sherpa_properties['mul_pre_SD']
+		
+		# Data.
+		
+		data_hist = Hist(50, -1, 149, markersize=3.0, title=plot_labels['data'], color=plot_colors['data'])
+		bin_width = (data_hist.upperbound() - data_hist.lowerbound()) / data_hist.nbins()
+		map(data_hist.Fill, jet_multi, prescales)
+		data_hist.Scale(1.0 / (data_hist.GetSumOfWeights() * bin_width))
+		
+
+		# Data Ends.
+
+
+		# Monte Carlo.
+
+
+		pythia_hist = Hist(50, -1, 149, linewidth=8, color=plot_colors['pythia'], title=plot_labels['pythia'])
+		bin_width = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
+		map(pythia_hist.Fill, pythia_jet_multi)
+		pythia_hist.Scale(1.0 / (pythia_hist.GetSumOfWeights() * bin_width))
+		
+		herwig_hist = Hist(50, -1, 149, linewidth=8, color=plot_colors['herwig'], title=plot_labels['herwig'])
+		bin_width = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
+		map(herwig_hist.Fill, herwig_jet_multi)
+		herwig_hist.Scale(1.0 / (herwig_hist.GetSumOfWeights() * bin_width))
+
+		sherpa_hist = Hist(50, -1, 149, linewidth=8, color=plot_colors['sherpa'], title=plot_labels['sherpa'])
+		bin_width = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
+		map(sherpa_hist.Fill, sherpa_jet_multi)
+		sherpa_hist.Scale(1.0 / (sherpa_hist.GetSumOfWeights() * bin_width))
+
+		
+		data_plot = rplt.errorbar(data_hist, zorder=20, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+		pythia_plot = rplt.hist(pythia_hist, zorder=3, normed=1, histtype='step')
+		herwig_plot = rplt.hist(herwig_hist, zorder=2, normed=1, histtype='step')
+		sherpa_plot = rplt.hist(sherpa_hist, zorder=1, normed=1, histtype='step')
+
+		# Monte Carlo Ends.
+
+		# plt.yscale('log')
+
+		# Legends Begin.
+
+		handles, labels = plt.gca().get_legend_handles_labels()
+		handles, labels = handles[::-1], labels[::-1]
+		legend = plt.gca().legend([handles[0]] + handles[1:][::-1], [labels[0]] + labels[1:][::-1], loc=1, frameon=0, fontsize=60)
+		plt.gca().add_artist(legend)
+
+
+		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+		if pT_upper_cut != 20000:
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$"]
+		else:
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.58])
+
+		# Legends End.
+
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.91), xycoords='figure fraction', frameon=0)
+		plt.gca().add_artist(ab)
+		preliminary_text = "Prelim. (20\%)"
+		plt.gcf().text(0.29, 0.905, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		plt.xlabel('Constituent Multiplicity', fontsize=75)
+		plt.ylabel('$\mathrm{A.U.}$', fontsize=55, rotation=0, labelpad=75.)
+		
+		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+		plt.gca().autoscale(True)
+		plt.gca().set_ylim(0., 1.25 * plt.gca().get_ylim()[1])
+		plt.xlim(0, 80)
+
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(2))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.01))
+		plt.tick_params(which='major', width=5, length=25, labelsize=70)
+		plt.tick_params(which='minor', width=3, length=15)
+
+		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+		print "Printing constituent_multiplicity with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/constituent_multiplicity/" + mc_label + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_constituent_multiplicity.pdf")
+		# plt.show()
+		plt.close(plt.gcf())
+
+
+
+
+# plot_pts(pT_lower_cut=85)
+
+# plot_jet_eta(pT_lower_cut=150)
+# plot_jet_phi(pT_lower_cut=150)
+
+# plot_2d_theta_g_zg()
+
+# Track vs. Preclustered.
+
+
+
+
+# plot_constituent_multiplicity_track_and_preclustered(pT_lower_cut=150, R_sub=0.01)
+# plot_constituent_multiplicity_track_and_preclustered(pT_lower_cut=150, R_sub=0.05)
+# plot_constituent_multiplicity_track_and_preclustered(pT_lower_cut=150, R_sub=0.08)
+# plot_constituent_multiplicity_track_and_preclustered(pT_lower_cut=150, R_sub=0.1)
+
+
+# plot_jet_mass_track_and_preclustered(pT_lower_cut=150, R_sub=0.01)
+# plot_jet_mass_track_and_preclustered(pT_lower_cut=150, R_sub=0.05)
+# plot_jet_mass_track_and_preclustered(pT_lower_cut=150, R_sub=0.08)
+# plot_jet_mass_track_and_preclustered(pT_lower_cut=150, R_sub=0.1)
+
+
+# plot_hardest_pT_D_track_and_preclustered(pT_lower_cut=150, R_sub=0.01)
+# plot_hardest_pT_D_track_and_preclustered(pT_lower_cut=150, R_sub=0.05)
+# plot_hardest_pT_D_track_and_preclustered(pT_lower_cut=150, R_sub=0.08)
+# plot_hardest_pT_D_track_and_preclustered(pT_lower_cut=150, R_sub=0.1)
+
+
+# plot_hardest_LHA_track_and_preclustered(pT_lower_cut=150, R_sub=0.01)
+# plot_hardest_LHA_track_and_preclustered(pT_lower_cut=150, R_sub=0.05)
+# plot_hardest_LHA_track_and_preclustered(pT_lower_cut=150, R_sub=0.08)
+# plot_hardest_LHA_track_and_preclustered(pT_lower_cut=150, R_sub=0.1)
+
+
+# plot_hardest_width_track_and_preclustered(pT_lower_cut=150, R_sub=0.01)
+# plot_hardest_width_track_and_preclustered(pT_lower_cut=150, R_sub=0.05)
+# plot_hardest_width_track_and_preclustered(pT_lower_cut=150, R_sub=0.08)
+# plot_hardest_width_track_and_preclustered(pT_lower_cut=150, R_sub=0.1)
+
+
+# plot_hardest_thrust_track_and_preclustered(pT_lower_cut=150, R_sub=0.01)
+# plot_hardest_thrust_track_and_preclustered(pT_lower_cut=150, R_sub=0.05)
+# plot_hardest_thrust_track_and_preclustered(pT_lower_cut=150, R_sub=0.08)
+# plot_hardest_thrust_track_and_preclustered(pT_lower_cut=150, R_sub=0.1)
+
+
+
+# plot_hardest_pT_D(pT_lower_cut=150)
+# plot_hardest_LHA(pT_lower_cut=150)
+# plot_hardest_width(pT_lower_cut=150)
+# plot_hardest_thrust(pT_lower_cut=150)
+
+
+
+
+
+# plot_jet_mass(pT_lower_cut=150)
+# plot_constituent_multiplicity(pT_lower_cut=150)
 
 
 # plot_2d_theta_g_zg(pT_lower_cut=150, log=True)
@@ -9004,7 +10276,7 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 # ******************** Ratio zg ******************** 
 
-# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 # plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 # plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
