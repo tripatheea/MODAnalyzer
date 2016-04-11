@@ -87,7 +87,11 @@ def get_version(input_file):
 	return "Version 5"
 
 
-def parse_file(input_file, pT_lower_cut=150., pT_upper_cut=20000., softdrop_pT_lower_cut=0., softdrop_pT_upper_cut=20000.):
+def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut=20000., softdrop_pT_lower_cut=0., softdrop_pT_upper_cut=20000.):
+
+	# We'll populate only those fileds that are in the list keywords_to_populate.
+
+
 	f = open(input_file, 'r')
 	lines = f.read().split("\n")
 
@@ -111,7 +115,9 @@ def parse_file(input_file, pT_lower_cut=150., pT_upper_cut=20000., softdrop_pT_l
 				if float(numbers[pT_index]) > pT_lower_cut and float(numbers[pT_index]) < pT_upper_cut and float(numbers[softdrop_pT_index]) > softdrop_pT_lower_cut and float(numbers[softdrop_pT_index]) < softdrop_pT_upper_cut:
 					for i in range(len(keywords)):
 						keyword = keywords[i]
-						properties[keyword].append( float(numbers[i + 1]) ) # + 1 because we ignore the first keyword "Entry".
+
+						if keyword in keywords_to_populate:
+							properties[keyword].append( float(numbers[i + 1]) ) # + 1 because we ignore the first keyword "Entry".
 
 		except:
 			pass
@@ -396,15 +402,15 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 
 	zg_filename = "preclustered_R_0_01_" + zg_filename
 
-	print zg_filename
+	keywords_to_populate = ['prescale', zg_filename, zg_filename.replace("zg", "Rg")]
 
 	for mc_type in ["truth", "reco"]:
 
-		properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
+		properties = parse_file(input_analysis_file, keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
-		properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		properties_herwig = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		properties_sherpa = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+		properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+		properties_herwig = parse_file("/home/aashish/herwig_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+		properties_sherpa = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
 		zg_data = properties[zg_filename]
 		prescales = properties['prescale']
@@ -4218,14 +4224,17 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 def plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="data", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
 
 	zg_cut = float(zg_cut)
+	zg_filename = "preclustered_R_0_01_" + zg_filename
+
+	keywords_to_populate = ['prescale', zg_filename, zg_filename.replace("zg", "Rg")]
 
 	for mc_type in ["truth", "reco"]:
 
-		properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
+		properties = parse_file(input_analysis_file, keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
-		properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		properties_herwig = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		properties_sherpa = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+		properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+		properties_herwig = parse_file("/home/aashish/herwig_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+		properties_sherpa = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
 		zg_data = properties[zg_filename]
 		prescales = properties['prescale']
@@ -4694,14 +4703,17 @@ def plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.0
 def plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="data", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
 
 	zg_cut = float(zg_cut)
+	zg_filename = "preclustered_R_0_01_" + zg_filename
+
+	keywords_to_populate = ['prescale', zg_filename, zg_filename.replace("zg", "Rg")]
 
 	for mc_type in ["truth", "reco"]:
 
-		properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
+		properties = parse_file(input_analysis_file, keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
-		properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		properties_herwig = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		properties_sherpa = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+		properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+		properties_herwig = parse_file("/home/aashish/herwig_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+		properties_sherpa = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
 		zg_data = properties[zg_filename]
 		prescales = properties['prescale']
@@ -5169,14 +5181,17 @@ def plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_c
 def plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="data", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
 
 	zg_cut = float(zg_cut)
+	zg_filename = "preclustered_R_0_01_" + zg_filename
+
+	keywords_to_populate = ['prescale', zg_filename, zg_filename.replace("zg", "Rg")]
 
 	for mc_type in ["truth", "reco"]:
 
-		properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
+		properties = parse_file(input_analysis_file, keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
-		properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		properties_herwig = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		properties_sherpa = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+		properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+		properties_herwig = parse_file("/home/aashish/herwig_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+		properties_sherpa = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
 		zg_data = properties[zg_filename]
 		prescales = properties['prescale']
@@ -5642,13 +5657,17 @@ def plot_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05',
 
 	zg_cut = float(zg_cut)
 
+	zg_filename = "preclustered_R_0_01_" + zg_filename
+
+	keywords_to_populate = ['prescale', zg_filename, zg_filename.replace("zg", "Rg")]
+
 	for mc_type in ["truth", "reco"]:
 
-		properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
+		properties = parse_file(input_analysis_file, keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
-		properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		properties_herwig = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		properties_sherpa = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+		properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+		properties_herwig = parse_file("/home/aashish/herwig_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+		properties_sherpa = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
 		zg_data = properties[zg_filename]
 		prescales = properties['prescale']
@@ -10276,7 +10295,7 @@ def plot_constituent_multiplicity(pT_lower_cut=150, pT_upper_cut=20000):
 
 # ******************** Ratio zg ******************** 
 
-plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 # plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 # plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
@@ -10286,22 +10305,22 @@ plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filen
 # plot_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
 
-# plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
-# plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
-# plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
+plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
+plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
+plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
 
 
 
 
-# plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=60, y_limit_ratio_plot=0.5)
-# plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=60, y_limit_ratio_plot=0.5)
-# plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=60, y_limit_ratio_plot=0.5)
+plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=60, y_limit_ratio_plot=0.5)
+plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=60, y_limit_ratio_plot=0.5)
+plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=60, y_limit_ratio_plot=0.5)
 
 
 
-# plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
-# plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=12, y_limit_ratio_plot=0.5)
-# plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=12, y_limit_ratio_plot=0.5)
+plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=12, y_limit_ratio_plot=0.5)
+plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=12, y_limit_ratio_plot=0.5)
 
 
 # ******************** Ratio zg Ends ******************** 
