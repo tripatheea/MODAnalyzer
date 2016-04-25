@@ -138,10 +138,14 @@ const vector<MOD::Trigger> & MOD::Event::triggers() const {
 }
 
 
-const int MOD::Event::weight() const {
+const double MOD::Event::weight() const {
    return _weight;
 }
 
+
+void MOD::Event::set_weight(double weight) {
+   _weight = weight;
+}
 
 
 const string MOD::Event::stringify_jet(PseudoJet jet) const {
@@ -189,7 +193,7 @@ string MOD::Event::make_string() const {
    
  
    file_to_write << "BeginEvent Version " << _version << " " << _data_type.first << " " << _data_type.second;  // Don't put an endl here because for "pristine", we'll put a "Hardest_Jet_Selection" here. 
-  
+    
 
    if (_data_source == EXPERIMENT) { // Data is from experiment.
       
@@ -367,7 +371,7 @@ bool MOD::Event::read_event(istream & data_stream) {
       istringstream iss(line);
 
       int version, weight;
-      string tag, version_keyword, a, b;
+      string tag, version_keyword, a, b, c;
       double px, py, pz, energy, jec;
 
       iss >> tag;      
@@ -381,10 +385,13 @@ bool MOD::Event::read_event(istream & data_stream) {
 
          if (tag == "BeginEvent") {
 
-            stream >> tag >> version_keyword >> version >> a >> b;
+            // stream >> tag >> version_keyword >> version >> a >> b;
+            stream >> tag >> version_keyword >> version >> a >> b >> c >> weight;
 
             set_version(version);
             set_data_type(a, b);
+
+            set_weight(weight);
 
          }
          else if (tag == "1JET") {

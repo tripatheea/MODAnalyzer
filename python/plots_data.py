@@ -84,7 +84,11 @@ def get_version(input_file):
       return numbers[1] + " " + numbers[2] 
 
 
-def parse_file(input_file, pT_lower_cut=150., pT_upper_cut=20000.):
+def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut=20000., softdrop_pT_lower_cut=0., softdrop_pT_upper_cut=20000., eta_cut=2.4):
+
+  # We'll populate only those fileds that are in the list keywords_to_populate.
+
+
   f = open(input_file, 'r')
   lines = f.read().split("\n")
 
@@ -102,16 +106,15 @@ def parse_file(input_file, pT_lower_cut=150., pT_upper_cut=20000.):
         keywords = numbers[2:]
         keywords_set = True
       elif numbers[0] == "Entry":
+        pT_index = keywords.index("cor_hardest_pT") + 1
 
-        corrected_pT_index = keywords.index("cor_hardest_pT") + 1
+        eta_index = keywords.index("hardest_eta") + 1
 
-        if float(numbers[corrected_pT_index]) > pT_lower_cut and float(numbers[corrected_pT_index]) < pT_upper_cut:
+        if abs(float(numbers[eta_index])) < eta_cut and float(numbers[pT_index]) > pT_lower_cut and float(numbers[pT_index]) < pT_upper_cut:
           for i in range(len(keywords)):
             keyword = keywords[i]
 
-            if keyword == 'trigger_name':
-              properties[keyword].append( numbers[i + 1] ) # + 1 because we ignore the first keyword "Entry".
-            else:
+            if keyword in keywords_to_populate:
               properties[keyword].append( float(numbers[i + 1]) ) # + 1 because we ignore the first keyword "Entry".
 
     except:
@@ -171,7 +174,10 @@ def lin_bins(data, weights, number_of_bins=50):
 
 
 def plot_pTs(pT_lower_cut=100, pT_upper_cut=10000):
-  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
+  keywords = ['prescale', 'uncor_hardest_pT', 'cor_hardest_pT']
+
+  properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut, keywords_to_populate=keywords)
 
   uncorrected_pTs = properties['uncor_hardest_pT']
   corrected_pTs = properties['cor_hardest_pT']
@@ -260,7 +266,7 @@ def plot_pTs(pT_lower_cut=100, pT_upper_cut=10000):
   ax1.set_ylabel("Ratio           \nto           \n" + "Corrected" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
 
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root-6.04.06/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.26, 0.93), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.26, 0.93), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.32, 0.9215, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -300,7 +306,7 @@ def plot_pTs(pT_lower_cut=100, pT_upper_cut=10000):
 
   print "Printing pT spectrum with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
 
-  plt.savefig("plots/" + get_version(input_analysis_file) + "/pT_distribution/pT_data_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
+  plt.savefig("plots/Version 5/pT/data_pT_data_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
   # plt.show()
   plt.clf()
 
@@ -369,5 +375,5 @@ def plot_hardest_pt_corresponding_triggers():
 
 
 
-# plot_pTs(pT_lower_cut=100)
-plot_hardest_pt_corresponding_triggers()
+plot_pTs(pT_lower_cut=85)
+# plot_hardest_pt_corresponding_triggers()

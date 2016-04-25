@@ -84,7 +84,11 @@ def get_version(input_file):
       return numbers[1] + " " + numbers[2] 
 
 
-def parse_file(input_file, pT_lower_cut=150., pT_upper_cut=20000.):
+def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut=20000., softdrop_pT_lower_cut=0., softdrop_pT_upper_cut=20000., eta_cut=2.4):
+
+  # We'll populate only those fileds that are in the list keywords_to_populate.
+
+
   f = open(input_file, 'r')
   lines = f.read().split("\n")
 
@@ -102,13 +106,17 @@ def parse_file(input_file, pT_lower_cut=150., pT_upper_cut=20000.):
         keywords = numbers[2:]
         keywords_set = True
       elif numbers[0] == "Entry":
+        pT_index = keywords.index("cor_hardest_pT") + 1
 
-        corrected_pT_index = keywords.index("cor_hardest_pT") + 1
+        # eta_index = keywords.index("hardest_eta") + 1
 
-        if float(numbers[corrected_pT_index]) > pT_lower_cut and float(numbers[corrected_pT_index]) < pT_upper_cut:
+        # if abs(float(numbers[eta_index])) < eta_cut and float(numbers[pT_index]) > pT_lower_cut and float(numbers[pT_index]) < pT_upper_cut:
+        if float(numbers[pT_index]) > pT_lower_cut and float(numbers[pT_index]) < pT_upper_cut:
           for i in range(len(keywords)):
             keyword = keywords[i]
-            properties[keyword].append( float(numbers[i + 1]) ) # + 1 because we ignore the first keyword "Entry".
+
+            if keyword in keywords_to_populate:
+              properties[keyword].append( float(numbers[i + 1]) ) # + 1 because we ignore the first keyword "Entry".
 
     except:
       pass
@@ -244,9 +252,9 @@ def plot_turn_on_curves():
   plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
   plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
 
-  fn = get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
+  fn = get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.9249985), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.9249985), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.30, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -452,7 +460,7 @@ def plot_all_trigger_efficiency_curves():
   lower_pTs = [140, 100, 70, 50, 30, 15]
   # lower_pTs = lower_pTs[::-1]
 
-  cms_turn_on_pTs = [260, 196, 153, 114, 84]
+  cms_turn_on_pTs = [250, 200, 150, 115, 85]
 
   pt_hists = []
   for j in range(len(expected_trigger_names) - 1, -1, -1):
@@ -482,7 +490,7 @@ def plot_all_trigger_efficiency_curves():
         source = "MOD"
       else:
         source = "CMS"
-      plt.gca().annotate(source + "\n" + str(cms_turn_on_pTs[i]) + " GeV", xy=(cms_turn_on_pTs[i], 1.), xycoords='data', xytext=(-100, 350),  textcoords='offset points', color=colors[i], size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[i], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
+      plt.gca().annotate(str(cms_turn_on_pTs[i]) + " GeV", xy=(cms_turn_on_pTs[i], 1.), xycoords='data', xytext=(-100, 350),  textcoords='offset points', color=colors[i], size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[i], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
 
   
 
@@ -514,7 +522,7 @@ def plot_all_trigger_efficiency_curves():
   plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
+  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
   preliminary_text = "Prelim. (20\%)"
   plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
@@ -567,5 +575,5 @@ def plot_all_trigger_efficiency_curves():
 
 
 
-# plot_turn_on_curves()
-plot_all_trigger_efficiency_curves()
+plot_turn_on_curves()
+# plot_all_trigger_efficiency_curves()

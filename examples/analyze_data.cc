@@ -102,6 +102,8 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
 	properties.push_back(MOD::Property("uncor_hardest_pT", trigger_jet.pt()));
 	properties.push_back(MOD::Property("cor_hardest_pT", trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC()));
 
+   properties.push_back(MOD::Property("hardest_eta", trigger_jet.eta()));
+
 	properties.push_back(MOD::Property("prescale", event_being_read.assigned_trigger_prescale()));
 	properties.push_back(MOD::Property("trigger_name", event_being_read.assigned_trigger_name()));
 

@@ -90,6 +90,7 @@ int main(int argc, char * argv[]) {
 
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number) {
 
+  
    JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
 
    PseudoJet hardest_jet = event_being_read.hardest_jet();

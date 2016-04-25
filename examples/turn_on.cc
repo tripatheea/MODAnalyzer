@@ -108,6 +108,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
             properties.push_back(MOD::Property("jet_quality", trigger_jet.user_info<MOD::InfoCalibratedJet>().jet_quality())); 
    
             properties.push_back(MOD::Property("Cor_Hardest_pT", trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC()));  
+            properties.push_back(MOD::Property("hardest_eta", trigger_jet.eta()));  
             properties.push_back(MOD::Property("Prescale", triggers[i].prescale()));
             properties.push_back(MOD::Property("Trigger_Name", triggers[i].name()));         
        

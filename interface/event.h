@@ -45,7 +45,7 @@ namespace MOD {
 
             const int version() const;
             const data_source_t data_source() const;
-            const int weight() const;
+            const double weight() const;
             
             const std::pair<std::string, std::string> data_type() const;
 
@@ -123,6 +123,7 @@ namespace MOD {
             void set_version(int version);
             void set_data_type(std::string a, std::string b);
             void set_data_source(int data_source);
+            void set_weight(double weight);
 
             std::vector<fastjet::PseudoJet> apply_jet_energy_corrections(std::vector<fastjet::PseudoJet> jets) const;
 

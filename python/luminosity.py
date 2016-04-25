@@ -131,8 +131,8 @@ def plot_integrated_recorded_lumi(cumulative=False):
   intg_del_lumi = [x for (y,x) in sorted(zip(properties['time'], properties['intg_del_lumi']))]
 
   # Convert from (ub)-1 to (pb)-1
-  # intg_rec_lumi = [x * 1e-6 for x in intg_rec_lumi]
-  # intg_del_lumi = [x * 1e-6 for x in intg_del_lumi]
+  intg_rec_lumi = [x * 1e-6 for x in intg_rec_lumi]
+  intg_del_lumi = [x * 1e-6 for x in intg_del_lumi]
 
 
 
@@ -172,9 +172,9 @@ def plot_integrated_recorded_lumi(cumulative=False):
   plt.gca().ticklabel_format(axis='y', style='sci')
 
   if cumulative:
-    plt.ylabel("Total Integrated Luminosity ($\mathrm{b}^{-1}$)", labelpad=50, fontsize=60)
+    plt.ylabel("Total Integrated Luminosity ($\mathrm{pb}^{-1}$)", labelpad=50, fontsize=60)
   else:
-    plt.ylabel("Integrated Luminosity ($\mathrm{b}^{-1}$/day)", labelpad=50, fontsize=60)
+    plt.ylabel("Integrated Luminosity ($\mathrm{pb}^{-1}$/day)", labelpad=50, fontsize=60)
 
 
   print max(intg_rec_lumi),
@@ -185,10 +185,16 @@ def plot_integrated_recorded_lumi(cumulative=False):
 
 
 
-  plt.gca().get_yaxis().get_major_formatter().set_powerlimits((0, 0))
+  # plt.gca().get_yaxis().get_major_formatter().set_powerlimits((0, 0))
 
   plt.autoscale()
-  # plt.ylim(0, 0.05)
+
+  if cumulative:
+    plt.ylim(0, 60)
+  else:
+    plt.ylim(0, 10)
+
+    
   # plt.xlim(datetime.date(2010, 3, 30), datetime.date(2010, 10, 31))
 
   plt.locator_params(axis='x', nbins=5)
@@ -279,7 +285,7 @@ def plot_inst_lumi():
 
 
 
-plot_integrated_recorded_lumi(cumulative=True)
+# plot_integrated_recorded_lumi(cumulative=True)
 plot_integrated_recorded_lumi(cumulative=False)
 
 

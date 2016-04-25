@@ -87,7 +87,7 @@ def get_version(input_file):
 	return "Version 5"
 
 
-def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut=20000., softdrop_pT_lower_cut=0., softdrop_pT_upper_cut=20000.):
+def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut=20000., softdrop_pT_lower_cut=0., softdrop_pT_upper_cut=20000., eta_cut=2.4):
 
 	# We'll populate only those fileds that are in the list keywords_to_populate.
 
@@ -112,7 +112,9 @@ def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut
 				pT_index = keywords.index("hardest_pT") + 1
 				softdrop_pT_index = keywords.index("pT_after_SD") + 1
 
-				if float(numbers[pT_index]) > pT_lower_cut and float(numbers[pT_index]) < pT_upper_cut and float(numbers[softdrop_pT_index]) > softdrop_pT_lower_cut and float(numbers[softdrop_pT_index]) < softdrop_pT_upper_cut:
+				eta_index = keywords.index("hardest_eta") + 1
+
+				if abs(float(numbers[eta_index])) < eta_cut and float(numbers[pT_index]) > pT_lower_cut and float(numbers[pT_index]) < pT_upper_cut and float(numbers[softdrop_pT_index]) > softdrop_pT_lower_cut and float(numbers[softdrop_pT_index]) < softdrop_pT_upper_cut:
 					for i in range(len(keywords)):
 						keyword = keywords[i]
 
@@ -400,11 +402,9 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 
 	zg_cut = float(zg_cut)
 
-	zg_filename = "preclustered_R_0_01_" + zg_filename
-
 	keywords_to_populate = ['prescale', zg_filename, zg_filename.replace("zg", "Rg")]
 
-	for mc_type in ["truth", "reco"]:
+	for mc_type in ["truth"]:
 
 		properties = parse_file(input_analysis_file, keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
@@ -790,9 +790,9 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		
 		if pT_upper_cut != 10000:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		else:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 
 		# labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		
@@ -1154,16 +1154,23 @@ def plot_charged_and_all_zgs(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05'
 
 
 def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
-	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+	
+	
+	keywords_to_populate = ['prescale', 'hardest_pT']
+
+
+	properties = parse_file(input_analysis_file, keywords_to_populate, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
 
 	experiment_pTs = properties['hardest_pT']
 	prescales = properties['prescale']
 
-	for mc_type in ["truth", "reco"]:
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+	# for mc_type in ["truth", "reco"]:
+	for mc_type in ["truth"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
 		pythia_pTs = pythia_properties['hardest_pT']
 		herwig_pTs = herwig_properties['hardest_pT']
@@ -1171,16 +1178,16 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
 
 
 
-		pythia_pt_hist = Hist(70, 0, 700, title=plot_labels['pythia'], linewidth=5, markersize=5.0, color=plot_colors['pythia'])
+		pythia_pt_hist = Hist(200, 0, 1000, title=plot_labels['pythia'], linewidth=5, markersize=5.0, color=plot_colors['pythia'])
 		bin_width_pythia = (pythia_pt_hist.upperbound() - pythia_pt_hist.lowerbound()) / pythia_pt_hist.nbins()
 
-		herwig_pt_hist = Hist(70, 0, 700, title=plot_labels['herwig'], linewidth=5, markersize=5.0, color=plot_colors['herwig'])
+		herwig_pt_hist = Hist(200, 0, 1000, title=plot_labels['herwig'], linewidth=5, markersize=5.0, color=plot_colors['herwig'])
 		bin_width_herwig = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
 
-		sherpa_pt_hist = Hist(70, 0, 700, title=plot_labels['sherpa'], linewidth=5, markersize=5.0, color=plot_colors['sherpa'])
+		sherpa_pt_hist = Hist(200, 0, 1000, title=plot_labels['sherpa'], linewidth=5, markersize=5.0, color=plot_colors['sherpa'])
 		bin_width_sherpa = (sherpa_pt_hist.upperbound() - sherpa_pt_hist.lowerbound()) / sherpa_pt_hist.nbins()
 
-		experiment_pt_hist = Hist(70, 0, 700, title=plot_labels['data'], markersize=3.0, color=plot_colors['data'])
+		experiment_pt_hist = Hist(200, 0, 1000, title=plot_labels['data'], markersize=3.0, color=plot_colors['data'])
 		bin_width_experiment = (experiment_pt_hist.upperbound() - experiment_pt_hist.lowerbound()) / experiment_pt_hist.nbins()
 
 
@@ -1239,9 +1246,9 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		if pT_upper_cut != 10000:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$"]
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$"]
 		else:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
 		ax0.legend([extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.97, 0.59])
 
 		# Legends End.
@@ -1254,10 +1261,10 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
 		ax1.set_ylabel("Ratio           \nto           \n" + "Data" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
 
 
-		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.94), xycoords='figure fraction', frameon=0)
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.92), xycoords='figure fraction', frameon=0)
 		plt.gca().add_artist(ab)
 		preliminary_text = "Prelim. (20\%)"
-		plt.gcf().text(0.305, 0.93, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+		plt.gcf().text(0.305, 0.91, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 		# Ratio Plot.
 		pythia_pt_hist.Divide(experiment_pt_hist)
@@ -1270,52 +1277,39 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
 		rplt.hist(sherpa_pt_hist, axes=ax1, linewidth=5)
 		rplt.errorbar(experiment_pt_hist, xerr=data_to_data_x_err, yerr=data_to_data_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
+
+
+
+
 		ax0.set_yscale('log')
 
 		ax0.autoscale(True)
 		ax1.autoscale(True)
 		
 
-		if ((pT_lower_cut == 150 and pT_upper_cut == 250)):
-			ax0.set_xlim(150, 250)
-			ax1.set_xlim(150, 250)
-			ax0.set_ylim(10e-4, 10e-2)
-			pT_minor_ticks = 5
-		elif ((pT_lower_cut == 250 and pT_upper_cut == 500)):
-			ax0.set_xlim(250, 500)
-			ax1.set_xlim(250, 500)
-			ax0.set_ylim(10e-5, 10e-2)
-			pT_minor_ticks = 10
-		elif ((pT_lower_cut == 500 and pT_upper_cut == 10000)):
-			ax0.set_xlim(500, 1500)
-			ax1.set_xlim(500, 1500)
-			ax0.set_ylim(0.0005, 0.05)
-			pT_minor_ticks = 50
-		elif ((pT_lower_cut == 150 and pT_upper_cut == 10000)):
-			ax0.set_xlim(150, 1000)
-			ax1.set_xlim(150, 1000)
-			ax0.set_ylim(10e-8, 10e-2)
-			pT_minor_ticks = 50
-		else:
-			ax0.set_xlim(150, 1000)
-			ax1.set_xlim(150, 1000)
-			ax0.set_ylim(10e-8, 0.5 * 10e-1)
-			pT_minor_ticks = 20
+		ax0.set_xlim(0, 1000)
+		ax1.set_xlim(0, 1000)
 
-
-		ax0.set_xlim(0, 700)
-		ax1.set_xlim(0, 700)
+		ax0.set_ylim(1e-8, 1e0)
 		ax1.set_ylim(0, 2)
+
+		# Marker indicating the 150 GeV mark.
+		# ax0.plot([150, 150], [ax0.get_ylim()[0], ax0.get_ylim()[1]], axes=ax0, color='red', linewidth=5, linestyle="dashed")
+		# ax1.plot([150, 150], [ax1.get_ylim()[0], ax1.get_ylim()[1]], axes=ax0, color='red', linewidth=5, linestyle="dashed")
+
+		# ax0.arrow(150, 0.5e-2, 100, 0, head_width=0.1, head_length=10, fc='k', ec='k')
+		# ax0.annotate('Our analysis', xy=(150, 0.5e-2), xytext=(250, 1e-3), arrowprops=dict(facecolor='red', arrowstyle='<='))
+
 
 		plt.gcf().set_size_inches(30, 30, forward=1)
 
 		plt.sca(ax0)
-		plt.gca().xaxis.set_minor_locator(MultipleLocator(pT_minor_ticks))
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(50))
 		plt.tick_params(which='major', width=5, length=25, labelsize=70)
 		plt.tick_params(which='minor', width=3, length=15)
 
 		plt.sca(ax1)
-		plt.gca().xaxis.set_minor_locator(MultipleLocator(pT_minor_ticks))
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(50))
 		# plt.gca().yaxis.set_minor_locator(MultipleLocator(50))
 		plt.tick_params(which='major', width=5, length=25, labelsize=70)
 		plt.tick_params(which='minor', width=3, length=15)
@@ -1411,15 +1405,18 @@ def plot_hardest_pt_softdrop(pT_lower_cut=100, pT_upper_cut=20000):
 
 
 def plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=20000):
-	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
+	keywords = ['mul_pre_SD', 'mul_post_SD', 'prescale']
+
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut, keywords_to_populate=keywords)
 
 	multi_before_SD = properties['mul_pre_SD']
 	multi_after_SD = properties['mul_post_SD']  
 	prescales = properties['prescale']
 
-	for mc_label in ["truth", "reco"]:
+	for mc_label in ["truth"]:
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat")
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
 		pythia_pre = pythia_properties['mul_pre_SD']
 		pythia_post = pythia_properties['mul_post_SD']
 
@@ -1687,9 +1684,9 @@ def plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cu
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		if pT_upper_cut != 20000:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
 		else:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
 		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.58])
 
 		# Legends End.
@@ -1724,87 +1721,6 @@ def plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cu
 		# plt.show()
 		plt.close(plt.gcf())
 
-
-
-
-def plot_constituent_multiplicity_softdrop_multiple_jet_correction_level(pT_lower_cut=100, pT_upper_cut=20000):
-	
-
-
-	jet_quality_levels = [1, 2, 3]
-	titles = [ ["Before SoftDrop (Loose)", "After SoftDrop (Loose)"], ["Before SoftDrop (Medium)", "After SoftDrop (Medium)"], ["Before SoftDrop (Tight)", "Before SoftDrop (Tight)"]]
-	colors = [['red', 'green'], ['gray', 'orange'], ['blue', 'magenta']]
-
-	for i in range(0, len(jet_quality_levels)):
-
-		properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut, jet_quality_level=jet_quality_levels[i])
-
-		multi_before_SD = properties['multiplicity_before_SD']
-		multi_after_SD = properties['multiplicity_after_SD']  
-		prescales = properties['prescale']
-
-		multi_before_SD_hist = Hist(150, 0, 150, title=titles[i][0], markersize=3.0, color=colors[i][0])
-		bin_width_before = (multi_before_SD_hist.upperbound() - multi_before_SD_hist.lowerbound()) / multi_before_SD_hist.nbins()
-
-		multi_after_SD_hist = Hist(150, 0, 150, title=titles[i][1], markersize=3.0, color=colors[i][1])
-		bin_width_after = (multi_after_SD_hist.upperbound() - multi_after_SD_hist.lowerbound()) / multi_after_SD_hist.nbins()
-
-		map(multi_before_SD_hist.Fill, multi_before_SD, prescales)
-		map(multi_after_SD_hist.Fill, multi_after_SD, prescales)
-		
-		multi_before_SD_hist.Scale(1.0 / (multi_before_SD_hist.GetSumOfWeights() * bin_width_before))
-		multi_after_SD_hist.Scale(1.0 / (multi_after_SD_hist.GetSumOfWeights() * bin_width_after))
-		
-		pT_before_SD_plot = rplt.errorbar(multi_before_SD_hist, alpha=0.5, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-		pT_after_SD_plot = rplt.errorbar(multi_after_SD_hist, alpha=0.5, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-	
-
-
-
-	# Legends Begin.
-
-	legend = plt.gca().legend(loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.00, 1.0])
-	plt.gca().add_artist(legend)
-
-	extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-	if pT_upper_cut != 20000:
-		labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
-	else:
-		labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
-	plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.30])
-
-	# Legends End.
-
-	ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
-	plt.gca().add_artist(ab)
-	preliminary_text = "Prelim. (20\%)"
-	plt.gcf().text(0.29, 0.885, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
-
-
-
-	plt.gcf().set_size_inches(30, 21.4285714, forward=1)
-
-	plt.xlabel('Constituent Multiplicity', fontsize=75)
-	plt.ylabel('$\mathrm{A.U.}$', fontsize=55, rotation=0, labelpad=75.)
-	
-	plt.gcf().set_size_inches(30, 21.4285714, forward=1)
-
-	plt.gca().autoscale(True)
-	plt.gca().set_ylim(0., 1.0 * plt.gca().get_ylim()[1])
-
-	plt.gca().xaxis.set_minor_locator(MultipleLocator(5))
-	plt.gca().yaxis.set_minor_locator(MultipleLocator(0.005))
-
-	plt.tick_params(which='major', width=5, length=25, labelsize=70)
-	plt.tick_params(which='minor', width=3, length=15)
-
-	plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
-
-	print "Printing fractional energy loss with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
-
-	plt.savefig("plots/" + get_version(input_analysis_file) + "/constituent_multiplicity_softdrop/multiple_correction_level_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
-	# plt.show()
-	plt.close(plt.gcf())
 
 
 
@@ -1909,14 +1825,17 @@ def plot_fractional_pT_loss(pT_lower_cut=100, pT_upper_cut=20000):
 
 
 def plot_jet_mass_softdrop(pT_lower_cut=100, pT_upper_cut=20000):
-	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
+	keywords = ['mass_pre_SD', 'mass_post_SD', 'prescale']
+
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut, keywords_to_populate=keywords)
 
 	jet_mass_before_SD = properties['mass_pre_SD']
 	jet_mass_after_SD = properties['mass_post_SD']  
 	prescales = properties['prescale']
 
-	for mc_label in ["truth", "reco"]:
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+	for mc_label in ["truth"]:
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat", pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut, keywords_to_populate=keywords)
 		
 		pythia_pre_SD = pythia_properties['mass_pre_SD']
 		pythia_post_SD = pythia_properties['mass_post_SD']
@@ -1971,9 +1890,9 @@ def plot_jet_mass_softdrop(pT_lower_cut=100, pT_upper_cut=20000):
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		
 		if pT_upper_cut != 20000:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
 		else:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = 0.10}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = 0.10}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
 		
 
 		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[1.0, 0.55])
@@ -2006,7 +1925,7 @@ def plot_jet_mass_softdrop(pT_lower_cut=100, pT_upper_cut=20000):
 
 		print "Printing jet mass spectrum with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
 
-		plt.savefig("plots/" + get_version(input_analysis_file) + "/jet_mass/" + mc_label + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_jet_mass.pdf")
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/jet_mass_softdrop/" + mc_label + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_jet_mass.pdf")
 		# plt.show()
 		plt.close(plt.gcf())
 
@@ -3453,14 +3372,16 @@ def weird_pt(reco=True):
 
 def plot_jet_eta(pT_lower_cut=100):
 	
-	properties = parse_file(input_analysis_file, pT_lower_cut)
-	
+	keywords = ['hardest_eta', 'prescale']
 
-	for mc_type in ["truth", "reco"]:
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords, eta_cut=6)
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
-		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
-		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+
+	for mc_type in ["truth"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords, eta_cut=6)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords, eta_cut=6)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords, eta_cut=6)
 
 		jet_eta = properties['hardest_eta']
 		prescales = properties['prescale']
@@ -3514,6 +3435,14 @@ def plot_jet_eta(pT_lower_cut=100):
 		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
 		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.32, 0.77])
 
+		# Marker indicating the 2.4 mark.
+		plt.plot([-2.4, -2.4], [0.00, 0.20], color='red', linewidth=5, linestyle="dashed")
+		plt.plot([2.4, 2.4], [0.00, 0.20], color='red', linewidth=5, linestyle="dashed")
+
+		# ax0.arrow(150, 0.5e-2, 100, 0, head_width=0.1, head_length=10, fc='k', ec='k')
+		# ax0.annotate('Our analysis', xy=(150, 0.5e-2), xytext=(250, 1e-3), arrowprops=dict(facecolor='red', arrowstyle='<='))
+
+
 
 		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
@@ -3541,14 +3470,16 @@ def plot_jet_eta(pT_lower_cut=100):
 
 def plot_jet_phi(pT_lower_cut=100):
 	
-	properties = parse_file(input_analysis_file, pT_lower_cut)
+	keywords = ['hardest_phi', 'prescale']
+
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
 	
 
-	for mc_type in ["truth", "reco"]:
+	for mc_type in ["truth"]:
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
-		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
-		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
 
 		jet_phi = properties['hardest_phi']
 		prescales = properties['prescale']
@@ -3600,8 +3531,8 @@ def plot_jet_phi(pT_lower_cut=100):
 		plt.gcf().text(0.31, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.32, 0.77])
+		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.43, 0.77])
 
 
 		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
@@ -3613,8 +3544,9 @@ def plot_jet_phi(pT_lower_cut=100):
 		plt.xlim(0, 2*np.pi)
 		plt.ylim( plt.gca().get_ylim()[0], plt.gca().get_ylim()[1] * 1.35 )
 
-		# plt.gca().xaxis.set_minor_locator(MultipleLocator(0.2))
-		# plt.gca().yaxis.set_minor_locator(MultipleLocator(0.01))
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.5 * np.pi / 10))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.01))
+
 		plt.gca().set_xticks( [0, round(0.5*np.pi, 3), round(np.pi, 3), round(1.5*np.pi, 3), round(2*np.pi, 3)] )
 		plt.gca().set_xticklabels( ["0", "$\pi / 2$", "$\pi$", "$3 \pi / 2$", "$2 \pi$"] )
 
@@ -3634,14 +3566,16 @@ def plot_jet_phi(pT_lower_cut=100):
 
 def plot_hardest_pT_D_softdrop(pT_lower_cut=100):
 	
-	properties = parse_file(input_analysis_file, pT_lower_cut)
+
+	keywords = ['pT_D_pre_SD', 'pT_D_post_SD', 'prescale']	
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
 	
 
-	for mc_type in ["truth", "reco"]:
+	for mc_type in ["truth"]:
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
-		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
-		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
 
 		data_before_label = "Before SoftDrop"
 		data_after_label = "After SoftDrop"
@@ -3708,7 +3642,7 @@ def plot_hardest_pT_D_softdrop(pT_lower_cut=100):
 		plt.gcf().text(0.27, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
 		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.835, 0.57])
 
 
@@ -3730,24 +3664,30 @@ def plot_hardest_pT_D_softdrop(pT_lower_cut=100):
 
 		print "Printing hardest pT_D."
 
-		plt.savefig("plots/" + get_version(input_analysis_file) + "/pT_D/" + mc_type + "_jet_pT_D.pdf")
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/pT_D_softdrop/" + mc_type + "_jet_pT_D.pdf")
 
 		plt.close(plt.gcf())
 
 
 
 
-def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10'):
+def plot_theta_g_log_plots(pT_lower_cut=150, R_sub=0.05, zg_cut='0.10', zg_filename='zg_10'):
 	
 
-	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
+	# zg_filename = 'track_' + zg_filename
+	# track = True
+	track = False
 
-	for mc_type in ["truth", "reco"]:
+	keywords = [zg_filename, zg_filename.replace("zg", "Rg"), 'prescale']
+
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
+
+	for mc_type in ["truth"]:
 
 	
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
 
 
 		prescales = properties['prescale']
@@ -3823,8 +3763,13 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 		plt.gca().add_artist(legend)
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
+
+		if track:
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "Track Only"]
+		else:
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", ""]
+		
+		plt.gca().legend([extra, extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
 
 		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.20, 0.91), xycoords='figure fraction', frameon=0)
 		plt.gca().add_artist(ab)
@@ -3852,10 +3797,18 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 		plt.gca().autoscale(True)
 
 		plt.gca().set_xlim(float(zg_cut), 1)
-		plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.55)
+		# plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.55)
+		plt.gca().set_ylim(0., 7)
+
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-		plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/z_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+		
+		if track:
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/track/z_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+		else:
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/all/z_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+		
+
 		plt.close(plt.gcf())
 
 		# =============================================================================================== z_g PLOT ENDS ===========================================================================================================================
@@ -3915,8 +3868,14 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 		plt.gca().add_artist(legend)
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
+		
+		if track:
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "Track Only"]
+		else:
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", ""]
+		
+		plt.gca().legend([extra, extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
+
 
 		if zg_cut == "0.10":
 			logo_coords = (0.22, 0.91)
@@ -3949,10 +3908,16 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 		plt.tick_params(which='minor', width=3, length=15)
 
 		plt.gca().autoscale(True)
-		plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+		# plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+		plt.gca().set_ylim(0., 4.0)
+
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-		plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/theta_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+		if track:
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/track/theta_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+		else:
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/all/theta_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+
 		plt.close(plt.gcf())
 
 		# =============================================================================================== theta_g PLOT ENDS ===========================================================================================================================
@@ -4012,8 +3977,15 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 		plt.gca().add_artist(legend)
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.54, 0.74])
+		
+
+		if track:
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "Track Only"]
+		else:
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", ""]
+		
+		plt.gca().legend([extra, extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
+
 
 		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.22, 0.895), xycoords='figure fraction', frameon=0)
 		plt.gca().add_artist(ab)
@@ -4036,10 +4008,15 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 		plt.tick_params(which='minor', width=3, length=15)
 
 		plt.gca().autoscale(True)
-		plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+		# plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+		plt.gca().set_ylim(0., 4.5)
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-		plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+		if track:
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/track/theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+		else:
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/all/theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+
 		plt.close(plt.gcf())
 
 		# =============================================================================================== theta_g * z_g PLOT ENDS ===========================================================================================================================
@@ -4098,8 +4075,13 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 		plt.gca().add_artist(legend)
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.54, 0.74])
+		
+		if track:
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "Track Only"]
+		else:
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", ""]
+		
+		plt.gca().legend([extra, extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
 
 		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.89), xycoords='figure fraction', frameon=0)
 		plt.gca().add_artist(ab)
@@ -4124,10 +4106,15 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 		plt.tick_params(which='minor', width=3, length=15)
 
 		plt.gca().autoscale(True)
-		plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+		# plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+		plt.gca().set_ylim(0., 3.0)
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-		plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/theta_g_square_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+		if track:
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/track/theta_g_square_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+		else:
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/all/theta_g_square_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+
 		plt.close(plt.gcf())
 
 		# =============================================================================================== z_g * theta_g^2 PLOT ENDS ===========================================================================================================================
@@ -4185,8 +4172,13 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 		plt.gca().add_artist(legend)
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.74])
+		
+		if track:
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "Track Only"]
+		else:
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", ""]
+		
+		plt.gca().legend([extra, extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.52, 0.72])
 
 		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.21, 0.895), xycoords='figure fraction', frameon=0)
 		plt.gca().add_artist(ab)
@@ -4209,10 +4201,14 @@ def plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 		plt.tick_params(which='minor', width=3, length=15)
 
 		plt.gca().autoscale(True)
-		plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+		# plt.gca().set_ylim(0., plt.gca().get_ylim()[1]*1.5)
+		plt.gca().set_ylim(0., 5.25)
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-		plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/sqrt_theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+		if track:
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/track/sqrt_theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+		else:
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/all/sqrt_theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
 		plt.close(plt.gcf())
 
 		# =============================================================================================== z_g * theta_g^(0.5) PLOT ENDS ===========================================================================================================================
@@ -4631,9 +4627,9 @@ def plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.0
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		
 		if pT_upper_cut != 10000:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		else:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 
 		# labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		
@@ -5110,9 +5106,9 @@ def plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_c
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		
 		if pT_upper_cut != 10000:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		else:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 
 		# labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		
@@ -5588,9 +5584,9 @@ def plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		
 		if pT_upper_cut != 10000:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		else:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 
 		# labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		
@@ -5653,15 +5649,20 @@ def plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut
 		plt.close(plt.gcf())
 
 
-def plot_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="data", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
+def plot_theta_g_th_mc_data(pT_lower_cut=150, R_sub=0.05, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="data", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
 
 	zg_cut = float(zg_cut)
 
-	zg_filename = "preclustered_R_0_01_" + zg_filename
+
+	R_sub_label = "{:.2f}".format(R_sub).replace(".", "_")
+
+	zg_filename = "preclustered_R_" + R_sub_label + "_" + zg_filename
+	# zg_filename = "track_" + zg_filename
 
 	keywords_to_populate = ['prescale', zg_filename, zg_filename.replace("zg", "Rg")]
 
-	for mc_type in ["truth", "reco"]:
+	# for mc_type in ["truth", "reco"]:
+	for mc_type in ["truth"]:
 
 		properties = parse_file(input_analysis_file, keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
@@ -6064,9 +6065,10 @@ def plot_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05',
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		
 		if pT_upper_cut != 10000:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		else:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			# labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}; R_{sub} = " + str(R_sub) + "$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 
 		# labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		
@@ -9611,14 +9613,16 @@ def plot_hardest_thrust(pT_lower_cut=150):
 
 def plot_hardest_pT_D(pT_lower_cut=150):
 	
-	properties = parse_file(input_analysis_file, pT_lower_cut)
+
+	keywords = ['prescale', 'pT_D_pre_SD']
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
 	
 
-	for mc_type in ["truth", "reco"]:
+	for mc_type in ["truth"]:
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
-		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
-		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords)
 
 
 		jet_pT_D_track = properties['pT_D_pre_SD']
@@ -9666,14 +9670,14 @@ def plot_hardest_pT_D(pT_lower_cut=150):
 		plt.xlabel('$p_T^D$', fontsize=75)
 		plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
 
-		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.20, 0.90), xycoords='figure fraction', frameon=0)
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.22, 0.90), xycoords='figure fraction', frameon=0)
 		plt.gca().add_artist(ab)
 		preliminary_text = "Prelim. (20\%)"
-		plt.gcf().text(0.27, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+		plt.gcf().text(0.29, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.835, 0.57])
+		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};~\eta<2.4$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.97, 0.57])
 
 
 		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
@@ -9703,18 +9707,21 @@ def plot_hardest_pT_D(pT_lower_cut=150):
 
 
 def plot_jet_mass(pT_lower_cut=150, pT_upper_cut=20000):
-	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
+	keywords = ['mass_pre_SD', 'prescale']
+
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut, keywords_to_populate=keywords)
 
 	jet_mass = properties['mass_pre_SD']
 	
 
 	prescales = properties['prescale']
 
-	for mc_label in ["truth", "reco"]:
+	for mc_label in ["truth"]:
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat")
-		herwig_properties = parse_file("/home/aashish/herwig_" + mc_label + ".dat")
-		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_label + ".dat")
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat", keywords_to_populate=keywords)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_label + ".dat", keywords_to_populate=keywords)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_label + ".dat", keywords_to_populate=keywords)
 		
 		pythia_jet_mass = pythia_properties['mass_pre_SD']
 		herwig_jet_mass = herwig_properties['mass_pre_SD']
@@ -9769,9 +9776,9 @@ def plot_jet_mass(pT_lower_cut=150, pT_upper_cut=20000):
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		if pT_upper_cut != 20000:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$"]
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$"]
 		else:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
 		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.58])
 
 		# Legends End.
@@ -9810,18 +9817,21 @@ def plot_jet_mass(pT_lower_cut=150, pT_upper_cut=20000):
 
 
 def plot_constituent_multiplicity(pT_lower_cut=150, pT_upper_cut=20000):
-	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
+	keywords = ['mul_pre_SD', 'prescale']
+
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut, keywords_to_populate=keywords)
 
 	jet_multi = properties['mul_pre_SD']
 	
 
 	prescales = properties['prescale']
 
-	for mc_label in ["truth", "reco"]:
+	for mc_label in ["truth"]:
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat")
-		herwig_properties = parse_file("/home/aashish/herwig_" + mc_label + ".dat")
-		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_label + ".dat")
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat", keywords_to_populate=keywords)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_label + ".dat", keywords_to_populate=keywords)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_label + ".dat", keywords_to_populate=keywords)
 		
 		pythia_jet_multi = pythia_properties['mul_pre_SD']
 		herwig_jet_multi = herwig_properties['mul_pre_SD']
@@ -9876,17 +9886,17 @@ def plot_constituent_multiplicity(pT_lower_cut=150, pT_upper_cut=20000):
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		if pT_upper_cut != 20000:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$"]
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$"]
 		else:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
 		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.58])
 
 		# Legends End.
 
-		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.91), xycoords='figure fraction', frameon=0)
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.90), xycoords='figure fraction', frameon=0)
 		plt.gca().add_artist(ab)
 		preliminary_text = "Prelim. (20\%)"
-		plt.gcf().text(0.29, 0.905, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+		plt.gcf().text(0.29, 0.895, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
@@ -9900,7 +9910,8 @@ def plot_constituent_multiplicity(pT_lower_cut=150, pT_upper_cut=20000):
 		plt.xlim(0, 80)
 
 		plt.gca().xaxis.set_minor_locator(MultipleLocator(2))
-		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.01))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.002))
+
 		plt.tick_params(which='major', width=5, length=25, labelsize=70)
 		plt.tick_params(which='minor', width=3, length=15)
 
@@ -9912,6 +9923,194 @@ def plot_constituent_multiplicity(pT_lower_cut=150, pT_upper_cut=20000):
 		# plt.show()
 		plt.close(plt.gcf())
 
+
+
+
+
+def plot_theta_g_vs_eta(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log=False):
+	
+	zg_cut = float(zg_cut)
+
+	keywords_to_populate = ['prescale', 'hardest_eta', zg_filename.replace("zg", "Rg")]
+
+	properties = parse_file(input_analysis_file, keywords_to_populate, pT_lower_cut=pT_lower_cut)
+
+	# zg_data = properties[zg_filename]
+	
+	eta_data = properties['hardest_eta']
+
+
+	prescales = properties['prescale']
+
+	R_g_data = properties[zg_filename.replace("zg", "Rg")]
+
+	theta_g_data = np.divide(R_g_data, 0.5)
+
+	labels = ['data', 'pythia', 'herwig', 'sherpa']
+	colors = ['Greys', 'Blues', 'Greens', 'BuPu'] 
+	for mc_type in ['truth']:
+
+		properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+		properties_herwig = parse_file("/home/aashish/herwig_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+		properties_sherpa = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+
+		eta_pythias = properties_pythia['hardest_eta']
+		eta_herwigs = properties_herwig['hardest_eta']
+		eta_sherpas = properties_sherpa['hardest_eta']
+
+		R_g_pythias = properties_pythia[zg_filename.replace("zg", "Rg")]
+		R_g_herwigs = properties_herwig[zg_filename.replace("zg", "Rg")]
+		R_g_sherpas = properties_sherpa[zg_filename.replace("zg", "Rg")]
+		
+		theta_g_pythias = np.divide(R_g_pythias, 0.5)
+		theta_g_herwigs = np.divide(R_g_herwigs, 0.5)
+		theta_g_sherpas = np.divide(R_g_sherpas, 0.5)
+
+
+		counter = 0
+		for (eta_s, theta_g_s) in [ (eta_data, theta_g_data), (eta_pythias, theta_g_pythias), (eta_herwigs, theta_g_herwigs), (eta_sherpas, theta_g_sherpas) ]:
+
+			# if log:
+			# 	theta_g_s = np.log(theta_g_s)
+			# 	z_g_s = np.log(z_g_s)
+
+
+			if log:
+				zg_bins = np.logspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 25, base=np.e)
+				theta_g_bins = np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 25, base=np.e)
+				bins = [zg_bins, theta_g_bins]
+			else:
+				bins = [25, 25]
+
+
+			print len(eta_s)
+			print len(theta_g_s)
+
+			if labels[counter] == 'data':
+				H, xedges, yedges = np.histogram2d(eta_s, theta_g_s, bins=bins, weights=prescales)
+			else:
+				H, xedges, yedges = np.histogram2d(eta_s, theta_g_s, bins=bins)
+
+			
+			# H_normalized = []
+			# for i in range(0, 25):
+			# 	current_row = []
+			# 	factor = sum(H[i])
+			# 	for j in range(0, 25):
+			# 		current_row.append(H[i][j] / factor)
+
+			# 	H_normalized.append(current_row)
+
+			H_normalized = H
+
+
+			H_normalized = np.array(H_normalized)
+			H = H_normalized
+
+			H = np.rot90(H)
+			H = np.flipud(H)
+
+			# for a in range(0, len(H)):
+			# 	for b in range(0, len(H[j])):
+			# 		if str(H[a][b]) == "nan":
+			# 			H[a][b] = 0.
+			
+			Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
+
+			plt.pcolormesh(xedges,yedges, Hmasked, cmap=colors[counter])
+				
+			if log:
+				plt.xscale('log')
+				plt.yscale('log')
+
+
+			cbar = plt.colorbar()
+			cbar.ax.set_ylabel('Counts')
+
+			plt.xlabel('$\eta$', fontsize=75, labelpad=40)
+			plt.ylabel('$\\theta_g$', rotation=0, fontsize=75, labelpad=40)
+
+			plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
+			plt.gca().yaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
+
+			plt.autoscale()
+			# plt.xlim(float(zg_cut), 0.5)
+
+			plt.tick_params(which='major', width=5, length=25, labelsize=70)
+			# plt.tick_params(which='minor', width=3, length=15)
+
+			plt.gcf().set_size_inches(30, 30, forward=1)
+			plt.gcf().set_snap(True)
+
+
+			if log:
+				plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g_vs_eta/log/" + mc_type + "/" + labels[counter] + "_zg_against_theta_g_pT_" + str(pT_lower_cut) + ".pdf")
+			else:
+				plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g_vs_eta/linear/" + mc_type + "/" + labels[counter] + "_zg_against_theta_g_pT_" + str(pT_lower_cut) + ".pdf")
+
+			counter += 1
+
+			plt.close(plt.gcf())
+
+
+
+
+
+def plot_weighted_pts(mode=1, pT_lower_cut=85, pT_upper_cut=10000):
+	
+	
+	keywords_to_populate = ['prescale', 'hardest_pT']
+
+	properties = parse_file("/home/aashish/weighted_" + str(mode) + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+	
+	pTs = properties['hardest_pT']
+	prescales = properties['prescale']
+	
+
+	pt_hist = Hist(100, 0, 1000, title=plot_labels['pythia'], linewidth=5, markersize=5.0, color=plot_colors['pythia'])
+	bin_width = (pt_hist.upperbound() - pt_hist.lowerbound()) / pt_hist.nbins()
+	map(pt_hist.Fill, pTs, prescales)
+	pt_hist.Scale(1.0 / (pt_hist.GetSumOfWeights() * bin_width))
+
+
+
+	rplt.hist(pt_hist, zorder=1, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+	
+
+	plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75, labelpad=45)
+	plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
+	
+
+	plt.yscale('log')
+
+	plt.autoscale(True)
+	
+	
+	plt.gcf().set_size_inches(30, 30, forward=1)
+
+	plt.gca().xaxis.set_minor_locator(MultipleLocator(50))
+	plt.tick_params(which='major', width=5, length=25, labelsize=70)
+	plt.tick_params(which='minor', width=3, length=15)
+
+
+	plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+	print "Printing pT spectrum with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+	plt.savefig("plots/" + get_version(input_analysis_file) + "/pT_pythia_weighted_" + str(mode) + ".pdf")
+	
+	# plt.show()
+
+	plt.close(plt.gcf())
+
+
+
+
+# plot_weighted_pts(mode=0)
+# plot_weighted_pts(mode=1)
+# plot_weighted_pts(mode=2)
+
+# plot_theta_g_vs_eta(zg_cut='0.10', zg_filename='zg_10', log=False)
 
 
 
@@ -10054,7 +10253,7 @@ def plot_constituent_multiplicity(pT_lower_cut=150, pT_upper_cut=20000):
 # plot_fractional_energy_loss(pT_lower_cut=200, pT_upper_cut=400)
 # plot_fractional_energy_loss(pT_lower_cut=400)
 
-# plot_constituent_multiplicity_softdrop()
+plot_constituent_multiplicity_softdrop()
 # plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=200)
 # plot_constituent_multiplicity_softdrop(pT_lower_cut=200, pT_upper_cut=400)
 # plot_constituent_multiplicity_softdrop(pT_lower_cut=400)
@@ -10161,6 +10360,9 @@ def plot_constituent_multiplicity(pT_lower_cut=150, pT_upper_cut=20000):
 
 
 
+
+
+
 # # plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 # plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 # plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
@@ -10172,6 +10374,8 @@ def plot_constituent_multiplicity(pT_lower_cut=150, pT_upper_cut=20000):
 # # plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 # plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 # plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+
+
 
 
 
@@ -10283,9 +10487,12 @@ def plot_constituent_multiplicity(pT_lower_cut=150, pT_upper_cut=20000):
 
 # ======================================================================= Basic ======================================================================= 
 
-# plot_jet_eta(pT_lower_cut=100)
-# plot_jet_phi(pT_lower_cut=100)
-# plot_pts(pT_lower_cut=100)
+# plot_pts(pT_lower_cut=85)
+# plot_jet_eta(pT_lower_cut=150)
+# plot_jet_phi(pT_lower_cut=150)
+
+
+
 # 
 # ======================================================================= Basic Ends ======================================================================= 
 
@@ -10295,32 +10502,50 @@ def plot_constituent_multiplicity(pT_lower_cut=150, pT_upper_cut=20000):
 
 # ******************** Ratio zg ******************** 
 
-# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
-# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
-# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
 
-# plot_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=4, y_limit_ratio_plot=0.5)
-# plot_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=6, y_limit_ratio_plot=0.5)
-# plot_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='theory', theory=1, mc=0, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
 
-plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
-plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
-plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
 
 
 
-plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=60, y_limit_ratio_plot=0.5)
-plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=60, y_limit_ratio_plot=0.5)
-plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=60, y_limit_ratio_plot=0.5)
 
 
 
-plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
-plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=12, y_limit_ratio_plot=0.5)
-plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=12, y_limit_ratio_plot=0.5)
+
+# +===== Begound here.
+
+# plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
+# plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
+
+# plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
+# plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
+
+
+
+
+# plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
+# plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
+# plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
+
+
+
+
+# plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=60, y_limit_ratio_plot=0.5)
+# plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=60, y_limit_ratio_plot=0.5)
+# plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=60, y_limit_ratio_plot=0.5)
+
+
+
+# plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
+# plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=12, y_limit_ratio_plot=0.5)
+# plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=12, y_limit_ratio_plot=0.5)
 
 
 # ******************** Ratio zg Ends ******************** 
@@ -10329,9 +10554,9 @@ plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.
 
 # ******************** Log Plots ******************** 
 
-# plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.05', zg_filename='zg_05')
+
 # plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
-# plot_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.20', zg_filename='zg_20')
+
 
 # plot_charged_theta_g_log_plots(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10')
 
@@ -10360,16 +10585,30 @@ plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.
 # ======================================================================= Bonus ======================================================================= 
 
 # plot_jet_mass(pT_lower_cut=150)
+# plot_constituent_multiplicity(pT_lower_cut=150)
+# plot_hardest_pT_D(pT_lower_cut=150)
+
+
+# plot_jet_mass_softdrop(pT_lower_cut=150)
+# plot_constituent_multiplicity_softdrop(pT_lower_cut=150)
+# plot_hardest_pT_D_softdrop(pT_lower_cut=150)
+
+# ======================================================================= Bonus Ends ======================================================================= 
+
+
+# Extra. 
+
+
 # plot_charged_jet_mass(pT_lower_cut=150)
 
-# plot_constituent_multiplicity_softdrop(pT_lower_cut=150)
 # plot_charged_constituent_multiplicity_softdrop(pT_lower_cut=150)
 
 # plot_hardest_pT_D(pT_lower_cut=150)
 # plot_fractional_pT_loss(pT_lower_cut=150)
 
-# ======================================================================= Bonus Ends ======================================================================= 
 
+
+# Extra Ends.
 
 # Aspen Ends.
 
