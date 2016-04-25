@@ -60,10 +60,11 @@ This repository is concerned with steps (4) to (6) only. Steps (1) to (3) are ca
 
 
 ## TODO
-- [ ] Plots Fix.
+- [ ] Fix plot formatting.
 - [ ] Weighted MC events. 
 - [ ] Luminosity conversion factor. Right now our total luminosity is ~55 pb-1 and that's with just ~40% of all data.
 - [ ] Analytic Calculations.
+- [ ] Run code on entire dataset.
 
 
 
