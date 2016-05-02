@@ -359,6 +359,8 @@ void MOD::Event::establish_properties() {
    }
 
    set_hardest_jet();
+
+   // cout << _hardest_jet.pt() << endl;
 }
 
 
@@ -370,7 +372,8 @@ bool MOD::Event::read_event(istream & data_stream) {
    while(getline(data_stream, line)) {
       istringstream iss(line);
 
-      int version, weight;
+      int version;
+      double weight;
       string tag, version_keyword, a, b, c;
       double px, py, pz, energy, jec;
 
@@ -390,6 +393,7 @@ bool MOD::Event::read_event(istream & data_stream) {
 
             set_version(version);
             set_data_type(a, b);
+
 
             set_weight(weight);
 
@@ -509,6 +513,8 @@ const MOD::Trigger MOD::Event::assigned_trigger() const {
 bool MOD::Event::assigned_trigger_fired() const {
    // cout << _assigned_trigger.is_valid() << ", " << _assigned_trigger.fired() << endl;
    bool fired = _assigned_trigger.is_valid() && _assigned_trigger.fired();
+
+   // cout <<  _assigned_trigger.is_valid() << _assigned_trigger.fired() << endl;
    return fired;
 }
 
@@ -523,6 +529,7 @@ void MOD::Event::set_assigned_trigger() {
 
    // First, figure out the hardest pT.
    PseudoJet trigger_jet = _trigger_jet;
+
 
    if (trigger_jet.E() == 0.0) {
       _assigned_trigger_name = "";
@@ -584,6 +591,9 @@ void MOD::Event::set_trigger_jet() {
    // Selector rapidity_selector = SelectorAbsRapMax(2.4);
    // processed_jets = rapidity_selector(processed_jets);
 
+
+   // cout << processed_jets.size() << endl;
+
    // Then, sort the jets and store the hardest one as _trigger_jet.
    if (processed_jets.size() > 0) {
       sorted_by_pt(processed_jets);
@@ -608,7 +618,7 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
 
       // Next, check if the trigger jet has a rapidity of < 2.4.
       
-      if ( abs(_trigger_jet.eta()) < 2.4 ) {
+      // if ( abs(_trigger_jet.eta()) < 2.4 ) {
          vector<PseudoJet> fastjet_jets = _jets;
 
          // Loop through all FastJet pseudojets, calculating delta R for each one.
@@ -628,14 +638,17 @@ void MOD::Event::set_closest_fastjet_jet_to_trigger_jet() {
          }
 
          if (index >= 0) {
+
             // We now have the corresponding "hardest" FastJet jet.
             _closest_fastjet_jet_to_trigger_jet = fastjet_jets[index];
             return;   
          }
-      }
+
+      // }
 
    }
 
+   _closest_fastjet_jet_to_trigger_jet = PseudoJet();
    return;
 }
 
@@ -646,7 +659,11 @@ const PseudoJet & MOD::Event::trigger_jet() const {
 
 void MOD::Event::set_trigger_jet_is_matched() {
 
+
+   // cout << "Energy: " << _trigger_jet.E() << endl;
+
    if (_trigger_jet.E() == 0.0) {
+      _trigger_jet = PseudoJet();
       _trigger_jet_is_matched = false;
       return;
    }
@@ -654,18 +671,23 @@ void MOD::Event::set_trigger_jet_is_matched() {
 
    // Compare the number of constituents first.
    if ((unsigned) _trigger_jet.user_info<MOD::InfoCalibratedJet>().number_of_constituents() != (unsigned) _closest_fastjet_jet_to_trigger_jet.constituents().size()) {
+      _trigger_jet = PseudoJet();
       _trigger_jet_is_matched = false;
       return;
    }
+
 
    // Next, compare if the 4-vector matches upto 10e-4 precision or not.
    double tolerance = pow(10, -3);
    if ( ( abs(_trigger_jet.px() - _closest_fastjet_jet_to_trigger_jet.px()) < tolerance ) && ( abs(_trigger_jet.py() - _closest_fastjet_jet_to_trigger_jet.py()) < tolerance ) && ( abs(_trigger_jet.pz() - _closest_fastjet_jet_to_trigger_jet.pz()) < tolerance ) && ( abs(_trigger_jet.E() - _closest_fastjet_jet_to_trigger_jet.E()) < tolerance ) ) {      
       _trigger_jet_is_matched = true;
+
       return;
    }
 
    _trigger_jet_is_matched = false;
+   _trigger_jet = PseudoJet();
+
    return;
 }
 

@@ -61,12 +61,17 @@ int main(int argc, char * argv[]) {
    int event_serial_number = 1;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
       
+
+      cout << event_serial_number << endl;
+
       if( (event_serial_number % 100) == 0 )
          cout << "Processing event number " << event_serial_number << endl;
 
       // Write out version info in the output file for the "syncing plots" thing to work (as it needs to figure out which directory to put things into).
       if (event_serial_number == 1)
          output_file << "%" << " Version " << event_being_read.version() << endl;
+
+      cout << event_being_read.assigned_trigger_fired() << endl;
 
       if (event_being_read.assigned_trigger_fired())
          analyze_event_data(event_being_read, output_file, event_serial_number);
@@ -88,6 +93,8 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
 
 	fastjet::PseudoJet trigger_jet = event_being_read.trigger_jet();
 	fastjet::PseudoJet closest_jet_to_trigger_jet = event_being_read.closest_fastjet_jet_to_trigger_jet();
+
+   cout << "here" << endl;
 
 	vector<MOD::Property> properties;
 

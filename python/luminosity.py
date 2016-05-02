@@ -171,10 +171,10 @@ def plot_integrated_recorded_lumi(cumulative=False):
 
   plt.gca().ticklabel_format(axis='y', style='sci')
 
-  if cumulative:
-    plt.ylabel("Total Integrated Luminosity ($\mathrm{pb}^{-1}$)", labelpad=50, fontsize=60)
-  else:
-    plt.ylabel("Integrated Luminosity ($\mathrm{pb}^{-1}$/day)", labelpad=50, fontsize=60)
+  # if cumulative:
+  #   plt.ylabel("Total Integrated Luminosity ($\mathrm{pb}^{-1}$)", labelpad=50, fontsize=60)
+  # else:
+  #   plt.ylabel("Integrated Luminosity ($\mathrm{pb}^{-1}$/day)", labelpad=50, fontsize=60)
 
 
   print max(intg_rec_lumi),
@@ -285,7 +285,7 @@ def plot_inst_lumi():
 
 
 
-# plot_integrated_recorded_lumi(cumulative=True)
+plot_integrated_recorded_lumi(cumulative=True)
 plot_integrated_recorded_lumi(cumulative=False)
 
 

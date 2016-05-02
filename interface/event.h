@@ -86,7 +86,8 @@ namespace MOD {
             friend std::ostream& operator<< (std::ostream&, const Event&);
             
          private:
-            int _run_number, _event_number, _version, _weight = 1;
+            int _run_number, _event_number, _version;
+            double _weight = 1.0;
 
             std::pair<std::string, std::string> _data_type;
             Condition _condition;

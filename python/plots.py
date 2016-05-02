@@ -130,6 +130,45 @@ def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut
 
 
 
+
+def parse_pfc(input_file):
+
+	# We'll populate only those fileds that are in the list keywords_to_populate.
+
+
+	f = open(input_file, 'r')
+	lines = f.read().split("\n")
+
+	# FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3
+	
+	properties = defaultdict(list)
+
+	keywords = []
+	keywords_set = False
+	for line in lines:
+		try:
+			numbers = line.split()
+
+			if numbers[0] == "#" and (not keywords_set):
+				keywords = numbers[2:]
+				keywords_set = True
+			elif numbers[0] == "Entry":
+					
+				for i in range(len(keywords)):
+					keyword = keywords[i]
+					properties[keyword].append( float(numbers[i + 1]) ) # + 1 because we ignore the first keyword "Entry".
+
+		except:
+			pass
+
+
+	return properties
+
+
+
+
+
+
 def normalize_hist(hist, variable_bin=False):
 
 	if variable_bin:
@@ -398,7 +437,11 @@ def plot_2d_hist():
 
 
 
-def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
+def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, track=False, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="theory", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
+
+
+	if track:
+		zg_filename = 'track_' + zg_filename
 
 	zg_cut = float(zg_cut)
 
@@ -582,7 +625,8 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 
 		if mc:
 			# pythia_plot = rplt.hist(zg_pythia_hist, axes=ax0)
-			pythia_plot = ax0.hist(zg_pythias, zorder=3, label=pythia_label, bins=5 * n_bins, normed=1, histtype='step', color=plot_colors['pythia'], linewidth=5)
+			# pythia_plot = ax0.hist(zg_pythias, zorder=3, label=pythia_label, bins=6 * n_bins, normed=1, histtype='step', color=plot_colors['pythia'], linewidth=5)
+			pythia_plot = rplt.hist(zg_pythia_hist, axes=ax0, zorder=3)
 		else:
 			pythia_plot = ax0.hist(zg_pythias, bins=5 * n_bins, normed=1, histtype='step', color=plot_colors['pythia'], linewidth=0)
 
@@ -599,8 +643,8 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 		zg_herwig_hist.Scale(1.0 / ( zg_herwig_hist.GetSumOfWeights() * bin_width_herwig ))
 
 		if mc:
-			# herwig_plot = rplt.hist(zg_herwig_hist, axes=ax0)
-			herwig_plot = ax0.hist(zg_herwigs, zorder=2, label=herwig_label, bins=5 * n_bins, normed=1, histtype='step', color=plot_colors['herwig'], linewidth=5)
+			herwig_plot = rplt.hist(zg_herwig_hist, axes=ax0, zorder=2)
+			# herwig_plot = ax0.hist(zg_herwigs, zorder=2, label=herwig_label, bins=6 * n_bins, normed=1, histtype='step', color=plot_colors['herwig'], linewidth=5)
 		else:
 			herwig_plot = ax0.hist(zg_herwigs, bins=5 * n_bins, normed=1, histtype='step', color=plot_colors['herwig'], linewidth=0)
 		
@@ -616,8 +660,8 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 		zg_sherpa_hist.Scale(1.0 / ( zg_sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
 
 		if mc:
-			# sherpa_plot = rplt.hist(zg_sherpa_hist, axes=ax0)
-			sherpa_plot = ax0.hist(zg_sherpas, zorder=1, label=sherpa_label, bins=5 * n_bins, normed=1, histtype='step', color=plot_colors['sherpa'], linewidth=5)
+			sherpa_plot = rplt.hist(zg_sherpa_hist, axes=ax0, zorder=1)
+			# sherpa_plot = ax0.hist(zg_sherpas, zorder=1, label=sherpa_label, bins=6 * n_bins, normed=1, histtype='step', color=plot_colors['sherpa'], linewidth=5)
 		else:
 			sherpa_plot = ax0.hist(zg_sherpas, bins=5 * n_bins, normed=1, histtype='step', color=plot_colors['sherpa'], linewidth=0)
 
@@ -793,10 +837,12 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		else:
 			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			if track:
+				labels.append( "Track with $pT_{\mathrm{min}} = 1.0$ GeV" )
 
 		# labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		
-		ax0.legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.98, 0.50])
+		ax0.legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.98, 0.50])
 
 
 		# Legend Ends.
@@ -845,8 +891,10 @@ def plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_f
 
 		print "Writing out zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
 		
-
-		filename = "plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/linear/z_g/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+		if track:
+			filename = "plots/" + get_version(input_analysis_file) + "/track_theta_g/" + mc_type + "/linear/z_g/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+		else:
+			filename = "plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/linear/z_g/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
 		
 		plt.savefig(filename)
 		# plt.show()
@@ -3674,9 +3722,9 @@ def plot_hardest_pT_D_softdrop(pT_lower_cut=100):
 def plot_theta_g_log_plots(pT_lower_cut=150, R_sub=0.05, zg_cut='0.10', zg_filename='zg_10'):
 	
 
-	# zg_filename = 'track_' + zg_filename
+	zg_filename = 'track_' + zg_filename
 	# track = True
-	track = False
+	track = True
 
 	keywords = [zg_filename, zg_filename.replace("zg", "Rg"), 'prescale']
 
@@ -3765,7 +3813,7 @@ def plot_theta_g_log_plots(pT_lower_cut=150, R_sub=0.05, zg_cut='0.10', zg_filen
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 
 		if track:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "Track Only"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "Track with $pT_{\mathrm{min}} = 1.0$ GeV"]
 		else:
 			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", ""]
 		
@@ -3804,9 +3852,9 @@ def plot_theta_g_log_plots(pT_lower_cut=150, R_sub=0.05, zg_cut='0.10', zg_filen
 
 		
 		if track:
-			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/track/z_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/track_theta_g/" + mc_type + "/log/z_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
 		else:
-			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/all/z_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/z_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
 		
 
 		plt.close(plt.gcf())
@@ -3870,7 +3918,7 @@ def plot_theta_g_log_plots(pT_lower_cut=150, R_sub=0.05, zg_cut='0.10', zg_filen
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		
 		if track:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "Track Only"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "Track with $pT_{\mathrm{min}} = 1.0$ GeV"]
 		else:
 			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", ""]
 		
@@ -3914,9 +3962,9 @@ def plot_theta_g_log_plots(pT_lower_cut=150, R_sub=0.05, zg_cut='0.10', zg_filen
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
 		if track:
-			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/track/theta_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/track_theta_g/" + mc_type + "/log/theta_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
 		else:
-			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/all/theta_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/theta_g/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
 
 		plt.close(plt.gcf())
 
@@ -3980,7 +4028,7 @@ def plot_theta_g_log_plots(pT_lower_cut=150, R_sub=0.05, zg_cut='0.10', zg_filen
 		
 
 		if track:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "Track Only"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "Track with $pT_{\mathrm{min}} = 1.0$ GeV"]
 		else:
 			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", ""]
 		
@@ -4013,9 +4061,9 @@ def plot_theta_g_log_plots(pT_lower_cut=150, R_sub=0.05, zg_cut='0.10', zg_filen
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
 		if track:
-			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/track/theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/track_theta_g/" + mc_type + "/log/theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
 		else:
-			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/all/theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
 
 		plt.close(plt.gcf())
 
@@ -4077,7 +4125,7 @@ def plot_theta_g_log_plots(pT_lower_cut=150, R_sub=0.05, zg_cut='0.10', zg_filen
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		
 		if track:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "Track Only"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "Track with $pT_{\mathrm{min}} = 1.0$ GeV"]
 		else:
 			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", ""]
 		
@@ -4111,9 +4159,9 @@ def plot_theta_g_log_plots(pT_lower_cut=150, R_sub=0.05, zg_cut='0.10', zg_filen
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
 		if track:
-			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/track/theta_g_square_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/track_theta_g/" + mc_type + "/log/theta_g_square_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
 		else:
-			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/all/theta_g_square_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/theta_g_square_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
 
 		plt.close(plt.gcf())
 
@@ -4174,7 +4222,7 @@ def plot_theta_g_log_plots(pT_lower_cut=150, R_sub=0.05, zg_cut='0.10', zg_filen
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		
 		if track:
-			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "Track Only"]
+			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", "Track with $pT_{\mathrm{min}} = 1.0$ GeV"]
 		else:
 			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$", ""]
 		
@@ -4206,9 +4254,9 @@ def plot_theta_g_log_plots(pT_lower_cut=150, R_sub=0.05, zg_cut='0.10', zg_filen
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
 		if track:
-			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/track/sqrt_theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/track_theta_g/" + mc_type + "/log/sqrt_theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
 		else:
-			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/all/sqrt_theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
+			plt.savefig("plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/log/sqrt_theta_g_times_zg/" + zg_filename + "_pT_lower_" + str(pT_lower_cut) + ".pdf")
 		plt.close(plt.gcf())
 
 		# =============================================================================================== z_g * theta_g^(0.5) PLOT ENDS ===========================================================================================================================
@@ -4217,14 +4265,18 @@ def plot_theta_g_log_plots(pT_lower_cut=150, R_sub=0.05, zg_cut='0.10', zg_filen
 
 
 
-def plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="data", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
+def plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, track=False, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="data", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
 
 	zg_cut = float(zg_cut)
-	zg_filename = "preclustered_R_0_01_" + zg_filename
+
+	if track:
+		zg_filename = "track_" + zg_filename
+	else:
+		zg_filename = "preclustered_R_0_01_" + zg_filename
 
 	keywords_to_populate = ['prescale', zg_filename, zg_filename.replace("zg", "Rg")]
 
-	for mc_type in ["truth", "reco"]:
+	for mc_type in ["truth"]:
 
 		properties = parse_file(input_analysis_file, keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
@@ -4630,10 +4682,13 @@ def plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.0
 			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		else:
 			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			if track:
+				labels.append( "Track with $pT_{\mathrm{min}} = 1.0$ GeV" )
+			
 
 		# labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		
-		ax0.legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.98, 0.55])
+		ax0.legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.98, 0.55])
 
 
 		# Legend Ends.
@@ -4685,8 +4740,10 @@ def plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.0
 		print "Writing out theta_g_times_zg zgcut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
 		
 	 
-
-		filename = "plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/linear/theta_g_times_zg/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+		if track:
+			filename = "plots/" + get_version(input_analysis_file) + "/track_theta_g/" + mc_type + "/linear/theta_g_times_zg/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+		else:
+			filename = "plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/linear/theta_g_times_zg/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
 		
 		plt.savefig(filename)
 		# plt.show()
@@ -4696,14 +4753,18 @@ def plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.0
 
 
 
-def plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="data", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
+def plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, track=False, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="data", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
 
 	zg_cut = float(zg_cut)
-	zg_filename = "preclustered_R_0_01_" + zg_filename
+
+	if track:
+		zg_filename = "track_" + zg_filename
+	else:
+		zg_filename = "preclustered_R_0_01_" + zg_filename
 
 	keywords_to_populate = ['prescale', zg_filename, zg_filename.replace("zg", "Rg")]
 
-	for mc_type in ["truth", "reco"]:
+	for mc_type in ["truth"]:
 
 		properties = parse_file(input_analysis_file, keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
@@ -5109,10 +5170,13 @@ def plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_c
 			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		else:
 			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			if track:
+				labels.append( "Track with $pT_{\mathrm{min}} = 1.0$ GeV" )
+			
 
 		# labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		
-		ax0.legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.98, 0.55])
+		ax0.legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.98, 0.55])
 
 
 		# Legend Ends.
@@ -5163,8 +5227,10 @@ def plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_c
 		print "Writing out theta_g_square_times_zg zgcut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
 		
 	 
-
-		filename = "plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/linear/theta_g_square_times_zg/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+		if track:
+			filename = "plots/" + get_version(input_analysis_file) + "/track_theta_g/" + mc_type + "/linear/theta_g_square_times_zg/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+		else:
+			filename = "plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/linear/theta_g_square_times_zg/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
 		
 		plt.savefig(filename)
 		# plt.show()
@@ -5174,14 +5240,19 @@ def plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_c
 
 
 
-def plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="data", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
+def plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, track=False, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="data", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
 
 	zg_cut = float(zg_cut)
-	zg_filename = "preclustered_R_0_01_" + zg_filename
+
+	if track:
+		zg_filename = "preclustered_R_0_01_" + zg_filename
+		
+	else:
+		zg_filename = "track_" + zg_filename
 
 	keywords_to_populate = ['prescale', zg_filename, zg_filename.replace("zg", "Rg")]
 
-	for mc_type in ["truth", "reco"]:
+	for mc_type in ["truth"]:
 
 		properties = parse_file(input_analysis_file, keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
@@ -5587,10 +5658,14 @@ def plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut
 			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		else:
 			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			if track:
+				labels.append( "Track with $pT_{\mathrm{min}} = 1.0$ GeV" )
+			
+
 
 		# labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		
-		ax0.legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.98, 0.55])
+		ax0.legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.98, 0.55])
 
 
 		# Legend Ends.
@@ -5641,23 +5716,28 @@ def plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut
 		print "Writing out theta_g_square_times_zg zgcut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
 		
 	 
-
-		filename = "plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/linear/sqrt_theta_g_times_zg/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+		if track:
+			filename = "plots/" + get_version(input_analysis_file) + "/track_theta_g/" + mc_type + "/linear/sqrt_theta_g_times_zg/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+		else:	
+			filename = "plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/linear/sqrt_theta_g_times_zg/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
 		
 		plt.savefig(filename)
 		# plt.show()
 		plt.close(plt.gcf())
 
 
-def plot_theta_g_th_mc_data(pT_lower_cut=150, R_sub=0.05, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="data", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
+def plot_theta_g_th_mc_data(pT_lower_cut=150, track=False, R_sub=0.05, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator="data", data=True, mc=True, theory=True, n_bins=10, y_max_limit=20, y_limit_ratio_plot=0.5):
 
 	zg_cut = float(zg_cut)
 
 
 	R_sub_label = "{:.2f}".format(R_sub).replace(".", "_")
 
-	zg_filename = "preclustered_R_" + R_sub_label + "_" + zg_filename
-	# zg_filename = "track_" + zg_filename
+	if track:
+		zg_filename = "track_" + zg_filename
+	else:
+		zg_filename = "preclustered_R_" + R_sub_label + "_" + zg_filename
+	
 
 	keywords_to_populate = ['prescale', zg_filename, zg_filename.replace("zg", "Rg")]
 
@@ -6068,11 +6148,14 @@ def plot_theta_g_th_mc_data(pT_lower_cut=150, R_sub=0.05, pT_upper_cut=10000, zg
 			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		else:
 			labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
+			if track:
+				labels.append( "Track with $pT_{\mathrm{min}} = 1.0$ GeV" )
+			
 			# labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}; R_{sub} = " + str(R_sub) + "$", "$ \\textrm{Soft~Drop:}~\\boldsymbol{\\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 
 		# labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~\boldsymbol{R = 0.5;~p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = " + str(zg_cut) + "}$"]
 		
-		ax0.legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.98, 0.55])
+		ax0.legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.98, 0.55])
 
 
 		# Legend Ends.
@@ -6123,8 +6206,10 @@ def plot_theta_g_th_mc_data(pT_lower_cut=150, R_sub=0.05, pT_upper_cut=10000, zg
 		print "Writing out theta_g_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
 		
 	 
-
-		filename = "plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/linear/theta_g/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+		if track:
+			filename = "plots/" + get_version(input_analysis_file) + "/track_theta_g/" + mc_type + "/linear/theta_g/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
+		else:
+			filename = "plots/" + get_version(input_analysis_file) + "/theta_g/" + mc_type + "/linear/theta_g/zg_cut_" + str(zg_filename) + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_ratio_over_" + ratio_denominator + "_th_" + str(theory) + "_mc_" + str(mc) + "_data_" + str(data) + ".pdf"
 		
 		plt.savefig(filename)
 		# plt.show()
@@ -10056,12 +10141,226 @@ def plot_theta_g_vs_eta(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', lo
 
 
 
+
+
+
+def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
+	
+	
+	keywords_to_populate = ['prescale', 'pfc_pT', 'pfc_pdgId']
+
+
+	properties = parse_pfc(input_analysis_file)
+
+	experiment_pTs = properties['pfc_pT']
+	experiment_pdgIds = properties['pfc_pdgId']
+	prescales = properties['prescale']
+
+
+	# print properties['pfc_pdgId']
+
+	def filter(mode, data):
+		
+		pTs, pdgIds, prescales = data
+		
+		filtered_pTs, filtered_pdgIds, filtered_prescales = [], [], []
+
+		if mode == "all":
+			filtered_pTs, filtered_pdgIds, filtered_prescales = pTs, pdgIds, prescales
+		elif mode == "charged":
+			for i in range(len(pTs)):
+				if abs( pdgIds[i] ) in [11, 13, 15, 211, 321]: # This is supposed to be all the pdgIds of charged objects. 
+					filtered_pTs.append( pTs[i] )
+					filtered_pdgIds.append( pdgIds[i] )
+					filtered_prescales.append( prescales[i] )
+		elif mode == "neutral":
+			for i in range(len(pTs)):
+				if not ( abs( pdgIds[i] ) in [11, 13, 15, 211, 321] ): # This is supposed to be all the pdgIds of charged objects. 
+					filtered_pTs.append( pTs[i] )
+					filtered_pdgIds.append( pdgIds[i] )
+					filtered_prescales.append( prescales[i] )
+
+		return filtered_pTs, filtered_pdgIds, filtered_prescales
+
+
+	# for mc_type in ["truth", "reco"]:
+	for mc_type in ["truth"]:
+
+		pythia_properties = parse_pfc("/home/aashish/pythia_pfc.dat")
+		herwig_properties = parse_pfc("/home/aashish/herwig_pfc.dat")
+		sherpa_properties = parse_pfc("/home/aashish/sherpa_pfc.dat")
+
+		pythia_pTs, pythia_pdgIds = pythia_properties['pfc_pT'], pythia_properties['pfc_pdgId']
+		herwig_pTs, herwig_pdgIds = herwig_properties['pfc_pT'], herwig_properties['pfc_pdgId']
+		sherpa_pTs, sherpa_pdgIds = sherpa_properties['pfc_pT'], sherpa_properties['pfc_pdgId']
+
+
+
+		pythia_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['pythia'], linewidth=5, markersize=5.0, color=plot_colors['pythia'])
+		bin_width_pythia = (pythia_pt_hist.upperbound() - pythia_pt_hist.lowerbound()) / pythia_pt_hist.nbins()
+
+		herwig_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['herwig'], linewidth=5, markersize=5.0, color=plot_colors['herwig'])
+		bin_width_herwig = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
+
+		sherpa_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['sherpa'], linewidth=5, markersize=5.0, color=plot_colors['sherpa'])
+		bin_width_sherpa = (sherpa_pt_hist.upperbound() - sherpa_pt_hist.lowerbound()) / sherpa_pt_hist.nbins()
+
+		experiment_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['data'], markersize=3.0, color=plot_colors['data'])
+		bin_width_experiment = (experiment_pt_hist.upperbound() - experiment_pt_hist.lowerbound()) / experiment_pt_hist.nbins()
+
+
+		filtered_experimental_pTs, filtered_experimental_pdgIds, filtered_experimental_prescales = filter(mode, (experiment_pTs, experiment_pdgIds, prescales))
+		filtered_pythia_pTs, filtered_pythia_pdgIds, filtered_pythia_prescales = filter(mode, (pythia_pTs, pythia_pdgIds, [1] * len(pythia_pdgIds)))
+		filtered_herwig_pTs, filtered_herwig_pdgIds, filtered_herwig_prescales = filter(mode, (herwig_pTs, herwig_pdgIds, [1] * len(herwig_pdgIds)))
+		filtered_sherpa_pTs, filtered_sherpa_pdgIds, filtered_sherpa_prescales = filter(mode, (sherpa_pTs, sherpa_pdgIds, [1] * len(sherpa_pdgIds)))
+
+
+		map(experiment_pt_hist.Fill, filtered_experimental_pTs, filtered_experimental_prescales)
+		
+		map(pythia_pt_hist.Fill, filtered_pythia_pTs)
+		map(herwig_pt_hist.Fill, filtered_herwig_pTs)
+		map(sherpa_pt_hist.Fill, filtered_sherpa_pTs)
+
+
+		experiment_pt_hist.Scale(1.0 / (experiment_pt_hist.GetSumOfWeights() * bin_width_experiment))
+		pythia_pt_hist.Scale(1.0 / (pythia_pt_hist.GetSumOfWeights() * bin_width_pythia))
+		herwig_pt_hist.Scale(1.0 / (herwig_pt_hist.GetSumOfWeights() * bin_width_herwig))
+		sherpa_pt_hist.Scale(1.0 / (sherpa_pt_hist.GetSumOfWeights() * bin_width_sherpa))
+
+		
+		gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
+
+		ax0 = plt.subplot(gs[0])
+		ax1 = plt.subplot(gs[1])
+
+
+
+
+		rplt.hist(sherpa_pt_hist, zorder=1, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+		rplt.hist(herwig_pt_hist, zorder=2, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+		rplt.hist(pythia_pt_hist, zorder=3, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+		data_plot = rplt.errorbar(experiment_pt_hist, zorder=10, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+		
+
+		data_x_errors, data_y_errors = [], []
+		for x_segment in data_plot[2][0].get_segments():
+			data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+		for y_segment in data_plot[2][1].get_segments():
+			data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+
+		data_points_x = data_plot[0].get_xdata()
+		data_points_y = data_plot[0].get_ydata()
+
+		data_plot_points_x = []
+		data_plot_points_y = []
+		for i in range(0, len(data_points_x)):
+			data_plot_points_x.append(data_points_x[i])
+			data_plot_points_y.append(data_points_y[i])
+
+
+
+		data_to_data_y_err = [(b / m) for b, m in zip(data_y_errors, data_plot_points_y)]
+		data_to_data_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(data_plot_points_y))]
+
+
+		# Legends Begin.
+		handles, labels = ax0.get_legend_handles_labels()
+		legend = ax0.legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+		ax0.add_artist(legend)
+
+		# Legends End.
+
+
+
+		ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75, labelpad=45)
+		ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75, labelpad=45)
+		ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
+		ax1.set_ylabel("Ratio           \nto           \n" + "Data" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
+
+
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.92), xycoords='figure fraction', frameon=0)
+		plt.gca().add_artist(ab)
+		preliminary_text = "Prelim. (20\%)"
+		plt.gcf().text(0.305, 0.91, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+		# Ratio Plot.
+		pythia_pt_hist.Divide(experiment_pt_hist)
+		herwig_pt_hist.Divide(experiment_pt_hist)
+		sherpa_pt_hist.Divide(experiment_pt_hist)
+		experiment_pt_hist.Divide(experiment_pt_hist)
+
+		rplt.hist(pythia_pt_hist, axes=ax1, linewidth=5)
+		rplt.hist(herwig_pt_hist, axes=ax1, linewidth=5)
+		rplt.hist(sherpa_pt_hist, axes=ax1, linewidth=5)
+		rplt.errorbar(experiment_pt_hist, xerr=data_to_data_x_err, yerr=data_to_data_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+
+
+		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+		
+		if mode == "charged":
+			label = "Charged PFCs"
+		elif mode == "neutral":
+			label = "Neutral PFCs"
+		else:
+			label = "All PFCs"
+
+		ax0.legend([extra], [label], frameon=0, borderpad=0.1, fontsize=60, loc='upper left', bbox_to_anchor=[0.50, 0.65])
+
+
+		ax0.set_yscale('log')
+
+		ax0.autoscale(True)
+		ax1.autoscale(True)
+		
+		# ax0.set_xlim(0, 1000)
+		# ax1.set_xlim(0, 1000)
+
+		ax0.set_ylim(ax0.get_xlim()[0], ax0.get_xlim()[1] * 1.25)
+
+		if pT_upper_cut == 300:
+			ax0.set_ylim(1e-9, 1e2)	
+		elif pT_upper_cut == 2:
+			ax0.set_ylim(1e-3, 1e2)	
+
+		ax1.set_ylim(0, 2)
+
+		
+		plt.gcf().set_size_inches(30, 30, forward=1)
+
+		plt.sca(ax0)
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(50))
+		plt.tick_params(which='major', width=5, length=25, labelsize=70)
+		plt.tick_params(which='minor', width=3, length=15)
+
+		plt.sca(ax1)
+		plt.gca().xaxis.set_minor_locator(MultipleLocator(50))
+		# plt.gca().yaxis.set_minor_locator(MultipleLocator(50))
+		plt.tick_params(which='major', width=5, length=25, labelsize=70)
+		plt.tick_params(which='minor', width=3, length=15)
+
+		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+		print "Printing PFC pT spectrum with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/PFC_pT/" + mode + "_" + mc_type + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
+		# plt.show()
+		plt.close(plt.gcf())
+		plt.clf()
+
+
+
+
+
+
+
 def plot_weighted_pts(mode=1, pT_lower_cut=85, pT_upper_cut=10000):
 	
 	
 	keywords_to_populate = ['prescale', 'hardest_pT']
 
-	properties = parse_file("/home/aashish/weighted_" + str(mode) + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+	# properties = parse_file("/home/aashish/weighted_" + str(mode) + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+	properties = parse_file("/home/aashish/pythia_weight_no_power.dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
 	
 	pTs = properties['hardest_pT']
 	prescales = properties['prescale']
@@ -10092,6 +10391,13 @@ def plot_weighted_pts(mode=1, pT_lower_cut=85, pT_upper_cut=10000):
 	plt.tick_params(which='major', width=5, length=25, labelsize=70)
 	plt.tick_params(which='minor', width=3, length=15)
 
+	if mode == 0:
+		plt.title("Unweighted")
+	elif mode == 1:
+		plt.title("Split into sub-runs")
+	elif mode == 2:
+		plt.title("Continuous reweighting with a $p_T^4$ bias")
+
 
 	plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
@@ -10105,10 +10411,28 @@ def plot_weighted_pts(mode=1, pT_lower_cut=85, pT_upper_cut=10000):
 
 
 
-
-# plot_weighted_pts(mode=0)
+plot_weighted_pts(mode=2)
 # plot_weighted_pts(mode=1)
 # plot_weighted_pts(mode=2)
+
+
+
+
+
+
+# plot_pfc_pts(mode="all", pT_lower_cut=0.0, pT_upper_cut=300)
+# plot_pfc_pts(mode="charged", pT_lower_cut=0.0, pT_upper_cut=300)
+# plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=300)
+
+
+# plot_pfc_pts(mode="all", pT_lower_cut=0.0, pT_upper_cut=2)
+# plot_pfc_pts(mode="charged", pT_lower_cut=0.0, pT_upper_cut=2)
+# plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=2)
+
+
+
+
+
 
 # plot_theta_g_vs_eta(zg_cut='0.10', zg_filename='zg_10', log=False)
 
@@ -10253,7 +10577,7 @@ def plot_weighted_pts(mode=1, pT_lower_cut=85, pT_upper_cut=10000):
 # plot_fractional_energy_loss(pT_lower_cut=200, pT_upper_cut=400)
 # plot_fractional_energy_loss(pT_lower_cut=400)
 
-plot_constituent_multiplicity_softdrop()
+# plot_constituent_multiplicity_softdrop()
 # plot_constituent_multiplicity_softdrop(pT_lower_cut=100, pT_upper_cut=200)
 # plot_constituent_multiplicity_softdrop(pT_lower_cut=200, pT_upper_cut=400)
 # plot_constituent_multiplicity_softdrop(pT_lower_cut=400)
@@ -10508,6 +10832,7 @@ plot_constituent_multiplicity_softdrop()
 # plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='theory', theory=1, mc=1, data=0, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 # plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
+# plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, track=True, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
 
 # plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=18, y_limit_ratio_plot=0.5)
 # plot_zg_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='theory', theory=1, mc=1, data=1, n_bins=8, y_max_limit=10, y_limit_ratio_plot=0.5)
@@ -10533,6 +10858,20 @@ plot_constituent_multiplicity_softdrop()
 # plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.05', zg_filename='zg_05', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
 # plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
 # plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, zg_cut='0.2', zg_filename='zg_20', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
+
+
+
+
+
+
+# plot_theta_g_th_mc_data(pT_lower_cut=150, R_sub=0.05, pT_upper_cut=10000, track=True, zg_cut='0.1', zg_filename='zg_10', ratio_denominator="data", data=True, mc=True, theory=True, n_bins=10, y_max_limit=5, y_limit_ratio_plot=0.5)
+# plot_zg_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, track=True, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=6, y_max_limit=25, y_limit_ratio_plot=0.5)
+# plot_zg_theta_g_square_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, track=True, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=60, y_limit_ratio_plot=0.5)
+# plot_zg_sqrt_theta_g_th_mc_data(pT_lower_cut=150, pT_upper_cut=10000, track=True, zg_cut='0.1', zg_filename='zg_10', ratio_denominator='data', theory=1, mc=1, data=1, n_bins=8, y_max_limit=12, y_limit_ratio_plot=0.5)
+
+
+
+
 
 
 
