@@ -284,7 +284,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    string name;
    
-   int padding = 40;
+   int padding = 25;
 
    if (event_serial_number == 1) {
       for (unsigned p = 0; p < properties.size(); p++) {

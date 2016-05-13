@@ -1298,10 +1298,10 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		if pT_upper_cut != 10000:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$"]
+			labels = [r"$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$"]
 		else:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
-		ax0.legend([extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.97, 0.59])
+			labels = [r"$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
+		ax0.legend([extra]*len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.97, 0.59])
 
 		# Legends End.
 
@@ -3438,9 +3438,9 @@ def plot_jet_eta(pT_lower_cut=100):
 		jet_eta = properties['hardest_eta']
 		prescales = properties['prescale']
 
-		pythia_eta = pythia_properties['hardest_eta']
-		herwig_eta = herwig_properties['hardest_eta']
-		sherpa_eta = sherpa_properties['hardest_eta']
+		pythia_eta, pythia_prescales = pythia_properties['hardest_eta'], pythia_properties['prescale']
+		herwig_eta, herwig_prescales = herwig_properties['hardest_eta'], herwig_properties['prescale']
+		sherpa_eta, sherpa_prescales = sherpa_properties['hardest_eta'], sherpa_properties['prescale']
 
 
 		data_hist = Hist(50, -5, 5, title=plot_labels['data'])
@@ -3449,17 +3449,17 @@ def plot_jet_eta(pT_lower_cut=100):
 		data_hist.Scale(1.0 / ( data_hist.GetSumOfWeights() * bin_width_data ))
 
 		pythia_hist = Hist(50, -5, 5, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=5)
-		map(pythia_hist.Fill, pythia_eta)
+		map(pythia_hist.Fill, pythia_eta, pythia_prescales)
 		bin_width_pythia = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
 		pythia_hist.Scale(1.0 / ( pythia_hist.GetSumOfWeights() * bin_width_pythia ))
 
 		herwig_hist = Hist(50, -5, 5, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=5)
-		map(herwig_hist.Fill, herwig_eta)
+		map(herwig_hist.Fill, herwig_eta, herwig_prescales)
 		bin_width_herwig = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
 		herwig_hist.Scale(1.0 / ( herwig_hist.GetSumOfWeights() * bin_width_herwig ))
 
 		sherpa_hist = Hist(50, -5, 5, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=5)
-		map(sherpa_hist.Fill, sherpa_eta)
+		map(sherpa_hist.Fill, sherpa_eta, sherpa_prescales)
 		bin_width_sherpa = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
 		sherpa_hist.Scale(1.0 / ( sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
 
@@ -3484,8 +3484,8 @@ def plot_jet_eta(pT_lower_cut=100):
 		plt.gcf().text(0.31, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.32, 0.77])
+		labels = ["$\mathrm{PFC}~pT > 500~\\mathrm{MeV}$", "$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+		plt.gca().legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.38, 0.74])
 
 		# Marker indicating the 2.4 mark.
 		plt.plot([-2.4, -2.4], [0.00, 0.20], color='red', linewidth=5, linestyle="dashed")
@@ -3501,7 +3501,9 @@ def plot_jet_eta(pT_lower_cut=100):
 		
 
 		plt.autoscale()
-		plt.ylim( plt.gca().get_ylim()[0], plt.gca().get_ylim()[1] * 1.35 )
+
+		plt.xlim(-5, 5)
+		plt.ylim( 0., plt.gca().get_ylim()[1] * 1.3 )
 
 		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.2))
 		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.01))
@@ -3536,9 +3538,9 @@ def plot_jet_phi(pT_lower_cut=100):
 		jet_phi = properties['hardest_phi']
 		prescales = properties['prescale']
 
-		pythia_phi = pythia_properties['hardest_phi']
-		herwig_phi = herwig_properties['hardest_phi']
-		sherpa_phi = sherpa_properties['hardest_phi']
+		pythia_phi, pythia_prescales = pythia_properties['hardest_phi'], pythia_properties['prescale']
+		herwig_phi, herwig_prescales = herwig_properties['hardest_phi'], herwig_properties['prescale']
+		sherpa_phi, sherpa_prescales = sherpa_properties['hardest_phi'], sherpa_properties['prescale']
 
 		max_phi = 2 * np.pi
 
@@ -3548,17 +3550,17 @@ def plot_jet_phi(pT_lower_cut=100):
 		data_hist.Scale(1.0 / ( data_hist.GetSumOfWeights() * bin_width_data ))
 
 		pythia_hist = Hist(50, 0, max_phi, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=5)
-		map(pythia_hist.Fill, pythia_phi)
+		map(pythia_hist.Fill, pythia_phi, pythia_prescales)
 		bin_width_pythia = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
 		pythia_hist.Scale(1.0 / ( pythia_hist.GetSumOfWeights() * bin_width_pythia ))
 
 		herwig_hist = Hist(50, 0, max_phi, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=5)
-		map(herwig_hist.Fill, herwig_phi)
+		map(herwig_hist.Fill, herwig_phi, herwig_prescales)
 		bin_width_herwig = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
 		herwig_hist.Scale(1.0 / ( herwig_hist.GetSumOfWeights() * bin_width_herwig ))
 
 		sherpa_hist = Hist(50, 0, max_phi, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=5)
-		map(sherpa_hist.Fill, sherpa_phi)
+		map(sherpa_hist.Fill, sherpa_phi, sherpa_prescales)
 		bin_width_sherpa = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
 		sherpa_hist.Scale(1.0 / ( sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
 
@@ -3583,8 +3585,8 @@ def plot_jet_phi(pT_lower_cut=100):
 		plt.gcf().text(0.31, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.43, 0.77])
+		labels = ["$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", "$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
+		plt.gca().legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.43, 0.77])
 
 
 		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
@@ -8806,66 +8808,70 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 
 
-def plot_constituent_multiplicity_track_and_preclustered(pT_lower_cut=100, pT_upper_cut=20000, R_sub=0.01):
-	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+def plot_constituent_multiplicity_track(pT_lower_cut=100, pT_upper_cut=20000):
 
-	
+	keywords_to_populate = ['track_mul_pre_SD', 'prescale']
 
-	R_sub_label = "{:.2f}".format(R_sub).replace(".", "_")
-	
+	properties = parse_file(input_analysis_file, keywords_to_populate=keywords_to_populate, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+
 
 
 
 	track_multiplicity = properties['track_mul_pre_SD']
-	preclustered_multiplicity = properties['preclustered_R_' + R_sub_label + '_mul_pre_SD']
-
 	
 
 	prescales = properties['prescale']
 
-	for mc_label in ["truth", "reco"]:
+	for mc_label in ["truth"]:
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat")
-		pythia_track_multiplicity = pythia_properties['track_mul_pre_SD']
-		pythia_preclustered_multiplicity = pythia_properties['preclustered_R_' + R_sub_label + '_mul_pre_SD']
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat", keywords_to_populate=keywords_to_populate)
+		pythia_track_multiplicity, pythia_prescales = pythia_properties['track_mul_pre_SD'], pythia_properties['prescale']
 
-		data_track_label = "Track"
-		data_preclustered_label = "Preclustered $R_{sub} = " + str(R_sub) + "$"
-		pythia_track_label = plot_labels['pythia'] + " (Track)"
-		pythia_preclustered_label = plot_labels['pythia'] + " (Preclustered)"
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_label + ".dat", keywords_to_populate=keywords_to_populate)
+		herwig_track_multiplicity, herwig_prescales = herwig_properties['track_mul_pre_SD'], herwig_properties['prescale']
 
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_label + ".dat", keywords_to_populate=keywords_to_populate)
+		sherpa_track_multiplicity, sherpa_prescales = sherpa_properties['track_mul_pre_SD'], sherpa_properties['prescale']
+		
+
+		
 		# Data.
 		
-		track_multi_hist = Hist(25, -1, 49, markersize=3.0, color=plot_colors['data'])
+		track_multi_hist = Hist(50, -1, 99, markersize=3.0, color=plot_colors['data'])
 		bin_width = (track_multi_hist.upperbound() - track_multi_hist.lowerbound()) / track_multi_hist.nbins()
 		map(track_multi_hist.Fill, track_multiplicity, prescales)
 		track_multi_hist.Scale(1.0 / (track_multi_hist.GetSumOfWeights() * bin_width))
 		data_track_plot = rplt.errorbar(track_multi_hist, zorder=20, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
-		preclustered_multi_hist = Hist(25, -1, 49, markersize=3.0, color=plot_colors['data_post'])
-		bin_width = (preclustered_multi_hist.upperbound() - preclustered_multi_hist.lowerbound()) / preclustered_multi_hist.nbins()
-		map(preclustered_multi_hist.Fill, preclustered_multiplicity, prescales)
-		preclustered_multi_hist.Scale(1.0 / (preclustered_multi_hist.GetSumOfWeights() * bin_width))
-		data_preclustered_plot = rplt.errorbar(preclustered_multi_hist, zorder=10, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 		
 		# Data Ends.
 
 
 		# Monte Carlo.
 
-		# Pythia.
-		pythia_track_multi_hist = Hist(25, -1, 49, linewidth=8, color='black', linestyle="dashed")
+		
+		pythia_track_multi_hist = Hist(50, -1, 99, linewidth=8, color=plot_colors['pythia'])
 		bin_width = (pythia_track_multi_hist.upperbound() - pythia_track_multi_hist.lowerbound()) / pythia_track_multi_hist.nbins()
-		map(pythia_track_multi_hist.Fill, pythia_track_multiplicity)
+		map(pythia_track_multi_hist.Fill, pythia_track_multiplicity, pythia_prescales)
 		pythia_track_multi_hist.Scale(1.0 / (pythia_track_multi_hist.GetSumOfWeights() * bin_width))
 		pythia_track_plot = rplt.hist(pythia_track_multi_hist, zorder=2)
 
-		pythia_preclustered_multi_hist = Hist(25, -1, 49, linewidth=8, color=plot_colors['pythia_post'], linestyle="dashed")
-		bin_width = (pythia_preclustered_multi_hist.upperbound() - pythia_preclustered_multi_hist.lowerbound()) / pythia_preclustered_multi_hist.nbins()
-		map(pythia_preclustered_multi_hist.Fill, pythia_preclustered_multiplicity)
-		pythia_preclustered_multi_hist.Scale(1.0 / (pythia_preclustered_multi_hist.GetSumOfWeights() * bin_width))
-		pythia_preclustered_plot = rplt.hist(pythia_preclustered_multi_hist, zorder=1)
-		# Pythia Ends.
+		herwig_track_multi_hist = Hist(50, -1, 99, linewidth=8, color=plot_colors['herwig'])
+		bin_width = (herwig_track_multi_hist.upperbound() - herwig_track_multi_hist.lowerbound()) / herwig_track_multi_hist.nbins()
+		map(herwig_track_multi_hist.Fill, herwig_track_multiplicity, herwig_prescales)
+		herwig_track_multi_hist.Scale(1.0 / (herwig_track_multi_hist.GetSumOfWeights() * bin_width))
+		herwig_track_plot = rplt.hist(herwig_track_multi_hist, zorder=3)
+
+
+		sherpa_track_multi_hist = Hist(50, -1, 99, linewidth=8, color=plot_colors['sherpa'])
+		bin_width = (sherpa_track_multi_hist.upperbound() - sherpa_track_multi_hist.lowerbound()) / sherpa_track_multi_hist.nbins()
+		map(sherpa_track_multi_hist.Fill, sherpa_track_multiplicity, sherpa_prescales)
+		sherpa_track_multi_hist.Scale(1.0 / (sherpa_track_multi_hist.GetSumOfWeights() * bin_width))
+		sherpa_track_plot = rplt.hist(sherpa_track_multi_hist, zorder=4)
+
+
+
+		
 
 		# Monte Carlo Ends.
 
@@ -8874,18 +8880,18 @@ def plot_constituent_multiplicity_track_and_preclustered(pT_lower_cut=100, pT_up
 
 		# Legends Begin.
 
-		handles = [data_track_plot, data_preclustered_plot, pythia_track_plot, pythia_preclustered_plot]
-		labels = [data_track_label, data_preclustered_label, pythia_track_label, pythia_preclustered_label]
+		handles = [data_track_plot, pythia_track_plot, herwig_track_plot, sherpa_track_plot]
+		labels = [plot_labels['data'], plot_labels['pythia'], plot_labels['herwig'], plot_labels['sherpa']]
 
 		legend = plt.gca().legend(handles, labels, loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
 		plt.gca().add_artist(legend)
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		if pT_upper_cut != 20000:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
+			labels = ["Track Only", r"$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$"]
 		else:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$", r"$ \textrm{Soft~Drop:}~\boldsymbol{\beta = 0;~z_{\mathrm{cut}} = 0.10}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.93, 0.58])
+			labels = ["Track Only", r"$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
+		plt.gca().legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.93, 0.58])
 
 		# Legends End.
 
@@ -8902,78 +8908,85 @@ def plot_constituent_multiplicity_track_and_preclustered(pT_lower_cut=100, pT_up
 		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
 		plt.gca().autoscale(True)
-		plt.gca().set_ylim(0., 1.25 * plt.gca().get_ylim()[1])
-		plt.xlim(0, 50)
+		# plt.gca().set_ylim(0., 1.25 * plt.gca().get_ylim()[1])
+		plt.gca().set_ylim(0., 0.15)
+		plt.xlim(0, 80)
 
 		plt.gca().xaxis.set_minor_locator(MultipleLocator(2))
-		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.01))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.005))
 		plt.tick_params(which='major', width=5, length=25, labelsize=70)
 		plt.tick_params(which='minor', width=3, length=15)
 
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-		print "Printing track and preclustered constituent multiplicity with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+		print "Printing track constituent multiplicity with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
 
-		plt.savefig("plots/" + get_version(input_analysis_file) + "/constituent_multiplicity_track_preclustered/" + mc_label + "_R_sub_" + R_sub_label + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_multiplicity.pdf")
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/constituent_multiplicity_track/" + mc_label + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_multiplicity.pdf")
 		# plt.show()
 		plt.close(plt.gcf())
 
 
 
 
-def plot_jet_mass_track_and_preclustered(pT_lower_cut=150, pT_upper_cut=20000, R_sub=0.01):
-	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut)
+def plot_jet_mass_track(pT_lower_cut=150, pT_upper_cut=20000):
+	
+	keywords_to_populate = ['track_mass_pre_SD', 'prescale']
 
-	R_sub_label = "{:.2f}".format(R_sub).replace(".", "_")
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, pT_upper_cut=pT_upper_cut, keywords_to_populate=keywords_to_populate)
 
+	
 	track_mass = properties['track_mass_pre_SD']
-	preclustered_mass = properties['preclustered_R_' + R_sub_label + '_mass_pre_SD']
-
 	prescales = properties['prescale']
 
-	for mc_label in ["truth", "reco"]:
+	for mc_label in ["truth"]:
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat")
-		pythia_track_mass = pythia_properties['track_mass_pre_SD']
-		pythia_preclustered_mass = pythia_properties['preclustered_R_' + R_sub_label + '_mass_pre_SD']
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_label + ".dat", pT_lower_cut=150, keywords_to_populate=keywords_to_populate)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_label + ".dat", pT_lower_cut=150, keywords_to_populate=keywords_to_populate)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_label + ".dat", pT_lower_cut=150, keywords_to_populate=keywords_to_populate)
 
-		data_track_label = "Track"
-		data_preclustered_label = "Preclustered $R_{sub} = " + str(R_sub) + "$"
-		pythia_track_label = plot_labels['pythia'] + " (Track)"
-		pythia_preclustered_label = plot_labels['pythia'] + " (Preclustered)"
+		pythia_track_mass, pythia_prescales = pythia_properties['track_mass_pre_SD'], pythia_properties['prescale']
+		herwig_track_mass, herwig_prescales = herwig_properties['track_mass_pre_SD'], herwig_properties['prescale']
+		sherpa_track_mass, sherpa_prescales = sherpa_properties['track_mass_pre_SD'], sherpa_properties['prescale']
+
+
 
 		# Data.
 		
-		track_mass_hist = Hist(100, 0, 150, markersize=3.0, color=plot_colors['data'])
+		track_mass_hist = Hist(100, 0, 100, markersize=3.0, color=plot_colors['data'])
 		bin_width = (track_mass_hist.upperbound() - track_mass_hist.lowerbound()) / track_mass_hist.nbins()
 		map(track_mass_hist.Fill, track_mass, prescales)
 		track_mass_hist.Scale(1.0 / (track_mass_hist.GetSumOfWeights() * bin_width))
-		data_track_plot = rplt.errorbar(track_mass_hist, zorder=20, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-
-		preclustered_mass_hist = Hist(100, 0, 150, markersize=3.0, color=plot_colors['data_post'])
-		bin_width = (preclustered_mass_hist.upperbound() - preclustered_mass_hist.lowerbound()) / preclustered_mass_hist.nbins()
-		map(preclustered_mass_hist.Fill, preclustered_mass, prescales)
-		preclustered_mass_hist.Scale(1.0 / (preclustered_mass_hist.GetSumOfWeights() * bin_width))
-		data_preclustered_plot = rplt.errorbar(preclustered_mass_hist, zorder=10, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 		
-		# Data Ends.
+
+		
 
 
 		# Monte Carlo.
 
-		# Pythia.
-		pythia_track_mass_hist = Hist(100, 0, 150, linewidth=8, color='black', linestyle="dashed")
-		bin_width = (pythia_track_mass_hist.upperbound() - pythia_track_mass_hist.lowerbound()) / pythia_track_mass_hist.nbins()
-		map(pythia_track_mass_hist.Fill, pythia_track_mass)
-		pythia_track_mass_hist.Scale(1.0 / (pythia_track_mass_hist.GetSumOfWeights() * bin_width))
-		pythia_track_plot = rplt.hist(pythia_track_mass_hist, zorder=2)
 
-		pythia_preclustered_mass_hist = Hist(100, 0, 150, linewidth=8, color=plot_colors['pythia_post'], linestyle="dashed")
-		bin_width = (pythia_preclustered_mass_hist.upperbound() - pythia_preclustered_mass_hist.lowerbound()) / pythia_preclustered_mass_hist.nbins()
-		map(pythia_preclustered_mass_hist.Fill, pythia_preclustered_mass)
-		pythia_preclustered_mass_hist.Scale(1.0 / (pythia_preclustered_mass_hist.GetSumOfWeights() * bin_width))
-		pythia_preclustered_plot = rplt.hist(pythia_preclustered_mass_hist, zorder=1)
-		# Pythia Ends.
+		pythia_track_mass_hist = Hist(100, 0, 100, linewidth=8, color=plot_colors['pythia'])
+		bin_width = (pythia_track_mass_hist.upperbound() - pythia_track_mass_hist.lowerbound()) / pythia_track_mass_hist.nbins()
+		map(pythia_track_mass_hist.Fill, pythia_track_mass, pythia_prescales)
+		pythia_track_mass_hist.Scale(1.0 / (pythia_track_mass_hist.GetSumOfWeights() * bin_width))
+		
+
+		herwig_track_mass_hist = Hist(100, 0, 100, linewidth=8, color=plot_colors['herwig'])
+		bin_width = (herwig_track_mass_hist.upperbound() - herwig_track_mass_hist.lowerbound()) / herwig_track_mass_hist.nbins()
+		map(herwig_track_mass_hist.Fill, herwig_track_mass, herwig_prescales)
+		herwig_track_mass_hist.Scale(1.0 / (herwig_track_mass_hist.GetSumOfWeights() * bin_width))
+		
+
+		sherpa_track_mass_hist = Hist(100, 0, 100, linewidth=8, color=plot_colors['sherpa'])
+		bin_width = (sherpa_track_mass_hist.upperbound() - sherpa_track_mass_hist.lowerbound()) / sherpa_track_mass_hist.nbins()
+		map(sherpa_track_mass_hist.Fill, sherpa_track_mass, sherpa_prescales)
+		sherpa_track_mass_hist.Scale(1.0 / (sherpa_track_mass_hist.GetSumOfWeights() * bin_width))
+		
+
+
+		data_track_plot = rplt.errorbar(track_mass_hist, zorder=20, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+		pythia_track_plot = rplt.hist(pythia_track_mass_hist, zorder=3)
+		herwig_track_plot = rplt.hist(herwig_track_mass_hist, zorder=2)
+		sherpa_track_plot = rplt.hist(sherpa_track_mass_hist, zorder=1)
 
 		# Monte Carlo Ends.
 
@@ -8982,18 +8995,18 @@ def plot_jet_mass_track_and_preclustered(pT_lower_cut=150, pT_upper_cut=20000, R
 
 		# Legends Begin.
 
-		handles = [data_track_plot, data_preclustered_plot, pythia_track_plot, pythia_preclustered_plot]
-		labels = [data_track_label, data_preclustered_label, pythia_track_label, pythia_preclustered_label]
+		handles = [data_track_plot, pythia_track_plot, herwig_track_plot, sherpa_track_plot]
+		labels = [plot_labels['data'], plot_labels['pythia'], plot_labels['herwig'], plot_labels['sherpa']]
 
 		legend = plt.gca().legend(handles, labels, loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
 		plt.gca().add_artist(legend)
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		if pT_upper_cut != 20000:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$"]
+			labels = ["Track Only", r"$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$"]
 		else:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.93, 0.58])
+			labels = ["Track Only", r"$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
+		plt.gca().legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.93, 0.58])
 
 		# Legends End.
 
@@ -9010,8 +9023,8 @@ def plot_jet_mass_track_and_preclustered(pT_lower_cut=150, pT_upper_cut=20000, R
 		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
 		plt.gca().autoscale(True)
-		plt.gca().set_ylim(0., 1.25 * plt.gca().get_ylim()[1])
-		plt.xlim(0, 50)
+		plt.gca().set_ylim(0., 0.16)
+		plt.xlim(0, 80)
 
 		plt.gca().xaxis.set_minor_locator(MultipleLocator(2))
 		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.005))
@@ -9021,72 +9034,77 @@ def plot_jet_mass_track_and_preclustered(pT_lower_cut=150, pT_upper_cut=20000, R
 
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-		print "Printing track and preclustered jet mass with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+		print "Printing track jet mass with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
 
-		plt.savefig("plots/" + get_version(input_analysis_file) + "/jet_mass_track_preclustered/" + mc_label + "_R_sub_" + R_sub_label + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_mass.pdf")
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/jet_mass_track/" + mc_label + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + "_mass.pdf")
 		# plt.show()
 		plt.close(plt.gcf())
 
 
 
 
-def plot_hardest_pT_D_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
+def plot_hardest_pT_D_track(pT_lower_cut=100):
 	
-	properties = parse_file(input_analysis_file, pT_lower_cut)
+	keywords_to_populate = ['track_pT_D_pre_SD', 'prescale']
+
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
 	
-	R_sub_label = "{:.2f}".format(R_sub).replace(".", "_")
+	
+	for mc_type in ["truth"]:
 
-	for mc_type in ["truth", "reco"]:
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
-		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
-		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
-
-		data_track_label = "Track"
-		data_preclustered_label = "Preclustered $R_{sub} = " + str(R_sub) + "$"
-		pythia_track_label = plot_labels['pythia'] + " (Track)"
-		pythia_preclustered_label = plot_labels['pythia'] + " (Preclustered)"
-
+		
 
 		jet_pT_D_track = properties['track_pT_D_pre_SD']
-		jet_pT_D_preclustered = properties['preclustered_R_' + R_sub_label + '_pT_D_pre_SD']
-		
 		prescales = properties['prescale']
 
 		pythia_pT_D_track = pythia_properties['track_pT_D_pre_SD']
-		pythia_pT_D_preclustered = pythia_properties['preclustered_R_' + R_sub_label + '_pT_D_pre_SD']
+		pythia_prescales = pythia_properties['prescale']
+
+		herwig_pT_D_track = herwig_properties['track_pT_D_pre_SD']
+		herwig_prescales = herwig_properties['prescale']
+
+		sherpa_pT_D_track = sherpa_properties['track_pT_D_pre_SD']
+		sherpa_prescales = sherpa_properties['prescale']
+		
 		
 
 
-		data_track_hist = Hist(25, 0, 1, title=data_track_label)
+		data_track_hist = Hist(25, 0, 1, title=plot_labels['data'])
 		map(data_track_hist.Fill, jet_pT_D_track, prescales)
 		bin_width_data = (data_track_hist.upperbound() - data_track_hist.lowerbound()) / data_track_hist.nbins()
 		data_track_hist.Scale(1.0 / ( data_track_hist.GetSumOfWeights() * bin_width_data ))
 
-		data_preclustered_hist = Hist(25, 0, 1, title=data_preclustered_label, color='red')
-		map(data_preclustered_hist.Fill, jet_pT_D_preclustered, prescales)
-		bin_width_data = (data_preclustered_hist.upperbound() - data_preclustered_hist.lowerbound()) / data_preclustered_hist.nbins()
-		data_preclustered_hist.Scale(1.0 / ( data_preclustered_hist.GetSumOfWeights() * bin_width_data ))
 
-
-		pythia_track_hist = Hist(25, 0, 1, title=pythia_track_label, color='black', linewidth=8, linestyle='dashed')
-		map(pythia_track_hist.Fill, pythia_pT_D_track)
+		pythia_track_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=8)
+		map(pythia_track_hist.Fill, pythia_pT_D_track, pythia_prescales)
 		bin_width_pythia = (pythia_track_hist.upperbound() - pythia_track_hist.lowerbound()) / pythia_track_hist.nbins()
 		pythia_track_hist.Scale(1.0 / ( pythia_track_hist.GetSumOfWeights() * bin_width_pythia ))
 
-		pythia_preclustered_hist = Hist(25, 0, 1, title=pythia_preclustered_label, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
-		map(pythia_preclustered_hist.Fill, pythia_pT_D_preclustered)
-		bin_width_pythia = (pythia_preclustered_hist.upperbound() - pythia_preclustered_hist.lowerbound()) / pythia_preclustered_hist.nbins()
-		pythia_preclustered_hist.Scale(1.0 / ( pythia_preclustered_hist.GetSumOfWeights() * bin_width_pythia ))
+		herwig_track_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=8)
+		map(herwig_track_hist.Fill, herwig_pT_D_track, herwig_prescales)
+		bin_width_herwig = (herwig_track_hist.upperbound() - herwig_track_hist.lowerbound()) / herwig_track_hist.nbins()
+		herwig_track_hist.Scale(1.0 / ( herwig_track_hist.GetSumOfWeights() * bin_width_herwig ))
+
+		sherpa_track_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=8)
+		map(sherpa_track_hist.Fill, sherpa_pT_D_track, sherpa_prescales)
+		bin_width_sherpa = (sherpa_track_hist.upperbound() - sherpa_track_hist.lowerbound()) / sherpa_track_hist.nbins()
+		sherpa_track_hist.Scale(1.0 / ( sherpa_track_hist.GetSumOfWeights() * bin_width_sherpa ))
+		
 
 		rplt.hist(pythia_track_hist, zorder=3, normed=1, histtype='step')
-		rplt.hist(pythia_preclustered_hist, zorder=3, normed=1, histtype='step')
+		rplt.hist(herwig_track_hist, zorder=2, normed=1, histtype='step')
+		rplt.hist(sherpa_track_hist, zorder=1, normed=1, histtype='step')
 		rplt.errorbar(data_track_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
-		rplt.errorbar(data_preclustered_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+		
 		
 		
 		handles, labels = plt.gca().get_legend_handles_labels()
-		legend = plt.gca().legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60)
+		handles, labels = handles[::-1], labels[::-1]
+		legend = plt.gca().legend([handles[0]] + handles[1:][::-1], [labels[0]] + labels[1:][::-1], loc=1, frameon=0, fontsize=60)
 		plt.gca().add_artist(legend)
 
 
@@ -9099,8 +9117,8 @@ def plot_hardest_pT_D_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
 		plt.gcf().text(0.27, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.835, 0.57])
+		labels = ["Track Only", "$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", "$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
+		plt.gca().legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.835, 0.57])
 
 
 		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
@@ -9109,7 +9127,7 @@ def plot_hardest_pT_D_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
 
 		plt.autoscale()
 		# plt.ylim( plt.gca().get_ylim()[0], plt.gca().get_ylim()[1] * 1.2 )
-		plt.ylim( 0, 7 )
+		plt.ylim( 0, 10 )
 
 		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
 		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.2))
@@ -9122,69 +9140,65 @@ def plot_hardest_pT_D_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
 
 		print "Printing track and preclustered hardest pT_D."
 
-		plt.savefig("plots/" + get_version(input_analysis_file) + "/pT_D_track_preclustered/" + mc_type + "_R_sub_" + R_sub_label + "_jet_pT_D.pdf")
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/pT_D_track/" + mc_type + "_jet_pT_D.pdf")
 
 		plt.close(plt.gcf())
 
 
 
 
-def plot_hardest_LHA_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
-	
-	properties = parse_file(input_analysis_file, pT_lower_cut)
-	R_sub_label = "{:.2f}".format(R_sub).replace(".", "_")
-
-	for mc_type in ["truth", "reco"]:
-
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
-		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
-		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
-
-		data_track_label = "Track"
-		data_preclustered_label = "Preclustered $R_{sub} = " + str(R_sub) + "$"
-		pythia_track_label = plot_labels['pythia'] + " (Track)"
-		pythia_preclustered_label = plot_labels['pythia'] + " (Preclustered)"
-
-
-		jet_LHA_track = properties['track_LHA_pre_SD']
-		jet_LHA_preclustered = properties['preclustered_R_' + R_sub_label + '_LHA_pre_SD']
+def plot_hardest_LHA_track(pT_lower_cut=100):
 		
+	keywords_to_populate = ['track_LHA_pre_SD', 'prescale']
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+	
+
+	for mc_type in ["truth"]:
+
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+
+	
+		jet_LHA_track = properties['track_LHA_pre_SD']
 		prescales = properties['prescale']
 
-		pythia_LHA_track = pythia_properties['track_LHA_pre_SD']
-		pythia_LHA_preclustered = pythia_properties['preclustered_R_' + R_sub_label + '_LHA_pre_SD']
-		
+		pythia_LHA_track, pythia_prescales = pythia_properties['track_LHA_pre_SD'], pythia_properties['prescale']
+		herwig_LHA_track, herwig_prescales = herwig_properties['track_LHA_pre_SD'], herwig_properties['prescale']
+		sherpa_LHA_track, sherpa_prescales = sherpa_properties['track_LHA_pre_SD'], sherpa_properties['prescale']
 
 
-		data_track_hist = Hist(25, 0, 1, title=data_track_label)
+		data_track_hist = Hist(25, 0, 1, title=plot_labels['data'])
 		map(data_track_hist.Fill, jet_LHA_track, prescales)
 		bin_width_data = (data_track_hist.upperbound() - data_track_hist.lowerbound()) / data_track_hist.nbins()
 		data_track_hist.Scale(1.0 / ( data_track_hist.GetSumOfWeights() * bin_width_data ))
 
-		data_preclustered_hist = Hist(25, 0, 1, title=data_preclustered_label, color='red')
-		map(data_preclustered_hist.Fill, jet_LHA_preclustered, prescales)
-		bin_width_data = (data_preclustered_hist.upperbound() - data_preclustered_hist.lowerbound()) / data_preclustered_hist.nbins()
-		data_preclustered_hist.Scale(1.0 / ( data_preclustered_hist.GetSumOfWeights() * bin_width_data ))
-
-
-		pythia_track_hist = Hist(25, 0, 1, title=pythia_track_label, color='black', linewidth=8, linestyle='dashed')
-		map(pythia_track_hist.Fill, pythia_LHA_track)
+		pythia_track_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=8)
+		map(pythia_track_hist.Fill, pythia_LHA_track, pythia_prescales)
 		bin_width_pythia = (pythia_track_hist.upperbound() - pythia_track_hist.lowerbound()) / pythia_track_hist.nbins()
 		pythia_track_hist.Scale(1.0 / ( pythia_track_hist.GetSumOfWeights() * bin_width_pythia ))
 
-		pythia_preclustered_hist = Hist(25, 0, 1, title=pythia_preclustered_label, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
-		map(pythia_preclustered_hist.Fill, pythia_LHA_preclustered)
-		bin_width_pythia = (pythia_preclustered_hist.upperbound() - pythia_preclustered_hist.lowerbound()) / pythia_preclustered_hist.nbins()
-		pythia_preclustered_hist.Scale(1.0 / ( pythia_preclustered_hist.GetSumOfWeights() * bin_width_pythia ))
+		herwig_track_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=8)
+		map(herwig_track_hist.Fill, herwig_LHA_track, herwig_prescales)
+		bin_width_herwig = (herwig_track_hist.upperbound() - herwig_track_hist.lowerbound()) / herwig_track_hist.nbins()
+		herwig_track_hist.Scale(1.0 / ( herwig_track_hist.GetSumOfWeights() * bin_width_herwig ))
+
+		sherpa_track_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=8)
+		map(sherpa_track_hist.Fill, sherpa_LHA_track, sherpa_prescales)
+		bin_width_sherpa = (sherpa_track_hist.upperbound() - sherpa_track_hist.lowerbound()) / sherpa_track_hist.nbins()
+		sherpa_track_hist.Scale(1.0 / ( sherpa_track_hist.GetSumOfWeights() * bin_width_sherpa ))
+
 
 		rplt.hist(pythia_track_hist, zorder=3, normed=1, histtype='step')
-		rplt.hist(pythia_preclustered_hist, zorder=3, normed=1, histtype='step')
+		rplt.hist(herwig_track_hist, zorder=2, normed=1, histtype='step')
+		rplt.hist(sherpa_track_hist, zorder=1, normed=1, histtype='step')
+		
 		rplt.errorbar(data_track_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
-		rplt.errorbar(data_preclustered_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
 		
 		
 		handles, labels = plt.gca().get_legend_handles_labels()
-		legend = plt.gca().legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60)
+		handles, labels = handles[::-1], labels[::-1]
+		legend = plt.gca().legend([handles[0]] + handles[1:][::-1], [labels[0]] + labels[1:][::-1], loc=1, frameon=0, fontsize=60)
 		plt.gca().add_artist(legend)
 
 
@@ -9197,8 +9211,8 @@ def plot_hardest_LHA_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
 		plt.gcf().text(0.31, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.835, 0.57])
+		labels = ["Track Only", "$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", "$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
+		plt.gca().legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.835, 0.57])
 
 
 		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
@@ -9218,84 +9232,89 @@ def plot_hardest_LHA_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
 
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-		print "Printing track and preclustered hardest LHA."
+		print "Printing track hardest LHA."
 
-		plt.savefig("plots/" + get_version(input_analysis_file) + "/LHA_track_preclustered/" + mc_type + "_R_sub_" + R_sub_label + "_jet_LHA.pdf")
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/LHA_track/" + mc_type + "_jet_LHA.pdf")
 
 		plt.close(plt.gcf())
 
 
 
-def plot_hardest_width_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
+def plot_hardest_width_track(pT_lower_cut=100):
 	
-	properties = parse_file(input_analysis_file, pT_lower_cut)
-	R_sub_label = "{:.2f}".format(R_sub).replace(".", "_")
+	keywords_to_populate = ['prescale', 'track_width_pre_SD']
 
-	for mc_type in ["truth", "reco"]:
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
-		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
-		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+	for mc_type in ["truth"]:
 
-		data_track_label = "Track"
-		data_preclustered_label = "Preclustered $R_{sub} = " + str(R_sub) + "$"
-		pythia_track_label = plot_labels['pythia'] + " (Track)"
-		pythia_preclustered_label = plot_labels['pythia'] + " (Preclustered)"
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
 
+		
 
 		jet_width_track = properties['track_width_pre_SD']
-		jet_width_preclustered = properties['preclustered_R_' + R_sub_label + '_width_pre_SD']
-		
 		prescales = properties['prescale']
 
-		pythia_width_track = pythia_properties['track_width_pre_SD']
-		pythia_width_preclustered = pythia_properties['preclustered_R_' + R_sub_label + '_width_pre_SD']
+		pythia_width_track, pythia_prescales = pythia_properties['track_width_pre_SD'], pythia_properties['prescale']
+		herwig_width_track, herwig_prescales = herwig_properties['track_width_pre_SD'], herwig_properties['prescale']
+		sherpa_width_track, sherpa_prescales = sherpa_properties['track_width_pre_SD'], sherpa_properties['prescale']
+		
 		
 		
 
-		data_track_hist = Hist(25, 0, 1, title=data_track_label)
+		data_track_hist = Hist(25, 0, 1, title=plot_labels['data'])
 		map(data_track_hist.Fill, jet_width_track, prescales)
 		bin_width_data = (data_track_hist.upperbound() - data_track_hist.lowerbound()) / data_track_hist.nbins()
 		data_track_hist.Scale(1.0 / ( data_track_hist.GetSumOfWeights() * bin_width_data ))
 
-		data_preclustered_hist = Hist(25, 0, 1, title=data_preclustered_label, color='red')
-		map(data_preclustered_hist.Fill, jet_width_preclustered, prescales)
-		bin_width_data = (data_preclustered_hist.upperbound() - data_preclustered_hist.lowerbound()) / data_preclustered_hist.nbins()
-		data_preclustered_hist.Scale(1.0 / ( data_preclustered_hist.GetSumOfWeights() * bin_width_data ))
+	
 
-
-		pythia_track_hist = Hist(25, 0, 1, title=pythia_track_label, color='black', linewidth=8, linestyle='dashed')
-		map(pythia_track_hist.Fill, pythia_width_track)
+		pythia_track_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=8)
+		map(pythia_track_hist.Fill, pythia_width_track, pythia_prescales)
 		bin_width_pythia = (pythia_track_hist.upperbound() - pythia_track_hist.lowerbound()) / pythia_track_hist.nbins()
 		pythia_track_hist.Scale(1.0 / ( pythia_track_hist.GetSumOfWeights() * bin_width_pythia ))
 
-		pythia_preclustered_hist = Hist(25, 0, 1, title=pythia_preclustered_label, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
-		map(pythia_preclustered_hist.Fill, pythia_width_preclustered)
-		bin_width_pythia = (pythia_preclustered_hist.upperbound() - pythia_preclustered_hist.lowerbound()) / pythia_preclustered_hist.nbins()
-		pythia_preclustered_hist.Scale(1.0 / ( pythia_preclustered_hist.GetSumOfWeights() * bin_width_pythia ))
+		herwig_track_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=8)
+		map(herwig_track_hist.Fill, herwig_width_track, herwig_prescales)
+		bin_width_herwig = (herwig_track_hist.upperbound() - herwig_track_hist.lowerbound()) / herwig_track_hist.nbins()
+		herwig_track_hist.Scale(1.0 / ( herwig_track_hist.GetSumOfWeights() * bin_width_herwig ))
+
+		sherpa_track_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=8)
+		map(sherpa_track_hist.Fill, sherpa_width_track, sherpa_prescales)
+		bin_width_sherpa = (sherpa_track_hist.upperbound() - sherpa_track_hist.lowerbound()) / sherpa_track_hist.nbins()
+		sherpa_track_hist.Scale(1.0 / ( sherpa_track_hist.GetSumOfWeights() * bin_width_sherpa ))
+
+
+
 
 		rplt.hist(pythia_track_hist, zorder=3, normed=1, histtype='step')
-		rplt.hist(pythia_preclustered_hist, zorder=3, normed=1, histtype='step')
+		rplt.hist(herwig_track_hist, zorder=2, normed=1, histtype='step')
+		rplt.hist(sherpa_track_hist, zorder=1, normed=1, histtype='step')
+		
 		rplt.errorbar(data_track_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
-		rplt.errorbar(data_preclustered_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+		
 		
 		
 		handles, labels = plt.gca().get_legend_handles_labels()
-		legend = plt.gca().legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60)
+		handles, labels = handles[::-1], labels[::-1]
+		legend = plt.gca().legend([handles[0]] + handles[1:][::-1], [labels[0]] + labels[1:][::-1], loc=1, frameon=0, fontsize=60)
 		plt.gca().add_artist(legend)
 
 
 		plt.xlabel('Jet Width', fontsize=75)
 		plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
 
-		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.27, 0.90), xycoords='figure fraction', frameon=0)
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.22, 0.90), xycoords='figure fraction', frameon=0)
 		plt.gca().add_artist(ab)
 		preliminary_text = "Prelim. (20\%)"
-		plt.gcf().text(0.34, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+		plt.gcf().text(0.29, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.39, 0.80])
+		labels = ["Track Only", r"$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", "$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};~\eta<2.4$"]
+		plt.gca().legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.90, 0.50])
+
 
 
 		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
@@ -9304,10 +9323,10 @@ def plot_hardest_width_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
 
 		plt.autoscale()
 		# plt.ylim( 0, plt.gca().get_ylim()[1] * 1.4 )
-		plt.ylim( 0, 8 )
+		plt.ylim( 0, 9 )
 
 		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
-		# plt.gca().yaxis.set_minor_locator(MultipleLocator(0.005))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.25))
 		
 
 		plt.tick_params(which='major', width=5, length=25, labelsize=70)
@@ -9315,9 +9334,9 @@ def plot_hardest_width_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
 
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-		print "Printing track and preclustered hardest width."
+		print "Printing track hardest width."
 
-		plt.savefig("plots/" + get_version(input_analysis_file) + "/width_track_preclustered/" + mc_type + "_R_sub_" + R_sub_label + "_jet_width.pdf")
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/width_track/" + mc_type + "_jet_width.pdf")
 
 		plt.close(plt.gcf())
 
@@ -9328,75 +9347,75 @@ def plot_hardest_width_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
 
 
 
-def plot_hardest_thrust_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
+def plot_hardest_thrust_track(pT_lower_cut=100):
+		
+	keywords_to_populate = ['prescale', 'track_thrust_pre_SD']
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
 	
-	properties = parse_file(input_analysis_file, pT_lower_cut)
-	R_sub_label = "{:.2f}".format(R_sub).replace(".", "_")
 
-	for mc_type in ["truth", "reco"]:
+	for mc_type in ["truth"]:
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
-		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
-		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
 
-		data_track_label = "Track"
-		data_preclustered_label = "Preclustered $R_{sub} = " + str(R_sub) + "$"
-		pythia_track_label = plot_labels['pythia'] + " (Track)"
-		pythia_preclustered_label = plot_labels['pythia'] + " (Preclustered)"
-
+	
 
 		jet_thrust_track = properties['track_thrust_pre_SD']
-		jet_thrust_preclustered = properties['preclustered_R_' + R_sub_label + '_thrust_pre_SD']
-		
 		prescales = properties['prescale']
 
-		pythia_thrust_track = pythia_properties['track_thrust_pre_SD']
-		pythia_thrust_preclustered = pythia_properties['preclustered_R_' + R_sub_label + '_thrust_pre_SD']
+		pythia_thrust_track, pythia_prescales = pythia_properties['track_thrust_pre_SD'], pythia_properties['prescale']
+		herwig_thrust_track, herwig_prescales = herwig_properties['track_thrust_pre_SD'], herwig_properties['prescale']
+		sherpa_thrust_track, sherpa_prescales = sherpa_properties['track_thrust_pre_SD'], sherpa_properties['prescale']
 		
 	
-		data_track_hist = Hist(25, 0, 1, title=data_track_label)
+		data_track_hist = Hist(25, 0, 1, title=plot_labels['data'])
 		map(data_track_hist.Fill, jet_thrust_track, prescales)
 		bin_width_data = (data_track_hist.upperbound() - data_track_hist.lowerbound()) / data_track_hist.nbins()
 		data_track_hist.Scale(1.0 / ( data_track_hist.GetSumOfWeights() * bin_width_data ))
 
-		data_preclustered_hist = Hist(25, 0, 1, title=data_preclustered_label, color='red')
-		map(data_preclustered_hist.Fill, jet_thrust_preclustered, prescales)
-		bin_width_data = (data_preclustered_hist.upperbound() - data_preclustered_hist.lowerbound()) / data_preclustered_hist.nbins()
-		data_preclustered_hist.Scale(1.0 / ( data_preclustered_hist.GetSumOfWeights() * bin_width_data ))
-
-
-		pythia_track_hist = Hist(25, 0, 1, title=pythia_track_label, color='black', linewidth=8, linestyle='dashed')
-		map(pythia_track_hist.Fill, pythia_thrust_track)
+	
+		pythia_track_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=8)
+		map(pythia_track_hist.Fill, pythia_thrust_track, pythia_prescales)
 		bin_width_pythia = (pythia_track_hist.upperbound() - pythia_track_hist.lowerbound()) / pythia_track_hist.nbins()
 		pythia_track_hist.Scale(1.0 / ( pythia_track_hist.GetSumOfWeights() * bin_width_pythia ))
 
-		pythia_preclustered_hist = Hist(25, 0, 1, title=pythia_preclustered_label, color=plot_colors['pythia_post'], linewidth=8, linestyle='dashed')
-		map(pythia_preclustered_hist.Fill, pythia_thrust_preclustered)
-		bin_width_pythia = (pythia_preclustered_hist.upperbound() - pythia_preclustered_hist.lowerbound()) / pythia_preclustered_hist.nbins()
-		pythia_preclustered_hist.Scale(1.0 / ( pythia_preclustered_hist.GetSumOfWeights() * bin_width_pythia ))
 
+		herwig_track_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=8)
+		map(herwig_track_hist.Fill, herwig_thrust_track, herwig_prescales)
+		bin_width_herwig = (herwig_track_hist.upperbound() - herwig_track_hist.lowerbound()) / herwig_track_hist.nbins()
+		herwig_track_hist.Scale(1.0 / ( herwig_track_hist.GetSumOfWeights() * bin_width_herwig ))
+
+		sherpa_track_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=8)
+		map(sherpa_track_hist.Fill, sherpa_thrust_track, sherpa_prescales)
+		bin_width_sherpa = (sherpa_track_hist.upperbound() - sherpa_track_hist.lowerbound()) / sherpa_track_hist.nbins()
+		sherpa_track_hist.Scale(1.0 / ( sherpa_track_hist.GetSumOfWeights() * bin_width_sherpa ))
+
+
+		
 		rplt.hist(pythia_track_hist, zorder=3, normed=1, histtype='step')
-		rplt.hist(pythia_preclustered_hist, zorder=3, normed=1, histtype='step')
+		rplt.hist(herwig_track_hist, zorder=2, normed=1, histtype='step')
+		rplt.hist(sherpa_track_hist, zorder=1, normed=1, histtype='step')
+		
 		rplt.errorbar(data_track_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
-		rplt.errorbar(data_preclustered_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
 		
 		
 		handles, labels = plt.gca().get_legend_handles_labels()
-		legend = plt.gca().legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60)
+		handles, labels = handles[::-1], labels[::-1]
+		legend = plt.gca().legend([handles[0]] + handles[1:][::-1], [labels[0]] + labels[1:][::-1], loc=1, frameon=0, fontsize=60)
 		plt.gca().add_artist(legend)
-
 
 		plt.xlabel('Jet Thrust', fontsize=75)
 		plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
 
-		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.27, 0.90), xycoords='figure fraction', frameon=0)
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.22, 0.90), xycoords='figure fraction', frameon=0)
 		plt.gca().add_artist(ab)
 		preliminary_text = "Prelim. (20\%)"
-		plt.gcf().text(0.34, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+		plt.gcf().text(0.29, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.80, 0.57])
+		labels = ["Track Only", "$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", "$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
+		plt.gca().legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.84, 0.53])
 
 
 		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
@@ -9407,7 +9426,7 @@ def plot_hardest_thrust_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
 		plt.ylim( 0, 16 )
 
 		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
-		# plt.gca().yaxis.set_minor_locator(MultipleLocator(0.001))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.25))
 		
 
 		plt.tick_params(which='major', width=5, length=25, labelsize=70)
@@ -9415,9 +9434,9 @@ def plot_hardest_thrust_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
 
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-		print "Printing track and preclustered hardest width."
+		print "Printing track hardest thrust."
 
-		plt.savefig("plots/" + get_version(input_analysis_file) + "/thrust_track_preclustered/" + mc_type + "_R_sub_" + R_sub_label + "_jet_thrust.pdf")
+		plt.savefig("plots/" + get_version(input_analysis_file) + "/thrust_track/" + mc_type + "_jet_thrust.pdf")
 
 		plt.close(plt.gcf())
 
@@ -9427,22 +9446,23 @@ def plot_hardest_thrust_track_and_preclustered(pT_lower_cut=100, R_sub=0.01):
 
 def plot_hardest_LHA(pT_lower_cut=150):
 	
-	properties = parse_file(input_analysis_file, pT_lower_cut)
+	keywords_to_populate = ['prescale', 'LHA_pre_SD']
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
 	
 
-	for mc_type in ["truth", "reco"]:
+	for mc_type in ["truth"]:
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
-		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
-		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
 
 
 		jet_LHA_track = properties['LHA_pre_SD']
 		prescales = properties['prescale']
 
-		pythia_LHA = pythia_properties['LHA_pre_SD']
-		herwig_LHA = herwig_properties['LHA_pre_SD']
-		sherpa_LHA = sherpa_properties['LHA_pre_SD']
+		pythia_LHA, pythia_prescales = pythia_properties['LHA_pre_SD'], pythia_properties['prescale']
+		herwig_LHA, herwig_prescales = herwig_properties['LHA_pre_SD'], herwig_properties['prescale']
+		sherpa_LHA, sherpa_prescales = sherpa_properties['LHA_pre_SD'], sherpa_properties['prescale']
 		
 
 
@@ -9452,18 +9472,18 @@ def plot_hardest_LHA(pT_lower_cut=150):
 		data_hist.Scale(1.0 / ( data_hist.GetSumOfWeights() * bin_width_data ))
 
 
-		pythia_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=5)
-		map(pythia_hist.Fill, pythia_LHA)
+		pythia_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=8)
+		map(pythia_hist.Fill, pythia_LHA, pythia_prescales)
 		bin_width_pythia = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
 		pythia_hist.Scale(1.0 / ( pythia_hist.GetSumOfWeights() * bin_width_pythia ))
 
-		herwig_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=5)
-		map(herwig_hist.Fill, herwig_LHA)
+		herwig_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=8)
+		map(herwig_hist.Fill, herwig_LHA, herwig_prescales)
 		bin_width_herwig = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
 		herwig_hist.Scale(1.0 / ( herwig_hist.GetSumOfWeights() * bin_width_herwig ))
 
-		sherpa_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=5)
-		map(sherpa_hist.Fill, sherpa_LHA)
+		sherpa_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=8)
+		map(sherpa_hist.Fill, sherpa_LHA, sherpa_prescales)
 		bin_width_sherpa = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
 		sherpa_hist.Scale(1.0 / ( sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
 
@@ -9488,7 +9508,7 @@ def plot_hardest_LHA(pT_lower_cut=150):
 		plt.gcf().text(0.31, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+		labels = [r"$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", "$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
 		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.835, 0.57])
 
 
@@ -9496,10 +9516,10 @@ def plot_hardest_LHA(pT_lower_cut=150):
 
 
 		plt.autoscale()
-		plt.ylim( 0, plt.gca().get_ylim()[1] * 1.2 )
+		plt.ylim( 0, 5 )
 
 		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
-		# plt.gca().yaxis.set_minor_locator(MultipleLocator(0.2))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.2))
 		
 
 		plt.tick_params(which='major', width=5, length=25, labelsize=70)
@@ -9518,23 +9538,25 @@ def plot_hardest_LHA(pT_lower_cut=150):
 
 
 def plot_hardest_width(pT_lower_cut=100):
+
+	keywords_to_populate = ['prescale', 'width_pre_SD']
 	
-	properties = parse_file(input_analysis_file, pT_lower_cut)
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
 	
 
-	for mc_type in ["truth", "reco"]:
+	for mc_type in ["truth"]:
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
-		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
-		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
 
 
 		jet_width_track = properties['width_pre_SD']
 		prescales = properties['prescale']
 
-		pythia_width = pythia_properties['width_pre_SD']
-		herwig_width = herwig_properties['width_pre_SD']
-		sherpa_width = sherpa_properties['width_pre_SD']
+		pythia_width, pythia_prescales = pythia_properties['width_pre_SD'], pythia_properties['prescale']
+		herwig_width, herwig_prescales = herwig_properties['width_pre_SD'], herwig_properties['prescale']
+		sherpa_width, sherpa_prescales = sherpa_properties['width_pre_SD'], sherpa_properties['prescale']
 		
 
 
@@ -9544,18 +9566,18 @@ def plot_hardest_width(pT_lower_cut=100):
 		data_hist.Scale(1.0 / ( data_hist.GetSumOfWeights() * bin_width_data ))
 
 
-		pythia_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=5)
-		map(pythia_hist.Fill, pythia_width)
+		pythia_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=8)
+		map(pythia_hist.Fill, pythia_width, pythia_prescales)
 		bin_width_pythia = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
 		pythia_hist.Scale(1.0 / ( pythia_hist.GetSumOfWeights() * bin_width_pythia ))
 
-		herwig_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=5)
-		map(herwig_hist.Fill, herwig_width)
+		herwig_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=8)
+		map(herwig_hist.Fill, herwig_width, herwig_prescales)
 		bin_width_herwig = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
 		herwig_hist.Scale(1.0 / ( herwig_hist.GetSumOfWeights() * bin_width_herwig ))
 
-		sherpa_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=5)
-		map(sherpa_hist.Fill, sherpa_width)
+		sherpa_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=8)
+		map(sherpa_hist.Fill, sherpa_width, sherpa_prescales)
 		bin_width_sherpa = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
 		sherpa_hist.Scale(1.0 / ( sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
 
@@ -9571,17 +9593,17 @@ def plot_hardest_width(pT_lower_cut=100):
 		plt.gca().add_artist(legend)
 
 
-		plt.xlabel('Width', fontsize=75)
+		plt.xlabel('Jet Width', fontsize=75)
 		plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
 
-		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.27, 0.90), xycoords='figure fraction', frameon=0)
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.22, 0.90), xycoords='figure fraction', frameon=0)
 		plt.gca().add_artist(ab)
 		preliminary_text = "Prelim. (20\%)"
-		plt.gcf().text(0.34, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+		plt.gcf().text(0.29, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.39, 0.80])
+		labels = [r"$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", "$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};~\eta<2.4$"]
+		plt.gca().legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.90, 0.50])
 
 
 		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
@@ -9589,10 +9611,10 @@ def plot_hardest_width(pT_lower_cut=100):
 		
 
 		plt.autoscale()
-		plt.ylim( 0, plt.gca().get_ylim()[1] * 1.4 )
+		plt.ylim( 0, 9 )
 
 		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
-		# plt.gca().yaxis.set_minor_locator(MultipleLocator(0.005))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.25))
 		
 
 		plt.tick_params(which='major', width=5, length=25, labelsize=70)
@@ -9610,22 +9632,23 @@ def plot_hardest_width(pT_lower_cut=100):
 
 def plot_hardest_thrust(pT_lower_cut=150):
 	
-	properties = parse_file(input_analysis_file, pT_lower_cut)
+	keywords_to_populate = ['prescale', 'thrust_pre_SD']
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
 	
 
-	for mc_type in ["truth", "reco"]:
+	for mc_type in ["truth"]:
 
-		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut)
-		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut)
-		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut)
+		pythia_properties = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
+		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords_to_populate)
 
 
 		jet_thrust_track = properties['thrust_pre_SD']
 		prescales = properties['prescale']
 
-		pythia_thrust = pythia_properties['thrust_pre_SD']
-		herwig_thrust = herwig_properties['thrust_pre_SD']
-		sherpa_thrust = sherpa_properties['thrust_pre_SD']
+		pythia_thrust, pythia_prescales = pythia_properties['thrust_pre_SD'], pythia_properties['prescale']
+		herwig_thrust, herwig_prescales = herwig_properties['thrust_pre_SD'], herwig_properties['prescale']
+		sherpa_thrust, sherpa_prescales = sherpa_properties['thrust_pre_SD'], sherpa_properties['prescale']
 		
 
 
@@ -9635,18 +9658,18 @@ def plot_hardest_thrust(pT_lower_cut=150):
 		data_hist.Scale(1.0 / ( data_hist.GetSumOfWeights() * bin_width_data ))
 
 
-		pythia_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=5)
-		map(pythia_hist.Fill, pythia_thrust)
+		pythia_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=8)
+		map(pythia_hist.Fill, pythia_thrust, pythia_prescales)
 		bin_width_pythia = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
 		pythia_hist.Scale(1.0 / ( pythia_hist.GetSumOfWeights() * bin_width_pythia ))
 
-		herwig_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=5)
-		map(herwig_hist.Fill, herwig_thrust)
+		herwig_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=8)
+		map(herwig_hist.Fill, herwig_thrust, herwig_prescales)
 		bin_width_herwig = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
 		herwig_hist.Scale(1.0 / ( herwig_hist.GetSumOfWeights() * bin_width_herwig ))
 
-		sherpa_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=5)
-		map(sherpa_hist.Fill, sherpa_thrust)
+		sherpa_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=8)
+		map(sherpa_hist.Fill, sherpa_thrust, sherpa_prescales)
 		bin_width_sherpa = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
 		sherpa_hist.Scale(1.0 / ( sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
 
@@ -9662,17 +9685,17 @@ def plot_hardest_thrust(pT_lower_cut=150):
 		plt.gca().add_artist(legend)
 
 
-		plt.xlabel('Thrust', fontsize=75)
+		plt.xlabel('Jet Thrust', fontsize=75)
 		plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
 
-		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.27, 0.90), xycoords='figure fraction', frameon=0)
+		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.22, 0.90), xycoords='figure fraction', frameon=0)
 		plt.gca().add_artist(ab)
 		preliminary_text = "Prelim. (20\%)"
-		plt.gcf().text(0.34, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+		plt.gcf().text(0.29, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.80, 0.57])
+		labels = ["$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", "$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
+		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.84, 0.53])
 
 
 		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
@@ -9680,10 +9703,10 @@ def plot_hardest_thrust(pT_lower_cut=150):
 		
 
 		plt.autoscale()
-		plt.ylim( 0, plt.gca().get_ylim()[1] * 1.2 )
+		plt.ylim( 0, 16 )
 
 		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
-		# plt.gca().yaxis.set_minor_locator(MultipleLocator(0.001))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.25))
 		
 
 		plt.tick_params(which='major', width=5, length=25, labelsize=70)
@@ -9729,17 +9752,18 @@ def plot_hardest_pT_D(pT_lower_cut=150):
 		data_hist.Scale(1.0 / ( data_hist.GetSumOfWeights() * bin_width_data ))
 
 
-		pythia_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=5)
+		
+		pythia_hist = Hist(25, 0, 1, title=plot_labels['pythia'], color=plot_colors['pythia'], linewidth=8)
 		map(pythia_hist.Fill, pythia_pT_D)
 		bin_width_pythia = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
 		pythia_hist.Scale(1.0 / ( pythia_hist.GetSumOfWeights() * bin_width_pythia ))
 
-		herwig_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=5)
+		herwig_hist = Hist(25, 0, 1, title=plot_labels['herwig'], color=plot_colors['herwig'], linewidth=8)
 		map(herwig_hist.Fill, herwig_pT_D)
 		bin_width_herwig = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
 		herwig_hist.Scale(1.0 / ( herwig_hist.GetSumOfWeights() * bin_width_herwig ))
 
-		sherpa_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=5)
+		sherpa_hist = Hist(25, 0, 1, title=plot_labels['sherpa'], color=plot_colors['sherpa'], linewidth=8)
 		map(sherpa_hist.Fill, sherpa_pT_D)
 		bin_width_sherpa = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
 		sherpa_hist.Scale(1.0 / ( sherpa_hist.GetSumOfWeights() * bin_width_sherpa ))
@@ -9765,7 +9789,7 @@ def plot_hardest_pT_D(pT_lower_cut=150):
 		plt.gcf().text(0.29, 0.89, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};~\eta<2.4$"]
+		labels = [r"$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", "$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$", "$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};~\eta<2.4$"]
 		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.97, 0.57])
 
 
@@ -9774,7 +9798,7 @@ def plot_hardest_pT_D(pT_lower_cut=150):
 		
 
 		plt.autoscale()
-		plt.ylim( plt.gca().get_ylim()[0], plt.gca().get_ylim()[1] * 1.2 )
+		plt.ylim( plt.gca().get_ylim()[0], 10 )
 
 		plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
 		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.2))
@@ -9818,7 +9842,7 @@ def plot_jet_mass(pT_lower_cut=150, pT_upper_cut=20000):
 		
 		# Data.
 		
-		data_hist = Hist(100, 0, 150, markersize=3.0, title=plot_labels['data'], color=plot_colors['data'])
+		data_hist = Hist(100, 0, 100, markersize=3.0, title=plot_labels['data'], color=plot_colors['data'])
 		bin_width = (data_hist.upperbound() - data_hist.lowerbound()) / data_hist.nbins()
 		map(data_hist.Fill, jet_mass, prescales)
 		data_hist.Scale(1.0 / (data_hist.GetSumOfWeights() * bin_width))
@@ -9830,17 +9854,17 @@ def plot_jet_mass(pT_lower_cut=150, pT_upper_cut=20000):
 		# Monte Carlo.
 
 
-		pythia_hist = Hist(100, 0, 150, linewidth=8, color=plot_colors['pythia'], title=plot_labels['pythia'])
+		pythia_hist = Hist(100, 0, 100, linewidth=8, color=plot_colors['pythia'], title=plot_labels['pythia'])
 		bin_width = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
 		map(pythia_hist.Fill, pythia_jet_mass)
 		pythia_hist.Scale(1.0 / (pythia_hist.GetSumOfWeights() * bin_width))
 		
-		herwig_hist = Hist(100, 0, 150, linewidth=8, color=plot_colors['herwig'], title=plot_labels['herwig'])
+		herwig_hist = Hist(100, 0, 100, linewidth=8, color=plot_colors['herwig'], title=plot_labels['herwig'])
 		bin_width = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
 		map(herwig_hist.Fill, herwig_jet_mass)
 		herwig_hist.Scale(1.0 / (herwig_hist.GetSumOfWeights() * bin_width))
 
-		sherpa_hist = Hist(100, 0, 150, linewidth=8, color=plot_colors['sherpa'], title=plot_labels['sherpa'])
+		sherpa_hist = Hist(100, 0, 100, linewidth=8, color=plot_colors['sherpa'], title=plot_labels['sherpa'])
 		bin_width = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
 		map(sherpa_hist.Fill, sherpa_jet_mass)
 		sherpa_hist.Scale(1.0 / (sherpa_hist.GetSumOfWeights() * bin_width))
@@ -9865,10 +9889,10 @@ def plot_jet_mass(pT_lower_cut=150, pT_upper_cut=20000):
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		if pT_upper_cut != 20000:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$"]
+			labels = [r"$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$"]
 		else:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.58])
+			labels = [r"$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
+		plt.gca().legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.58])
 
 		# Legends End.
 
@@ -9885,7 +9909,7 @@ def plot_jet_mass(pT_lower_cut=150, pT_upper_cut=20000):
 		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
 		plt.gca().autoscale(True)
-		plt.gca().set_ylim(0., 1.25 * plt.gca().get_ylim()[1])
+		plt.gca().set_ylim(0., 0.16)
 		plt.xlim(0, 80)
 
 		plt.gca().xaxis.set_minor_locator(MultipleLocator(2))
@@ -9922,13 +9946,13 @@ def plot_constituent_multiplicity(pT_lower_cut=150, pT_upper_cut=20000):
 		herwig_properties = parse_file("/home/aashish/herwig_" + mc_label + ".dat", keywords_to_populate=keywords)
 		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_label + ".dat", keywords_to_populate=keywords)
 		
-		pythia_jet_multi = pythia_properties['mul_pre_SD']
-		herwig_jet_multi = herwig_properties['mul_pre_SD']
-		sherpa_jet_multi = sherpa_properties['mul_pre_SD']
+		pythia_jet_multi, pythia_prescales = pythia_properties['mul_pre_SD'], pythia_properties['prescale']
+		herwig_jet_multi, herwig_prescales = herwig_properties['mul_pre_SD'], herwig_properties['prescale']
+		sherpa_jet_multi, sherpa_prescales = sherpa_properties['mul_pre_SD'], sherpa_properties['prescale']
 		
 		# Data.
 		
-		data_hist = Hist(50, -1, 149, markersize=3.0, title=plot_labels['data'], color=plot_colors['data'])
+		data_hist = Hist(50, -1, 99, markersize=3.0, title=plot_labels['data'], color=plot_colors['data'])
 		bin_width = (data_hist.upperbound() - data_hist.lowerbound()) / data_hist.nbins()
 		map(data_hist.Fill, jet_multi, prescales)
 		data_hist.Scale(1.0 / (data_hist.GetSumOfWeights() * bin_width))
@@ -9940,19 +9964,19 @@ def plot_constituent_multiplicity(pT_lower_cut=150, pT_upper_cut=20000):
 		# Monte Carlo.
 
 
-		pythia_hist = Hist(50, -1, 149, linewidth=8, color=plot_colors['pythia'], title=plot_labels['pythia'])
+		pythia_hist = Hist(50, -1, 99, linewidth=8, color=plot_colors['pythia'], title=plot_labels['pythia'])
 		bin_width = (pythia_hist.upperbound() - pythia_hist.lowerbound()) / pythia_hist.nbins()
-		map(pythia_hist.Fill, pythia_jet_multi)
+		map(pythia_hist.Fill, pythia_jet_multi, pythia_prescales)
 		pythia_hist.Scale(1.0 / (pythia_hist.GetSumOfWeights() * bin_width))
 		
-		herwig_hist = Hist(50, -1, 149, linewidth=8, color=plot_colors['herwig'], title=plot_labels['herwig'])
+		herwig_hist = Hist(50, -1, 99, linewidth=8, color=plot_colors['herwig'], title=plot_labels['herwig'])
 		bin_width = (herwig_hist.upperbound() - herwig_hist.lowerbound()) / herwig_hist.nbins()
-		map(herwig_hist.Fill, herwig_jet_multi)
+		map(herwig_hist.Fill, herwig_jet_multi, herwig_prescales)
 		herwig_hist.Scale(1.0 / (herwig_hist.GetSumOfWeights() * bin_width))
 
-		sherpa_hist = Hist(50, -1, 149, linewidth=8, color=plot_colors['sherpa'], title=plot_labels['sherpa'])
+		sherpa_hist = Hist(50, -1, 99, linewidth=8, color=plot_colors['sherpa'], title=plot_labels['sherpa'])
 		bin_width = (sherpa_hist.upperbound() - sherpa_hist.lowerbound()) / sherpa_hist.nbins()
-		map(sherpa_hist.Fill, sherpa_jet_multi)
+		map(sherpa_hist.Fill, sherpa_jet_multi, sherpa_prescales)
 		sherpa_hist.Scale(1.0 / (sherpa_hist.GetSumOfWeights() * bin_width))
 
 		
@@ -9975,10 +9999,10 @@ def plot_constituent_multiplicity(pT_lower_cut=150, pT_upper_cut=20000):
 
 		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 		if pT_upper_cut != 20000:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$"]
+			labels = [r"$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T}\in[" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$"]
 		else:
-			labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
-		plt.gca().legend([extra, extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.58])
+			labels = [r"$\mathrm{PFC}~pT > 500~\mathrm{MeV}$", r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
+		plt.gca().legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.96, 0.58])
 
 		# Legends End.
 
@@ -9995,11 +10019,11 @@ def plot_constituent_multiplicity(pT_lower_cut=150, pT_upper_cut=20000):
 		plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
 		plt.gca().autoscale(True)
-		plt.gca().set_ylim(0., 1.25 * plt.gca().get_ylim()[1])
+		plt.gca().set_ylim(0., 0.15)
 		plt.xlim(0, 80)
 
 		plt.gca().xaxis.set_minor_locator(MultipleLocator(2))
-		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.002))
+		plt.gca().yaxis.set_minor_locator(MultipleLocator(0.005))
 
 		plt.tick_params(which='major', width=5, length=25, labelsize=70)
 		plt.tick_params(which='minor', width=3, length=15)
@@ -10454,9 +10478,9 @@ def plot_weighted_pts(mode=1, pT_lower_cut=85, pT_upper_cut=10000):
 
 
 
-plot_pfc_pts(mode="all", pT_lower_cut=0.0, pT_upper_cut=0.5)
-plot_pfc_pts(mode="charged", pT_lower_cut=0.0, pT_upper_cut=0.5)
-plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=0.5)
+# plot_pfc_pts(mode="all", pT_lower_cut=0.0, pT_upper_cut=0.5)
+# plot_pfc_pts(mode="charged", pT_lower_cut=0.0, pT_upper_cut=0.5)
+# plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=0.5)
 
 
 
@@ -10469,6 +10493,31 @@ plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=0.5)
 # plot_jet_eta(pT_lower_cut=150)
 # plot_jet_phi(pT_lower_cut=150)
 
+# plot_constituent_multiplicity(pT_lower_cut=150)
+plot_constituent_multiplicity_track(pT_lower_cut=150)
+
+
+# plot_hardest_pT_D(pT_lower_cut=150)
+plot_hardest_pT_D_track(pT_lower_cut=150)
+
+# plot_jet_mass(pT_lower_cut=150)
+plot_jet_mass_track(pT_lower_cut=150)
+
+
+# plot_hardest_LHA(pT_lower_cut=150)
+# plot_hardest_LHA_track(pT_lower_cut=150)
+
+
+
+# plot_hardest_width(pT_lower_cut=150)
+# plot_hardest_width_track(pT_lower_cut=150)
+
+
+plot_hardest_thrust(pT_lower_cut=150)
+plot_hardest_thrust_track(pT_lower_cut=150)
+
+
+
 # plot_2d_theta_g_zg()
 
 # Track vs. Preclustered.
@@ -10476,54 +10525,12 @@ plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=0.5)
 
 
 
-# plot_constituent_multiplicity_track_and_preclustered(pT_lower_cut=150, R_sub=0.01)
-# plot_constituent_multiplicity_track_and_preclustered(pT_lower_cut=150, R_sub=0.05)
-# plot_constituent_multiplicity_track_and_preclustered(pT_lower_cut=150, R_sub=0.08)
-# plot_constituent_multiplicity_track_and_preclustered(pT_lower_cut=150, R_sub=0.1)
-
-
-# plot_jet_mass_track_and_preclustered(pT_lower_cut=150, R_sub=0.01)
-# plot_jet_mass_track_and_preclustered(pT_lower_cut=150, R_sub=0.05)
-# plot_jet_mass_track_and_preclustered(pT_lower_cut=150, R_sub=0.08)
-# plot_jet_mass_track_and_preclustered(pT_lower_cut=150, R_sub=0.1)
-
-
-# plot_hardest_pT_D_track_and_preclustered(pT_lower_cut=150, R_sub=0.01)
-# plot_hardest_pT_D_track_and_preclustered(pT_lower_cut=150, R_sub=0.05)
-# plot_hardest_pT_D_track_and_preclustered(pT_lower_cut=150, R_sub=0.08)
-# plot_hardest_pT_D_track_and_preclustered(pT_lower_cut=150, R_sub=0.1)
-
-
-# plot_hardest_LHA_track_and_preclustered(pT_lower_cut=150, R_sub=0.01)
-# plot_hardest_LHA_track_and_preclustered(pT_lower_cut=150, R_sub=0.05)
-# plot_hardest_LHA_track_and_preclustered(pT_lower_cut=150, R_sub=0.08)
-# plot_hardest_LHA_track_and_preclustered(pT_lower_cut=150, R_sub=0.1)
-
-
-# plot_hardest_width_track_and_preclustered(pT_lower_cut=150, R_sub=0.01)
-# plot_hardest_width_track_and_preclustered(pT_lower_cut=150, R_sub=0.05)
-# plot_hardest_width_track_and_preclustered(pT_lower_cut=150, R_sub=0.08)
-# plot_hardest_width_track_and_preclustered(pT_lower_cut=150, R_sub=0.1)
-
-
-# plot_hardest_thrust_track_and_preclustered(pT_lower_cut=150, R_sub=0.01)
-# plot_hardest_thrust_track_and_preclustered(pT_lower_cut=150, R_sub=0.05)
-# plot_hardest_thrust_track_and_preclustered(pT_lower_cut=150, R_sub=0.08)
-# plot_hardest_thrust_track_and_preclustered(pT_lower_cut=150, R_sub=0.1)
-
-
-
-# plot_hardest_pT_D(pT_lower_cut=150)
-# plot_hardest_LHA(pT_lower_cut=150)
-# plot_hardest_width(pT_lower_cut=150)
-# plot_hardest_thrust(pT_lower_cut=150)
-
 
 
 
 
 # plot_jet_mass(pT_lower_cut=150)
-# plot_constituent_multiplicity(pT_lower_cut=150)
+
 
 
 # plot_2d_theta_g_zg(pT_lower_cut=150, log=True)
