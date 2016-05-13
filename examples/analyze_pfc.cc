@@ -94,19 +94,8 @@ void analyze_pfc(MOD::Event & event_being_read, ofstream & output_file, int & ev
    JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
 
    PseudoJet hardest_jet = event_being_read.hardest_jet();
-   vector<PseudoJet> hardest_jet_constituents = hardest_jet.constituents();
-   
-   SoftDrop soft_drop(0.0, 0.1);
-   PseudoJet soft_drop_jet = soft_drop(hardest_jet);
 
-   
-   
-   
-   
-
-   
-
-   vector<PseudoJet> hardest_jet_pfcs = event_being_read.hardest_jet().constituents();
+   vector<PseudoJet> hardest_jet_pfcs = hardest_jet.constituents();
 
    for (unsigned i = 0; i < hardest_jet_pfcs.size(); i++) {
 
@@ -114,7 +103,9 @@ void analyze_pfc(MOD::Event & event_being_read, ofstream & output_file, int & ev
 
    		properties.push_back(MOD::Property("# Entry", "  Entry"));
 
-	   	properties.push_back(MOD::Property("prescale", event_being_read.weight()));
+         properties.push_back(MOD::Property("prescale", event_being_read.weight()));
+	   	properties.push_back(MOD::Property("jet_pT", hardest_jet.pt()));
+	   	properties.push_back(MOD::Property("jet_eta", hardest_jet.eta()));
 	   	properties.push_back(MOD::Property("pfc_pT", hardest_jet_pfcs[i].pt()));
 	   	properties.push_back(MOD::Property("pfc_pdgId", hardest_jet_pfcs[i].user_info<MOD::InfoPFC>().pdgId()));
 

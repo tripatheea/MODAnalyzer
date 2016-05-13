@@ -131,7 +131,7 @@ def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut
 
 
 
-def parse_pfc(input_file):
+def parse_pfc(input_file, pT_lower_cut=85., eta_cut=2.4):
 
 	# We'll populate only those fileds that are in the list keywords_to_populate.
 
@@ -153,10 +153,14 @@ def parse_pfc(input_file):
 				keywords = numbers[2:]
 				keywords_set = True
 			elif numbers[0] == "Entry":
-					
-				for i in range(len(keywords)):
-					keyword = keywords[i]
-					properties[keyword].append( float(numbers[i + 1]) ) # + 1 because we ignore the first keyword "Entry".
+				
+				pT_index = keywords.index("jet_pT") + 1
+				eta_index = keywords.index("jet_eta") + 1
+
+				if float(numbers[pT_index]) > pT_lower_cut and abs(float(numbers[eta_index])) < eta_cut :
+					for i in range(len(keywords)):
+						keyword = keywords[i]
+						properties[keyword].append( float(numbers[i + 1]) ) # + 1 because we ignore the first keyword "Entry".
 
 		except:
 			pass
@@ -1220,9 +1224,9 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
 		herwig_properties = parse_file("/home/aashish/herwig_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
 		sherpa_properties = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
 
-		pythia_pTs = pythia_properties['hardest_pT']
-		herwig_pTs = herwig_properties['hardest_pT']
-		sherpa_pTs = sherpa_properties['hardest_pT']
+		pythia_pTs, pythia_prescales = pythia_properties['hardest_pT'], pythia_properties['prescale']
+		herwig_pTs, herwig_prescales = herwig_properties['hardest_pT'], herwig_properties['prescale']
+		sherpa_pTs, sherpa_prescales = sherpa_properties['hardest_pT'], sherpa_properties['prescale']
 
 
 
@@ -1241,9 +1245,9 @@ def plot_pts(pT_lower_cut=100, pT_upper_cut=10000):
 
 		map(experiment_pt_hist.Fill, experiment_pTs, prescales)
 		
-		map(pythia_pt_hist.Fill, pythia_pTs)
-		map(herwig_pt_hist.Fill, herwig_pTs)
-		map(sherpa_pt_hist.Fill, sherpa_pTs)
+		map(pythia_pt_hist.Fill, pythia_pTs, pythia_prescales)
+		map(herwig_pt_hist.Fill, herwig_pTs, herwig_prescales)
+		map(sherpa_pt_hist.Fill, sherpa_pTs, sherpa_prescales)
 
 
 		experiment_pt_hist.Scale(1.0 / (experiment_pt_hist.GetSumOfWeights() * bin_width_experiment))
@@ -10150,7 +10154,7 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 	keywords_to_populate = ['prescale', 'pfc_pT', 'pfc_pdgId']
 
 
-	properties = parse_pfc(input_analysis_file)
+	properties = parse_pfc(input_analysis_file, pT_lower_cut=85., eta_cut=2.4)
 
 	experiment_pTs = properties['pfc_pT']
 	experiment_pdgIds = properties['pfc_pdgId']
@@ -10186,13 +10190,13 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 	# for mc_type in ["truth", "reco"]:
 	for mc_type in ["truth"]:
 
-		pythia_properties = parse_pfc("/home/aashish/pythia_pfc.dat")
-		herwig_properties = parse_pfc("/home/aashish/herwig_pfc.dat")
-		sherpa_properties = parse_pfc("/home/aashish/sherpa_pfc.dat")
+		pythia_properties = parse_pfc("/home/aashish/pythia_pfc.dat", pT_lower_cut=85., eta_cut=2.4)
+		herwig_properties = parse_pfc("/home/aashish/herwig_pfc.dat", pT_lower_cut=85., eta_cut=2.4)
+		sherpa_properties = parse_pfc("/home/aashish/sherpa_pfc.dat", pT_lower_cut=85., eta_cut=2.4)
 
-		pythia_pTs, pythia_pdgIds = pythia_properties['pfc_pT'], pythia_properties['pfc_pdgId']
-		herwig_pTs, herwig_pdgIds = herwig_properties['pfc_pT'], herwig_properties['pfc_pdgId']
-		sherpa_pTs, sherpa_pdgIds = sherpa_properties['pfc_pT'], sherpa_properties['pfc_pdgId']
+		pythia_pTs, pythia_pdgIds, pythia_prescales = pythia_properties['pfc_pT'], pythia_properties['pfc_pdgId'], pythia_properties['prescale']
+		herwig_pTs, herwig_pdgIds, herwig_prescales = herwig_properties['pfc_pT'], herwig_properties['pfc_pdgId'], herwig_properties['prescale']
+		sherpa_pTs, sherpa_pdgIds, sherpa_prescales = sherpa_properties['pfc_pT'], sherpa_properties['pfc_pdgId'], sherpa_properties['prescale']
 
 
 
@@ -10210,16 +10214,16 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 
 
 		filtered_experimental_pTs, filtered_experimental_pdgIds, filtered_experimental_prescales = filter(mode, (experiment_pTs, experiment_pdgIds, prescales))
-		filtered_pythia_pTs, filtered_pythia_pdgIds, filtered_pythia_prescales = filter(mode, (pythia_pTs, pythia_pdgIds, [1] * len(pythia_pdgIds)))
-		filtered_herwig_pTs, filtered_herwig_pdgIds, filtered_herwig_prescales = filter(mode, (herwig_pTs, herwig_pdgIds, [1] * len(herwig_pdgIds)))
-		filtered_sherpa_pTs, filtered_sherpa_pdgIds, filtered_sherpa_prescales = filter(mode, (sherpa_pTs, sherpa_pdgIds, [1] * len(sherpa_pdgIds)))
+		filtered_pythia_pTs, filtered_pythia_pdgIds, filtered_pythia_prescales = filter(mode, (pythia_pTs, pythia_pdgIds, pythia_prescales))
+		filtered_herwig_pTs, filtered_herwig_pdgIds, filtered_herwig_prescales = filter(mode, (herwig_pTs, herwig_pdgIds, herwig_prescales))
+		filtered_sherpa_pTs, filtered_sherpa_pdgIds, filtered_sherpa_prescales = filter(mode, (sherpa_pTs, sherpa_pdgIds, sherpa_prescales))
 
 
 		map(experiment_pt_hist.Fill, filtered_experimental_pTs, filtered_experimental_prescales)
 		
-		map(pythia_pt_hist.Fill, filtered_pythia_pTs)
-		map(herwig_pt_hist.Fill, filtered_herwig_pTs)
-		map(sherpa_pt_hist.Fill, filtered_sherpa_pTs)
+		map(pythia_pt_hist.Fill, filtered_pythia_pTs, filtered_pythia_prescales)
+		map(herwig_pt_hist.Fill, filtered_herwig_pTs, filtered_herwig_prescales)
+		map(sherpa_pt_hist.Fill, filtered_sherpa_pTs, filtered_sherpa_prescales)
 
 
 		experiment_pt_hist.Scale(1.0 / (experiment_pt_hist.GetSumOfWeights() * bin_width_experiment))
@@ -10322,6 +10326,8 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 			ax0.set_ylim(1e-9, 1e2)	
 		elif pT_upper_cut == 2:
 			ax0.set_ylim(1e-3, 1e2)	
+		elif pT_upper_cut == 0.5:
+			ax0.set_ylim(1e-3, 1e3)
 
 		ax1.set_ylim(0, 2)
 
@@ -10360,25 +10366,42 @@ def plot_weighted_pts(mode=1, pT_lower_cut=85, pT_upper_cut=10000):
 	keywords_to_populate = ['prescale', 'hardest_pT']
 
 	# properties = parse_file("/home/aashish/weighted_" + str(mode) + ".dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
-	properties = parse_file("/home/aashish/pythia_weight_no_power.dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+	pythia_properties = parse_file("/home/aashish/pythia_weight_no_power.dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
+	herwig_properties = parse_file("/home/aashish/herwig_weight_no_power.dat", keywords_to_populate, pT_lower_cut=pT_lower_cut)
 	
-	pTs = properties['hardest_pT']
-	prescales = properties['prescale']
+	pythia_pTs = pythia_properties['hardest_pT']
+	pythia_prescales = pythia_properties['prescale']
+
+	herwig_pTs = herwig_properties['hardest_pT']
+	herwig_prescales = herwig_properties['prescale']
 	
 
-	pt_hist = Hist(100, 0, 1000, title=plot_labels['pythia'], linewidth=5, markersize=5.0, color=plot_colors['pythia'])
-	bin_width = (pt_hist.upperbound() - pt_hist.lowerbound()) / pt_hist.nbins()
-	map(pt_hist.Fill, pTs, prescales)
-	pt_hist.Scale(1.0 / (pt_hist.GetSumOfWeights() * bin_width))
+
+	print sum(pythia_prescales)
+	print sum(herwig_prescales)
+
+	pythia_pt_hist = Hist(200, 0, 1000, title=plot_labels['pythia'], linewidth=5, markersize=5.0, color=plot_colors['pythia'])
+	bin_width = (pythia_pt_hist.upperbound() - pythia_pt_hist.lowerbound()) / pythia_pt_hist.nbins()
+	map(pythia_pt_hist.Fill, pythia_pTs, pythia_prescales)
+	pythia_pt_hist.Scale(1.0 / (pythia_pt_hist.GetSumOfWeights() * bin_width))
+
+
+	herwig_pt_hist = Hist(200, 0, 1000, title=plot_labels['herwig'], linewidth=5, markersize=5.0, color=plot_colors['herwig'])
+	bin_width = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
+	map(herwig_pt_hist.Fill, herwig_pTs, herwig_prescales)
+	herwig_pt_hist.Scale(1.0 / (herwig_pt_hist.GetSumOfWeights() * bin_width))
 
 
 
-	rplt.hist(pt_hist, zorder=1, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+	rplt.hist(pythia_pt_hist, zorder=1, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+	rplt.hist(herwig_pt_hist, zorder=1, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 	
 
 	plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75, labelpad=45)
 	plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
 	
+
+	plt.legend()
 
 	plt.yscale('log')
 
@@ -10411,7 +10434,7 @@ def plot_weighted_pts(mode=1, pT_lower_cut=85, pT_upper_cut=10000):
 
 
 
-plot_weighted_pts(mode=2)
+# plot_weighted_pts(mode=2)
 # plot_weighted_pts(mode=1)
 # plot_weighted_pts(mode=2)
 
@@ -10431,6 +10454,9 @@ plot_weighted_pts(mode=2)
 
 
 
+plot_pfc_pts(mode="all", pT_lower_cut=0.0, pT_upper_cut=0.5)
+plot_pfc_pts(mode="charged", pT_lower_cut=0.0, pT_upper_cut=0.5)
+plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=0.5)
 
 
 

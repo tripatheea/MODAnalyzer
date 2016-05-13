@@ -140,6 +140,7 @@ const vector<MOD::Trigger> & MOD::Event::triggers() const {
 
 const double MOD::Event::weight() const {
    return _weight;
+   // return _assigned_trigger.prescale();
 }
 
 

@@ -93,8 +93,13 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
   
    JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
 
-   PseudoJet hardest_jet = event_being_read.hardest_jet();
-   vector<PseudoJet> hardest_jet_constituents = hardest_jet.constituents();
+   Selector pT_500_MeV_selector = SelectorPtMin(0.5);
+
+   vector<PseudoJet> hardest_jet_constituents = pT_500_MeV_selector(event_being_read.hardest_jet().constituents());
+
+   ClusterSequence cs = ClusterSequence(hardest_jet_constituents, jet_def_cambridge);
+   PseudoJet hardest_jet = cs.inclusive_jets()[0];
+
    
    SoftDrop soft_drop(0.0, 0.1);
    PseudoJet soft_drop_jet = soft_drop(hardest_jet);
@@ -195,23 +200,13 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
 
-
-   
-
-
-
-
-
    // ================================================================ Track Based Analysis ================================================================
 
 
 
 
-
-   Selector pT_1_GeV_selector = SelectorPtMin(1.0);
-
    // Get all charged particles with 1 GeV particles removed.
-   std::vector<fastjet::PseudoJet> track_constituents = pT_1_GeV_selector(MOD::filter_charged(hardest_jet_constituents));
+   std::vector<fastjet::PseudoJet> track_constituents = MOD::filter_charged(hardest_jet_constituents);
 
    // Cluster them using Cambridge/Alachen with infinite radius. This makes sure that we get the same jets as "regular" ak5 jets except now with just charged particles.
    ClusterSequence cs_track(track_constituents, jet_def_cambridge);
@@ -282,117 +277,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
    }
-
-
-
-   // ================================================================ Presclustered Analysis ================================================================
-
-   // Take all the hardest jet constituents and precluster them with kT-algorithm with a radius of 0.05
-   
-   double pT_sub = 1.0;
-
-   // double R_sub = 0.01;
-   vector<pair<string, double>> R_sub_s { make_pair("0_01", 0.01), make_pair("0_05", 0.05), make_pair("0_08", 0.08), make_pair("0_10", 0.1) };
-
-   for (unsigned i = 0; i < R_sub_s.size(); i++) {
-
-	    string R_sub_label = R_sub_s[i].first;
-	    double R_sub = R_sub_s[i].second;
-
-	   
-
-	   JetDefinition jet_def_kt(kt_algorithm, R_sub);
-
-	   ClusterSequence precluster_sequence = ClusterSequence(hardest_jet_constituents, jet_def_kt);
-
-	   // cout << hardest_jet_constituents.size() << " vs. " << precluster_sequence.inclusive_jets().size() << " with the first one containing " << precluster_sequence.inclusive_jets()[0].constituents().size() << endl;
-
-	   vector<PseudoJet> preclustered_constituents;
-
-	   for (unsigned i = 0; i < precluster_sequence.inclusive_jets().size(); i++) {
-	      if ( precluster_sequence.inclusive_jets()[i].pt() > pT_sub ) {
-	         preclustered_constituents.push_back( precluster_sequence.inclusive_jets()[i] );
-	      }
-	   }
-
-	   // Next, cluster "preclustered constituents" with Cambridge/Alachen with infinite radius to get a single jet that contains all of these.
-	  
-	   ClusterSequence cs_preclustered(preclustered_constituents, jet_def_cambridge);
-
-	   if (cs_preclustered.inclusive_jets().size() > 0) {
-
-	      PseudoJet preclustered_hardest_jet = cs_preclustered.inclusive_jets()[0];
-
-	      for (unsigned i = 0; i < zg_cuts.size(); i++) {
-	         string label = zg_cuts[i].first;
-	         double zg_cut = zg_cuts[i].second;
-
-	         SoftDrop soft_drop_charged(0.0, zg_cut);
-	         PseudoJet soft_drop_jet_charged = soft_drop_charged(preclustered_hardest_jet);
-
-	         properties.push_back(MOD::Property("preclustered_R_" + R_sub_label + "_zg_" + label, soft_drop_jet_charged.structure_of<SoftDrop>().symmetry()));
-	         properties.push_back(MOD::Property("preclustered_R_" + R_sub_label + "_Rg_" + label, soft_drop_jet_charged.structure_of<SoftDrop>().delta_R()));
-	         properties.push_back(MOD::Property("preclustered_R_" + R_sub_label + "_mu_" + label, soft_drop_jet_charged.structure_of<SoftDrop>().mu()));
-	      }
-
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_mul_pre_SD", (int) preclustered_hardest_jet.constituents().size()) );
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_mul_post_SD", (int) soft_drop(preclustered_hardest_jet).constituents().size()) );
-
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_mass_pre_SD", preclustered_hardest_jet.m()) );
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_mass_post_SD", soft_drop(preclustered_hardest_jet).m()) );
-
-
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_pT_D_pre_SD", angularity_lambda(preclustered_hardest_jet, 2, 0)) );
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_pT_D_post_SD", angularity_lambda(soft_drop(preclustered_hardest_jet), 2, 0)) );
-
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_LHA_pre_SD", angularity_lambda(preclustered_hardest_jet, 1, 0.5)) );
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_LHA_post_SD", angularity_lambda(soft_drop(preclustered_hardest_jet), 1, 0.5)) );
-
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_width_pre_SD", angularity_lambda(preclustered_hardest_jet, 1, 1)) );
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_width_post_SD", angularity_lambda(soft_drop(preclustered_hardest_jet), 1, 1)) );
-
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_thrust_pre_SD", angularity_lambda(preclustered_hardest_jet, 1, 2)) );
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_thrust_post_SD", angularity_lambda(soft_drop(preclustered_hardest_jet), 1, 2)) );
-
-	   }
-	   else {
-
-	      for (unsigned i = 0; i < zg_cuts.size(); i++) {
-	         string label = zg_cuts[i].first;
-	         properties.push_back(MOD::Property("preclustered_R_" + R_sub_label + "_zg_" + label, -1.0));
-	         properties.push_back(MOD::Property("preclustered_R_" + R_sub_label + "_Rg_" + label, -1.0));
-	         properties.push_back(MOD::Property("preclustered_R_" + R_sub_label + "_mu_" + label, -1.0));
-	      }
-
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_mul_pre_SD", -1. ));
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_mul_post_SD", -1. ));
-
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_mass_pre_SD", -1. ));
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_mass_post_SD", -1. ));
-
-
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_pT_D_pre_SD", -1.) );
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_pT_D_post_SD", -1.) );
-
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_LHA_pre_SD", -1.) );
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_LHA_post_SD", -1.) );
-
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_width_pre_SD", -1.) );
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_width_post_SD", -1.) );
-
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_thrust_pre_SD", -1.) );
-	      properties.push_back( MOD::Property("preclustered_R_" + R_sub_label + "_thrust_post_SD", -1.) );
-
-
-	   }
-
-	}
-
-   
-   
-
-
-
+ 
    
 
    // Now that we've calculated all observables, write them out.
