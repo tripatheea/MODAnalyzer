@@ -183,10 +183,10 @@ def plot_pTs(pT_lower_cut=100, pT_upper_cut=10000):
   corrected_pTs = properties['cor_hardest_pT']
   prescales = properties['prescale']
 
-  corrected_pt_hist = Hist(100, 0, 1000, title='Jet Energy Corrected', markersize=3.0, color='black')
+  corrected_pt_hist = Hist(100, 5, 1005, title='Jet Energy Corrected', markersize=3.0, color='black')
   bin_width_corrected = (corrected_pt_hist.upperbound() - corrected_pt_hist.lowerbound()) / corrected_pt_hist.nbins()
 
-  uncorrected_pt_hist = Hist(100, 0, 1000, title='Jet Energy Uncorrected', markersize=3.0, color='orange')
+  uncorrected_pt_hist = Hist(100, 5, 1005, title='Jet Energy Uncorrected', markersize=3.0, color='orange')
   bin_width_uncorrected = (uncorrected_pt_hist.upperbound() - uncorrected_pt_hist.lowerbound()) / uncorrected_pt_hist.nbins()
 
   map(uncorrected_pt_hist.Fill, uncorrected_pTs, prescales)
@@ -253,9 +253,9 @@ def plot_pTs(pT_lower_cut=100, pT_upper_cut=10000):
 
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   if pT_upper_cut != 10000:
-    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV}$"]
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} \in [" + str(pT_lower_cut) + ", " + str(pT_upper_cut) + "]~\mathrm{GeV};\eta<2.4$"]
   else:
-    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5;\eta<2.4$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+    labels = [r"$ \textrm{Anti--}k_{t}\textrm{:}~R = 0.5$", r"$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV};\eta<2.4$"]
   ax0.legend([extra, extra], labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.92, 0.70])
 
   # Legends End.
