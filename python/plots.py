@@ -46,7 +46,8 @@ def parse_file(input_file, pT_lower_cut=150., pT_upper_cut=20000., softdrop_pT_l
 
 		for line in infile:
 
-			if line_number > 10000:
+			# if line_number > 100000:
+			if False:
 				break
 
 			line_number += 1
@@ -100,10 +101,10 @@ input_analysis_file = sys.argv[1]
 
 start = time.time()
 
-data_hists = parse_file(input_analysis_file)
-pythia_hists = parse_file("/home/aashish/pythia_truth.dat")
-herwig_hists = parse_file("/home/aashish/herwig_truth.dat")
-sherpa_hists = parse_file("/home/aashish/sherpa_truth.dat")
+data_hists = parse_file(input_analysis_file, eta_cut=10.)
+pythia_hists = parse_file("/home/aashish/pythia_truth.dat", eta_cut=10.)
+herwig_hists = parse_file("/home/aashish/herwig_truth.dat", eta_cut=10.)
+sherpa_hists = parse_file("/home/aashish/sherpa_truth.dat", eta_cut=10.)
 
 end = time.time()
 
@@ -120,7 +121,7 @@ start = time.time()
 
 print "Plotting eta!"
 
-eta_plot = MODPlot( get_hist_list('hardest_eta'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, x_label="Jet $\eta$", y_label="A.U.", x_lims=(-5., 5.))
+eta_plot = MODPlot( get_hist_list('hardest_eta'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, ratio_plot=True, ratio_to_index=0, x_label="Jet $\eta$", y_label="A.U.", x_lims=(-5., 5.))
 eta_plot.plot("hardest_eta.pdf")
 
 
@@ -130,7 +131,7 @@ phi_plot = MODPlot( get_hist_list('hardest_phi'), plot_types=plot_types, plot_co
 phi_plot.plot("hardest_phi.pdf")
 
 
-pT_plot = MODPlot( get_hist_list('hardest_pT'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, x_label="Jet $p_T$", y_label="A.U.")
+pT_plot = MODPlot( get_hist_list('hardest_pT'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, y_scale='log', ratio_plot=True, ratio_to_index=1, x_label="Jet $p_T$", y_label="A.U.")
 pT_plot.plot("hardest_pT.pdf")
 
 

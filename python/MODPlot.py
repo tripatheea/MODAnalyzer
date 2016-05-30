@@ -11,6 +11,8 @@ from matplotlib.ticker import FormatStrFormatter
 from sets import Set
 
 import time as time
+import copy
+
 
 import sys
 import math
@@ -81,12 +83,18 @@ plt.rc('font', family='serif', size=43)
 
 class MODPlot:
 
-	def __init__(self, hists, plot_types, plot_colors, plot_labels, x_label, y_label, x_lims=(0, -1), y_lims=(0, -1)):
+	def __init__(self, hists, plot_types, plot_colors, plot_labels, x_scale='linear', y_scale='linear', ratio_plot=False, ratio_to_index=-1, x_label="", y_label="", x_lims=(0, -1), y_lims=(0, -1)):
 		
 		self._hists = hists
 		self._plot_types = plot_types
 		self._plot_colors = plot_colors
 		self._plot_labels = plot_labels
+
+		self._x_scale = x_scale
+		self._y_scale = y_scale
+
+		self._ratio_plot = ratio_plot
+		self._ratio_to_index = ratio_to_index
 
 		self._x_label = x_label
 		self._y_label = y_label
@@ -133,39 +141,81 @@ class MODPlot:
 		z_indices = range(len(self._hists), 0, -1)
 		z_indices[0] *= 10
 
+		# First, draw the regular "non-ratio" plot.
+
+		if self._ratio_plot:
+			gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
+			ax0 = plt.subplot(gs[0])
+			ax1 = plt.subplot(gs[1])
+		else:
+			ax0 = plt.gca()
+
 		for i in range(len(self._hists)):
 			hist = self._hists[i]
 			plot_type = self._plot_types[i]
 
 			if plot_type == 'hist':
-				rplt.hist(hist, zorder=z_indices[i], emptybins=False)
+				rplt.hist(hist, axes=ax0, zorder=z_indices[i], emptybins=False)
 			elif plot_type == 'error':
-				rplt.errorbar(hist, zorder=z_indices[i], emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+				rplt.errorbar(hist, axes=ax0, zorder=z_indices[i], emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
 
 
-		plt.legend(frameon=False)
+		if self._y_scale == 'log':
+			ax0.set_yscale('log')
+
+
+		# Ratio plot.
+
+		if self._ratio_plot:
+
+			denominator_hist = self._hists[self._ratio_to_index]
+
+			
+			for i in range(len(self._hists)):
+				ratio_hist = copy.deepcopy( self._hists[i] )
+				ratio_hist.Divide(denominator_hist)
+
+				plot_type = self._plot_types[i]
+
+				if plot_type == 'hist':
+					rplt.hist(ratio_hist, axes=ax1, zorder=z_indices[i], emptybins=False)
+				elif plot_type == 'error':
+					rplt.errorbar(ratio_hist, axes=ax1, zorder=z_indices[i], emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+
+		# Ratio plot ends.
+
+
+		handles, labels = ax0.get_legend_handles_labels()
+		legend = ax0.legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.99, 1.0])
+		ax0.add_artist(legend)
+
 
 		plt.autoscale()
 
 		if self._x_lims[1] == -1:
-			plt.gca().set_xlim( self._x_lims[0], plt.gca().get_xlim()[1] )
+			ax0.set_xlim( self._x_lims[0], ax0.get_xlim()[1] )
 		else:
-			plt.gca().set_xlim( self._x_lims[0], self._x_lims[1] )
+			ax0.set_xlim( self._x_lims[0], self._x_lims[1] )
 
 		if self._y_lims[1] == -1:
-			plt.gca().set_ylim( self._y_lims[0], plt.gca().get_ylim()[1] * 1.125 )
+			ax0.set_ylim( self._y_lims[0], ax0.get_ylim()[1] * 1.125 )
 		else:
-			plt.gca().set_ylim( self._y_lims[0], self._y_lims[1] )
+			ax0.set_ylim( self._y_lims[0], self._y_lims[1] )
 
+		if self._ratio_plot:
+			ax1.set_ylim(0., 2.)
 
-		plt.xlabel(self._x_label)
-		plt.ylabel(self._y_label)
+		ax0.set_xlabel(self._x_label)
+		ax0.set_ylabel(self._y_label)
 
 		plt.tick_params(which='major', width=5, length=25, labelsize=70)
 		plt.tick_params(which='minor', width=3, length=15)
 
 		plt.gcf().set_size_inches(30, 24, forward=1)
 		plt.gcf().set_snap(True)
+
+		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
 		plt.savefig(filename)
 
