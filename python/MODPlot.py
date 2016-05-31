@@ -130,6 +130,53 @@ class MODPlot:
 			self._hists[i].SetTitle(self._plot_labels[i])
 			self._hists[i].SetLineWidth(8)
 
+	def convert_hist_to_line_plot(self, hist, x_range):	# x_range = range of x for which it's non-zero. 
+
+		n_bins = hist.nbins()
+
+		a = []
+		b = {}
+		bin_width = (x_range[1] - x_range[0]) / n_bins
+
+		for i in range(0, len(list(hist.x()))):
+
+			a.append(round(list(hist.x())[i] - bin_width / 2., 4))
+			a.append(round(list(hist.x())[i], 4))
+			a.append(round(list(hist.x())[i] + bin_width / 2., 4))
+
+			if round(list(hist.x())[i] - bin_width / 2., 4) not in b.keys():
+				b[round(list(hist.x())[i] - bin_width / 2., 4)] = [ list(hist.y())[i] ]
+			else:
+				b[round(list(hist.x())[i] - bin_width / 2., 4)].append( list(hist.y())[i] )
+			
+			if round(list(hist.x())[i], 4) not in b.keys():
+				b[round(list(hist.x())[i], 4)] = [ list(hist.y())[i] ]
+			else:
+				b[round(list(hist.x())[i], 4)].append( list(hist.y())[i] )
+
+			if round(list(hist.x())[i] + bin_width / 2., 4) not in b.keys():
+				b[round(list(hist.x())[i] + bin_width / 2., 4)] = [ list(hist.y())[i] ]
+			else:
+				b[round(list(hist.x())[i] + bin_width / 2., 4)].append( list(hist.y())[i] )
+
+		x = sorted(list(Set(a)))
+		a.sort()
+		
+		c = [b[x[i]] for i in range(0, len(x))]
+
+		y = [item for sublist in c for item in sublist]
+		
+		a_zero_removed = []
+		y_zero_removed = []
+		for i in range(0, len(a)):
+			# if a[i] >= x_range[0] and a[i] <= x_range[1] and y[i] != 0.0:
+			if a[i] >= x_range[0] and a[i] <= x_range[1]:
+				a_zero_removed.append(a[i])
+				y_zero_removed.append(y[i])
+
+		return a_zero_removed, y_zero_removed
+
+
 
 	def plot(self, filename):
 		
@@ -187,7 +234,14 @@ class MODPlot:
 				plot_type = self._plot_types[i]
 
 				if plot_type == 'hist':
-					rplt.hist(ratio_hist, axes=ax1, zorder=z_indices[i], emptybins=False)
+					# rplt.hist(ratio_hist, axes=ax1, zorder=z_indices[i], emptybins=False)
+					
+
+
+					line_plot = self.convert_hist_to_line_plot(ratio_hist, ratio_hist.bounds())
+
+					plt.plot(line_plot[0], line_plot[1], axes=ax1, lw=8, color=ratio_hist.GetColor()[0])
+
 				elif plot_type == 'error':
 					rplt.errorbar(ratio_hist, axes=ax1, zorder=z_indices[i], emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
 
