@@ -83,7 +83,7 @@ plt.rc('font', family='serif', size=43)
 
 class MODPlot:
 
-	def __init__(self, hists, plot_types, plot_colors, plot_labels, x_scale='linear', y_scale='linear', ratio_plot=False, ratio_to_index=-1, x_label="", y_label="", x_lims=(0, -1), y_lims=(0, -1)):
+	def __init__(self, hists, plot_types, plot_colors, plot_labels, x_scale='linear', y_scale='linear', ratio_plot=False, ratio_to_index=-1, ratio_label="", x_label="", y_label="", x_lims=(0, -1), y_lims=(0, -1)):
 		
 		self._hists = hists
 		self._plot_types = plot_types
@@ -95,6 +95,7 @@ class MODPlot:
 
 		self._ratio_plot = ratio_plot
 		self._ratio_to_index = ratio_to_index
+		self._ratio_label = ratio_label
 
 		self._x_label = x_label
 		self._y_label = y_label
@@ -105,7 +106,7 @@ class MODPlot:
 
 
 
-	def set_logo(self):
+	def logo_box(self):
 		
 		logo_offset_image = OffsetImage(read_png(get_sample_data(logo_location, asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
 		text_box = TextArea(logo_text, textprops=dict(color='#444444', fontsize=50, weight='bold'))
@@ -114,7 +115,7 @@ class MODPlot:
 
 		anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0.)
 
-		plt.gca().add_artist(anchored_box)
+		return anchored_box
 		
 
 	def normalize_hists(self):
@@ -132,9 +133,20 @@ class MODPlot:
 
 	def plot(self, filename):
 		
-		self.set_logo()
+		if self._ratio_plot:
+			gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
+			ax0 = plt.subplot(gs[0])
+			ax1 = plt.subplot(gs[1])
+		else:
+			ax0 = plt.gca()
+
+		# Set the logo.
+		ax0.add_artist(self.logo_box())
+
+		# Set basic plot element formattings. 
 		self.set_formatting()
 
+		# Normalize all the histograms.
 		self.normalize_hists()
 
 
@@ -143,12 +155,7 @@ class MODPlot:
 
 		# First, draw the regular "non-ratio" plot.
 
-		if self._ratio_plot:
-			gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
-			ax0 = plt.subplot(gs[0])
-			ax1 = plt.subplot(gs[1])
-		else:
-			ax0 = plt.gca()
+
 
 		for i in range(len(self._hists)):
 			hist = self._hists[i]
@@ -204,15 +211,39 @@ class MODPlot:
 			ax0.set_ylim( self._y_lims[0], self._y_lims[1] )
 
 		if self._ratio_plot:
+			ax1.set_xlim( ax0.get_xlim()[0], ax0.get_xlim()[1] )
 			ax1.set_ylim(0., 2.)
 
-		ax0.set_xlabel(self._x_label)
-		ax0.set_ylabel(self._y_label)
+
+		# Axes labels.
+
+		ax0.set_xlabel(self._x_label, fontsize=75)
+		ax0.set_ylabel(self._y_label, rotation=0, fontsize=75, labelpad=75)
+
+		if self._ratio_plot:
+			ax1.set_xlabel(self._x_label, fontsize=75)
+			ax1.set_ylabel(self._ratio_label, rotation=0, fontsize=55, labelpad=115, y=0.31)
+
+		# Axes labels end.
+
+
+		plt.sca(ax0)
 
 		plt.tick_params(which='major', width=5, length=25, labelsize=70)
 		plt.tick_params(which='minor', width=3, length=15)
 
-		plt.gcf().set_size_inches(30, 24, forward=1)
+		if self._ratio_plot:
+			plt.sca(ax1)
+			
+			plt.tick_params(which='major', width=5, length=25, labelsize=70)
+			plt.tick_params(which='minor', width=3, length=15)
+
+
+		if self._ratio_plot:
+			plt.gcf().set_size_inches(30, 30, forward=1)
+		else:
+			plt.gcf().set_size_inches(30, 24, forward=1)
+
 		plt.gcf().set_snap(True)
 
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)

@@ -46,8 +46,8 @@ def parse_file(input_file, pT_lower_cut=150., pT_upper_cut=20000., softdrop_pT_l
 
 		for line in infile:
 
-			# if line_number > 100000:
-			if False:
+			if line_number > 100000:
+			# if False:
 				break
 
 			line_number += 1
@@ -121,17 +121,17 @@ start = time.time()
 
 print "Plotting eta!"
 
-eta_plot = MODPlot( get_hist_list('hardest_eta'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, ratio_plot=True, ratio_to_index=0, x_label="Jet $\eta$", y_label="A.U.", x_lims=(-5., 5.))
+eta_plot = MODPlot( get_hist_list('hardest_eta'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="Jet $\eta$", y_label="A.U.", x_lims=(-5., 5.))
 eta_plot.plot("hardest_eta.pdf")
 
 
 print "Plotting phi!"
 
-phi_plot = MODPlot( get_hist_list('hardest_phi'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, x_label="Jet $\phi$", y_label="A.U.")
+phi_plot = MODPlot( get_hist_list('hardest_phi'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="Jet $\phi$", y_label="A.U.", x_lims=(0, 2*np.pi))
 phi_plot.plot("hardest_phi.pdf")
 
 
-pT_plot = MODPlot( get_hist_list('hardest_pT'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, y_scale='log', ratio_plot=True, ratio_to_index=1, x_label="Jet $p_T$", y_label="A.U.")
+pT_plot = MODPlot( get_hist_list('hardest_pT'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, y_scale='log', ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="Jet $p_T$", y_label="A.U.")
 pT_plot.plot("hardest_pT.pdf")
 
 
