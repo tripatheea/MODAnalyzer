@@ -156,15 +156,17 @@ class MODPlot:
 		# First, draw the regular "non-ratio" plot.
 
 
-
+		legend_handles = []
 		for i in range(len(self._hists)):
 			hist = self._hists[i]
 			plot_type = self._plot_types[i]
 
 			if plot_type == 'hist':
-				rplt.hist(hist, axes=ax0, zorder=z_indices[i], emptybins=False)
+				plot = rplt.hist(hist, axes=ax0, zorder=z_indices[i], emptybins=False)
 			elif plot_type == 'error':
-				rplt.errorbar(hist, axes=ax0, zorder=z_indices[i], emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+				plot = rplt.errorbar(hist, axes=ax0, zorder=z_indices[i], emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+			legend_handles.append( plot )
 
 
 		if self._y_scale == 'log':
@@ -193,8 +195,8 @@ class MODPlot:
 		# Ratio plot ends.
 
 
-		handles, labels = ax0.get_legend_handles_labels()
-		legend = ax0.legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60, bbox_to_anchor=[0.99, 1.0])
+		handles, labels = legend_handles, self._plot_labels
+		legend = ax0.legend(handles, labels, loc=1, frameon=0, fontsize=60)
 		ax0.add_artist(legend)
 
 

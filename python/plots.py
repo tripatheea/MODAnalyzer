@@ -131,8 +131,23 @@ phi_plot = MODPlot( get_hist_list('hardest_phi'), plot_types=plot_types, plot_co
 phi_plot.plot("hardest_phi.pdf")
 
 
+print "Plotting pT!"
+
 pT_plot = MODPlot( get_hist_list('hardest_pT'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, y_scale='log', ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="Jet $p_T$", y_label="A.U.")
 pT_plot.plot("hardest_pT.pdf")
+
+
+print "Plotting constituent multiplicity!"
+
+constituent_multiplicity_plot = MODPlot( get_hist_list('mul_pre_SD'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="Constituent Multiplicity", y_label="A.U.")
+constituent_multiplicity_plot.plot("constituent_multiplicity.pdf")
+
+
+print "Plotting zg!"
+
+constituent_multiplicity_plot = MODPlot( get_hist_list('zg_10'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="$z_g$", y_label="A.U.")
+constituent_multiplicity_plot.plot("zg.pdf")
+
 
 
 end = time.time()
