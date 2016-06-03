@@ -36,8 +36,6 @@ def parse_file(input_file, pT_lower_cut=150., pT_upper_cut=20000., softdrop_pT_l
 	keywords = []
 	keywords_set = False
 
-
-
 	
 	with open(input_file) as infile:
 
@@ -66,17 +64,44 @@ def parse_file(input_file, pT_lower_cut=150., pT_upper_cut=20000., softdrop_pT_l
 					eta_index = keywords.index("hardest_eta") + 1
 					prescale_index = keywords.index("prescale") + 1
 
-					if abs(float(numbers[eta_index])) < eta_cut and float(numbers[pT_index]) > pT_lower_cut and float(numbers[pT_index]) < pT_upper_cut and float(numbers[softdrop_pT_index]) > softdrop_pT_lower_cut and float(numbers[softdrop_pT_index]) < softdrop_pT_upper_cut:
-						for i in range(len(keywords)):
+					# if abs(float(numbers[eta_index])) < eta_cut and float(numbers[pT_index]) > pT_lower_cut and float(numbers[pT_index]) < pT_upper_cut and float(numbers[softdrop_pT_index]) > softdrop_pT_lower_cut and float(numbers[softdrop_pT_index]) < softdrop_pT_upper_cut:
+					
+					for i in range(len(keywords)):
 
-							keyword = keywords[i]
+						keyword = keywords[i]
 
-							# Get first half of the keyword (anything before the first '_').
-							key = get_key(keyword)
+						if keyword in all_hists.keys():
+							# Loop through each individual hist in all_hists[key] and fill it only if the current line satisfies all the accompanying conditions.
 
-							if key in all_hists.keys():
-								all_hists[key].fill_array( [ float(numbers[i + 1]) ], [ float(numbers[prescale_index]) ] ) # + 1 because we ignore the first keyword "Entry".
+							for mod_hist in all_hists[keyword]:
+								
+								hist = mod_hist.hist()
+								conditions = mod_hist.conditions()
 
+								condition_satisfied = 1
+								for condition_keyword, condition_function in conditions:
+									keyword_index = keywords.index(condition_keyword) + 1
+									condition_satisfied *= int( condition_function(float(numbers[keyword_index])) )
+
+								condition_satisfied = bool(condition_satisfied)
+
+								if condition_satisfied:
+									hist.fill_array( [float(numbers[i + 1])], [float(numbers[prescale_index])] )	 # + 1 because we ignore the first keyword "Entry".
+
+								
+
+						'''
+						keyword = keywords[i]
+
+						if key in all_hists.keys():
+
+							print "tada"
+
+							# Loop through each individual hist in all_hists[key] and fill it only if the current line satisfies all the accompanying conditions.
+							for mod_hist in all_hists[key]:
+								print mod_hist
+								# all_hists[key].fill_array( [ float(numbers[i + 1]) ], [ float(numbers[prescale_index]) ] ) # + 1 because we ignore the first keyword "Entry".
+						'''
 
 
 			except:
@@ -87,17 +112,12 @@ def parse_file(input_file, pT_lower_cut=150., pT_upper_cut=20000., softdrop_pT_l
 
 
 
-
-
-
-def get_hist_list(var):
-	return [ data_hists[var], pythia_hists[var], herwig_hists[var], sherpa_hists[var] ]
-
-
-
-
-
 input_analysis_file = sys.argv[1]
+
+plot_types = ['error', 'hist', 'hist', 'hist']
+colors = [ plot_colors['data'], plot_colors['pythia'], plot_colors['herwig'], plot_colors['sherpa'] ]
+labels = [ plot_labels['data'], plot_labels['pythia'], plot_labels['herwig'], plot_labels['sherpa'] ]
+
 
 start = time.time()
 
@@ -112,11 +132,34 @@ print "Finished parsing all files in {} seconds. Now plotting them!".format(end 
 
 
 
-plot_types = ['error', 'hist', 'hist', 'hist']
-colors = [ plot_colors['data'], plot_colors['pythia'], plot_colors['herwig'], plot_colors['sherpa'] ]
-labels = [ plot_labels['data'], plot_labels['pythia'], plot_labels['herwig'], plot_labels['sherpa'] ]
+def get_hist_list(var):
+	# return [ data_hists[var], pythia_hists[var], herwig_hists[var], sherpa_hists[var] ]
+
+	hists = []
+
+	for i in range(len(data_hists[var])):
+		data_pythia_herwig_sherpa_hists = [ data_hists[var][i], pythia_hists[var][i], herwig_hists[var][i], sherpa_hists[var][i] ]
+		hists.append( data_pythia_herwig_sherpa_hists )
+
+	return hists
+
+
 
 start = time.time()
+
+
+
+# for pythia_hists,  in get_hist_list('hardest_pT'):
+
+print "Plotting pT!"
+
+
+
+
+
+'''
+pT_plot = MODPlot( get_hist_list('hardest_pT'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, multi_page=True, y_scale='log', ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="Jet $p_T$", y_label="A.U.")
+pT_plot.plot("hardest_pT.pdf")
 
 
 print "Plotting eta!"
@@ -133,12 +176,6 @@ phi_plot = MODPlot( get_hist_list('hardest_phi'), plot_types=plot_types, plot_co
 phi_plot.plot("hardest_phi.pdf")
 
 
-print "Plotting pT!"
-
-pT_plot = MODPlot( get_hist_list('hardest_pT'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, y_scale='log', ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="Jet $p_T$", y_label="A.U.")
-pT_plot.plot("hardest_pT.pdf")
-
-
 print "Plotting constituent multiplicity!"
 
 constituent_multiplicity_plot = MODPlot( get_hist_list('mul_pre_SD'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="Constituent Multiplicity", y_label="A.U.")
@@ -147,9 +184,11 @@ constituent_multiplicity_plot.plot("constituent_multiplicity.pdf")
 
 print "Plotting zg!"
 
-constituent_multiplicity_plot = MODPlot( get_hist_list('zg_10'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="$z_g$", y_label="A.U.")
+constituent_multiplicity_plot = MODPlot( get_hist_list('zg_10'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="$z_g$", y_label="A.U.", x_lims=(0, 0.6))
 constituent_multiplicity_plot.plot("zg.pdf")
 
+
+'''
 
 
 end = time.time()

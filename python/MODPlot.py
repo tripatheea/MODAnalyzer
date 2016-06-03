@@ -83,12 +83,14 @@ plt.rc('font', family='serif', size=43)
 
 class MODPlot:
 
-	def __init__(self, hists, plot_types, plot_colors, plot_labels, x_scale='linear', y_scale='linear', ratio_plot=False, ratio_to_index=-1, ratio_label="", x_label="", y_label="", x_lims=(0, -1), y_lims=(0, -1)):
+	def __init__(self, hists, plot_types, plot_colors, plot_labels, multi_page=False, x_scale='linear', y_scale='linear', ratio_plot=False, ratio_to_index=-1, ratio_label="", x_label="", y_label="", x_lims=(0, -1), y_lims=(0, -1)):
 		
 		self._hists = hists
 		self._plot_types = plot_types
 		self._plot_colors = plot_colors
 		self._plot_labels = plot_labels
+
+		self._multi_page = multi_page
 
 		self._x_scale = x_scale
 		self._y_scale = y_scale
@@ -120,9 +122,16 @@ class MODPlot:
 
 	def normalize_hists(self):
 
-		for i in range(len(self._hists)):
-			bin_width = (self._hists[i].upperbound() - self._hists[i].lowerbound()) / self._hists[i].nbins()
-			self._hists[i].Scale(1.0 / ( self._hists[i].GetSumOfWeights() * bin_width ))
+		if self._multi_page:
+			for i in range(len(self._hists)):
+				for j in range(len(self._hists[i])):
+					bin_width = (self._hists[i][j].upperbound() - self._hists[i][j].lowerbound()) / self._hists[i][j].nbins()
+					self._hists[i][j].Scale(1.0 / ( self._hists[i][j].GetSumOfWeights() * bin_width ))
+		else:
+			for i in range(len(self._hists)):
+				bin_width = (self._hists[i].upperbound() - self._hists[i].lowerbound()) / self._hists[i].nbins()
+				self._hists[i].Scale(1.0 / ( self._hists[i].GetSumOfWeights() * bin_width ))
+
 
 	def set_formatting(self):
 		for i in range(len(self._hists)):
@@ -172,7 +181,13 @@ class MODPlot:
 			# if a[i] >= x_range[0] and a[i] <= x_range[1] and y[i] != 0.0:
 			if a[i] >= x_range[0] and a[i] <= x_range[1]:
 				a_zero_removed.append(a[i])
-				y_zero_removed.append(y[i])
+				
+				if y[i] == 0.0:
+					y_zero_removed.append( None )
+				else:
+					y_zero_removed.append(y[i])
+
+
 
 		return a_zero_removed, y_zero_removed
 
@@ -187,14 +202,17 @@ class MODPlot:
 		else:
 			ax0 = plt.gca()
 
+
+		# Normalize all the histograms.
+		self.normalize_hists()
+
 		# Set the logo.
 		ax0.add_artist(self.logo_box())
 
 		# Set basic plot element formattings. 
 		self.set_formatting()
 
-		# Normalize all the histograms.
-		self.normalize_hists()
+		
 
 
 		z_indices = range(len(self._hists), 0, -1)
@@ -202,19 +220,28 @@ class MODPlot:
 
 		# First, draw the regular "non-ratio" plot.
 
+		all_plots = []
+		
+		points_x_s, points_y_s = [], []
 
-		legend_handles = []
 		for i in range(len(self._hists)):
 			hist = self._hists[i]
 			plot_type = self._plot_types[i]
 
 			if plot_type == 'hist':
 				plot = rplt.hist(hist, axes=ax0, zorder=z_indices[i], emptybins=False)
+				points_x, points_y = plot[1].get_xdata(), plot[1].get_ydata()
+
 			elif plot_type == 'error':
 				plot = rplt.errorbar(hist, axes=ax0, zorder=z_indices[i], emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+				points_x, points_y = plot[0].get_xdata(), plot[0].get_ydata()
+			
+			points_x_s.append(points_x)
+			points_y_s.append(points_y)
 
-			legend_handles.append( plot )
+			
 
+			all_plots.append(plot)
 
 		if self._y_scale == 'log':
 			ax0.set_yscale('log')
@@ -228,27 +255,47 @@ class MODPlot:
 
 			
 			for i in range(len(self._hists)):
-				ratio_hist = copy.deepcopy( self._hists[i] )
-				ratio_hist.Divide(denominator_hist)
 
+				if i != self._ratio_to_index:
+					ratio_hist = copy.deepcopy( self._hists[i] )
+					ratio_hist.Divide(denominator_hist)
+				else:
+					ratio_hist = self._hists[i].empty_clone(color=self._hists[i].GetColor()[0])
+
+					print ratio_hist.bounds()[1]
+
+					map( ratio_hist.Fill, np.linspace(self._hists[i].bounds()[0], self._hists[i].bounds()[1], self._hists[i].nbins()), [1.] * self._hists[i].nbins() )
+
+					print ratio_hist.bounds()[1]
+					
 				plot_type = self._plot_types[i]
 
 				if plot_type == 'hist':
 					# rplt.hist(ratio_hist, axes=ax1, zorder=z_indices[i], emptybins=False)
-					
-
 
 					line_plot = self.convert_hist_to_line_plot(ratio_hist, ratio_hist.bounds())
 
 					plt.plot(line_plot[0], line_plot[1], axes=ax1, lw=8, color=ratio_hist.GetColor()[0])
 
 				elif plot_type == 'error':
-					rplt.errorbar(ratio_hist, axes=ax1, zorder=z_indices[i], emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+					# We need to calculate ratio of errors ourselves.
+					
+					x_errors, y_errors = [], []
+					for x_segment in all_plots[i][2][0].get_segments():
+						x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+					for y_segment in all_plots[i][2][1].get_segments():
+						y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+
+					ratio_y_err = [ b / m if m != 0 else None for b, m in zip(y_errors, points_y_s[self._ratio_to_index]) ]
+					
+					rplt.errorbar(ratio_hist, axes=ax1, zorder=z_indices[i], emptybins=False, xerr=1, yerr=ratio_y_err, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
 
 
 		# Ratio plot ends.
 
 
+		legend_handles = all_plots
 		handles, labels = legend_handles, self._plot_labels
 		legend = ax0.legend(handles, labels, loc=1, frameon=0, fontsize=60)
 		ax0.add_artist(legend)
