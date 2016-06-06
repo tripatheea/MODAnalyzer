@@ -46,17 +46,18 @@ def all_hist_templates():
 
 	hardest_pT_hist = Hist(100, 5, 1005, title="pT")
 
-	pT_boundaries = [85, 115, 150, 200, 250, 325]
+	# pT_boundaries = [85, 115, 150, 200, 250, 325]
+	pT_boundaries = [85, 115]
 
 	all_hists['hardest_pT'] = []
 
-	for i in range(len(pT_boundaries) - 1):
-		mod_hist = MODHist(hardest_pT_hist, conditions=[('hardest_pT', lambda x: x > pT_boundaries[i] and x < pT_boundaries[i + 1])], use_prescale=False)	
+	# for i in range(len(pT_boundaries) - 1):
+	# 	mod_hist = MODHist(hardest_pT_hist, conditions=[('hardest_pT', lambda x: x > pT_boundaries[i] and x < pT_boundaries[i + 1])], use_prescale=False)	
 
-		all_hists['hardest_pT'].append( mod_hist )
+	# 	all_hists['hardest_pT'].append( mod_hist )
 
 	all_hists['hardest_pT'].append( MODHist(hardest_pT_hist, conditions=[('hardest_pT', lambda x: x > 85)], use_prescale=True) )
-	all_hists['hardest_pT'].append( MODHist(hardest_pT_hist, conditions=[('hardest_pT', lambda x: x > 150)], use_prescale=True) )
+	all_hists['hardest_pT'].append( MODHist(hardest_pT_hist, conditions=[('hardest_pT', lambda x: x > 300)], use_prescale=True) )
 	 
 	
 	return all_hists

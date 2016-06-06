@@ -191,38 +191,47 @@ class MODPlot:
 
 	def plot(self, filename):
 		
-		
-
 
 		with PdfPages(filename) as pdf:
 
-			if self._ratio_plot:
-				gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
-				ax0 = plt.subplot(gs[0])
-				ax1 = plt.subplot(gs[1])
-			else:
-				ax0 = plt.gca()
+			
 
-
-			# Normalize all the histograms.
-			self.normalize_hists()
-
-			# Set the logo.
-			ax0.add_artist(self.logo_box())
-
-			# Set basic plot element formattings. 
-			self.set_formatting()
+			
 
 			
 
 
-			z_indices = range(len(self._hists), 0, -1)
-			z_indices[0] *= 10
+			
 
 
-			for k in range(len(self._hists)):
+			for k in range(len(self._hists)):	# k is in a sense the page number of our multi-page PDF plot. For each value of k, we produce one complete plot (with a set of 4 histograms viz. data, pythia, herwig, sherpa).
+
+				print "Printing page {} of the plot.".format(k + 1)
+
+				if self._ratio_plot:
+					gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
+					ax0 = plt.subplot(gs[0])
+					ax1 = plt.subplot(gs[1])
+				else:
+					ax0 = plt.gca()
+
+
+				# Normalize all the histograms.
+				self.normalize_hists()
+
+				# Set the logo.
+				ax0.add_artist(self.logo_box())
+
+				# Set basic plot element formattings. 
+				self.set_formatting()
+
+
+				z_indices = range(len(self._hists[k]), 0, -1)
+				z_indices[0] *= 10
 
 				# First, draw the regular "non-ratio" plot.
+
+				plt.sca(ax0)
 
 				all_plots = []
 				
@@ -233,11 +242,13 @@ class MODPlot:
 					plot_type = self._plot_types[i]
 
 					if plot_type == 'hist':
-						plot = rplt.hist(hist, ax=ax0, zorder=z_indices[i], emptybins=False)
+						# plot = rplt.hist(hist, ax=ax0, zorder=z_indices[i], emptybins=False)
+						plot = rplt.hist(hist, zorder=z_indices[i], emptybins=False)
 						points_x, points_y = plot[1].get_xdata(), plot[1].get_ydata()
 
 					elif plot_type == 'error':
-						plot = rplt.errorbar(hist, ax=ax0, zorder=z_indices[i], emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+						# plot = rplt.errorbar(hist, ax=ax0, zorder=z_indices[i], emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+						plot = rplt.errorbar(hist, zorder=z_indices[i], emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
 						points_x, points_y = plot[0].get_xdata(), plot[0].get_ydata()
 					
 					points_x_s.append(points_x)
@@ -252,6 +263,8 @@ class MODPlot:
 
 
 				# Ratio plot.
+
+				plt.sca(ax1)
 
 				if self._ratio_plot:
 
@@ -279,7 +292,8 @@ class MODPlot:
 
 							line_plot = self.convert_hist_to_line_plot(ratio_hist, ratio_hist.bounds())
 
-							plt.plot(line_plot[0], line_plot[1], ax=ax1, lw=8, color=ratio_hist.GetColor()[0])
+							# plt.plot(line_plot[0], line_plot[1], ax=ax1, lw=8, color=ratio_hist.GetColor()[0])
+							plt.plot(line_plot[0], line_plot[1], lw=8, color=ratio_hist.GetColor()[0])
 
 						elif plot_type == 'error':
 
@@ -293,12 +307,16 @@ class MODPlot:
 
 							ratio_y_err = [ b / m if m != 0 else None for b, m in zip(y_errors, points_y_s[self._ratio_to_index]) ]
 							
-							rplt.errorbar(ratio_hist, ax=ax1, zorder=z_indices[i], emptybins=False, xerr=1, yerr=ratio_y_err, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+							# rplt.errorbar(ratio_hist, ax=ax1, zorder=z_indices[i], emptybins=False, xerr=1, yerr=ratio_y_err, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+							rplt.errorbar(ratio_hist, zorder=z_indices[i], emptybins=False, xerr=1, yerr=ratio_y_err, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
 
 
 				# Ratio plot ends.
 
 
+				# Legend.
+
+				plt.sca(ax0)
 				legend_handles = all_plots
 				handles, labels = legend_handles, self._plot_labels
 				legend = ax0.legend(handles, labels, loc=1, frameon=0, fontsize=60)
@@ -308,6 +326,7 @@ class MODPlot:
 				plt.autoscale()
 
 				if self._x_lims[1] == -1:
+					print "hey"
 					ax0.set_xlim( self._x_lims[0], ax0.get_xlim()[1] )
 				else:
 					ax0.set_xlim( self._x_lims[0], self._x_lims[1] )
@@ -322,6 +341,7 @@ class MODPlot:
 					ax1.set_ylim(0., 2.)
 
 
+
 				# Axes labels.
 
 				ax0.set_xlabel(self._x_label, fontsize=75)
@@ -333,9 +353,8 @@ class MODPlot:
 
 				# Axes labels end.
 
-
+				
 				plt.sca(ax0)
-
 				plt.tick_params(which='major', width=5, length=25, labelsize=70)
 				plt.tick_params(which='minor', width=3, length=15)
 
@@ -358,6 +377,7 @@ class MODPlot:
 				# plt.savefig(filename)
 				pdf.savefig()
 
-				plt.clf()
+				# plt.clf()
+				plt.close()
 
 
