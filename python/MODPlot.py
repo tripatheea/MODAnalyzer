@@ -52,6 +52,7 @@ from matplotlib._png import read_png
 from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox, AnchoredOffsetbox, HPacker
 
 from mpl_toolkits.axes_grid.anchored_artists import AnchoredDrawingArea
+from matplotlib.backends.backend_pdf import PdfPages
 
 from scipy.stats import norm
 from scipy.stats import gamma
@@ -121,23 +122,18 @@ class MODPlot:
 		
 
 	def normalize_hists(self):
-
-		if self._multi_page:
-			for i in range(len(self._hists)):
-				for j in range(len(self._hists[i])):
-					bin_width = (self._hists[i][j].upperbound() - self._hists[i][j].lowerbound()) / self._hists[i][j].nbins()
-					self._hists[i][j].Scale(1.0 / ( self._hists[i][j].GetSumOfWeights() * bin_width ))
-		else:
-			for i in range(len(self._hists)):
-				bin_width = (self._hists[i].upperbound() - self._hists[i].lowerbound()) / self._hists[i].nbins()
-				self._hists[i].Scale(1.0 / ( self._hists[i].GetSumOfWeights() * bin_width ))
-
+		for i in range(len(self._hists)):
+			for j in range(len(self._hists[i])):
+				bin_width = (self._hists[i][j].hist().upperbound() - self._hists[i][j].hist().lowerbound()) / self._hists[i][j].hist().nbins()
+				self._hists[i][j].hist().Scale(1.0 / ( self._hists[i][j].hist().GetSumOfWeights() * bin_width ))
+	
 
 	def set_formatting(self):
 		for i in range(len(self._hists)):
-			self._hists[i].SetColor(self._plot_colors[i])
-			self._hists[i].SetTitle(self._plot_labels[i])
-			self._hists[i].SetLineWidth(8)
+			for j in range(len(self._hists[i])):
+				self._hists[i][j].hist().SetColor(self._plot_colors[j])
+				self._hists[i][j].hist().SetTitle(self._plot_labels[j])
+				self._hists[i][j].hist().SetLineWidth(8)
 
 	def convert_hist_to_line_plot(self, hist, x_range):	# x_range = range of x for which it's non-zero. 
 
@@ -195,164 +191,173 @@ class MODPlot:
 
 	def plot(self, filename):
 		
-		if self._ratio_plot:
-			gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
-			ax0 = plt.subplot(gs[0])
-			ax1 = plt.subplot(gs[1])
-		else:
-			ax0 = plt.gca()
-
-
-		# Normalize all the histograms.
-		self.normalize_hists()
-
-		# Set the logo.
-		ax0.add_artist(self.logo_box())
-
-		# Set basic plot element formattings. 
-		self.set_formatting()
-
 		
 
 
-		z_indices = range(len(self._hists), 0, -1)
-		z_indices[0] *= 10
+		with PdfPages(filename) as pdf:
 
-		# First, draw the regular "non-ratio" plot.
+			if self._ratio_plot:
+				gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
+				ax0 = plt.subplot(gs[0])
+				ax1 = plt.subplot(gs[1])
+			else:
+				ax0 = plt.gca()
 
-		all_plots = []
-		
-		points_x_s, points_y_s = [], []
 
-		for i in range(len(self._hists)):
-			hist = self._hists[i]
-			plot_type = self._plot_types[i]
+			# Normalize all the histograms.
+			self.normalize_hists()
 
-			if plot_type == 'hist':
-				plot = rplt.hist(hist, axes=ax0, zorder=z_indices[i], emptybins=False)
-				points_x, points_y = plot[1].get_xdata(), plot[1].get_ydata()
+			# Set the logo.
+			ax0.add_artist(self.logo_box())
 
-			elif plot_type == 'error':
-				plot = rplt.errorbar(hist, axes=ax0, zorder=z_indices[i], emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
-				points_x, points_y = plot[0].get_xdata(), plot[0].get_ydata()
-			
-			points_x_s.append(points_x)
-			points_y_s.append(points_y)
+			# Set basic plot element formattings. 
+			self.set_formatting()
 
 			
 
-			all_plots.append(plot)
 
-		if self._y_scale == 'log':
-			ax0.set_yscale('log')
+			z_indices = range(len(self._hists), 0, -1)
+			z_indices[0] *= 10
 
 
-		# Ratio plot.
+			for k in range(len(self._hists)):
 
-		if self._ratio_plot:
+				# First, draw the regular "non-ratio" plot.
 
-			denominator_hist = self._hists[self._ratio_to_index]
+				all_plots = []
+				
+				points_x_s, points_y_s = [], []
 
-			
-			for i in range(len(self._hists)):
+				for i in range(len(self._hists[k])):
+					hist = self._hists[k][i].hist()
+					plot_type = self._plot_types[i]
 
-				if i != self._ratio_to_index:
-					ratio_hist = copy.deepcopy( self._hists[i] )
-					ratio_hist.Divide(denominator_hist)
+					if plot_type == 'hist':
+						plot = rplt.hist(hist, ax=ax0, zorder=z_indices[i], emptybins=False)
+						points_x, points_y = plot[1].get_xdata(), plot[1].get_ydata()
+
+					elif plot_type == 'error':
+						plot = rplt.errorbar(hist, ax=ax0, zorder=z_indices[i], emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+						points_x, points_y = plot[0].get_xdata(), plot[0].get_ydata()
+					
+					points_x_s.append(points_x)
+					points_y_s.append(points_y)
+
+					
+
+					all_plots.append(plot)
+
+				if self._y_scale == 'log':
+					ax0.set_yscale('log')
+
+
+				# Ratio plot.
+
+				if self._ratio_plot:
+
+					denominator_hist = self._hists[k][self._ratio_to_index].hist()
+
+					
+					for i in range(len(self._hists[k])):
+
+						if i != self._ratio_to_index:
+							ratio_hist = copy.deepcopy( self._hists[k][i].hist() )
+							ratio_hist.Divide(denominator_hist)
+						else:
+							ratio_hist = self._hists[k][i].hist().empty_clone(color=self._hists[k][i].hist().GetColor()[0])
+
+							print ratio_hist.bounds()[1]
+
+							map( ratio_hist.Fill, np.linspace(self._hists[k][i].hist().bounds()[0], self._hists[k][i].hist().bounds()[1], self._hists[k][i].hist().nbins()), [1.] * self._hists[k][i].hist().nbins() )
+
+							print ratio_hist.bounds()[1]
+							
+						plot_type = self._plot_types[i]
+
+						if plot_type == 'hist':
+							# rplt.hist(ratio_hist, axes=ax1, zorder=z_indices[i], emptybins=False)
+
+							line_plot = self.convert_hist_to_line_plot(ratio_hist, ratio_hist.bounds())
+
+							plt.plot(line_plot[0], line_plot[1], ax=ax1, lw=8, color=ratio_hist.GetColor()[0])
+
+						elif plot_type == 'error':
+
+							# We need to calculate ratio of errors ourselves.
+							
+							x_errors, y_errors = [], []
+							for x_segment in all_plots[i][2][0].get_segments():
+								x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+							for y_segment in all_plots[i][2][1].get_segments():
+								y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+
+							ratio_y_err = [ b / m if m != 0 else None for b, m in zip(y_errors, points_y_s[self._ratio_to_index]) ]
+							
+							rplt.errorbar(ratio_hist, ax=ax1, zorder=z_indices[i], emptybins=False, xerr=1, yerr=ratio_y_err, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+
+				# Ratio plot ends.
+
+
+				legend_handles = all_plots
+				handles, labels = legend_handles, self._plot_labels
+				legend = ax0.legend(handles, labels, loc=1, frameon=0, fontsize=60)
+				ax0.add_artist(legend)
+
+
+				plt.autoscale()
+
+				if self._x_lims[1] == -1:
+					ax0.set_xlim( self._x_lims[0], ax0.get_xlim()[1] )
 				else:
-					ratio_hist = self._hists[i].empty_clone(color=self._hists[i].GetColor()[0])
+					ax0.set_xlim( self._x_lims[0], self._x_lims[1] )
 
-					print ratio_hist.bounds()[1]
+				if self._y_lims[1] == -1:
+					ax0.set_ylim( self._y_lims[0], ax0.get_ylim()[1] * 1.125 )
+				else:
+					ax0.set_ylim( self._y_lims[0], self._y_lims[1] )
 
-					map( ratio_hist.Fill, np.linspace(self._hists[i].bounds()[0], self._hists[i].bounds()[1], self._hists[i].nbins()), [1.] * self._hists[i].nbins() )
+				if self._ratio_plot:
+					ax1.set_xlim( ax0.get_xlim()[0], ax0.get_xlim()[1] )
+					ax1.set_ylim(0., 2.)
 
-					print ratio_hist.bounds()[1]
+
+				# Axes labels.
+
+				ax0.set_xlabel(self._x_label, fontsize=75)
+				ax0.set_ylabel(self._y_label, rotation=0, fontsize=75, labelpad=75)
+
+				if self._ratio_plot:
+					ax1.set_xlabel(self._x_label, fontsize=75)
+					ax1.set_ylabel(self._ratio_label, rotation=0, fontsize=55, labelpad=115, y=0.31)
+
+				# Axes labels end.
+
+
+				plt.sca(ax0)
+
+				plt.tick_params(which='major', width=5, length=25, labelsize=70)
+				plt.tick_params(which='minor', width=3, length=15)
+
+				if self._ratio_plot:
+					plt.sca(ax1)
 					
-				plot_type = self._plot_types[i]
-
-				if plot_type == 'hist':
-					# rplt.hist(ratio_hist, axes=ax1, zorder=z_indices[i], emptybins=False)
-
-					line_plot = self.convert_hist_to_line_plot(ratio_hist, ratio_hist.bounds())
-
-					plt.plot(line_plot[0], line_plot[1], axes=ax1, lw=8, color=ratio_hist.GetColor()[0])
-
-				elif plot_type == 'error':
-
-					# We need to calculate ratio of errors ourselves.
-					
-					x_errors, y_errors = [], []
-					for x_segment in all_plots[i][2][0].get_segments():
-						x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
-					for y_segment in all_plots[i][2][1].get_segments():
-						y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
-
-					ratio_y_err = [ b / m if m != 0 else None for b, m in zip(y_errors, points_y_s[self._ratio_to_index]) ]
-					
-					rplt.errorbar(ratio_hist, axes=ax1, zorder=z_indices[i], emptybins=False, xerr=1, yerr=ratio_y_err, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+					plt.tick_params(which='major', width=5, length=25, labelsize=70)
+					plt.tick_params(which='minor', width=3, length=15)
 
 
-		# Ratio plot ends.
+				if self._ratio_plot:
+					plt.gcf().set_size_inches(30, 30, forward=1)
+				else:
+					plt.gcf().set_size_inches(30, 24, forward=1)
 
+				plt.gcf().set_snap(True)
 
-		legend_handles = all_plots
-		handles, labels = legend_handles, self._plot_labels
-		legend = ax0.legend(handles, labels, loc=1, frameon=0, fontsize=60)
-		ax0.add_artist(legend)
+				plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
+				# plt.savefig(filename)
+				pdf.savefig()
 
-		plt.autoscale()
-
-		if self._x_lims[1] == -1:
-			ax0.set_xlim( self._x_lims[0], ax0.get_xlim()[1] )
-		else:
-			ax0.set_xlim( self._x_lims[0], self._x_lims[1] )
-
-		if self._y_lims[1] == -1:
-			ax0.set_ylim( self._y_lims[0], ax0.get_ylim()[1] * 1.125 )
-		else:
-			ax0.set_ylim( self._y_lims[0], self._y_lims[1] )
-
-		if self._ratio_plot:
-			ax1.set_xlim( ax0.get_xlim()[0], ax0.get_xlim()[1] )
-			ax1.set_ylim(0., 2.)
-
-
-		# Axes labels.
-
-		ax0.set_xlabel(self._x_label, fontsize=75)
-		ax0.set_ylabel(self._y_label, rotation=0, fontsize=75, labelpad=75)
-
-		if self._ratio_plot:
-			ax1.set_xlabel(self._x_label, fontsize=75)
-			ax1.set_ylabel(self._ratio_label, rotation=0, fontsize=55, labelpad=115, y=0.31)
-
-		# Axes labels end.
-
-
-		plt.sca(ax0)
-
-		plt.tick_params(which='major', width=5, length=25, labelsize=70)
-		plt.tick_params(which='minor', width=3, length=15)
-
-		if self._ratio_plot:
-			plt.sca(ax1)
-			
-			plt.tick_params(which='major', width=5, length=25, labelsize=70)
-			plt.tick_params(which='minor', width=3, length=15)
-
-
-		if self._ratio_plot:
-			plt.gcf().set_size_inches(30, 30, forward=1)
-		else:
-			plt.gcf().set_size_inches(30, 24, forward=1)
-
-		plt.gcf().set_snap(True)
-
-		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
-
-		plt.savefig(filename)
-
-		plt.clf()
+				plt.clf()
 
 
