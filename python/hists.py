@@ -9,18 +9,22 @@ from rootpy.plotting import Hist
 
 class MODHist:
 
-	def __init__(self, hist, conditions=[]):
+	def __init__(self, hist, conditions=[], use_prescale=True):
 		# hist should be a RootPy Hist object (TH1). 
 		# conditions should be a list of lambda functions that need to be satisfied by 'value' for this hist to be filled. 
 
 		self._hist = hist
 		self._conditions = conditions
+		self._use_prescale = use_prescale
 
 	def hist(self):
 		return self._hist
 
 	def conditions(self):
 		return self._conditions
+
+	def use_prescale(self):
+		return self._use_prescale
 
 
 
@@ -47,12 +51,12 @@ def all_hist_templates():
 	all_hists['hardest_pT'] = []
 
 	for i in range(len(pT_boundaries) - 1):
-		mod_hist = MODHist(hardest_pT_hist, conditions=[('hardest_pT', lambda x: x > pT_boundaries[i] and x < pT_boundaries[i + 1])])	
+		mod_hist = MODHist(hardest_pT_hist, conditions=[('hardest_pT', lambda x: x > pT_boundaries[i] and x < pT_boundaries[i + 1])], use_prescale=False)	
 
 		all_hists['hardest_pT'].append( mod_hist )
 
-	all_hists['hardest_pT'].append( MODHist(hardest_pT_hist, conditions=[('hardest_pT', lambda x: x > 85)]) )
-	all_hists['hardest_pT'].append( MODHist(hardest_pT_hist, conditions=[('hardest_pT', lambda x: x > 150)]) )
+	all_hists['hardest_pT'].append( MODHist(hardest_pT_hist, conditions=[('hardest_pT', lambda x: x > 85)], use_prescale=True) )
+	all_hists['hardest_pT'].append( MODHist(hardest_pT_hist, conditions=[('hardest_pT', lambda x: x > 150)], use_prescale=True) )
 	 
 	
 	return all_hists

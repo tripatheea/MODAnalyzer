@@ -86,8 +86,10 @@ def parse_file(input_file, pT_lower_cut=150., pT_upper_cut=20000., softdrop_pT_l
 								condition_satisfied = bool(condition_satisfied)
 
 								if condition_satisfied:
-									hist.fill_array( [float(numbers[i + 1])], [float(numbers[prescale_index])] )	 # + 1 because we ignore the first keyword "Entry".
-
+									if mod_hist.use_prescale():
+										hist.fill_array( [float(numbers[i + 1])], [float(numbers[prescale_index])] )	 # + 1 because we ignore the first keyword "Entry".
+									else:
+										hist.fill_array( [float(numbers[i + 1])] )	 # + 1 because we ignore the first keyword "Entry".
 								
 
 						'''
