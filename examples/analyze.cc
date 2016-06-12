@@ -94,8 +94,9 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
 
    Selector pT_500_MeV_selector = SelectorPtMin(0.5);
+   Selector pT_1_GeV_selector = SelectorPtMin(1.0);
 
-   vector<PseudoJet> hardest_jet_constituents = pT_500_MeV_selector(event_being_read.hardest_jet().constituents());
+   vector<PseudoJet> hardest_jet_constituents = pT_1_GeV_selector(event_being_read.hardest_jet().constituents());
 
    ClusterSequence cs = ClusterSequence(hardest_jet_constituents, jet_def_cambridge);
    PseudoJet hardest_jet = cs.inclusive_jets()[0];
@@ -130,9 +131,16 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    
       PseudoJet soft_drop_jet = soft_drop(hardest_jet);
 
-      properties.push_back(MOD::Property("zg_" + label, soft_drop_jet.structure_of<SoftDrop>().symmetry()));
-      properties.push_back(MOD::Property("Rg_" + label, soft_drop_jet.structure_of<SoftDrop>().delta_R()));
+      double zg = soft_drop_jet.structure_of<SoftDrop>().symmetry();
+      double rg = soft_drop_jet.structure_of<SoftDrop>().delta_R() / 0.5;
+
+      properties.push_back(MOD::Property("zg_" + label, zg));
       properties.push_back(MOD::Property("mu_" + label, soft_drop_jet.structure_of<SoftDrop>().mu()));
+
+      properties.push_back(MOD::Property("rg_" + label, rg));
+      properties.push_back(MOD::Property("e1_" + label, rg * zg));
+      properties.push_back(MOD::Property("e2_" + label, pow(rg, 2) * zg ));
+      properties.push_back(MOD::Property("e05_" + label, sqrt(rg) * zg ));
    }
 
    // SoftKiller.
@@ -156,10 +164,17 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
             SoftDrop soft_drop_pT(0.0, zg_cut);
             PseudoJet soft_drop_jet_pT = soft_drop_pT(hardest_jet_pT_cut);
+
+            double zg = soft_drop_jet_pT.structure_of<SoftDrop>().symmetry();
+            double rg = soft_drop_jet_pT.structure_of<SoftDrop>().delta_R() / 0.5;
             
-            properties.push_back(MOD::Property("zg_" + label + "_pT_" + to_string(pT_cut), soft_drop_jet_pT.structure_of<SoftDrop>().symmetry()));
-            properties.push_back(MOD::Property("Rg_" + label + "_pT_" + to_string(pT_cut), soft_drop_jet_pT.structure_of<SoftDrop>().delta_R()));
+            properties.push_back(MOD::Property("zg_" + label + "_pT_" + to_string(pT_cut), zg));
             properties.push_back(MOD::Property("mu_" + label + "_pT_" + to_string(pT_cut), soft_drop_jet_pT.structure_of<SoftDrop>().mu()));
+
+            properties.push_back(MOD::Property("rg_" + label + "_pT_" + to_string(pT_cut), rg));
+            properties.push_back(MOD::Property("e1_" + label + "_pT_" + to_string(pT_cut), rg * zg));
+            properties.push_back(MOD::Property("e2_" + label + "_pT_" + to_string(pT_cut), pow(rg, 2) * zg ));
+            properties.push_back(MOD::Property("e05_" + label + "_pT_" + to_string(pT_cut), sqrt(rg) * zg ));
 
          }
       }
@@ -167,8 +182,12 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
          for (unsigned j = 0; j < zg_cuts.size(); j++) {
             string label = zg_cuts[j].first;
             properties.push_back(MOD::Property("zg_" + label + "_pT_" + to_string(pT_cut), -1.));
-            properties.push_back(MOD::Property("Rg_" + label + "_pT_" + to_string(pT_cut), -1.));
             properties.push_back(MOD::Property("mu_" + label + "_pT_" + to_string(pT_cut), -1.));
+
+            properties.push_back(MOD::Property("rg_" + label + "_pT_" + to_string(pT_cut), -1.));
+            properties.push_back(MOD::Property("e1_" + label + "_pT_" + to_string(pT_cut), -1.));
+            properties.push_back(MOD::Property("e2_" + label + "_pT_" + to_string(pT_cut), -1.));
+            properties.push_back(MOD::Property("e05_" + label + "_pT_" + to_string(pT_cut), -1.));
          }
       }
    }   
@@ -205,8 +224,8 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
 
-   // Get all charged particles with 1 GeV particles removed.
-   std::vector<fastjet::PseudoJet> track_constituents = MOD::filter_charged(hardest_jet_constituents);
+   // Get all charged particles with 0.5 GeV particles removed.
+   vector<fastjet::PseudoJet> track_constituents = MOD::filter_charged(pT_500_MeV_selector(event_being_read.hardest_jet().constituents()));
 
    // Cluster them using Cambridge/Alachen with infinite radius. This makes sure that we get the same jets as "regular" ak5 jets except now with just charged particles.
    ClusterSequence cs_track(track_constituents, jet_def_cambridge);
@@ -222,9 +241,17 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
          SoftDrop soft_drop_track(0.0, zg_cut);
          PseudoJet soft_drop_jet_track = soft_drop_track(hardest_track_jet);
 
-         properties.push_back(MOD::Property("track_zg_" + label, soft_drop_jet_track.structure_of<SoftDrop>().symmetry()));
-         properties.push_back(MOD::Property("track_Rg_" + label, soft_drop_jet_track.structure_of<SoftDrop>().delta_R()));
+         double zg = soft_drop_jet_track.structure_of<SoftDrop>().symmetry();
+         double rg = soft_drop_jet_track.structure_of<SoftDrop>().delta_R() / 0.5;
+       
+
+         properties.push_back(MOD::Property("track_zg_" + label, zg));
          properties.push_back(MOD::Property("track_mu_" + label, soft_drop_jet_track.structure_of<SoftDrop>().mu()));
+
+         properties.push_back(MOD::Property("track_rg_" + label, rg));
+         properties.push_back(MOD::Property("track_e1_" + label, rg * zg));
+         properties.push_back(MOD::Property("track_e2_" + label, pow(rg, 2) * zg ));
+         properties.push_back(MOD::Property("track_e05_" + label, sqrt(rg) * zg ));
       }
 
       properties.push_back( MOD::Property("track_mul_pre_SD", (int) hardest_track_jet.constituents().size()) );
@@ -252,8 +279,12 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
       for (unsigned i = 0; i < zg_cuts.size(); i++) {
          string label = zg_cuts[i].first;
          properties.push_back(MOD::Property("track_zg_" + label, -1.0));
-         properties.push_back(MOD::Property("track_Rg_" + label, -1.0));
          properties.push_back(MOD::Property("track_mu_" + label, -1.0));
+
+         properties.push_back(MOD::Property("track_rg_" + label, -1.));
+         properties.push_back(MOD::Property("track_e1_" + label, -1.));
+         properties.push_back(MOD::Property("track_e2_" + label, -1.));
+         properties.push_back(MOD::Property("track_e05_" + label, -1.));
       }
 
       properties.push_back( MOD::Property("track_mul_pre_SD", -1. ));
@@ -284,7 +315,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    string name;
    
-   int padding = 25;
+   int padding = 35;
 
    if (event_serial_number == 1) {
       for (unsigned p = 0; p < properties.size(); p++) {

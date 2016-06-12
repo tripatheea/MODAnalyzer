@@ -26,6 +26,8 @@ def get_key(keyword):
 
 
 def parse_file(input_file):
+
+	print "Parsing {}".format(input_file)
 	
 	# We read the file line by line, and for each line, we fill the corresponding histograms.
 	# This is desirable to creating lists of values since this will not hold anything in memory. 
@@ -44,10 +46,14 @@ def parse_file(input_file):
 		for line in infile:
 
 			if line_number > 10000:
+			# if line_number > 100:
 			# if False:
 				break
 
 			line_number += 1
+
+			if line_number % 10000 == 0:
+				print "At line number {}".format(line_number)
 
 			try:
 				numbers = line.split()
@@ -115,7 +121,47 @@ def parse_file(input_file):
 	return all_hists
 
 
+def parse_theory_file():
+	
+	input_dir = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/theory distributions/"
 
+	pTs = [85, 115, 150, 200]
+
+	
+	input_files = []
+	input_files.extend( ["zg/zg_" + str(pT) for pT in pTs] )
+	input_files.extend( ["rg/rg_" + str(pT) for pT in pTs] )
+	input_files.extend( ["e1/e1_" + str(pT) for pT in pTs] )
+	input_files.extend( ["e2/e2_" + str(pT) for pT in pTs] )
+	input_files.extend( ["e05/e05_" + str(pT) for pT in pTs] )
+
+	hists = {}
+
+
+	for f in input_files:
+	
+		var_name = f.split("/")[1]
+		hists[var_name] = []
+
+		input_file = input_dir + f + ".dat"
+
+		hists[var_name] = [ [], [], [], [] ]
+
+		with open(input_file) as infile:
+			
+			line_number = 0
+
+
+			for line in infile:
+				line_components = line.split()
+				
+				hists[var_name][0].append(float(line_components[0]))
+				
+				hists[var_name][1].append(float(line_components[2]))
+				hists[var_name][2].append(float(line_components[1]))
+				hists[var_name][3].append(float(line_components[3]))
+
+	return hists
 
 
 start = time.time()
@@ -124,6 +170,9 @@ data_hists = parse_file(input_analysis_file)
 pythia_hists = parse_file("/home/aashish/pythia_truth.dat")
 herwig_hists = parse_file("/home/aashish/herwig_truth.dat")
 sherpa_hists = parse_file("/home/aashish/sherpa_truth.dat")
+
+theory_hists = parse_theory_file()
+
 
 end = time.time()
 
@@ -144,6 +193,24 @@ def compile_hists(var):
 	return compilation
 
 
+def compile_hists_with_theory(var):
+
+	
+
+	compilation = []
+	for i in range(len(data_hists[var])):
+
+		# Get the correct variable name to use for theory.
+		theory_var = var.split("_")[0]
+
+		theory_var += "_" + str( data_hists[var][i].conditions()[0][1][0] )
+
+		sub_list = [ data_hists[var][i], theory_hists[theory_var], pythia_hists[var][i], herwig_hists[var][i], sherpa_hists[var][i] ]
+		compilation.append( sub_list )
+
+	return compilation
+
+
 default_dir = "plots/Version 5.2/"
 
 
@@ -155,15 +222,42 @@ start = time.time()
 
 # create_multi_page_plot(filename=default_dir + "phi.pdf", hists=compile_hists('hardest_phi'))
 
+# create_multi_page_plot(filename=default_dir + "eta.pdf", hists=compile_hists('hardest_eta'))
+
+
 # create_multi_page_plot(filename=default_dir + "constituent_multiplicity.pdf", hists=compile_hists('mul_pre_SD'))
+# create_multi_page_plot(filename=default_dir + "track_constituent_multiplicity.pdf", hists=compile_hists('track_mul_pre_SD'))
+
 
 # create_multi_page_plot(filename=default_dir + "pT_D.pdf", hists=compile_hists('pT_D_pre_SD'))
+# create_multi_page_plot(filename=default_dir + "track_pT_D.pdf", hists=compile_hists('track_pT_D_pre_SD'))
 
 # create_multi_page_plot(filename=default_dir + "mass.pdf", hists=compile_hists('mass_pre_SD'))
+# create_multi_page_plot(filename=default_dir + "track_mass.pdf", hists=compile_hists('track_mass_pre_SD'))
 
-create_multi_page_plot(filename=default_dir + "lha.pdf", hists=compile_hists('LHA_pre_SD'))
-create_multi_page_plot(filename=default_dir + "width.pdf", hists=compile_hists('width_pre_SD'))
-create_multi_page_plot(filename=default_dir + "thrust.pdf", hists=compile_hists('thrust_pre_SD'))
+# create_multi_page_plot(filename=default_dir + "lha.pdf", hists=compile_hists('LHA_pre_SD'))
+# create_multi_page_plot(filename=default_dir + "track_lha.pdf", hists=compile_hists('track_LHA_pre_SD'))
+
+# create_multi_page_plot(filename=default_dir + "width.pdf", hists=compile_hists('width_pre_SD'))
+# create_multi_page_plot(filename=default_dir + "track_width.pdf", hists=compile_hists('track_width_pre_SD'))
+
+# create_multi_page_plot(filename=default_dir + "thrust.pdf", hists=compile_hists('thrust_pre_SD'))
+# create_multi_page_plot(filename=default_dir + "track_thrust.pdf", hists=compile_hists('track_thrust_pre_SD'))
+
+
+
+create_multi_page_plot(filename=default_dir + "theta_g/linear/all/zg/zg_10.pdf", hists=compile_hists_with_theory('zg_10'), theory=True)
+create_multi_page_plot(filename=default_dir + "theta_g/linear/all/rg/rg_10.pdf", hists=compile_hists_with_theory('rg_10'), theory=True)
+create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e1/e1_10.pdf", hists=compile_hists_with_theory('e1_10'), theory=True)
+create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e2/e2_10.pdf", hists=compile_hists_with_theory('e2_10'), theory=True)
+create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e05/e05_10.pdf", hists=compile_hists_with_theory('e05_10'), theory=True)
+
+
+create_multi_page_plot(filename=default_dir + "theta_g/linear/track/zg/zg_10.pdf", hists=compile_hists('track_zg_10'), theory=False)
+create_multi_page_plot(filename=default_dir + "theta_g/linear/track/rg/rg_10.pdf", hists=compile_hists('track_rg_10'), theory=False)
+create_multi_page_plot(filename=default_dir + "theta_g/linear/track/e1/e1_10.pdf", hists=compile_hists('track_e1_10'), theory=False)
+create_multi_page_plot(filename=default_dir + "theta_g/linear/track/e2/e2_10.pdf", hists=compile_hists('track_e2_10'), theory=False)
+create_multi_page_plot(filename=default_dir + "theta_g/linear/track/e05/e05_10.pdf", hists=compile_hists('track_e05_10'), theory=False)
 
 
 '''
