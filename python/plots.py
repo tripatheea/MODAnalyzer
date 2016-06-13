@@ -1,5 +1,6 @@
 from __future__ import division
 
+import math
 import time
 import sys
 import hists
@@ -8,32 +9,22 @@ from MODPlot import *
 
 input_analysis_file = sys.argv[1]
 
-def get_key(keyword):
-
-	'''
-	if 'eta' in keyword:
-		return 'eta'
-	elif 'pT' in keyword:
-		return 'pT'
-	elif 'phi' in keyword:
-		return 'phi'
-
-	return keyword.split('_')[0]
-	'''
-	return keyword
 
 
 
+def parse_file(input_file, x_scale='linear'):
 
-def parse_file(input_file):
-
-	print "Parsing {}".format(input_file)
+	print "Parsing {} with x-scale = {}".format(input_file, x_scale)
 	
 	# We read the file line by line, and for each line, we fill the corresponding histograms.
 	# This is desirable to creating lists of values since this will not hold anything in memory. 
 
 	# all_hists = hists.all_hist_templates()
-	all_hists = hists.multi_page_plot_hist_templates()
+
+	if x_scale == "linear":
+		all_hists = hists.multi_page_plot_hist_templates()
+	elif x_scale == "log":
+		all_hists = hists.multi_page_log_plot_hist_templates()
 
 	keywords = []
 	keywords_set = False
@@ -45,8 +36,10 @@ def parse_file(input_file):
 
 		for line in infile:
 
-			if line_number > 10000:
-			# if line_number > 100:
+
+			if line_number > 10000:	# Ideal length.
+			# if line_number > 100000:	# Big enough.
+			# if line_number > 100:		# Small tests.
 			# if False:
 				break
 
@@ -94,25 +87,15 @@ def parse_file(input_file):
 
 								condition_satisfied = bool(condition_satisfied)
 
+
 								if condition_satisfied:
+
+									x = float(numbers[i + 1]) # + 1 because we ignore the first keyword "Entry".
+
 									if (not mod_hist.use_prescale()) and input_file == input_analysis_file:	# For data file only.
-										hist.fill_array( [float(numbers[i + 1])] )	 # + 1 because we ignore the first keyword "Entry".
+										hist.fill_array( [x] )	 
 									else:
-										hist.fill_array( [float(numbers[i + 1])], [float(numbers[prescale_index])] )	 # + 1 because we ignore the first keyword "Entry".
-
-						'''
-						keyword = keywords[i]
-
-						if key in all_hists.keys():
-
-							print "tada"
-
-							# Loop through each individual hist in all_hists[key] and fill it only if the current line satisfies all the accompanying conditions.
-							for mod_hist in all_hists[key]:
-								print mod_hist
-								# all_hists[key].fill_array( [ float(numbers[i + 1]) ], [ float(numbers[prescale_index]) ] ) # + 1 because we ignore the first keyword "Entry".
-						'''
-
+										hist.fill_array( [x], [float(numbers[prescale_index])] )
 
 			except:
 				pass
@@ -134,6 +117,12 @@ def parse_theory_file():
 	input_files.extend( ["e1/e1_" + str(pT) for pT in pTs] )
 	input_files.extend( ["e2/e2_" + str(pT) for pT in pTs] )
 	input_files.extend( ["e05/e05_" + str(pT) for pT in pTs] )
+
+	input_files.extend( ["zg/zg_" + str(pT) + "log" for pT in pTs] )
+	input_files.extend( ["rg/rg_" + str(pT) + "log" for pT in pTs] )
+	input_files.extend( ["e1/e1_" + str(pT) + "log" for pT in pTs] )
+	input_files.extend( ["e2/e2_" + str(pT) + "log" for pT in pTs] )
+	input_files.extend( ["e05/e05_" + str(pT) + "log" for pT in pTs] )
 
 	hists = {}
 
@@ -171,6 +160,13 @@ pythia_hists = parse_file("/home/aashish/pythia_truth.dat")
 herwig_hists = parse_file("/home/aashish/herwig_truth.dat")
 sherpa_hists = parse_file("/home/aashish/sherpa_truth.dat")
 
+
+log_data_hists = parse_file(input_analysis_file, x_scale='log')
+log_pythia_hists = parse_file("/home/aashish/pythia_truth.dat", x_scale='log')
+log_herwig_hists = parse_file("/home/aashish/herwig_truth.dat", x_scale='log')
+log_sherpa_hists = parse_file("/home/aashish/sherpa_truth.dat", x_scale='log')
+
+
 theory_hists = parse_theory_file()
 
 
@@ -179,39 +175,59 @@ end = time.time()
 print "Finished parsing all files in {} seconds. Now plotting them!".format(end - start)
 
 
-def get_hist_list(var):
-	return [ data_hists[var], pythia_hists[var], herwig_hists[var], sherpa_hists[var] ]
 
-
-
-def compile_hists(var):
+def compile_hists(var, x_scale='linear'):
+	
 	compilation = []
-	for i in range(len(data_hists[var])):
-		sub_list = [ data_hists[var][i], pythia_hists[var][i], herwig_hists[var][i], sherpa_hists[var][i] ]
+
+	if x_scale == "log":
+		max_index = len(log_data_hists[var])
+	else:
+		max_index = len(data_hists[var])
+	
+	for i in range(max_index):
+		
+		if x_scale == "linear":
+			sub_list = [ data_hists[var][i], pythia_hists[var][i], herwig_hists[var][i], sherpa_hists[var][i] ]
+		elif x_scale == "log":
+			sub_list = [ log_data_hists[var][i], log_pythia_hists[var][i], log_herwig_hists[var][i], log_sherpa_hists[var][i] ]
+
 		compilation.append( sub_list )
 
 	return compilation
 
 
-def compile_hists_with_theory(var):
-
-	
+def compile_hists_with_theory(var, x_scale='linear'):
 
 	compilation = []
-	for i in range(len(data_hists[var])):
+
+	if x_scale == "log":
+		max_index = len(log_data_hists[var])
+	else:
+		max_index = len(data_hists[var])
+
+	
+	for i in range(max_index):
 
 		# Get the correct variable name to use for theory.
 		theory_var = var.split("_")[0]
 
 		theory_var += "_" + str( data_hists[var][i].conditions()[0][1][0] )
 
-		sub_list = [ data_hists[var][i], theory_hists[theory_var], pythia_hists[var][i], herwig_hists[var][i], sherpa_hists[var][i] ]
+		if x_scale == "log":
+			theory_var += "log"
+
+		if x_scale == "linear":
+			sub_list = [ data_hists[var][i], theory_hists[theory_var], pythia_hists[var][i], herwig_hists[var][i], sherpa_hists[var][i] ]
+		elif x_scale == "log":
+			sub_list = [ log_data_hists[var][i], theory_hists[theory_var], log_pythia_hists[var][i], log_herwig_hists[var][i], log_sherpa_hists[var][i] ]
+
 		compilation.append( sub_list )
 
 	return compilation
 
 
-default_dir = "plots/Version 5.2/"
+default_dir = "plots/Version 5_2/"
 
 
 start = time.time()
@@ -253,50 +269,27 @@ create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e2/e2_10.pdf",
 create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e05/e05_10.pdf", hists=compile_hists_with_theory('e05_10'), theory=True)
 
 
-create_multi_page_plot(filename=default_dir + "theta_g/linear/track/zg/zg_10.pdf", hists=compile_hists('track_zg_10'), theory=False)
-create_multi_page_plot(filename=default_dir + "theta_g/linear/track/rg/rg_10.pdf", hists=compile_hists('track_rg_10'), theory=False)
-create_multi_page_plot(filename=default_dir + "theta_g/linear/track/e1/e1_10.pdf", hists=compile_hists('track_e1_10'), theory=False)
-create_multi_page_plot(filename=default_dir + "theta_g/linear/track/e2/e2_10.pdf", hists=compile_hists('track_e2_10'), theory=False)
-create_multi_page_plot(filename=default_dir + "theta_g/linear/track/e05/e05_10.pdf", hists=compile_hists('track_e05_10'), theory=False)
 
-
-'''
-print "Plotting eta!"
-
-eta_plot = MODPlot( get_hist_list('hardest_eta'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="Jet $\eta$", y_label="A.U.", x_lims=(-5., 5.))
-eta_plot.plot("hardest_eta.pdf")
-
-
-print "Plotting phi!"
-
-phi_plot = MODPlot( get_hist_list('hardest_phi'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="Jet $\phi$", y_label="A.U.", x_lims=(0, 2*np.pi))
-phi_plot.plot("hardest_phi.pdf")
-
-'''
-
-'''
-print "Plotting pT!"
-
-
-pT_plot = MODPlot( get_hist_list('hardest_pT'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, y_scale='log', ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="Jet $p_T$", y_label="A.U.")
-pT_plot.plot()
-pT_plot.save_plot("hardest_pT.pdf")
-'''
+create_multi_page_plot(filename=default_dir + "theta_g/log/all/zg/zg_10.pdf", hists=compile_hists_with_theory('zg_10', x_scale='log'), theory=True, x_scale='log')
+create_multi_page_plot(filename=default_dir + "theta_g/log/all/rg/rg_10.pdf", hists=compile_hists_with_theory('rg_10', x_scale='log'), theory=True, x_scale='log')
+create_multi_page_plot(filename=default_dir + "theta_g/log/all/e1/e1_10.pdf", hists=compile_hists_with_theory('e1_10', x_scale='log'), theory=True, x_scale='log')
+create_multi_page_plot(filename=default_dir + "theta_g/log/all/e2/e2_10.pdf", hists=compile_hists_with_theory('e2_10', x_scale='log'), theory=True, x_scale='log')
+create_multi_page_plot(filename=default_dir + "theta_g/log/all/e05/e05_10.pdf", hists=compile_hists_with_theory('e05_10', x_scale='log'), theory=True, x_scale='log')
 
 
 
-'''
-print "Plotting constituent multiplicity!"
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/track/zg/zg_10.pdf", hists=compile_hists('track_zg_10'), theory=False)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/track/rg/rg_10.pdf", hists=compile_hists('track_rg_10'), theory=False)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/track/e1/e1_10.pdf", hists=compile_hists('track_e1_10'), theory=False)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/track/e2/e2_10.pdf", hists=compile_hists('track_e2_10'), theory=False)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/track/e05/e05_10.pdf", hists=compile_hists('track_e05_10'), theory=False)
 
-constituent_multiplicity_plot = MODPlot( get_hist_list('mul_pre_SD'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="Constituent Multiplicity", y_label="A.U.")
-constituent_multiplicity_plot.plot("constituent_multiplicity.pdf")
 
-
-print "Plotting zg!"
-
-constituent_multiplicity_plot = MODPlot( get_hist_list('zg_10'), plot_types=plot_types, plot_colors=colors, plot_labels=labels, ratio_plot=True, ratio_to_index=1, ratio_label="Ratio\nto\nPythia", x_label="$z_g$", y_label="A.U.")
-constituent_multiplicity_plot.plot("zg.pdf")
-'''
+# create_multi_page_plot(filename=default_dir + "theta_g/log/track/zg/zg_10.pdf", hists=compile_hists('track_zg_10', x_scale='log'), theory=False, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/track/rg/rg_10.pdf", hists=compile_hists('track_rg_10', x_scale='log'), theory=False, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/track/e1/e1_10.pdf", hists=compile_hists('track_e1_10', x_scale='log'), theory=False, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/track/e2/e2_10.pdf", hists=compile_hists('track_e2_10', x_scale='log'), theory=False, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/track/e05/e05_10.pdf", hists=compile_hists('track_e05_10', x_scale='log'), theory=False, x_scale='log')
 
 
 end = time.time()
