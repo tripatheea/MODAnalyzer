@@ -7,29 +7,23 @@ import hists
 
 from MODPlot import *
 
+from rootpy.io.pickler import dump, load
+
 input_analysis_file = sys.argv[1]
 
 
 
 
-def parse_file(input_file, x_scale='linear'):
+def parse_file(input_file, all_hists):
 
-	print "Parsing {} with x-scale = {}".format(input_file, x_scale)
+	print "Parsing {}.".format(input_file)
 	
 	# We read the file line by line, and for each line, we fill the corresponding histograms.
 	# This is desirable to creating lists of values since this will not hold anything in memory. 
 
-	# all_hists = hists.all_hist_templates()
-
-	if x_scale == "linear":
-		all_hists = hists.multi_page_plot_hist_templates()
-	elif x_scale == "log":
-		all_hists = hists.multi_page_log_plot_hist_templates()
-
 	keywords = []
 	keywords_set = False
 
-	
 	with open(input_file) as infile:
 		
 		line_number = 0
@@ -37,10 +31,10 @@ def parse_file(input_file, x_scale='linear'):
 		for line in infile:
 
 
-			if line_number > 10000:	# Ideal length.
+			# if line_number > 10000:	# Ideal length.
 			# if line_number > 100000:	# Big enough.
 			# if line_number > 100:		# Small tests.
-			# if False:
+			if False:
 				break
 
 			line_number += 1
@@ -57,9 +51,6 @@ def parse_file(input_file, x_scale='linear'):
 
 				elif numbers[0] == "Entry":
 
-					pT_index = keywords.index("hardest_pT") + 1
-					softdrop_pT_index = keywords.index("pT_after_SD") + 1
-					eta_index = keywords.index("hardest_eta") + 1
 					prescale_index = keywords.index("prescale") + 1
 
 					for i in range(len(keywords)):
@@ -155,19 +146,51 @@ def parse_theory_file():
 
 start = time.time()
 
-data_hists = parse_file(input_analysis_file)
-pythia_hists = parse_file("/home/aashish/pythia_truth.dat")
-herwig_hists = parse_file("/home/aashish/herwig_truth.dat")
-sherpa_hists = parse_file("/home/aashish/sherpa_truth.dat")
+def parse_general():
+
+	hist_templates = hists.multi_page_plot_hist_templates()
+
+	data_hists = parse_file(input_analysis_file, copy.deepcopy(hist_templates))
+	pythia_hists = parse_file("/home/aashish/pythia_truth.dat", copy.deepcopy(hist_templates))
+	herwig_hists = parse_file("/home/aashish/herwig_truth.dat", copy.deepcopy(hist_templates))
+	sherpa_hists = parse_file("/home/aashish/sherpa_truth.dat", copy.deepcopy(hist_templates))
+	
+	theory_hists = parse_theory_file()
+
+	return [data_hists, theory_hists, pythia_hists, herwig_hists, sherpa_hists]
 
 
-log_data_hists = parse_file(input_analysis_file, x_scale='log')
-log_pythia_hists = parse_file("/home/aashish/pythia_truth.dat", x_scale='log')
-log_herwig_hists = parse_file("/home/aashish/herwig_truth.dat", x_scale='log')
-log_sherpa_hists = parse_file("/home/aashish/sherpa_truth.dat", x_scale='log')
+def parse_log():
+
+	hist_templates = hists.multi_page_log_plot_hist_templates()
+
+	log_data_hists = parse_file(input_analysis_file, copy.deepcopy(hist_templates))
+	log_pythia_hists = parse_file("/home/aashish/pythia_truth.dat", copy.deepcopy(hist_templates))
+	log_herwig_hists = parse_file("/home/aashish/herwig_truth.dat", copy.deepcopy(hist_templates))
+	log_sherpa_hists = parse_file("/home/aashish/sherpa_truth.dat", copy.deepcopy(hist_templates))
+
+	theory_hists = parse_theory_file()
+
+	return [log_data_hists, theory_hists, log_pythia_hists, log_herwig_hists, log_sherpa_hists]
 
 
-theory_hists = parse_theory_file()
+def parse_data_only():
+
+	hist_templates = hists.multi_page_data_only_plot_hist_templates()
+
+	data_hists = parse_file("/home/aashish/data.dat", copy.deepcopy(hist_templates))
+
+	corrected = data_hists['cor_hardest_pT']
+	uncorrected = data_hists['uncor_hardest_pT']
+
+	compiled = []
+	for i in range(len(corrected)):
+		temp = [corrected[i], uncorrected[i]]
+		compiled.append(temp)
+
+
+	return compiled
+
 
 
 end = time.time()
@@ -176,13 +199,27 @@ print "Finished parsing all files in {} seconds. Now plotting them!".format(end 
 
 
 
-def compile_hists(var, x_scale='linear'):
+def load_root_file_to_hists(root_filename):
+	hlist = load(root_filename)
+
+	print hlist
+
+def save_hists_to_root_file(root_filename, hists_to_save):
+	for var in hists_to_save:
+		print hists_to_save[var]
+
+	dump(hists_to_save, root_filename)
+
+
+def compile_hists(var, hists, x_scale='linear'):
 	
 	compilation = []
 
 	if x_scale == "log":
+		log_data_hists, log_pythia_hists, log_herwig_hists, log_sherpa_hists = parsed_hists[0], parsed_hists[2], parsed_hists[3], parsed_hists[4]
 		max_index = len(log_data_hists[var])
 	else:
+		data_hists, pythia_hists, herwig_hists, sherpa_hists = parsed_hists[0], parsed_hists[2], parsed_hists[3], parsed_hists[4]
 		max_index = len(data_hists[var])
 	
 	for i in range(max_index):
@@ -197,15 +234,16 @@ def compile_hists(var, x_scale='linear'):
 	return compilation
 
 
-def compile_hists_with_theory(var, x_scale='linear'):
+def compile_hists_with_theory(var, parsed_hists, x_scale='linear'):
 
 	compilation = []
 
 	if x_scale == "log":
+		log_data_hists, theory_hists, log_pythia_hists, log_herwig_hists, log_sherpa_hists = parsed_hists[0], parsed_hists[1], parsed_hists[2], parsed_hists[3], parsed_hists[4]
 		max_index = len(log_data_hists[var])
 	else:
+		data_hists, theory_hists, pythia_hists, herwig_hists, sherpa_hists = parsed_hists[0], parsed_hists[1], parsed_hists[2], parsed_hists[3], parsed_hists[4]
 		max_index = len(data_hists[var])
-
 	
 	for i in range(max_index):
 
@@ -234,62 +272,71 @@ start = time.time()
 
 
 
-# create_multi_page_plot(filename=default_dir + "pT.pdf", hists=compile_hists('hardest_pT'))
+# parsed_hists = parse_general()
+# parsed_log_hists = parse_log()
 
-# create_multi_page_plot(filename=default_dir + "phi.pdf", hists=compile_hists('hardest_phi'))
-
-# create_multi_page_plot(filename=default_dir + "eta.pdf", hists=compile_hists('hardest_eta'))
-
-
-# create_multi_page_plot(filename=default_dir + "constituent_multiplicity.pdf", hists=compile_hists('mul_pre_SD'))
-# create_multi_page_plot(filename=default_dir + "track_constituent_multiplicity.pdf", hists=compile_hists('track_mul_pre_SD'))
+parsed_data_only_hists = parse_data_only()
 
 
-# create_multi_page_plot(filename=default_dir + "pT_D.pdf", hists=compile_hists('pT_D_pre_SD'))
-# create_multi_page_plot(filename=default_dir + "track_pT_D.pdf", hists=compile_hists('track_pT_D_pre_SD'))
-
-# create_multi_page_plot(filename=default_dir + "mass.pdf", hists=compile_hists('mass_pre_SD'))
-# create_multi_page_plot(filename=default_dir + "track_mass.pdf", hists=compile_hists('track_mass_pre_SD'))
-
-# create_multi_page_plot(filename=default_dir + "lha.pdf", hists=compile_hists('LHA_pre_SD'))
-# create_multi_page_plot(filename=default_dir + "track_lha.pdf", hists=compile_hists('track_LHA_pre_SD'))
-
-# create_multi_page_plot(filename=default_dir + "width.pdf", hists=compile_hists('width_pre_SD'))
-# create_multi_page_plot(filename=default_dir + "track_width.pdf", hists=compile_hists('track_width_pre_SD'))
-
-# create_multi_page_plot(filename=default_dir + "thrust.pdf", hists=compile_hists('thrust_pre_SD'))
-# create_multi_page_plot(filename=default_dir + "track_thrust.pdf", hists=compile_hists('track_thrust_pre_SD'))
+create_data_only_plot(filename=default_dir + "data_pT.pdf", hists=parsed_data_only_hists)
 
 
+# create_multi_page_plot(filename=default_dir + "pT.pdf", hists=compile_hists('hardest_pT', parsed_hists))
 
-create_multi_page_plot(filename=default_dir + "theta_g/linear/all/zg/zg_10.pdf", hists=compile_hists_with_theory('zg_10'), theory=True)
-create_multi_page_plot(filename=default_dir + "theta_g/linear/all/rg/rg_10.pdf", hists=compile_hists_with_theory('rg_10'), theory=True)
-create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e1/e1_10.pdf", hists=compile_hists_with_theory('e1_10'), theory=True)
-create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e2/e2_10.pdf", hists=compile_hists_with_theory('e2_10'), theory=True)
-create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e05/e05_10.pdf", hists=compile_hists_with_theory('e05_10'), theory=True)
+# create_multi_page_plot(filename=default_dir + "phi.pdf", hists=compile_hists('hardest_phi', parsed_hists))
 
+# create_multi_page_plot(filename=default_dir + "eta.pdf", hists=compile_hists('hardest_eta', parsed_hists))
 
 
-create_multi_page_plot(filename=default_dir + "theta_g/log/all/zg/zg_10.pdf", hists=compile_hists_with_theory('zg_10', x_scale='log'), theory=True, x_scale='log')
-create_multi_page_plot(filename=default_dir + "theta_g/log/all/rg/rg_10.pdf", hists=compile_hists_with_theory('rg_10', x_scale='log'), theory=True, x_scale='log')
-create_multi_page_plot(filename=default_dir + "theta_g/log/all/e1/e1_10.pdf", hists=compile_hists_with_theory('e1_10', x_scale='log'), theory=True, x_scale='log')
-create_multi_page_plot(filename=default_dir + "theta_g/log/all/e2/e2_10.pdf", hists=compile_hists_with_theory('e2_10', x_scale='log'), theory=True, x_scale='log')
-create_multi_page_plot(filename=default_dir + "theta_g/log/all/e05/e05_10.pdf", hists=compile_hists_with_theory('e05_10', x_scale='log'), theory=True, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "constituent_multiplicity.pdf", hists=compile_hists('mul_pre_SD', parsed_hists))
+# create_multi_page_plot(filename=default_dir + "track_constituent_multiplicity.pdf", hists=compile_hists('track_mul_pre_SD', parsed_hists))
+
+
+# create_multi_page_plot(filename=default_dir + "pT_D.pdf", hists=compile_hists('pT_D_pre_SD', parsed_hists))
+# create_multi_page_plot(filename=default_dir + "track_pT_D.pdf", hists=compile_hists('track_pT_D_pre_SD', parsed_hists))
+
+# create_multi_page_plot(filename=default_dir + "mass.pdf", hists=compile_hists('mass_pre_SD', parsed_hists))
+# create_multi_page_plot(filename=default_dir + "track_mass.pdf", hists=compile_hists('track_mass_pre_SD', parsed_hists))
+
+# create_multi_page_plot(filename=default_dir + "lha.pdf", hists=compile_hists('LHA_pre_SD', parsed_hists))
+# create_multi_page_plot(filename=default_dir + "track_lha.pdf", hists=compile_hists('track_LHA_pre_SD', parsed_hists))
+
+# create_multi_page_plot(filename=default_dir + "width.pdf", hists=compile_hists('width_pre_SD', parsed_hists))
+# create_multi_page_plot(filename=default_dir + "track_width.pdf", hists=compile_hists('track_width_pre_SD', parsed_hists))
+
+# create_multi_page_plot(filename=default_dir + "thrust.pdf", hists=compile_hists('thrust_pre_SD', parsed_hists))
+# create_multi_page_plot(filename=default_dir + "track_thrust.pdf", hists=compile_hists('track_thrust_pre_SD', parsed_hists))
 
 
 
-# create_multi_page_plot(filename=default_dir + "theta_g/linear/track/zg/zg_10.pdf", hists=compile_hists('track_zg_10'), theory=False)
-# create_multi_page_plot(filename=default_dir + "theta_g/linear/track/rg/rg_10.pdf", hists=compile_hists('track_rg_10'), theory=False)
-# create_multi_page_plot(filename=default_dir + "theta_g/linear/track/e1/e1_10.pdf", hists=compile_hists('track_e1_10'), theory=False)
-# create_multi_page_plot(filename=default_dir + "theta_g/linear/track/e2/e2_10.pdf", hists=compile_hists('track_e2_10'), theory=False)
-# create_multi_page_plot(filename=default_dir + "theta_g/linear/track/e05/e05_10.pdf", hists=compile_hists('track_e05_10'), theory=False)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/zg/zg_10.pdf", hists=compile_hists_with_theory('zg_10', parsed_hists), theory=True)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/rg/rg_10.pdf", hists=compile_hists_with_theory('rg_10', parsed_hists), theory=True)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e1/e1_10.pdf", hists=compile_hists_with_theory('e1_10', parsed_hists), theory=True)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e2/e2_10.pdf", hists=compile_hists_with_theory('e2_10', parsed_hists), theory=True)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e05/e05_10.pdf", hists=compile_hists_with_theory('e05_10', parsed_hists), theory=True)
 
 
-# create_multi_page_plot(filename=default_dir + "theta_g/log/track/zg/zg_10.pdf", hists=compile_hists('track_zg_10', x_scale='log'), theory=False, x_scale='log')
-# create_multi_page_plot(filename=default_dir + "theta_g/log/track/rg/rg_10.pdf", hists=compile_hists('track_rg_10', x_scale='log'), theory=False, x_scale='log')
-# create_multi_page_plot(filename=default_dir + "theta_g/log/track/e1/e1_10.pdf", hists=compile_hists('track_e1_10', x_scale='log'), theory=False, x_scale='log')
-# create_multi_page_plot(filename=default_dir + "theta_g/log/track/e2/e2_10.pdf", hists=compile_hists('track_e2_10', x_scale='log'), theory=False, x_scale='log')
-# create_multi_page_plot(filename=default_dir + "theta_g/log/track/e05/e05_10.pdf", hists=compile_hists('track_e05_10', x_scale='log'), theory=False, x_scale='log')
+
+# create_multi_page_plot(filename=default_dir + "theta_g/log/all/zg/zg_10.pdf", hists=compile_hists_with_theory('zg_10', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/all/rg/rg_10.pdf", hists=compile_hists_with_theory('rg_10', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/all/e1/e1_10.pdf", hists=compile_hists_with_theory('e1_10', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/all/e2/e2_10.pdf", hists=compile_hists_with_theory('e2_10', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/all/e05/e05_10.pdf", hists=compile_hists_with_theory('e05_10', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+
+
+
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/track/zg/zg_10.pdf", hists=compile_hists('track_zg_10', parsed_hists), theory=False)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/track/rg/rg_10.pdf", hists=compile_hists('track_rg_10', parsed_hists), theory=False)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/track/e1/e1_10.pdf", hists=compile_hists('track_e1_10', parsed_hists), theory=False)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/track/e2/e2_10.pdf", hists=compile_hists('track_e2_10', parsed_hists), theory=False)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/track/e05/e05_10.pdf", hists=compile_hists('track_e05_10', parsed_hists), theory=False)
+
+
+# create_multi_page_plot(filename=default_dir + "theta_g/log/track/zg/zg_10.pdf", hists=compile_hists('track_zg_10', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/track/rg/rg_10.pdf", hists=compile_hists('track_rg_10', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/track/e1/e1_10.pdf", hists=compile_hists('track_e1_10', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/track/e2/e2_10.pdf", hists=compile_hists('track_e2_10', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/track/e05/e05_10.pdf", hists=compile_hists('track_e05_10', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
 
 
 end = time.time()

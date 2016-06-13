@@ -12,6 +12,7 @@ from sets import Set
 
 import sys
 import math
+import copy
 from collections import defaultdict
 
 # matplotlib
@@ -45,7 +46,7 @@ from matplotlib.cbook import get_sample_data
 from matplotlib._png import read_png
 
 
-from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
+from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox, AnchoredOffsetbox, HPacker
 
 from scipy.stats import norm
 from scipy.stats import gamma
@@ -67,7 +68,7 @@ plt.rc('font', family='serif', size=43)
 
 
 
-plot_labels = { "data": "CMS 2010 Open Data", "pythia": "Pythia 8.215", "herwig": "Herwig 7", "sherpa": "Sherpa 2.2.0", "theory": "Theory (MLL)" }
+plot_labels = { "data": "CMS 2010 Open Data", "pythia": "Pythia 8.215", "herwig": "Herwig 7.0.1", "sherpa": "Sherpa 2.2.0", "theory": "Theory (MLL)" }
 plot_colors = {"theory": "red", "pythia": "blue", "herwig": "green", "sherpa": "purple", "pythia_post": "red", "data": "black", "data_post": "red"}
 
 
@@ -10223,13 +10224,13 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 
 
 
-		pythia_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['pythia'], linewidth=5, markersize=5.0, color=plot_colors['pythia'])
+		pythia_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['pythia'], linestyle=1, linewidth=8, markersize=5.0, color=plot_colors['pythia'])
 		bin_width_pythia = (pythia_pt_hist.upperbound() - pythia_pt_hist.lowerbound()) / pythia_pt_hist.nbins()
 
-		herwig_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['herwig'], linewidth=5, markersize=5.0, color=plot_colors['herwig'])
+		herwig_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['herwig'], linestyle=2, linewidth=8, markersize=5.0, color=plot_colors['herwig'])
 		bin_width_herwig = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
 
-		sherpa_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['sherpa'], linewidth=5, markersize=5.0, color=plot_colors['sherpa'])
+		sherpa_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['sherpa'], linestyle=10, linewidth=8, markersize=5.0, color=plot_colors['sherpa'])
 		bin_width_sherpa = (sherpa_pt_hist.upperbound() - sherpa_pt_hist.lowerbound()) / sherpa_pt_hist.nbins()
 
 		experiment_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['data'], markersize=3.0, color=plot_colors['data'])
@@ -10302,19 +10303,23 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 		ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75, labelpad=45)
 		ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75, labelpad=45)
 		ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
-		ax1.set_ylabel("Ratio           \nto           \n" + "Data" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
+		ax1.set_ylabel("Ratio           \nto           \n" + "Pythia" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
 
 
-		ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.92), xycoords='figure fraction', frameon=0)
-		plt.gca().add_artist(ab)
-		preliminary_text = "Prelim. (20\%)"
-		plt.gcf().text(0.305, 0.91, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+		logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
+		text_box = TextArea("Prelim. (20\%)", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+		logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
+		anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0.)
+		ax0.add_artist(anchored_box)
 
 		# Ratio Plot.
-		pythia_pt_hist.Divide(experiment_pt_hist)
-		herwig_pt_hist.Divide(experiment_pt_hist)
-		sherpa_pt_hist.Divide(experiment_pt_hist)
-		experiment_pt_hist.Divide(experiment_pt_hist)
+
+		denominator_hist = copy.deepcopy(pythia_pt_hist)
+
+		pythia_pt_hist.Divide(denominator_hist)
+		herwig_pt_hist.Divide(denominator_hist)
+		sherpa_pt_hist.Divide(denominator_hist)
+		experiment_pt_hist.Divide(denominator_hist)
 
 		rplt.hist(pythia_pt_hist, axes=ax1, linewidth=5)
 		rplt.hist(herwig_pt_hist, axes=ax1, linewidth=5)
@@ -10360,13 +10365,13 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 		plt.sca(ax0)
 		plt.gca().xaxis.set_minor_locator(MultipleLocator(50))
 		plt.tick_params(which='major', width=5, length=25, labelsize=70)
-		plt.tick_params(which='minor', width=3, length=15)
+		# plt.tick_params(which='minor', width=3, length=15)
 
 		plt.sca(ax1)
 		plt.gca().xaxis.set_minor_locator(MultipleLocator(50))
 		# plt.gca().yaxis.set_minor_locator(MultipleLocator(50))
 		plt.tick_params(which='major', width=5, length=25, labelsize=70)
-		plt.tick_params(which='minor', width=3, length=15)
+		# plt.tick_params(which='minor', width=3, length=15)
 
 		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
@@ -10466,7 +10471,7 @@ def plot_weighted_pts(mode=1, pT_lower_cut=85, pT_upper_cut=10000):
 
 
 
-plot_pfc_pts(mode="all", pT_lower_cut=0.0, pT_upper_cut=5)
+# plot_pfc_pts(mode="all", pT_lower_cut=0.0, pT_upper_cut=5)
 plot_pfc_pts(mode="charged", pT_lower_cut=0.0, pT_upper_cut=5)
 plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=5)
 

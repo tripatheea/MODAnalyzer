@@ -246,12 +246,17 @@ class MODPlot:
 			plot_type = self._plot_types[i]
 
 			if plot_type == 'hist':
+			
 				self._hists[i].hist().SetLineStyle(self._line_styles[i])
+
 				plot = self._rplt.hist(self._hists[i].hist(), axes=ax0, zorder=z_indices[i], emptybins=False)
 				legend_handles.append( plot )
+			
 			elif plot_type == 'error':
+			
 				plot = self._rplt.errorbar(self._hists[i].hist(), axes=ax0, zorder=z_indices[i], emptybins=True, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
 				legend_handles.append( plot )
+			
 			elif plot_type == "theory":
 
 				if self._x_scale == "log":
@@ -491,8 +496,7 @@ plot_colors = {"theory": "red", "pythia": "blue", "herwig": "green", "sherpa": "
 global_plot_types = ['error', 'hist', 'hist', 'hist']
 global_colors = [ plot_colors['data'], plot_colors['pythia'], plot_colors['herwig'], plot_colors['sherpa'] ]
 global_labels = [ plot_labels['data'], plot_labels['pythia'], plot_labels['herwig'], plot_labels['sherpa'] ]
-global_line_styles = [ "", "solid", "dashed", "dotted" ]
-
+global_line_styles = [ "", 1, 2, 10 ]
 
 def create_multi_page_plot(filename, hists, theory=False, x_scale='linear'):
 	# mod_hists is a list of MODHist objects.
@@ -502,6 +506,8 @@ def create_multi_page_plot(filename, hists, theory=False, x_scale='linear'):
 	colors = copy.deepcopy(global_colors)
 	line_styles = copy.deepcopy(global_line_styles)
 
+
+	print hists
 
 	if theory and "theory" not in types:
 		types.insert(1, "theory")
@@ -525,3 +531,23 @@ def create_multi_page_plot(filename, hists, theory=False, x_scale='linear'):
 			
 				pdf.savefig()
 				plot.get_plt().close()
+
+
+
+def create_data_only_plot(filename, hists):
+	# mod_hists is a list of MODHist objects.
+
+	labels = ["Jet Energy Corrected", "Jet Energy Uncorrected"]
+	types = ["error", "error"]
+	colors = ["black", "orange"]
+	line_styles = [1, 1]
+
+	with PdfPages(filename) as pdf:
+
+		for mod_hists in hists:	# mod_hists contains a list [ data_mod_hist, pythia_mod_hist, ... ]
+
+			plot = MODPlot(mod_hists, plot_types=types, plot_colors=colors, plot_labels=labels, line_styles=line_styles, ratio_plot=True, ratio_to_index=0, ratio_label="Ratio\nto\Corrected", y_scale=mod_hists[0].y_scale(), x_label=mod_hists[0].x_label(), y_label=mod_hists[0].y_label(), x_lims=mod_hists[0].x_range(), y_lims=mod_hists[0].y_range())
+			plot.plot()
+		
+			pdf.savefig()
+			plot.get_plt().close()

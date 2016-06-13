@@ -542,10 +542,7 @@ void MOD::Event::set_assigned_trigger() {
 
       // Next, lookup which trigger to use based on the pT value of the hardest jet.
 
-      if ( (hardest_pT > 325) && trigger_exists("HLT_Jet180U") ) {
-         trigger = "HLT_Jet180U";
-      }
-      else if ( (hardest_pT > 250) && trigger_exists("HLT_Jet140U") ) {
+      if ( (hardest_pT > 250) && trigger_exists("HLT_Jet140U") ) {
          trigger = "HLT_Jet140U";
       }
       else if ( (hardest_pT > 200) && trigger_exists("HLT_Jet100U") ) {

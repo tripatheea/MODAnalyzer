@@ -143,16 +143,16 @@ def multi_page_log_plot_hist_templates():
 		all_hists['zg_10'].append( MODHist(copy.deepcopy(zg_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$z_g$", y_label="A.U.", additional_text=additional_text ) ) 
 	
 		additional_text = [ ( (1.0, 0.70), 'upper right', "$\mathrm{PFC}~p_T > 1~\mathrm{GeV}$ \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV};\eta<2.4$" ) ]
-		all_hists['rg_10'].append( MODHist(copy.deepcopy(rg_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$\\theta_g$", y_label="A.U.", x_range=(0.0, 1.2), additional_text=additional_text ) ) 
+		all_hists['rg_10'].append( MODHist(copy.deepcopy(rg_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$\\theta_g$", y_label="A.U.", x_range=(0.1, 1.0), additional_text=additional_text ) ) 
 
 		additional_text = [ ( (1.0, 0.70), 'upper right', "$\mathrm{PFC}~p_T > 1~\mathrm{GeV}$ \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV};\eta<2.4$" ) ]
-		all_hists['e1_10'].append( MODHist(copy.deepcopy(e1_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$z_g \\theta_g$", y_label="A.U.", x_range=(0.0, 0.6), additional_text=additional_text ) ) 
+		all_hists['e1_10'].append( MODHist(copy.deepcopy(e1_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$z_g \\theta_g$", y_label="A.U.", x_range=(0.1, 1.0), additional_text=additional_text ) ) 
 
 		additional_text = [ ( (1.0, 0.70), 'upper right', "$\mathrm{PFC}~p_T > 1~\mathrm{GeV}$ \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV};\eta<2.4$" ) ]
-		all_hists['e2_10'].append( MODHist(copy.deepcopy(e2_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$z_g \\theta _g^2$", y_label="A.U.", x_range=(0.0, 0.6), additional_text=additional_text ) ) 
+		all_hists['e2_10'].append( MODHist(copy.deepcopy(e2_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$z_g \\theta _g^2$", y_label="A.U.", x_range=(0.1, 1.0), additional_text=additional_text ) ) 
 
 		additional_text = [ ( (1.0, 0.70), 'upper right', "$\mathrm{PFC}~p_T > 1~\mathrm{GeV}$ \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV};\eta<2.4$" ) ]
-		all_hists['e05_10'].append( MODHist(copy.deepcopy(e05_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$z_g \sqrt{\\theta _g}$", y_label="A.U.", x_range=(0.0, 0.6), additional_text=additional_text ) ) 
+		all_hists['e05_10'].append( MODHist(copy.deepcopy(e05_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$z_g \sqrt{\\theta _g}$", y_label="A.U.", x_range=(0.1, 1.0), additional_text=additional_text ) ) 
 
 
 
@@ -160,16 +160,16 @@ def multi_page_log_plot_hist_templates():
 		all_hists['track_zg_10'].append( MODHist(copy.deepcopy(zg_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$z_g$ (Track Only)", y_label="A.U.", additional_text=additional_text ) ) 
 	
 		additional_text = [ ( (1.0, 0.70), 'upper right', "Track Only \n $\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$ \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV};\eta<2.4$" ) ]
-		all_hists['track_rg_10'].append( MODHist(copy.deepcopy(rg_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$\\theta_g$ (Track Only)", y_label="A.U.", x_range=(0.0, 1.2), additional_text=additional_text ) ) 
+		all_hists['track_rg_10'].append( MODHist(copy.deepcopy(rg_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$\\theta_g$ (Track Only)", y_label="A.U.", x_range=(0.1, 1.0), additional_text=additional_text ) ) 
 
 		additional_text = [ ( (1.0, 0.70), 'upper right', "Track Only \n $\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$ \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV};\eta<2.4$" ) ]
-		all_hists['track_e1_10'].append( MODHist(copy.deepcopy(e1_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$z_g \\theta_g$ (Track Only)", y_label="A.U.", x_range=(0.0, 0.6), additional_text=additional_text ) ) 
+		all_hists['track_e1_10'].append( MODHist(copy.deepcopy(e1_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$z_g \\theta_g$ (Track Only)", y_label="A.U.", x_range=(0.1, 1.0), additional_text=additional_text ) ) 
 
 		additional_text = [ ( (1.0, 0.70), 'upper right', "Track Only \n $\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$ \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV};\eta<2.4$" ) ]
-		all_hists['track_e2_10'].append( MODHist(copy.deepcopy(e2_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$z_g \\theta _g^2$ (Track Only)", y_label="A.U.", x_range=(0.0, 0.6), additional_text=additional_text ) ) 
+		all_hists['track_e2_10'].append( MODHist(copy.deepcopy(e2_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$z_g \\theta _g^2$ (Track Only)", y_label="A.U.", x_range=(0.1, 1.0), additional_text=additional_text ) ) 
 
 		additional_text = [ ( (1.0, 0.70), 'upper right', "Track Only \n $\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$ \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV};\eta<2.4$" ) ]
-		all_hists['track_e05_10'].append( MODHist(copy.deepcopy(e05_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$z_g \sqrt{\\theta _g}$ (Track Only)", y_label="A.U.", x_range=(0.0, 0.6), additional_text=additional_text ) ) 
+		all_hists['track_e05_10'].append( MODHist(copy.deepcopy(e05_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=True, x_label="$z_g \sqrt{\\theta _g}$ (Track Only)", y_label="A.U.", x_range=(0.1, 1.0), additional_text=additional_text ) ) 
 
 
 
@@ -222,12 +222,8 @@ def multi_page_plot_hist_templates():
 
 	for i in range(len(pT_boundaries) - 1):
 		
-		additional_text = [ ( (-0.09, 0.80), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV};\eta<2.4$" ) ]
-		all_hists['hardest_pT'].append( MODHist(Hist(25, pT_boundaries[i], pT_boundaries[i + 1]), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], use_prescale=False, x_label="Jet $p_T$", y_label="A.U.", y_scale='log', x_range=(pT_boundaries[i], pT_boundaries[i + 1]), y_range=(1e-3, 1e1), additional_text=additional_text ) ) 
-
-
-		additional_text = [ ( (-0.09, 0.80), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV};\eta<2.4$" ) ]
-		all_hists['hardest_pT'].append( MODHist(Hist(25, pT_boundaries[i], pT_boundaries[i + 1]), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], x_scale='log', use_prescale=False, x_label="Jet $p_T$", y_label="A.U.", y_scale='log', x_range=(pT_boundaries[i], pT_boundaries[i + 1]), y_range=(1e-3, 1e1), additional_text=additional_text ) ) 
+		# additional_text = [ ( (-0.09, 0.80), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV};\eta<2.4$" ) ]
+		# all_hists['hardest_pT'].append( MODHist(Hist(25, pT_boundaries[i], pT_boundaries[i + 1]), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], use_prescale=False, x_label="Jet $p_T$", y_label="A.U.", y_scale='log', x_range=(pT_boundaries[i], pT_boundaries[i + 1]), y_range=(1e-3, 1e1), additional_text=additional_text ) ) 
 
 
 
@@ -453,6 +449,60 @@ def multi_page_plot_hist_templates():
 
 
 	return all_hists
+
+
+
+
+
+
+
+
+
+
+def multi_page_data_only_plot_hist_templates():
+	all_hists = {}
+
+	hardest_pT_hist = Hist(100, 5, 1005)
+
+	pT_boundaries = [85, 115, 150, 200, 250]
+
+	all_hists['uncor_hardest_pT'] = []
+	all_hists['cor_hardest_pT'] = []
+
+	
+	for i in range(len(pT_boundaries) - 1):
+		
+		additional_text = [ ( (-0.09, 0.80), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV};\eta<2.4$" ) ]
+		all_hists['uncor_hardest_pT'].append( MODHist(Hist(25, pT_boundaries[i], pT_boundaries[i + 1]), conditions=[('cor_hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1])), ('hardest_eta', (-2.4, 2.4))], use_prescale=True, x_label="Jet $p_T$", y_label="A.U.", x_scale='linear', y_scale='log', x_range=(pT_boundaries[i], pT_boundaries[i + 1]), y_range=(1e-3, 1e0), additional_text=additional_text ) ) 
+
+
+		additional_text = [ ( (-0.09, 0.80), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV};\eta<2.4$" ) ]
+		all_hists['cor_hardest_pT'].append( MODHist(Hist(25, pT_boundaries[i], pT_boundaries[i + 1]), conditions=[('cor_hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1])), ('hardest_eta', (-2.4, 2.4))], use_prescale=True, x_label="Jet $p_T$", y_label="A.U.", x_scale='linear', y_scale='log', x_range=(pT_boundaries[i], pT_boundaries[i + 1]), y_range=(1e-3, 1e0), additional_text=additional_text ) ) 
+
+
+		
+	additional_text = [ ( (0.47, 0.68), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} > 85~\mathrm{GeV};\eta<2.4$" ) ]
+	all_hists['uncor_hardest_pT'].append( MODHist(Hist(100, 5, 1005, title="pT"), conditions=[('cor_hardest_pT', (85, None)), ('hardest_eta', (-2.4, 2.4))], use_prescale=True, x_label="Jet $p_T$", y_label="A.U.", x_scale='linear', y_scale='log', y_range=(1e-7, 1e0), additional_text=additional_text ) )
+
+	additional_text = [ ( (0.47, 0.68), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} > 150~\mathrm{GeV};\eta<2.4$" ) ]
+	all_hists['uncor_hardest_pT'].append( MODHist(Hist(100, 0, 1000, title="pT"), conditions=[('cor_hardest_pT', (150, None)), ('hardest_eta', (-2.4, 2.4))], use_prescale=True, x_label="Jet $p_T$", y_label="A.U.", x_scale='linear', y_scale='log', y_range=(1e-6, 1e0), additional_text=additional_text ) )
+
+
+
+	additional_text = [ ( (0.47, 0.68), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} > 85~\mathrm{GeV};\eta<2.4$" ) ]
+	all_hists['cor_hardest_pT'].append( MODHist(Hist(100, 5, 1005, title="pT"), conditions=[('cor_hardest_pT', (85, None)), ('hardest_eta', (-2.4, 2.4))], use_prescale=True, x_label="Jet $p_T$", y_label="A.U.", x_scale='linear', y_scale='log', y_range=(1e-7, 1e0), additional_text=additional_text ) )
+
+	additional_text = [ ( (0.47, 0.68), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} > 150~\mathrm{GeV};\eta<2.4$" ) ]
+	all_hists['cor_hardest_pT'].append( MODHist(Hist(100, 0, 1000, title="pT"), conditions=[('cor_hardest_pT', (150, None)), ('hardest_eta', (-2.4, 2.4))], use_prescale=True, x_label="Jet $p_T$", y_label="A.U.", x_scale='linear', y_scale='log', y_range=(1e-6, 1e0), additional_text=additional_text ) )
+
+
+
+
+
+	return all_hists
+
+
+
 
 
 def get_hist_template(var):
