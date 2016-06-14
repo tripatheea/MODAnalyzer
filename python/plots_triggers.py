@@ -44,7 +44,9 @@ from matplotlib.cbook import get_sample_data
 from matplotlib._png import read_png
 
 
-from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
+from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox, AnchoredOffsetbox, HPacker
+
+from mpl_toolkits.axes_grid.anchored_artists import AnchoredDrawingArea
 
 from scipy.stats import norm
 from scipy.stats import gamma
@@ -116,7 +118,10 @@ def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut
             keyword = keywords[i]
 
             if keyword in keywords_to_populate:
-              properties[keyword].append( float(numbers[i + 1]) ) # + 1 because we ignore the first keyword "Entry".
+              if keyword == "trigger_name":
+                properties[keyword].append( numbers[i + 1] )  # + 1 because we ignore the first keyword "Entry".
+              else:
+                properties[keyword].append( float(numbers[i + 1]) ) # + 1 because we ignore the first keyword "Entry".
 
     except:
       pass
@@ -252,12 +257,16 @@ def plot_turn_on_curves():
   plt.xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75)
   plt.ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
 
-  fn = get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.24, 0.9249985), xycoords='figure fraction', frameon=0)
-  plt.gca().add_artist(ab)
-  preliminary_text = "Prelim. (20\%)"
-  plt.gcf().text(0.30, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+
+  logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
+  text_box = TextArea("Prelim. (20\%)", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+
+  logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
+
+  anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0.)
+  plt.gca().add_artist(anchored_box)
+
 
   plt.gcf().set_size_inches(30, 30, forward=1)
 
@@ -269,7 +278,7 @@ def plot_turn_on_curves():
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
 
-  plt.savefig("plots/Version 4/turn_on_curves.pdf")
+  plt.savefig("plots/Version 5_2/turn_on_curves.pdf")
   # plt.show()
   plt.clf()
 
@@ -486,10 +495,12 @@ def plot_all_trigger_efficiency_curves():
 
     if cms_turn_on_pTs[i] != 0:
       # plt.plot([cms_turn_on_pTs[i], cms_turn_on_pTs[i]], [plt.gca().get_ylim()[0], 1.], color=colors[i], linewidth=5, linestyle="dashed")
-      if cms_turn_on_pTs[i] > 153:
-        source = "MOD"
-      else:
-        source = "CMS"
+      # if cms_turn_on_pTs[i] > 153:
+      #   source = "MOD"
+      # else:
+      #   source = "CMS"
+
+      source = "MOD"
       plt.gca().annotate(str(cms_turn_on_pTs[i]) + " GeV", xy=(cms_turn_on_pTs[i], 1.), xycoords='data', xytext=(-100, 350),  textcoords='offset points', color=colors[i], size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[i], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
 
   
@@ -522,10 +533,14 @@ def plot_all_trigger_efficiency_curves():
   plt.gca().xaxis.set_tick_params(width=5, length=20, labelsize=70)
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.9249985), xycoords='figure fraction', frameon=0)
-  plt.gca().add_artist(ab)
-  preliminary_text = "Prelim. (20\%)"
-  plt.gcf().text(0.29, 0.9178555, preliminary_text, fontsize=50, weight='bold', color='#444444', multialignment='center')
+  logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
+  text_box = TextArea("Prelim. (20\%)", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+
+  logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
+
+  anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0.)
+  plt.gca().add_artist(anchored_box)
+
 
   plt.gcf().set_snap(1)
 
@@ -546,8 +561,8 @@ def plot_all_trigger_efficiency_curves():
   # Info about R, pT_cut, etc.
   extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
   handles = [extra]
-  labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5;\eta<2.4$"]
-  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.46, 0.85])
+  labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$ \n $\eta<2.4$"]
+  plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.32, 0.85])
 
 
 
@@ -567,13 +582,93 @@ def plot_all_trigger_efficiency_curves():
 
   plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-  plt.savefig("plots/Version 4/all_efficiency_curves.pdf")
+  plt.savefig("plots/Version 5_2/all_efficiency_curves.pdf")
   # plt.show()
   plt.clf()
 
 
 
 
+def plot_prescales():
+  keywords = ['cor_hardest_pT', 'prescale', 'trigger_name']
+  properties = parse_file(input_analysis_file, pT_lower_cut=0, keywords_to_populate=keywords)
 
-plot_turn_on_curves()
+  # properties = parse_file_turn_on(input_analysis_file, pT_lower_cut=0)
+  
+
+  
+  trigger_names = properties['trigger_name']
+  prescales = properties['prescale']
+
+  expected_trigger_names = ["HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U", "HLT\_Jet15U\_HcalNoiseFiltered" ]
+  labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15\_HNF" ]
+  lower_pTs = [140, 100, 70, 50, 30, 15]
+
+  colors = ['orange', 'brown', 'red', 'blue', 'magenta', 'green']
+  colors = colors[::-1]
+
+  prescale_hists = []
+  for i in range(0, len(expected_trigger_names)):
+    # prescale_hists.append(Hist(100, 1, 1e5, title=labels[i], markersize=1.0, color=colors[i], linewidth=5))
+    prescale_hists.append([])
+
+  for i in range(0, len(prescales)):
+    for j in range(0, len(expected_trigger_names)):
+      if expected_trigger_names[j].replace("\\", "") in trigger_names[i]:
+        prescale_hists[j].append( prescales[i] )
+
+  for k in range(len(prescale_hists) - 1, -1, -1):
+    # rplt.hist(prescale_hists[k], emptybins=False, lw=8, histtype='step')
+    plt.hist(prescale_hists[k], label=labels[k], color=colors[k], lw=8, histtype='step')
+
+
+
+  # handles = []
+  # # for trigger, prescales in triggers.items():
+  # for trigger_name in expected_trigger_names:
+    
+  #   zorder = expected_trigger_names.index(trigger_name)
+  #   color = colors[expected_trigger_names.index(trigger_name)]
+  #   label = trigger_name.replace("_", "\_")
+
+  #   plt.hist(triggers[trigger_name], zorder=zorder, color=color, label=label, lw=8, histtype='step')
+    
+
+
+  logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
+  text_box = TextArea("Prelim. (20\%)", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+
+  logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
+
+  anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0.)
+  plt.gca().add_artist(anchored_box)
+
+
+  plt.xlabel("Trigger Prescale", fontsize=65, rotation=0)
+  plt.ylabel("No. of \n Events", fontsize=65, rotation=0, labelpad=50.)
+
+  plt.legend(frameon=False)
+
+  plt.xscale('log')
+  plt.yscale('log')
+
+  plt.autoscale()
+  plt.ylim(plt.gca().get_ylim()[0], plt.gca().get_ylim()[1] * 2)
+
+  plt.tick_params(which='major', width=5, length=25, labelsize=70)
+  plt.tick_params(which='minor', width=3, length=15)
+
+  plt.gcf().set_size_inches(30, 30, forward=1)
+  plt.gcf().set_snap(True)
+
+  plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+  plt.savefig("plots/Version 5_2/trigger_prescales.pdf")
+
+
+
+
+# plot_turn_on_curves()
 # plot_all_trigger_efficiency_curves()
+
+plot_prescales()

@@ -87,14 +87,11 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    vector<MOD::Property> properties;
    
    if ( (event_being_read.cms_jets().size() == 0) or (event_being_read.jets().size() == 0) or ( ! trigger_jet.has_user_info())) {
-      cout << "empty!" << endl;
       return;
    }
 
    vector<MOD::Trigger> triggers = event_being_read.triggers();
   
-
-   cout << triggers.size() << endl;
 
    
    try {

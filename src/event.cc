@@ -251,14 +251,14 @@ string MOD::Event::make_string() const {
 
       // While it's possible to do that for all jets, we output just the hardest jet's constituents because all analyses are going to be performed on the hardest jet anyway.
 
-      file_to_write << "#  1JET" << "              px              py              pz          energy             jec  weight" << endl;
+      file_to_write << "#  1JET" << "              px              py              pz          energy             jec          weight" << endl;
       file_to_write  << "   1JET"
                      << setw(16) << fixed << setprecision(8) << _cms_jets[0].px()
                      << setw(16) << fixed << setprecision(8) << _cms_jets[0].py()
                      << setw(16) << fixed << setprecision(8) << _cms_jets[0].pz()
                      << setw(16) << fixed << setprecision(8) << _cms_jets[0].E()
                      << setw(16) << fixed << setprecision(8) << _cms_jets[0].user_info<MOD::InfoCalibratedJet>().JEC()
-                     << setw(8) << _weight
+                     << setw(16) << _weight
                      << endl;
 
       file_to_write << "# PDPFC" << "              px              py              pz          energy   pdgId" << endl;

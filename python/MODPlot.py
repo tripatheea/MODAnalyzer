@@ -150,8 +150,11 @@ class MODPlot:
 
 		for i in range(len(self._hists)):
 			if self._plot_types[i] != "theory":
-				bin_width = (self._hists[i].hist().upperbound() - self._hists[i].hist().lowerbound()) / self._hists[i].hist().nbins()
-					
+				if self._x_scale == "log":
+					bin_width = (np.log(self._hists[i].hist().upperbound()) - np.log(self._hists[i].hist().lowerbound())) / self._hists[i].hist().nbins()
+				else:
+					bin_width = (self._hists[i].hist().upperbound() - self._hists[i].hist().lowerbound()) / self._hists[i].hist().nbins()
+				
 				if self._hists[i].hist().GetSumOfWeights() != 0.0:
 					self._hists[i].hist().Scale(1.0 / ( self._hists[i].hist().GetSumOfWeights() * bin_width ))
 
@@ -261,20 +264,18 @@ class MODPlot:
 
 				if self._x_scale == "log":
 					x_s = np.exp( self._hists[i][0] )
-					y_line_s = np.array( self._hists[i][2] ) / simps(y=self._hists[i][2], x=x_s)
-					y_min_s = np.array( self._hists[i][1] ) / simps(y=self._hists[i][1], x=x_s)
-					y_max_s = np.array( self._hists[i][3] ) / simps(y=self._hists[i][3], x=x_s)
 				else:
 					x_s = self._hists[i][0]
-					y_line_s = self._hists[i][2]
-					y_min_s = self._hists[i][1]
-					y_max_s = self._hists[i][3]
-
 				
+				y_line_s = self._hists[i][2]
+				y_min_s = self._hists[i][1]
+				y_max_s = self._hists[i][3]
+
+
 				# Distribution.
 				ax0.plot(x_s, y_line_s, lw=5, zorder=z_indices[i], color=self._plot_colors[i])
 
-				ax0.fill_between(x_s, y_max_s, y_min_s, zorder=z_indices[i], where=np.less_equal(y_min_s, y_max_s), facecolor=self._plot_colors[i], color=self._plot_colors[i], interpolate=True, alpha=0.3, linewidth=8.)
+				ax0.fill_between(x_s, y_max_s, y_min_s, zorder=z_indices[i], where=np.less_equal(y_min_s, y_max_s), facecolor=self._plot_colors[i], color=self._plot_colors[i], interpolate=True, alpha=0.3, linewidth=0.)
 
 				theory_min_interpolate_function = self.extrap1d(interpolate.interp1d(x_s, y_min_s))
 				theory_line_interpolate_function = self.extrap1d(interpolate.interp1d(x_s, y_line_s))
@@ -381,7 +382,18 @@ class MODPlot:
 
 
 		handles, labels = legend_handles, self._plot_labels
-		legend = ax0.legend(handles, labels, loc=1, frameon=0, fontsize=60)
+
+		handler_map = {}
+		if "theory" in self._plot_types:
+			th_line, = ax0.plot(range(1), linewidth=8, color='red')
+			th_patch = mpatches.Patch(facecolor='red', alpha=0.3, linewidth=0., edgecolor='red')
+
+			handles.insert( self._plot_types.index("theory"), (th_patch, th_line))
+			# labels.insert( self._plot_types.index("theory"), self._plot_labels[self._plot_types.index("theory")])
+
+			handler_map = {th_line : HandlerLine2D(marker_pad = 0)}
+
+		legend = ax0.legend(handles, labels, loc=1, frameon=0, fontsize=60, handler_map=handler_map )
 		ax0.add_artist(legend)
 
 		# Any additional texts.
@@ -433,17 +445,7 @@ class MODPlot:
 			self._plt.gcf().set_size_inches(30, 24, forward=1)
 
 		
-		if self._hists[0].axes_label_pi():
-			plt.sca(ax0)
-			plt.gca().set_xticks( [0, round(0.5*np.pi, 3), round(np.pi, 3), round(1.5*np.pi, 3), round(2*np.pi, 3)] )
-			plt.gca().set_xticklabels( ["0", "$\pi / 2$", "$\pi$", "$3 \pi / 2$", "$2 \pi$"] )
-
-			if self._ratio_plot:
-				plt.sca(ax1)
-				plt.gca().set_xticks( [0, round(0.5*np.pi, 3), round(np.pi, 3), round(1.5*np.pi, 3), round(2*np.pi, 3)] )
-				plt.gca().set_xticklabels( ["0", "$\pi / 2$", "$\pi$", "$3 \pi / 2$", "$2 \pi$"] )				
-
-
+		
 		
 		self._plt.sca(ax0)
 		self._plt.autoscale()
@@ -469,7 +471,17 @@ class MODPlot:
 			ax1.set_xlim( ax0.get_xlim()[0], ax0.get_xlim()[1] )
 			ax1.set_ylim(0., 2.)
 
-		
+		if self._hists[0].axes_label_pi():
+			plt.sca(ax0)
+			plt.gca().set_xticks( [0, round(0.5*np.pi, 3), round(np.pi, 3), round(1.5*np.pi, 3), round(2*np.pi, 3)] )
+			plt.gca().set_xticklabels( ["0", "$\pi / 2$", "$\pi$", "$3 \pi / 2$", "$2 \pi$"] )
+
+			if self._ratio_plot:
+				plt.sca(ax1)
+				plt.gca().set_xticks( [0, round(0.5*np.pi, 3), round(np.pi, 3), round(1.5*np.pi, 3), round(2*np.pi, 3)] )
+				plt.gca().set_xticklabels( ["0", "$\pi / 2$", "$\pi$", "$3 \pi / 2$", "$2 \pi$"] )				
+
+
 
 
 		self._plt.gcf().set_snap(True)
@@ -507,8 +519,6 @@ def create_multi_page_plot(filename, hists, theory=False, x_scale='linear'):
 	line_styles = copy.deepcopy(global_line_styles)
 
 
-	print hists
-
 	if theory and "theory" not in types:
 		types.insert(1, "theory")
 		colors.insert(1, plot_colors['theory'])
@@ -534,19 +544,15 @@ def create_multi_page_plot(filename, hists, theory=False, x_scale='linear'):
 
 
 
-def create_data_only_plot(filename, hists):
+def create_data_only_plot(filename, hists, labels, types, colors, line_styles, ratio_to_label="", ratio_to_index=1):
 	# mod_hists is a list of MODHist objects.
 
-	labels = ["Jet Energy Corrected", "Jet Energy Uncorrected"]
-	types = ["error", "error"]
-	colors = ["black", "orange"]
-	line_styles = [1, 1]
 
 	with PdfPages(filename) as pdf:
 
 		for mod_hists in hists:	# mod_hists contains a list [ data_mod_hist, pythia_mod_hist, ... ]
 
-			plot = MODPlot(mod_hists, plot_types=types, plot_colors=colors, plot_labels=labels, line_styles=line_styles, ratio_plot=True, ratio_to_index=0, ratio_label="Ratio\nto\Corrected", y_scale=mod_hists[0].y_scale(), x_label=mod_hists[0].x_label(), y_label=mod_hists[0].y_label(), x_lims=mod_hists[0].x_range(), y_lims=mod_hists[0].y_range())
+			plot = MODPlot(mod_hists, plot_types=types, plot_colors=colors, plot_labels=labels, line_styles=line_styles, ratio_plot=True, ratio_to_index=ratio_to_index, ratio_label=ratio_to_label, x_scale=mod_hists[0].x_scale(), y_scale=mod_hists[0].y_scale(), x_label=mod_hists[0].x_label(), y_label=mod_hists[0].y_label(), x_lims=mod_hists[0].x_range(), y_lims=mod_hists[0].y_range())
 			plot.plot()
 		
 			pdf.savefig()

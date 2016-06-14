@@ -93,18 +93,19 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
   
    JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
 
-   Selector pT_500_MeV_selector = SelectorPtMin(0.5);
    Selector pT_1_GeV_selector = SelectorPtMin(1.0);
+   Selector pT_1_5_GeV_selector = SelectorPtMin(1.5);
 
-   vector<PseudoJet> hardest_jet_constituents = pT_1_GeV_selector(event_being_read.hardest_jet().constituents());
+   vector<PseudoJet> hardest_jet_constituents = pT_1_5_GeV_selector(event_being_read.hardest_jet().constituents());
 
    ClusterSequence cs = ClusterSequence(hardest_jet_constituents, jet_def_cambridge);
    PseudoJet hardest_jet = cs.inclusive_jets()[0];
 
+   double jec = event_being_read.hardest_jet().pt() / hardest_jet.pt();
+   hardest_jet *= jec;
    
    SoftDrop soft_drop(0.0, 0.1);
    PseudoJet soft_drop_jet = soft_drop(hardest_jet);
-
    
    vector<MOD::Property> properties;
    
@@ -225,7 +226,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
    // Get all charged particles with 0.5 GeV particles removed.
-   vector<fastjet::PseudoJet> track_constituents = MOD::filter_charged(pT_500_MeV_selector(event_being_read.hardest_jet().constituents()));
+   vector<fastjet::PseudoJet> track_constituents = MOD::filter_charged(pT_1_GeV_selector(event_being_read.hardest_jet().constituents()));
 
    // Cluster them using Cambridge/Alachen with infinite radius. This makes sure that we get the same jets as "regular" ak5 jets except now with just charged particles.
    ClusterSequence cs_track(track_constituents, jet_def_cambridge);

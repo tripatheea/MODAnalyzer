@@ -25,6 +25,8 @@ from matplotlib.legend_handler import HandlerLine2D
 from mpl_toolkits.mplot3d import axes3d
 from matplotlib import cm
 
+import matplotlib.colors as col
+
 
 # RootPy
 from rootpy.plotting import Hist, HistStack, Legend
@@ -44,6 +46,7 @@ from matplotlib import gridspec
 
 from matplotlib.cbook import get_sample_data
 from matplotlib._png import read_png
+from matplotlib.backends.backend_pdf import PdfPages
 
 
 from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox, AnchoredOffsetbox, HPacker
@@ -100,9 +103,17 @@ def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut
 	
 	properties = defaultdict(list)
 
+	line_number = 0
+
 	keywords = []
 	keywords_set = False
 	for line in lines:
+
+		if line_number > 1000000000000:
+			break
+
+		line_number += 1
+
 		try:
 			numbers = line.split()
 
@@ -132,7 +143,7 @@ def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut
 
 
 
-def parse_pfc(input_file, pT_lower_cut=85., eta_cut=2.4):
+def parse_pfc(input_file, pT_lower_cut=85., pT_upper_cut=150., eta_cut=2.4):
 
 	# We'll populate only those fileds that are in the list keywords_to_populate.
 
@@ -146,7 +157,16 @@ def parse_pfc(input_file, pT_lower_cut=85., eta_cut=2.4):
 
 	keywords = []
 	keywords_set = False
+
+	line_number = 0
+
 	for line in lines:
+		
+		if line_number == 10000000:
+			break
+
+		line_number += 1
+
 		try:
 			numbers = line.split()
 
@@ -158,7 +178,7 @@ def parse_pfc(input_file, pT_lower_cut=85., eta_cut=2.4):
 				pT_index = keywords.index("jet_pT") + 1
 				eta_index = keywords.index("jet_eta") + 1
 
-				if float(numbers[pT_index]) > pT_lower_cut and abs(float(numbers[eta_index])) < eta_cut :
+				if float(numbers[pT_index]) > pT_lower_cut and float(numbers[pT_index]) < pT_upper_cut and abs(float(numbers[eta_index])) < eta_cut :
 					for i in range(len(keywords)):
 						keyword = keywords[i]
 						properties[keyword].append( float(numbers[i + 1]) ) # + 1 because we ignore the first keyword "Entry".
@@ -8681,40 +8701,47 @@ def count_events(pT_lower_cut=150, pT_upper_cut=20000):
 
 
 
-
 def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log=False):
 	
 	zg_cut = float(zg_cut)
 
 	
-
-	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut)
+	keywords = ['prescale', zg_filename, 'rg_10']
+	properties = parse_file(input_analysis_file, keywords_to_populate=keywords, pT_lower_cut=pT_lower_cut)
 
 	zg_data = properties[zg_filename]
 	prescales = properties['prescale']
 
-	R_g_data = properties[zg_filename.replace("zg", "Rg")]
+	R_g_data = properties[zg_filename.replace("zg", "rg")]
 
+	
 	theta_g_data = np.divide(R_g_data, 0.5)
 
 
-	
+
+	startcolor = 'white'  # a dark olive 
+	# midcolor = '#fcffc9'    # a bright yellow
+	endcolor = 'purple'    # medium dark red
+	cmap2 = col.LinearSegmentedColormap.from_list('purple',[startcolor, endcolor])
+	# extra arguments are N=256, gamma=1.0
+	cm.register_cmap(cmap=cmap2)
+
 
 	labels = ['data', 'pythia', 'herwig', 'sherpa']
-	colors = ['Greys', 'Blues', 'Greens', 'BuPu'] 
-	for mc_type in ['truth', 'reco']:
+	colors = ['Greys', 'Blues', 'Greens', 'purple'] 
+	for mc_type in ['truth']:
 
-		properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		properties_herwig = parse_file("/home/aashish/herwig_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
-		properties_sherpa = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", pT_lower_cut=pT_lower_cut)
+		properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", keywords_to_populate=keywords, pT_lower_cut=pT_lower_cut)
+		properties_herwig = parse_file("/home/aashish/herwig_" + mc_type + ".dat", keywords_to_populate=keywords, pT_lower_cut=pT_lower_cut)
+		properties_sherpa = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", keywords_to_populate=keywords, pT_lower_cut=pT_lower_cut)
 
 		zg_pythias = properties_pythia[zg_filename]
 		zg_herwigs = properties_herwig[zg_filename]
 		zg_sherpas = properties_sherpa[zg_filename]
 
-		R_g_pythias = properties_pythia[zg_filename.replace("zg", "Rg")]
-		R_g_herwigs = properties_herwig[zg_filename.replace("zg", "Rg")]
-		R_g_sherpas = properties_sherpa[zg_filename.replace("zg", "Rg")]
+		R_g_pythias = properties_pythia[zg_filename.replace("zg", "rg")]
+		R_g_herwigs = properties_herwig[zg_filename.replace("zg", "rg")]
+		R_g_sherpas = properties_sherpa[zg_filename.replace("zg", "rg")]
 		
 		theta_g_pythias = np.divide(R_g_pythias, 0.5)
 		theta_g_herwigs = np.divide(R_g_herwigs, 0.5)
@@ -8735,6 +8762,7 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 				bins = [zg_bins, theta_g_bins]
 			else:
 				bins = [25, 25]
+
 
 
 			if labels[counter] == 'data':
@@ -8784,13 +8812,36 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 			plt.gca().yaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
 
 			plt.autoscale()
-			plt.xlim(float(zg_cut), 0.5)
+			# plt.xlim(float(zg_cut), 0.5)
+			plt.xlim(0.0, 0.5)
+			plt.ylim(0.0, 3.)
+
+
+			logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
+			text_box = TextArea("Prelim. (20\%)", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+			logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
+			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0.)
+			plt.gca().add_artist(anchored_box)
+
+
+
+			label = "$\mathrm{PFC}~p_T > 1~\mathrm{GeV}$ \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} > 150~\mathrm{GeV};\eta<2.4$ \n Soft Drop: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"
+			
+			texts = label.split("\n")
+
+			extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+			
+			plt.legend( [extra] * len(texts), texts, frameon=0, borderpad=0, fontsize=60, bbox_to_anchor=[0.35, 0.98], loc="upper left")	
+
+
+
 
 			plt.tick_params(which='major', width=5, length=25, labelsize=70)
 			# plt.tick_params(which='minor', width=3, length=15)
 
-			plt.gcf().set_size_inches(30, 30, forward=1)
+			plt.gcf().set_size_inches(30, 25, forward=1)
 			plt.gcf().set_snap(True)
+			plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
 
 			if log:
@@ -10178,12 +10229,7 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 	keywords_to_populate = ['prescale', 'pfc_pT', 'pfc_pdgId']
 
 
-	properties = parse_pfc(input_analysis_file, pT_lower_cut=85., eta_cut=2.4)
-
-	experiment_pTs = properties['pfc_pT']
-	experiment_pdgIds = properties['pfc_pdgId']
-	prescales = properties['prescale']
-
+	
 
 	# print properties['pfc_pdgId']
 
@@ -10211,176 +10257,216 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 		return filtered_pTs, filtered_pdgIds, filtered_prescales
 
 
-	# for mc_type in ["truth", "reco"]:
-	for mc_type in ["truth"]:
+	lower_boundaries = [85, 115, 150, 200, 85, 150]
+	upper_boundaries = [115, 150, 200, 250, 100000., 100000.]
 
-		pythia_properties = parse_pfc("/home/aashish/pythia_pfc.dat", pT_lower_cut=85., eta_cut=2.4)
-		herwig_properties = parse_pfc("/home/aashish/herwig_pfc.dat", pT_lower_cut=85., eta_cut=2.4)
-		sherpa_properties = parse_pfc("/home/aashish/sherpa_pfc.dat", pT_lower_cut=85., eta_cut=2.4)
-
-		pythia_pTs, pythia_pdgIds, pythia_prescales = pythia_properties['pfc_pT'], pythia_properties['pfc_pdgId'], pythia_properties['prescale']
-		herwig_pTs, herwig_pdgIds, herwig_prescales = herwig_properties['pfc_pT'], herwig_properties['pfc_pdgId'], herwig_properties['prescale']
-		sherpa_pTs, sherpa_pdgIds, sherpa_prescales = sherpa_properties['pfc_pT'], sherpa_properties['pfc_pdgId'], sherpa_properties['prescale']
-
-
-
-		pythia_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['pythia'], linestyle=1, linewidth=8, markersize=5.0, color=plot_colors['pythia'])
-		bin_width_pythia = (pythia_pt_hist.upperbound() - pythia_pt_hist.lowerbound()) / pythia_pt_hist.nbins()
-
-		herwig_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['herwig'], linestyle=2, linewidth=8, markersize=5.0, color=plot_colors['herwig'])
-		bin_width_herwig = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
-
-		sherpa_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['sherpa'], linestyle=10, linewidth=8, markersize=5.0, color=plot_colors['sherpa'])
-		bin_width_sherpa = (sherpa_pt_hist.upperbound() - sherpa_pt_hist.lowerbound()) / sherpa_pt_hist.nbins()
-
-		experiment_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['data'], markersize=3.0, color=plot_colors['data'])
-		bin_width_experiment = (experiment_pt_hist.upperbound() - experiment_pt_hist.lowerbound()) / experiment_pt_hist.nbins()
-
-
-		filtered_experimental_pTs, filtered_experimental_pdgIds, filtered_experimental_prescales = filter(mode, (experiment_pTs, experiment_pdgIds, prescales))
-		filtered_pythia_pTs, filtered_pythia_pdgIds, filtered_pythia_prescales = filter(mode, (pythia_pTs, pythia_pdgIds, pythia_prescales))
-		filtered_herwig_pTs, filtered_herwig_pdgIds, filtered_herwig_prescales = filter(mode, (herwig_pTs, herwig_pdgIds, herwig_prescales))
-		filtered_sherpa_pTs, filtered_sherpa_pdgIds, filtered_sherpa_prescales = filter(mode, (sherpa_pTs, sherpa_pdgIds, sherpa_prescales))
-
-
-		map(experiment_pt_hist.Fill, filtered_experimental_pTs, filtered_experimental_prescales)
+	with PdfPages("plots/" + get_version(input_analysis_file) + "/PFC_pT/" + mode + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf") as pdf:
 		
-		map(pythia_pt_hist.Fill, filtered_pythia_pTs, filtered_pythia_prescales)
-		map(herwig_pt_hist.Fill, filtered_herwig_pTs, filtered_herwig_prescales)
-		map(sherpa_pt_hist.Fill, filtered_sherpa_pTs, filtered_sherpa_prescales)
+		for i in range(len(lower_boundaries)):
+
+			lower, upper = lower_boundaries[i], upper_boundaries[i]
+
+			properties = parse_pfc(input_analysis_file, pT_lower_cut=lower, pT_upper_cut=upper, eta_cut=2.4)
+			pythia_properties = parse_pfc("/home/aashish/pythia_pfc.dat", pT_lower_cut=lower, pT_upper_cut=upper, eta_cut=2.4)
+			herwig_properties = parse_pfc("/home/aashish/herwig_pfc.dat", pT_lower_cut=lower, pT_upper_cut=upper, eta_cut=2.4)
+			sherpa_properties = parse_pfc("/home/aashish/sherpa_pfc.dat", pT_lower_cut=lower, pT_upper_cut=upper, eta_cut=2.4)
+
+			experiment_pTs = properties['pfc_pT']
+			experiment_pdgIds = properties['pfc_pdgId']
+			prescales = properties['prescale']
+
+			pythia_pTs, pythia_pdgIds, pythia_prescales = pythia_properties['pfc_pT'], pythia_properties['pfc_pdgId'], pythia_properties['prescale']
+			herwig_pTs, herwig_pdgIds, herwig_prescales = herwig_properties['pfc_pT'], herwig_properties['pfc_pdgId'], herwig_properties['prescale']
+			sherpa_pTs, sherpa_pdgIds, sherpa_prescales = sherpa_properties['pfc_pT'], sherpa_properties['pfc_pdgId'], sherpa_properties['prescale']
+
+			
+
+			pythia_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['pythia'], linestyle=1, linewidth=8, markersize=5.0, color=plot_colors['pythia'])
+			bin_width_pythia = (pythia_pt_hist.upperbound() - pythia_pt_hist.lowerbound()) / pythia_pt_hist.nbins()
+
+			herwig_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['herwig'], linestyle=2, linewidth=8, markersize=5.0, color=plot_colors['herwig'])
+			bin_width_herwig = (herwig_pt_hist.upperbound() - herwig_pt_hist.lowerbound()) / herwig_pt_hist.nbins()
+
+			sherpa_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['sherpa'], linestyle=10, linewidth=8, markersize=5.0, color=plot_colors['sherpa'])
+			bin_width_sherpa = (sherpa_pt_hist.upperbound() - sherpa_pt_hist.lowerbound()) / sherpa_pt_hist.nbins()
+
+			experiment_pt_hist = Hist( 50, pT_lower_cut, pT_upper_cut, title=plot_labels['data'], markersize=3.0, color=plot_colors['data'])
+			bin_width_experiment = (experiment_pt_hist.upperbound() - experiment_pt_hist.lowerbound()) / experiment_pt_hist.nbins()
 
 
-		experiment_pt_hist.Scale(1.0 / (experiment_pt_hist.GetSumOfWeights() * bin_width_experiment))
-		pythia_pt_hist.Scale(1.0 / (pythia_pt_hist.GetSumOfWeights() * bin_width_pythia))
-		herwig_pt_hist.Scale(1.0 / (herwig_pt_hist.GetSumOfWeights() * bin_width_herwig))
-		sherpa_pt_hist.Scale(1.0 / (sherpa_pt_hist.GetSumOfWeights() * bin_width_sherpa))
-
-		
-		gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
-
-		ax0 = plt.subplot(gs[0])
-		ax1 = plt.subplot(gs[1])
+			filtered_experimental_pTs, filtered_experimental_pdgIds, filtered_experimental_prescales = filter(mode, (experiment_pTs, experiment_pdgIds, prescales))
+			filtered_pythia_pTs, filtered_pythia_pdgIds, filtered_pythia_prescales = filter(mode, (pythia_pTs, pythia_pdgIds, pythia_prescales))
+			filtered_herwig_pTs, filtered_herwig_pdgIds, filtered_herwig_prescales = filter(mode, (herwig_pTs, herwig_pdgIds, herwig_prescales))
+			filtered_sherpa_pTs, filtered_sherpa_pdgIds, filtered_sherpa_prescales = filter(mode, (sherpa_pTs, sherpa_pdgIds, sherpa_prescales))
 
 
+			map(experiment_pt_hist.Fill, filtered_experimental_pTs, filtered_experimental_prescales)
+			
+			map(pythia_pt_hist.Fill, filtered_pythia_pTs, filtered_pythia_prescales)
+			map(herwig_pt_hist.Fill, filtered_herwig_pTs, filtered_herwig_prescales)
+			map(sherpa_pt_hist.Fill, filtered_sherpa_pTs, filtered_sherpa_prescales)
 
 
-		rplt.hist(sherpa_pt_hist, zorder=1, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-		rplt.hist(herwig_pt_hist, zorder=2, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-		rplt.hist(pythia_pt_hist, zorder=3, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-		data_plot = rplt.errorbar(experiment_pt_hist, zorder=10, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-		
+			if experiment_pt_hist.GetSumOfWeights() != 0.:
+				experiment_pt_hist.Scale(1.0 / (experiment_pt_hist.GetSumOfWeights() * bin_width_experiment))
+			
+			if pythia_pt_hist.GetSumOfWeights() != 0.:
+				pythia_pt_hist.Scale(1.0 / (pythia_pt_hist.GetSumOfWeights() * bin_width_pythia))
+			
+			if herwig_pt_hist.GetSumOfWeights() != 0.:
+				herwig_pt_hist.Scale(1.0 / (herwig_pt_hist.GetSumOfWeights() * bin_width_herwig))
+			
+			if sherpa_pt_hist.GetSumOfWeights() != 0.:
+				sherpa_pt_hist.Scale(1.0 / (sherpa_pt_hist.GetSumOfWeights() * bin_width_sherpa))
 
-		data_x_errors, data_y_errors = [], []
-		for x_segment in data_plot[2][0].get_segments():
-			data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
-		for y_segment in data_plot[2][1].get_segments():
-			data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+			
+			gs = gridspec.GridSpec(2, 1, height_ratios=[3, 1]) 
 
-		data_points_x = data_plot[0].get_xdata()
-		data_points_y = data_plot[0].get_ydata()
-
-		data_plot_points_x = []
-		data_plot_points_y = []
-		for i in range(0, len(data_points_x)):
-			data_plot_points_x.append(data_points_x[i])
-			data_plot_points_y.append(data_points_y[i])
-
-
-
-		data_to_data_y_err = [(b / m) for b, m in zip(data_y_errors, data_plot_points_y)]
-		data_to_data_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(data_plot_points_y))]
-
-
-		# Legends Begin.
-		handles, labels = ax0.get_legend_handles_labels()
-		legend = ax0.legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
-		ax0.add_artist(legend)
-
-		# Legends End.
-
-
-
-		ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75, labelpad=45)
-		ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75, labelpad=45)
-		ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
-		ax1.set_ylabel("Ratio           \nto           \n" + "Pythia" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
-
-
-		logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-		text_box = TextArea("Prelim. (20\%)", textprops=dict(color='#444444', fontsize=50, weight='bold'))
-		logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
-		anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0.)
-		ax0.add_artist(anchored_box)
-
-		# Ratio Plot.
-
-		denominator_hist = copy.deepcopy(pythia_pt_hist)
-
-		pythia_pt_hist.Divide(denominator_hist)
-		herwig_pt_hist.Divide(denominator_hist)
-		sherpa_pt_hist.Divide(denominator_hist)
-		experiment_pt_hist.Divide(denominator_hist)
-
-		rplt.hist(pythia_pt_hist, axes=ax1, linewidth=5)
-		rplt.hist(herwig_pt_hist, axes=ax1, linewidth=5)
-		rplt.hist(sherpa_pt_hist, axes=ax1, linewidth=5)
-		rplt.errorbar(experiment_pt_hist, xerr=data_to_data_x_err, yerr=data_to_data_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+			ax0 = plt.subplot(gs[0])
+			ax1 = plt.subplot(gs[1])
 
 
 
-		extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-		
-		if mode == "charged":
-			label = "Charged PFCs"
-		elif mode == "neutral":
-			label = "Neutral PFCs"
-		else:
-			label = "All PFCs"
 
-		ax0.legend([extra], [label], frameon=0, borderpad=0.1, fontsize=60, loc='upper left', bbox_to_anchor=[0.50, 0.65])
+			rplt.hist(sherpa_pt_hist, zorder=1, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+			rplt.hist(herwig_pt_hist, zorder=2, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+			rplt.hist(pythia_pt_hist, zorder=3, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+			data_plot = rplt.errorbar(experiment_pt_hist, zorder=10, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+			
+
+			data_x_errors, data_y_errors = [], []
+			for x_segment in data_plot[2][0].get_segments():
+				data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+			for y_segment in data_plot[2][1].get_segments():
+				data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+
+			data_points_x = data_plot[0].get_xdata()
+			data_points_y = data_plot[0].get_ydata()
+
+			data_plot_points_x = []
+			data_plot_points_y = []
+			for i in range(0, len(data_points_x)):
+				data_plot_points_x.append(data_points_x[i])
+				data_plot_points_y.append(data_points_y[i])
 
 
-		ax0.set_yscale('log')
 
-		ax0.autoscale(True)
-		ax1.autoscale(True)
-		
-		# ax0.set_xlim(0, 1000)
-		# ax1.set_xlim(0, 1000)
+			data_to_data_y_err = [(b / m) for b, m in zip(data_y_errors, data_plot_points_y)]
+			data_to_data_x_err = [(b / m) for b, m in zip(data_x_errors, [1] * len(data_plot_points_y))]
 
-		ax0.set_ylim(ax0.get_xlim()[0], ax0.get_xlim()[1] * 1.25)
 
-		if pT_upper_cut == 300:
-			ax0.set_ylim(1e-9, 1e2)	
-		elif pT_upper_cut == 2:
-			ax0.set_ylim(1e-3, 1e2)	
-		elif pT_upper_cut == 0.5:
-			ax0.set_ylim(1e-3, 1e3)
+			# Legends Begin.
+			handles, labels = ax0.get_legend_handles_labels()
+			legend = ax0.legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+			ax0.add_artist(legend)
 
-		ax1.set_ylim(0, 2)
+			# Legends End.
 
-		
-		plt.gcf().set_size_inches(30, 30, forward=1)
 
-		plt.sca(ax0)
-		plt.gca().xaxis.set_minor_locator(MultipleLocator(50))
-		plt.tick_params(which='major', width=5, length=25, labelsize=70)
-		# plt.tick_params(which='minor', width=3, length=15)
 
-		plt.sca(ax1)
-		plt.gca().xaxis.set_minor_locator(MultipleLocator(50))
-		# plt.gca().yaxis.set_minor_locator(MultipleLocator(50))
-		plt.tick_params(which='major', width=5, length=25, labelsize=70)
-		# plt.tick_params(which='minor', width=3, length=15)
+			ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75, labelpad=45)
+			ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75, labelpad=45)
+			ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
+			ax1.set_ylabel("Ratio           \nto           \n" + "Pythia" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
 
-		plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
-		print "Printing PFC pT spectrum with pT > " + str(pT_lower_cut) + " and pT < " + str(pT_upper_cut)
+			logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
+			text_box = TextArea("Prelim. (20\%)", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+			logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
+			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0.)
+			ax0.add_artist(anchored_box)
 
-		plt.savefig("plots/" + get_version(input_analysis_file) + "/PFC_pT/" + mode + "_" + mc_type + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf")
-		# plt.show()
-		plt.close(plt.gcf())
-		plt.clf()
+			# Ratio Plot.
+
+			denominator_hist = copy.deepcopy(pythia_pt_hist)
+
+			pythia_pt_hist.Divide(denominator_hist)
+			herwig_pt_hist.Divide(denominator_hist)
+			sherpa_pt_hist.Divide(denominator_hist)
+			experiment_pt_hist.Divide(denominator_hist)
+
+			rplt.hist(pythia_pt_hist, axes=ax1, linewidth=5)
+			rplt.hist(herwig_pt_hist, axes=ax1, linewidth=5)
+			rplt.hist(sherpa_pt_hist, axes=ax1, linewidth=5)
+			rplt.errorbar(experiment_pt_hist, xerr=data_to_data_x_err, yerr=data_to_data_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+
+
+			extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+			
+			if mode == "charged":
+				label = "Charged PFCs"
+			elif mode == "neutral":
+				label = "Neutral PFCs"
+			else:
+				label = "All PFCs"
+
+			if upper != 100000.:
+				label += " \n $\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$ \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV};\eta<2.4$" 
+			else:
+				label += " \n $\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$ \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} > " + str(lower) + "~\mathrm{GeV};\eta<2.4$" 
+
+			ax0.legend([extra], [label], frameon=0, borderpad=0.1, fontsize=60, loc='upper left', bbox_to_anchor=[-0.09, 0.88])
+
+
+			ax0.set_yscale('log')
+
+			ax0.autoscale(True)
+			ax1.autoscale(True)
+			
+			# ax0.set_xlim(0, 1000)
+			# ax1.set_xlim(0, 1000)
+
+			ax0.set_ylim(ax0.get_xlim()[0], ax0.get_xlim()[1] * 1.25)
+
+			if pT_upper_cut == 300:
+				ax0.set_ylim(1e-9, 1e2)	
+			elif pT_upper_cut == 2:
+				ax0.set_ylim(1e-3, 1e2)	
+			elif pT_upper_cut == 0.5:
+				ax0.set_ylim(1e-3, 1e3)
+
+			if lower == 85 and upper != 100000.:
+				ax0.set_ylim(1e-3, 1e3)
+			elif lower == 115 and upper != 100000.:
+				ax0.set_ylim(1e-3, 1e3)
+			elif lower == 150 and upper != 100000.:
+				ax0.set_ylim(1e-3, 1e3)
+			elif lower == 200 and upper != 100000.:
+				ax0.set_ylim(1e-3, 1e3)
+			elif lower == 85 and upper == 100000.:
+				ax0.set_ylim(1e-3, 1e2)
+			elif lower == 150 and upper == 100000.:
+				ax0.set_ylim(1e-3, 1e4)
+
+
+			ax1.set_ylim(0, 2)
+
+			
+			plt.gcf().set_size_inches(30, 30, forward=1)
+
+			plt.sca(ax0)
+			plt.gca().xaxis.set_minor_locator(MultipleLocator(50))
+			plt.tick_params(which='major', width=5, length=25, labelsize=70)
+			# plt.tick_params(which='minor', width=3, length=15)
+
+			plt.sca(ax1)
+			plt.gca().xaxis.set_minor_locator(MultipleLocator(50))
+			# plt.gca().yaxis.set_minor_locator(MultipleLocator(50))
+			plt.tick_params(which='major', width=5, length=25, labelsize=70)
+			# plt.tick_params(which='minor', width=3, length=15)
+
+			plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+			print "Printing PFC pT spectrum with pT > " + str(lower) + " and pT < " + str(upper)
+
+			# plt.savefig()
+			# # plt.show()
+			# plt.close(plt.gcf())
+			# plt.clf()
+
+			pdf.savefig()
+			plt.close()
 
 
 
@@ -10470,10 +10556,14 @@ def plot_weighted_pts(mode=1, pT_lower_cut=85, pT_upper_cut=10000):
 
 
 
+# plot_pfc_pts(mode="charged", pT_lower_cut=0.0, pT_upper_cut=5)
+# plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=5)
+
+
+
 
 # plot_pfc_pts(mode="all", pT_lower_cut=0.0, pT_upper_cut=5)
-plot_pfc_pts(mode="charged", pT_lower_cut=0.0, pT_upper_cut=5)
-plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=5)
+
 
 
 # plot_pfc_pts(mode="all", pT_lower_cut=0.0, pT_upper_cut=2)
@@ -10562,7 +10652,7 @@ plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=5)
 
 
 # plot_2d_theta_g_zg(pT_lower_cut=150, log=True)
-# plot_2d_theta_g_zg(pT_lower_cut=150, log=False)
+plot_2d_theta_g_zg(pT_lower_cut=150, log=False)
 
 
 # plot_jet_rho(pT_lower_cut=100)
