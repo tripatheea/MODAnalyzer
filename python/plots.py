@@ -4,195 +4,23 @@ import math
 import time
 import sys
 import hists
-import pickle
+
 
 from MODPlot import *
 
-from rootpy.io.pickler import dump, load 
-from rootpy.tree import Tree, TreeModel, TreeChain, FloatCol, IntCol, ObjectCol
+
 from rootpy.io import File as TFile
 
-from rootpy.io import root_open
-
-from ROOT import AddressOf, gROOT
-from ROOT import TChain
-
-import matplotlib.pyplot as plt
-import rootpy.plotting.root2matplotlib as rplt
 
 
 
 
-from random import gauss
+
 
 input_analysis_file = sys.argv[1]
 
 
 
-def parse_file_literal(input_file, all_hists):
-
-	print "Parsing {}".format(input_file)
-	
-	# We read the file line by line, and for each line, we fill the corresponding histograms.
-	# This is desirable to creating lists of values since this will not hold anything in memory. 
-
-	keywords = []
-	keywords_set = False
-
-	with open(input_file) as infile:
-		
-		line_number = 0
-
-		for line in infile:
-
-
-			# if line_number > 10000:	# Ideal length.
-			# if line_number > 100000:	# Big enough.
-			if line_number > 100:		# Small tests.
-			# if line_number > 30000:		# Small tests.
-			# if False:
-				break
-
-			line_number += 1
-
-			if line_number % 10000 == 0:
-				print "At line number {}".format(line_number)
-
-			try:
-				numbers = line.split()
-
-				if numbers[0] == "#" and (not keywords_set):
-					keywords = numbers[2:]
-					keywords_set = True
-
-				elif numbers[0] == "Entry":
-
-					prescale_index = keywords.index("prescale") + 1
-
-					for i in range(len(keywords)):
-
-						keyword = keywords[i]
-
-						if keyword in all_hists.keys():
-							
-							for mod_hist in all_hists[keyword]:
-								hist = mod_hist.hist()
-								conditions = mod_hist.conditions()
-
-								condition_satisfied = 1
-								for condition_keyword, condition_boundaries in conditions:
-									keyword_index = keywords.index(condition_keyword) + 1
-
-									if condition_boundaries[0] == None and condition_boundaries[1] != None:
-										condition_satisfied *= int( float(numbers[keyword_index]) < condition_boundaries[1] ) 
-									elif condition_boundaries[0] != None and condition_boundaries[1] == None:
-										condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] ) 
-									elif condition_boundaries[0] == None and condition_boundaries[1] == None:
-										condition_satisfied *= 1 
-									elif condition_boundaries[0] != None and condition_boundaries[1] != None:
-										condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] and float(numbers[keyword_index]) < condition_boundaries[1] )
-
-								condition_satisfied = bool(condition_satisfied)
-
-
-								if condition_satisfied:
-
-									x = float(numbers[i + 1]) # + 1 because we ignore the first keyword "Entry".
-
-									if (not mod_hist.use_prescale()) and input_file == input_analysis_file:	# For data file only.
-										hist.fill_array( [x] )	 
-									else:
-										hist.fill_array( [x], [float(numbers[prescale_index])] )
-
-			except:
-				pass
-
-
-	return all_hists
-
-
-
-def parse_file(input_file, all_hists):
-
-	print "Parsing {}".format(input_file)
-	
-	# We read the file line by line, and for each line, we fill the corresponding histograms.
-	# This is desirable to creating lists of values since this will not hold anything in memory. 
-
-	keywords = []
-	keywords_set = False
-
-	with open(input_file) as infile:
-		
-		line_number = 0
-
-		for line in infile:
-
-
-			if line_number > 10000:	# Ideal length.
-			# if line_number > 100000:	# Big enough.
-			# if line_number > 100:		# Small tests.
-			# if line_number > 30000:		# Small tests.
-			# if False:
-				break
-
-			line_number += 1
-
-			if line_number % 10000 == 0:
-				print "At line number {}".format(line_number)
-
-			try:
-				numbers = line.split()
-
-				if numbers[0] == "#" and (not keywords_set):
-					keywords = numbers[2:]
-					keywords_set = True
-
-				elif numbers[0] == "Entry":
-
-					prescale_index = keywords.index("prescale") + 1
-
-					for i in range(len(keywords)):
-
-						keyword = keywords[i]
-
-						if keyword in all_hists.keys():
-							
-							for mod_hist in all_hists[keyword]:
-								hist = mod_hist.hist()
-								conditions = mod_hist.conditions()
-
-								condition_satisfied = 1
-								for condition_keyword, condition_boundaries in conditions:
-									keyword_index = keywords.index(condition_keyword) + 1
-
-									if condition_boundaries[0] == None and condition_boundaries[1] != None:
-										condition_satisfied *= int( float(numbers[keyword_index]) < condition_boundaries[1] ) 
-									elif condition_boundaries[0] != None and condition_boundaries[1] == None:
-										condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] ) 
-									elif condition_boundaries[0] == None and condition_boundaries[1] == None:
-										condition_satisfied *= 1 
-									elif condition_boundaries[0] != None and condition_boundaries[1] != None:
-										condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] and float(numbers[keyword_index]) < condition_boundaries[1] )
-
-								condition_satisfied = bool(condition_satisfied)
-
-
-								if condition_satisfied:
-
-									x = float(numbers[i + 1]) # + 1 because we ignore the first keyword "Entry".
-
-									if (not mod_hist.use_prescale()) and input_file == input_analysis_file:	# For data file only.
-										hist.fill_array( [x] )	 
-									else:
-										hist.fill_array( [x], [float(numbers[prescale_index])] )
-
-
-			except:
-				pass
-
-
-	return all_hists
 
 
 def parse_theory_file():
@@ -326,11 +154,7 @@ def load_root_file_to_hists(root_filename):
 	
 	f = TFile(root_filename, "read")
 
-	main_tree = f.main_tree
-
-	branch_element = main_tree.GetBranch("hardest_pT")
-
-
+	
 	hist = f.Get("hardest_pT")
 
 	print hist
@@ -399,11 +223,6 @@ def load_root_file_to_hists(root_filename):
 	pass
 
 
-class Event(TreeModel):
-    """Event model definition"""
-    x = FloatCol()
-
-
 
 def save_hists_to_root_file(root_filename, hists_to_save):
 
@@ -424,22 +243,24 @@ def save_hists_to_root_file(root_filename, hists_to_save):
 	hist = copy.deepcopy( hist2 )
 	hist.SetName("hardest_pT")
 
-	print hist
+	hist.Write()
+
+	# print hist
 
 
 
-	main_tree = Tree(name="main_tree")
-	branch = main_tree.Branch("hardest_pT", "TH1F", hist)
+	# main_tree = Tree(name="main_tree")
+	# branch = main_tree.Branch("hardest_pT", "TH1F", hist)
 	
 
-	for i in range(10000):
-		x = gauss(100, 10)
+	# for i in range(10000):
+	# 	x = gauss(100, 10)
 
-		# hist.Fill(x)
-		main_tree.Fill()
+	# 	# hist.Fill(x)
+	# 	main_tree.Fill()
 
-	main_tree.Print()
-	f.Write()
+	# main_tree.Print()
+	# f.Write()
 
 	# hist.Write()
 
@@ -581,14 +402,14 @@ start = time.time()
 
 
 
-# parsed_hists = parse_general()	
+parsed_hists = parse_general()	
 # parsed_log_hists = parse_log()
 
 # parsed_data_only_hists = parse_data_only()
 
 
 
-# save_hists_to_root_file("test.root", parsed_hists[0])
+save_hists_to_root_file("test.root", parsed_hists[0])
 load_root_file_to_hists("test.root")
 
 # create_data_only_plot(filename=default_dir + "data_pT.pdf", hists=parsed_data_only_hists, labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio\nto\nCorrected", ratio_to_index=0)

@@ -13,3 +13,4 @@ bin/*
 *.log
 *.num
 *.mod
+*.root
