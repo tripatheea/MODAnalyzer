@@ -9,13 +9,12 @@ import pickle
 from MODPlot import *
 
 from rootpy.io.pickler import dump, load 
-from rootpy.tree import Tree, TreeModel, TreeChain, FloatCol, IntCol, ObjectCol
+from rootpy.tree import Tree
 from rootpy.io import File as TFile
-
 from rootpy.io import root_open
 
-from ROOT import AddressOf, gROOT
-from ROOT import TChain
+
+
 
 import matplotlib.pyplot as plt
 import rootpy.plotting.root2matplotlib as rplt
@@ -23,13 +22,13 @@ import rootpy.plotting.root2matplotlib as rplt
 
 
 
-from random import gauss
 
 input_analysis_file = sys.argv[1]
 
 
 
-def parse_file_literal(input_file, all_hists):
+
+def parse_file(input_file, all_hists):
 
 	print "Parsing {}".format(input_file)
 	
@@ -103,90 +102,6 @@ def parse_file_literal(input_file, all_hists):
 										hist.fill_array( [x] )	 
 									else:
 										hist.fill_array( [x], [float(numbers[prescale_index])] )
-
-			except:
-				pass
-
-
-	return all_hists
-
-
-
-def parse_file(input_file, all_hists):
-
-	print "Parsing {}".format(input_file)
-	
-	# We read the file line by line, and for each line, we fill the corresponding histograms.
-	# This is desirable to creating lists of values since this will not hold anything in memory. 
-
-	keywords = []
-	keywords_set = False
-
-	with open(input_file) as infile:
-		
-		line_number = 0
-
-		for line in infile:
-
-
-			if line_number > 10000:	# Ideal length.
-			# if line_number > 100000:	# Big enough.
-			# if line_number > 100:		# Small tests.
-			# if line_number > 30000:		# Small tests.
-			# if False:
-				break
-
-			line_number += 1
-
-			if line_number % 10000 == 0:
-				print "At line number {}".format(line_number)
-
-			try:
-				numbers = line.split()
-
-				if numbers[0] == "#" and (not keywords_set):
-					keywords = numbers[2:]
-					keywords_set = True
-
-				elif numbers[0] == "Entry":
-
-					prescale_index = keywords.index("prescale") + 1
-
-					for i in range(len(keywords)):
-
-						keyword = keywords[i]
-
-						if keyword in all_hists.keys():
-							
-							for mod_hist in all_hists[keyword]:
-								hist = mod_hist.hist()
-								conditions = mod_hist.conditions()
-
-								condition_satisfied = 1
-								for condition_keyword, condition_boundaries in conditions:
-									keyword_index = keywords.index(condition_keyword) + 1
-
-									if condition_boundaries[0] == None and condition_boundaries[1] != None:
-										condition_satisfied *= int( float(numbers[keyword_index]) < condition_boundaries[1] ) 
-									elif condition_boundaries[0] != None and condition_boundaries[1] == None:
-										condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] ) 
-									elif condition_boundaries[0] == None and condition_boundaries[1] == None:
-										condition_satisfied *= 1 
-									elif condition_boundaries[0] != None and condition_boundaries[1] != None:
-										condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] and float(numbers[keyword_index]) < condition_boundaries[1] )
-
-								condition_satisfied = bool(condition_satisfied)
-
-
-								if condition_satisfied:
-
-									x = float(numbers[i + 1]) # + 1 because we ignore the first keyword "Entry".
-
-									if (not mod_hist.use_prescale()) and input_file == input_analysis_file:	# For data file only.
-										hist.fill_array( [x] )	 
-									else:
-										hist.fill_array( [x], [float(numbers[prescale_index])] )
-
 
 			except:
 				pass
@@ -323,213 +238,50 @@ print "Finished parsing all files in {} seconds. Now plotting them!".format(end 
 
 
 def load_root_file_to_hists(root_filename):
-	
-	f = TFile(root_filename, "read")
-
-	main_tree = f.main_tree
-
-	branch_element = main_tree.GetBranch("hardest_pT")
-
-
-	hist = f.Get("hardest_pT")
-
-	print hist
-
-	rplt.errorbar(hist)
-
-	plt.savefig("plot.pdf")
-
-
-	# f = TFile(root_filename, "read")
-
-	# h = f.Get("main_tree")
-
-	# ar = h.to_array()
-
-	# a = [x[0] for x in ar]
-
-	# plt.hist(a)
-
-	# plt.show()
-
-
-
-
 	# with root_open(root_filename) as f:
 	# 	tree = f.main_tree
 
-		
-	# 	branch = tree.GetBranch("hpx")
+	# 	for x in tree:
+	# 		print x
 
-	# 	print branch.GetEntry(0)
+	b = pickle.load( open("plot.p", "rb") )
 
+	print b.GetEntries()
 
-	# 	# a = tree.GetEntries()
+	rplt.errorbar(b)
 
-	# 	# tree_iter = tree.iterbranches()
-
-	# 	# for i in tree_iter:
-	# 	# 	print i
-
-
-		
-	# 	# hist = Hist(25, 0, 1000)
-
-	# 	# pT = 0.5
-	# 	# # tree.SetBranchAddress("hpx", pT)
-
-	# 	# for i in range(a):
-	# 	# 	x = tree.GetEntry(i)
-
-	# 	# 	print x
-
-
-	# # 	for x in tree:
-	# # 		print x
-
-	# # b = pickle.load( open("plot.p", "rb") )
-
-	# # print b.GetEntries()
-
-	# # rplt.errorbar(b)
-
-	# # plt.show()
-
-
-	pass
-
-
-class Event(TreeModel):
-    """Event model definition"""
-    x = FloatCol()
-
+	plt.show()
 
 
 def save_hists_to_root_file(root_filename, hists_to_save):
 
-	hist_templates = hists.multi_page_plot_hist_templates()
 
 	f = TFile(root_filename, "RECREATE")
 
-	var = 'hardest_pT'
-	
-	
-	hist = Hist(25, 0, 1, name="hardest_pT", title="hardest_pT")
-	# hist2 = hist_templates[var][0].hist()		# This definitely works but we need to fill this manually (again).
-
-	hist2 = hists_to_save[var][0].hist()
-
-	print hist2.GetSumOfWeights()
-
-	hist = copy.deepcopy( hist2 )
-	hist.SetName("hardest_pT")
-
-	print hist
-
-
-
 	main_tree = Tree(name="main_tree")
-	branch = main_tree.Branch("hardest_pT", "TH1F", hist)
-	
+	for var in hists_to_save:
 
-	for i in range(10000):
-		x = gauss(100, 10)
+		a = hists_to_save[var][0].hist()
+		print a
 
-		# hist.Fill(x)
-		main_tree.Fill()
+		a = pickle.dump(a, open("plot.p", "wb"))
 
-	main_tree.Print()
-	f.Write()
+		# print a
 
-	# hist.Write()
-
-	################ Things above this line work. ###########################
-
-	# main_tree = Tree(name="main_tree", model=Event)
-	# # br = main_tree.Branch("hardest_pT", )
-
-	# for i in range(100):
-	# 	main_tree.x = gauss(.5, .1)
-
-	# 	main_tree.fill()
-
-	# main_tree.write()
+		# br = main_tree.Branch(var, a, 32000, 0)
 
 
+		# br.Fill()
+		# main_tree.Fill()
 
-	######################
-
-	# Crappy Working Version.
-
-	# main_tree = Tree(name="main_tree")
-	# main_tree.create_branches({"x1": "F"})
-
-	# for i in range(100):
-	# 	main_tree.x1 = gauss(0.5, 0.1)
-	# 	main_tree.fill()
-
-
-	# second_tree = Tree(name="second_tree")
-
-	# second_tree.create_branches({"x1": "F"})
-
-	# for i in range(10000):
-	# 	second_tree.x1 = gauss(1, 10)
-	# 	second_tree.fill()
-
-
-	# main_tree.write()
-	# second_tree.write()
-
-	# f.Write()
-
-	########################
-
-	# br.Write()
-
-
-	# main_tree = Tree(name="main_tree")
-
-	# # main_tree.create_branches({'x': 'TH1'})
-
-
-	# var = 'hardest_pT'	
-
-	# a = hists_to_save[var][0].hist()
-	
-	# print a.Write()
-
-	# b = []
-	# for i in range(len(a)):
-	# 	b.append(a[i].value)
-
-	# br = main_tree.Branch("hpx", "TH1F", a)
-
-	# # br = main_tree.Branch(var, a, 32000, 0)
-
-
-	# br.Fill()
-	# main_tree.Fill()
-
-	# br.Write()
+	# main_tree.SetEntries()
 	# main_tree.Write()
-
-	# # main_tree.SetEntries()
-	# # main_tree.Write()
-
-	# # main_tree.Print()
-	# # f.Write()
-
 
 	# main_tree.Print()
 	# f.Write()
 
 
 	# dump(hists_to_save, root_filename)
-
-	print "\n" * 2
-	print "I'm done. I can't do this anymore."
-	print "\n" * 2
 
 
 def compile_hists(var, parsed_hists, x_scale='linear'):
@@ -581,14 +333,14 @@ start = time.time()
 
 
 
-# parsed_hists = parse_general()	
+parsed_hists = parse_general()	
 # parsed_log_hists = parse_log()
 
 # parsed_data_only_hists = parse_data_only()
 
 
 
-# save_hists_to_root_file("test.root", parsed_hists[0])
+save_hists_to_root_file("test.root", parsed_hists[0])
 load_root_file_to_hists("test.root")
 
 # create_data_only_plot(filename=default_dir + "data_pT.pdf", hists=parsed_data_only_hists, labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio\nto\nCorrected", ratio_to_index=0)
