@@ -109,7 +109,7 @@ def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut
 	keywords_set = False
 	for line in lines:
 
-		if line_number > 1000000000000:
+		if line_number > 10000000:
 			break
 
 		line_number += 1
@@ -122,11 +122,12 @@ def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut
 				keywords_set = True
 			elif numbers[0] == "Entry":
 				pT_index = keywords.index("hardest_pT") + 1
-				softdrop_pT_index = keywords.index("pT_after_SD") + 1
+				# softdrop_pT_index = keywords.index("pT_after_SD") + 1
 
 				eta_index = keywords.index("hardest_eta") + 1
 
-				if abs(float(numbers[eta_index])) < eta_cut and float(numbers[pT_index]) > pT_lower_cut and float(numbers[pT_index]) < pT_upper_cut and float(numbers[softdrop_pT_index]) > softdrop_pT_lower_cut and float(numbers[softdrop_pT_index]) < softdrop_pT_upper_cut:
+				# if abs(float(numbers[eta_index])) < eta_cut and float(numbers[pT_index]) > pT_lower_cut and float(numbers[pT_index]) < pT_upper_cut and float(numbers[softdrop_pT_index]) > softdrop_pT_lower_cut and float(numbers[softdrop_pT_index]) < softdrop_pT_upper_cut:
+				if abs(float(numbers[eta_index])) < eta_cut and float(numbers[pT_index]) > pT_lower_cut and float(numbers[pT_index]) < pT_upper_cut:
 					for i in range(len(keywords)):
 						keyword = keywords[i]
 
@@ -3541,6 +3542,10 @@ def plot_jet_eta(pT_lower_cut=100):
 		plt.savefig("plots/" + get_version(input_analysis_file) + "/eta/" + mc_type + "_jet_eta.pdf")
 
 		plt.close(plt.gcf())
+
+
+
+
 
 
 
@@ -8701,22 +8706,15 @@ def count_events(pT_lower_cut=150, pT_upper_cut=20000):
 
 
 
-def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log=False):
+
+
+def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log=False, which='data'):
 	
 	zg_cut = float(zg_cut)
 
 	
 	keywords = ['prescale', zg_filename, 'rg_10']
-	properties = parse_file(input_analysis_file, keywords_to_populate=keywords, pT_lower_cut=pT_lower_cut)
-
-	zg_data = properties[zg_filename]
-	prescales = properties['prescale']
-
-	R_g_data = properties[zg_filename.replace("zg", "rg")]
-
 	
-	theta_g_data = np.divide(R_g_data, 0.5)
-
 
 
 	startcolor = 'white'  # a dark olive 
@@ -8727,34 +8725,62 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 	cm.register_cmap(cmap=cmap2)
 
 
-	labels = ['data', 'pythia', 'herwig', 'sherpa']
-	colors = ['Greys', 'Blues', 'Greens', 'purple'] 
-	for mc_type in ['truth']:
+	labels = ['theory', 'data', 'pythia', 'herwig', 'sherpa']
+	colors = ['Reds', 'Greys', 'Blues', 'Greens', 'purple'] 
+	
 
-		properties_pythia = parse_file("/home/aashish/pythia_" + mc_type + ".dat", keywords_to_populate=keywords, pT_lower_cut=pT_lower_cut)
-		properties_herwig = parse_file("/home/aashish/herwig_" + mc_type + ".dat", keywords_to_populate=keywords, pT_lower_cut=pT_lower_cut)
-		properties_sherpa = parse_file("/home/aashish/sherpa_" + mc_type + ".dat", keywords_to_populate=keywords, pT_lower_cut=pT_lower_cut)
 
-		zg_pythias = properties_pythia[zg_filename]
-		zg_herwigs = properties_herwig[zg_filename]
-		zg_sherpas = properties_sherpa[zg_filename]
 
-		R_g_pythias = properties_pythia[zg_filename.replace("zg", "rg")]
-		R_g_herwigs = properties_herwig[zg_filename.replace("zg", "rg")]
-		R_g_sherpas = properties_sherpa[zg_filename.replace("zg", "rg")]
+	counter = labels.index(which)
+
+
+	if log:
+		filename = "plots/" + get_version(input_analysis_file) + "/zg_against_theta_g/log/" + which + "_zg_against_theta_g.pdf"
+	else:
+		filename = "plots/" + get_version(input_analysis_file) + "/zg_against_theta_g/linear/" + which + "_zg_against_theta_g.pdf"
+
+
+
 		
-		theta_g_pythias = R_g_pythias
-		theta_g_herwigs = R_g_herwigs
-		theta_g_sherpas = R_g_sherpas
+	with PdfPages(filename) as pdf:
+		
+		lower_boundaries = [85, 115, 150, 200, 85, 150]
+		upper_boundaries = [115, 150, 200, 250, 100000., 100000.]
+		
+		for i in range(len(lower_boundaries)):
+
+			lower, upper = lower_boundaries[i], upper_boundaries[i]
 
 
-		counter = 0
-		for (z_g_s, theta_g_s) in [ (zg_data, theta_g_data), (zg_pythias, theta_g_pythias), (zg_herwigs, theta_g_herwigs), (zg_sherpas, theta_g_sherpas) ]:
+			if which == "data":
+				properties = parse_file(input_analysis_file, keywords_to_populate=keywords, pT_lower_cut=lower, pT_upper_cut=upper)
+			elif which == "pythia":
+				properties = parse_file("/home/aashish/pythia_truth.dat", keywords_to_populate=keywords, pT_lower_cut=lower, pT_upper_cut=upper)
+			elif which == "herwig":
+				properties = parse_file("/home/aashish/herwig_truth.dat", keywords_to_populate=keywords, pT_lower_cut=lower, pT_upper_cut=upper)
+			elif which == "sherpa":
+				properties = parse_file("/home/aashish/sherpa_truth.dat", keywords_to_populate=keywords, pT_lower_cut=lower, pT_upper_cut=upper)
 
-			# if log:
-			# 	theta_g_s = np.log(theta_g_s)
-			# 	z_g_s = np.log(z_g_s)
+			if which != "theory":
+				z_g_s = properties[zg_filename]
+				R_g_s = properties[zg_filename.replace("zg", "rg")]
+				theta_g_s = R_g_s
+				prescales = properties['prescale']
+			else:
+				if upper == 100000.:
+					filename = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddifm{}.dat".format(lower)
+				else:
+					filename = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddif{}.dat".format(lower)
+				
+				f = open(filename, 'r')
+				lines = f.read().split("\n")
 
+				z_g_s, theta_g_s, prescales = [], [], []
+				for line in lines:
+					stuff = line.split()
+					z_g_s.append( float(stuff[0]))
+					theta_g_s.append( float(stuff[1]))
+					prescales.append( float(stuff[2]))
 
 			if log:
 				zg_bins = np.logspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 25, base=np.e)
@@ -8765,10 +8791,7 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 
 
-			if labels[counter] == 'data':
-				H, xedges, yedges = np.histogram2d(z_g_s, theta_g_s, bins=bins, weights=prescales)
-			else:
-				H, xedges, yedges = np.histogram2d(z_g_s, theta_g_s, bins=bins)
+			H, xedges, yedges = np.histogram2d(z_g_s, theta_g_s, bins=bins, weights=prescales)
 
 			# H_normalized = []
 			# for i in range(0, 25):
@@ -8813,43 +8836,47 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 			plt.autoscale()
 			# plt.xlim(float(zg_cut), 0.5)
-			plt.xlim(0.0, 0.5)
-			plt.ylim(0.0, 2.)
+
+			if not log:
+				plt.xlim(0.0, 0.5)
+				plt.ylim(0.0, 1.5)
+			else:
+				plt.xlim(0.0, 1.0)
+				plt.ylim(0.0, 3.5)
 
 
 			logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-			text_box = TextArea("Prelim. (20\%)", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+			text_box = TextArea("Prelim.", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 			logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
 			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0.)
 			plt.gca().add_artist(anchored_box)
 
 
-
-			label = "$\mathrm{PFC}~p_T > 1~\mathrm{GeV}$ \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} > 150~\mathrm{GeV};\eta<2.4$ \n Soft Drop: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"
+			label = []
 			
-			texts = label.split("\n")
+			if upper != 100000.:
+				label.extend( [r"$\mathrm{PFC}~p_T > 1~\mathrm{GeV}$", r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"$p_{T} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$", r"Soft Drop: $\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+			else:
+				label.extend( [r"$\mathrm{PFC}~p_T > 1~\mathrm{GeV}$", r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"$p_{T} > " + str(lower) + "~\mathrm{GeV}$", r"Soft Drop: $\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+
+
 
 			extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 			
-			plt.legend( [extra] * len(texts), texts, frameon=0, borderpad=0, fontsize=60, bbox_to_anchor=[0.35, 0.98], loc="upper left")	
+			plt.legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[0.35, 0.98], loc="upper left")	
 
 
 
 
 			plt.tick_params(which='major', width=5, length=25, labelsize=70)
-			# plt.tick_params(which='minor', width=3, length=15)
+			plt.tick_params(which='minor', width=3, length=15)
 
 			plt.gcf().set_size_inches(30, 25, forward=1)
 			plt.gcf().set_snap(True)
 			plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
 
-			if log:
-				plt.savefig("plots/" + get_version(input_analysis_file) + "/zg_against_theta_g/log/" + mc_type + "/" + labels[counter] + "_zg_against_theta_g_pT_" + str(pT_lower_cut) + ".pdf")
-			else:
-				plt.savefig("plots/" + get_version(input_analysis_file) + "/zg_against_theta_g/linear/" + mc_type + "/" + labels[counter] + "_zg_against_theta_g_pT_" + str(pT_lower_cut) + ".pdf")
-
-			counter += 1
+			pdf.savefig()
 
 			plt.close(plt.gcf())
 
@@ -10813,6 +10840,86 @@ def plot_pair_pfc():
 
 
 
+
+
+def plot_npv(pT_lower_cut=100):
+	
+	keywords = ['npv', 'prescale']
+
+	properties = parse_file(input_analysis_file, pT_lower_cut=pT_lower_cut, keywords_to_populate=keywords, eta_cut=6)
+
+	
+	npv = properties['npv']
+	prescales = properties['prescale']
+
+	
+
+
+	data_hist = Hist(25, 0, 5, title=plot_labels['data'])
+	map(data_hist.Fill, npv, prescales)
+	bin_width_data = (data_hist.upperbound() - data_hist.lowerbound()) / data_hist.nbins()
+	data_hist.Scale(1.0 / ( data_hist.GetSumOfWeights() * bin_width_data ))
+
+	
+	rplt.errorbar(data_hist, zorder=10, xerr=1, yerr=1, emptybins=False, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+
+
+
+	plt.xlabel('NPV', fontsize=75)
+	plt.ylabel('A.U.', fontsize=75, rotation=0, labelpad=100.)
+
+	logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
+	text_box = TextArea("Prelim.", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+	logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
+	anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0.)
+	plt.gca().add_artist(anchored_box)
+
+	
+
+	
+	# ax0.arrow(150, 0.5e-2, 100, 0, head_width=0.1, head_length=10, fc='k', ec='k')
+	# ax0.annotate('Our analysis', xy=(150, 0.5e-2), xytext=(250, 1e-3), arrowprops=dict(facecolor='red', arrowstyle='<='))
+
+
+	handles, labels = plt.gca().get_legend_handles_labels()
+	legend = plt.gca().legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+	plt.gca().add_artist(legend)
+
+
+	extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+	labels = ["$p_{T} > " + str(pT_lower_cut) + "~\mathrm{GeV}$"]
+	plt.gca().legend([extra] * len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.90, 0.84])
+
+
+
+	plt.gcf().set_size_inches(30, 21.4285714, forward=1)
+
+	
+
+	plt.autoscale()
+
+	plt.xlim(0, 5)
+	plt.ylim( 0., plt.gca().get_ylim()[1] * 1.3 )
+
+	plt.gca().xaxis.set_minor_locator(MultipleLocator(0.2))
+	plt.gca().yaxis.set_minor_locator(MultipleLocator(0.1))
+
+	plt.tick_params(which='major', width=5, length=25, labelsize=70)
+	plt.tick_params(which='minor', width=3, length=15)
+
+	plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+
+
+
+	plt.savefig("plots/" + get_version(input_analysis_file) + "/npv.pdf")
+
+	plt.close(plt.gcf())
+
+
+
+
+
+
 # plot_pair_pfc()
 
 
@@ -10922,8 +11029,29 @@ def plot_pair_pfc():
 
 
 
-# plot_2d_theta_g_zg(pT_lower_cut=150, log=True)
-plot_2d_theta_g_zg(pT_lower_cut=150, log=False)
+
+
+
+
+
+# plot_2d_theta_g_zg(pT_lower_cut=150, log=True, which="data")
+# plot_2d_theta_g_zg(pT_lower_cut=150, log=True, which="pythia")
+# plot_2d_theta_g_zg(pT_lower_cut=150, log=True, which="herwig")
+# plot_2d_theta_g_zg(pT_lower_cut=150, log=True, which="sherpa")
+
+# plot_2d_theta_g_zg(pT_lower_cut=150, log=False, which="data")
+# plot_2d_theta_g_zg(pT_lower_cut=150, log=False, which="pythia")
+# plot_2d_theta_g_zg(pT_lower_cut=150, log=False, which="herwig")
+# plot_2d_theta_g_zg(pT_lower_cut=150, log=False, which="sherpa")
+# plot_2d_theta_g_zg(pT_lower_cut=150, log=False, which="theory")
+
+plot_npv(pT_lower_cut=150)
+
+
+
+
+
+
 
 
 # plot_jet_rho(pT_lower_cut=100)

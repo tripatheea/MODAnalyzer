@@ -27,6 +27,14 @@ sherpa_file = "/home/aashish/sherpa_truth.dat"
 
 
 
+average_prescales = {}
+
+average_prescales[(250, None)] = 1.0
+average_prescales[(200, 250)] = 2.06100454815
+average_prescales[(150, 200)] = 14.062697274
+average_prescales[(115, 150)] = 128.194511703
+average_prescales[(85, 115)] = 1013.80182713
+
 
 def parse_file(input_file, all_hists):
 
@@ -47,7 +55,7 @@ def parse_file(input_file, all_hists):
 
 			# if line_number > 10000:	# Ideal length.
 			# if line_number > 100000:	# Big enough.
-			# if line_number > 1000:		# Small tests.
+			# if line_number > 100:		# Small tests.
 			# if line_number > 30000:		# Small tests.
 			if False:
 				break
@@ -78,28 +86,50 @@ def parse_file(input_file, all_hists):
 								hist = mod_hist.hist()
 								conditions = mod_hist.conditions()
 
-								condition_satisfied = 1
-								for condition_keyword, condition_boundaries in conditions:
-									keyword_index = keywords.index(condition_keyword) + 1
+								try:
+									condition_satisfied = 1
+									for condition_keyword, condition_boundaries in conditions:
+										keyword_index = keywords.index(condition_keyword) + 1
 
-									if condition_boundaries[0] == None and condition_boundaries[1] != None:
-										condition_satisfied *= int( float(numbers[keyword_index]) < condition_boundaries[1] ) 
-									elif condition_boundaries[0] != None and condition_boundaries[1] == None:
-										condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] ) 
-									elif condition_boundaries[0] == None and condition_boundaries[1] == None:
-										condition_satisfied *= 1 
-									elif condition_boundaries[0] != None and condition_boundaries[1] != None:
-										condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] and float(numbers[keyword_index]) < condition_boundaries[1] )
+										if condition_boundaries[0] == None and condition_boundaries[1] != None:
+											condition_satisfied *= int( float(numbers[keyword_index]) < condition_boundaries[1] ) 
+										elif condition_boundaries[0] != None and condition_boundaries[1] == None:
+											condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] ) 
+										elif condition_boundaries[0] == None and condition_boundaries[1] == None:
+											condition_satisfied *= 1 
+										elif condition_boundaries[0] != None and condition_boundaries[1] != None:
+											condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] and float(numbers[keyword_index]) < condition_boundaries[1] )
 
-								condition_satisfied = bool(condition_satisfied)
-
+									condition_satisfied = bool(condition_satisfied)
+								except Exception as e:
+									print "ASF", e
+								
 
 								if condition_satisfied:
 
 									x = float(numbers[i + 1]) # + 1 because we ignore the first keyword "Entry".
 
 									if (not mod_hist.use_prescale()) and input_file == data_file:	# For data file only.
-										hist.fill_array( [x] )	 
+
+										if len(conditions) > 0:
+											if len(conditions[0]) == 2:
+
+												pT_condition_index = -1
+												abc = 0
+												for condition_keyword, condition_boundaries in conditions:
+													if condition_keyword == "hardest_pT":
+														pT_condition_index = abc
+
+													abc += 1
+												
+										if pT_condition_index == -1:
+											weight = 1.0
+										else:
+											pT_condition = conditions[pT_condition_index]
+											lower, upper = pT_condition[1]
+											weight = average_prescales[(lower, upper)]
+										
+										hist.fill_array( [x], [weight] )	 
 									else:
 										hist.fill_array( [x], [float(numbers[prescale_index])] )
 
@@ -163,24 +193,26 @@ def parse_to_root_files():
 	hist_templates = hists.multi_page_plot_hist_templates()
 	log_hist_templates = hists.multi_page_log_plot_hist_templates()
 
-	# parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data.root", hist_templates=hist_templates)
-	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia.root", hist_templates=hist_templates)
-	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig.root", hist_templates=hist_templates)
+	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data.root", hist_templates=hist_templates)
+	parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia.root", hist_templates=hist_templates)
+	parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig.root", hist_templates=hist_templates)
 	parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa.root", hist_templates=hist_templates)
 
-	# parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data_log.root", hist_templates=log_hist_templates)
-	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia_log.root", hist_templates=log_hist_templates)
-	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig_log.root", hist_templates=log_hist_templates)
+	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data_log.root", hist_templates=log_hist_templates)
+	parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia_log.root", hist_templates=log_hist_templates)
+	parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig_log.root", hist_templates=log_hist_templates)
 	parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa_log.root", hist_templates=log_hist_templates)
 
 
 
 def load_root_files_to_hist(log=False):
-	hist_templates = hists.multi_page_plot_hist_templates()
+	
 
-	if log:
+	if not log:
+		hist_templates = hists.multi_page_plot_hist_templates()
 		filenames = ["data.root", "pythia.root", "herwig.root", "sherpa.root"]
 	else:
+		hist_templates = hists.multi_page_log_plot_hist_templates()
 		filenames = ["data_log.root", "pythia_log.root", "herwig_log.root", "sherpa_log.root"]
 
 	return  [ root_file_to_hist(output_directory + filename, hist_templates) for filename in filenames ] 
@@ -188,6 +220,10 @@ def load_root_files_to_hist(log=False):
 
 
 
-# parse_to_root_files()
+if __name__ == "__main__":
 
-load_root_files_to_hist()
+	parse_to_root_files()
+
+	# load_root_files_to_hist()
+
+	pass

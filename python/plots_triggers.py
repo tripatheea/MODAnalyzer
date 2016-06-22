@@ -131,6 +131,10 @@ def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut
 
 
 
+
+
+
+
 def parse_file_turn_on(input_file, pT_lower_cut = 0.00, jet_quality_level=1):
   f = open(input_file, 'r')
   lines = f.read().split("\n")
@@ -144,16 +148,16 @@ def parse_file_turn_on(input_file, pT_lower_cut = 0.00, jet_quality_level=1):
       numbers = line.split()
       
       if not numbers[0] == "#":
-        if (float(numbers[1]) > pT_lower_cut) and (int(numbers[3]) == 1) and (int(numbers[4]) >= jet_quality_level):
+        if (float(numbers[5]) > pT_lower_cut) and (int(numbers[3]) == 1) and (int(numbers[4]) >= jet_quality_level):
           properties['event_number'].append( float( numbers[1] ) )
           properties['corrected_hardest_pts'].append( float( numbers[5] ) )
-          properties['prescale'].append( int( numbers[6] ) )
+          properties['prescale'].append( float( numbers[6] ) )
           properties['trigger_names'].append(  numbers[7] )
 
-    except:
+    except Exception as e:
       if len(numbers) != 0:
         print "Some kind of error occured while parsing the given file!"
-        print numbers
+        print e
         print
 
 
@@ -260,7 +264,7 @@ def plot_turn_on_curves():
 
 
   logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-  text_box = TextArea("Prelim. (20\%)", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+  text_box = TextArea("Prelim.", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 
   logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
 
@@ -350,7 +354,7 @@ def plot_trigger_efficiency_curves(trigger_1, trigger_2, pT_upper_limit=800):
 
   ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/Users/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.23, 0.895), xycoords='figure fraction', frameon=0)
   plt.gca().add_artist(ab)
-  plt.gcf().text(0.29, 0.885, "Prelim. (20\%)", fontsize=50, weight='bold', color='#444444', multialignment='center')
+  plt.gcf().text(0.29, 0.885, "Prelim.", fontsize=50, weight='bold', color='#444444', multialignment='center')
 
   plt.gcf().set_snap(1)
 
@@ -534,7 +538,7 @@ def plot_all_trigger_efficiency_curves():
   plt.gca().yaxis.set_tick_params(width=5, length=20, labelsize=70)
 
   logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-  text_box = TextArea("Prelim. (20\%)", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+  text_box = TextArea("Prelim.", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 
   logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
 
@@ -600,11 +604,11 @@ def plot_prescales():
   trigger_names = properties['trigger_name']
   prescales = properties['prescale']
 
-  expected_trigger_names = ["HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U", "HLT\_Jet15U\_HcalNoiseFiltered" ]
-  labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15\_HNF" ]
-  lower_pTs = [140, 100, 70, 50, 30, 15]
+  expected_trigger_names = ["HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U" ]
+  labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U" ]
+  lower_pTs = [140, 100, 70, 50, 30]
 
-  colors = ['orange', 'brown', 'red', 'blue', 'magenta', 'green']
+  colors = ['brown', 'red', 'blue', 'magenta', 'green']
   colors = colors[::-1]
 
   prescale_hists = []
@@ -636,7 +640,7 @@ def plot_prescales():
 
 
   logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-  text_box = TextArea("Prelim. (20\%)", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+  text_box = TextArea("Prelim.", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 
   logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
 
@@ -668,7 +672,48 @@ def plot_prescales():
 
 
 
-# plot_turn_on_curves()
-# plot_all_trigger_efficiency_curves()
 
-plot_prescales()
+def calculate_average_prescales():
+  keywords = ['cor_hardest_pT', 'prescale', 'trigger_name']
+  properties = parse_file(input_analysis_file, pT_lower_cut=0, keywords_to_populate=keywords)
+
+  # properties = parse_file_turn_on(input_analysis_file, pT_lower_cut=0)
+  
+
+  
+  trigger_names = properties['trigger_name']
+  prescales = properties['prescale']
+
+  expected_trigger_names = ["HLT\_Jet140U", "HLT\_Jet100U", "HLT\_Jet70U", "HLT\_Jet50U", "HLT\_Jet30U" ]
+  labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U" ]
+  lower_pTs = [140, 100, 70, 50, 30, 15]
+
+  colors = ['orange', 'brown', 'red', 'blue', 'magenta', 'green']
+  colors = colors[::-1]
+
+  prescale_hists = []
+  for i in range(0, len(expected_trigger_names)):
+    # prescale_hists.append(Hist(100, 1, 1e5, title=labels[i], markersize=1.0, color=colors[i], linewidth=5))
+    prescale_hists.append([])
+
+  for i in range(0, len(prescales)):
+    for j in range(0, len(expected_trigger_names)):
+      if expected_trigger_names[j].replace("\\", "") in trigger_names[i]:
+        try:
+          prescale_hists[j].append( float(prescales[i]) )
+        except:
+          pass
+
+  for j in range(0, len(expected_trigger_names)):
+    print expected_trigger_names[j], np.mean(prescale_hists[j])
+
+
+
+
+plot_turn_on_curves()
+plot_all_trigger_efficiency_curves()
+
+# plot_prescales()
+
+
+# calculate_average_prescales()

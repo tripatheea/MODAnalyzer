@@ -275,7 +275,7 @@ class MODPlot:
 				# Distribution.
 				ax0.plot(x_s, y_line_s, lw=5, zorder=z_indices[i], color=self._plot_colors[i])
 
-				ax0.fill_between(x_s, y_max_s, y_min_s, zorder=z_indices[i], where=np.less_equal(y_min_s, y_max_s), facecolor=self._plot_colors[i], color=self._plot_colors[i], interpolate=True, alpha=0.3, linewidth=0.)
+				ax0.fill_between(x_s, y_max_s, y_min_s, zorder=z_indices[i], where=np.less_equal(y_min_s, y_max_s), facecolor=self._plot_colors[i], color=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.)
 
 				theory_min_interpolate_function = self.extrap1d(interpolate.interp1d(x_s, y_min_s))
 				theory_line_interpolate_function = self.extrap1d(interpolate.interp1d(x_s, y_line_s))
@@ -358,7 +358,7 @@ class MODPlot:
 					max_plot = self.convert_hist_to_line_plot(ratio_theory_max_hist, ratio_theory_max_hist.bounds())
 					
 					self._plt.plot(line_plot[0], line_plot[1], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
-					ax1.fill_between( max_plot[0], max_plot[1], min_plot[1], zorder=z_indices[i], where=np.less_equal(min_plot[1], max_plot[1]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.3, linewidth=0.0)
+					ax1.fill_between( max_plot[0], max_plot[1], min_plot[1], zorder=z_indices[i], where=np.less_equal(min_plot[1], max_plot[1]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
 
 					pass
 				else:
@@ -386,14 +386,14 @@ class MODPlot:
 		handler_map = {}
 		if "theory" in self._plot_types:
 			th_line, = ax0.plot(range(1), linewidth=8, color='red')
-			th_patch = mpatches.Patch(facecolor='red', alpha=0.3, linewidth=0., edgecolor='red')
+			th_patch = mpatches.Patch(facecolor='red', alpha=0.2, linewidth=0., edgecolor='red')
 
 			handles.insert( self._plot_types.index("theory"), (th_patch, th_line))
 			# labels.insert( self._plot_types.index("theory"), self._plot_labels[self._plot_types.index("theory")])
 
 			handler_map = {th_line : HandlerLine2D(marker_pad = 0)}
 
-		legend = ax0.legend(handles, labels, loc=1, frameon=0, fontsize=40, handler_map=handler_map )
+		legend = ax0.legend(handles, labels, loc=1, frameon=0, fontsize=50, handler_map=handler_map )
 		ax0.add_artist(legend)
 
 		# Any additional texts.
@@ -402,7 +402,7 @@ class MODPlot:
 
 		for position, anchor_location, text in self._hists[0].additional_text():
 			texts = text.split("\n")
-			ax0.legend( [extra] * len(texts), texts, frameon=0, borderpad=0, fontsize=40, bbox_to_anchor=position, loc=anchor_location)
+			ax0.legend( [extra] * len(texts), texts, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=position, loc=anchor_location)
 		
 
 
@@ -417,11 +417,11 @@ class MODPlot:
 
 		# Axes labels.
 
-		ax0.set_xlabel(self._x_label, fontsize=75)
-		ax0.set_ylabel(self._y_label, rotation=0, fontsize=75, labelpad=75)
+		ax0.set_xlabel(self._x_label, fontsize=70)
+		ax0.set_ylabel(self._y_label, rotation=0, fontsize=50, labelpad=85)
 
 		if self._ratio_plot:
-			ax1.set_xlabel(self._x_label, fontsize=75)
+			ax1.set_xlabel(self._x_label, fontsize=70)
 			ax1.set_ylabel(self._ratio_label, rotation=0, fontsize=55, labelpad=115, y=0.31)
 
 		# Axes labels end.

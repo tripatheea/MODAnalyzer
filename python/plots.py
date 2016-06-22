@@ -9,15 +9,10 @@ import hists
 from MODPlot import *
 
 
-from rootpy.io import File as TFile
+import parse
 
 
 
-
-
-
-
-input_analysis_file = sys.argv[1]
 
 
 
@@ -72,16 +67,11 @@ def parse_theory_file():
 	return hists
 
 
-start = time.time()
-
 def parse_general():
 
-	hist_templates = hists.multi_page_plot_hist_templates()
+	parsed = parse.load_root_files_to_hist()
 
-	data_hists = parse_file(input_analysis_file, copy.deepcopy(hist_templates))
-	pythia_hists = parse_file("/home/aashish/pythia_truth.dat", copy.deepcopy(hist_templates))
-	herwig_hists = parse_file("/home/aashish/herwig_truth.dat", copy.deepcopy(hist_templates))
-	sherpa_hists = parse_file("/home/aashish/sherpa_truth.dat", copy.deepcopy(hist_templates))
+	data_hists, pythia_hists, herwig_hists, sherpa_hists = parsed[0], parsed[1], parsed[2], parsed[3]
 	
 	theory_hists = parse_theory_file()
 
@@ -90,26 +80,24 @@ def parse_general():
 
 def parse_log():
 
-	hist_templates = hists.multi_page_log_plot_hist_templates()
+	parsed = parse.load_root_files_to_hist(log=True)
 
-	log_data_hists = parse_file(input_analysis_file, copy.deepcopy(hist_templates))
-	log_pythia_hists = parse_file("/home/aashish/pythia_truth.dat", copy.deepcopy(hist_templates))
-	log_herwig_hists = parse_file("/home/aashish/herwig_truth.dat", copy.deepcopy(hist_templates))
-	log_sherpa_hists = parse_file("/home/aashish/sherpa_truth.dat", copy.deepcopy(hist_templates))
-
+	data_hists, pythia_hists, herwig_hists, sherpa_hists = parsed[0], parsed[1], parsed[2], parsed[3]
+	
 	theory_hists = parse_theory_file()
 
-	return [log_data_hists, theory_hists, log_pythia_hists, log_herwig_hists, log_sherpa_hists]
+	return [data_hists, theory_hists, pythia_hists, herwig_hists, sherpa_hists]
+
+	
 
 
 def parse_data_only():
 
-	hist_templates = hists.multi_page_data_only_plot_hist_templates()
+	parsed = parse.load_root_files_to_hist(log=False)
 
-	data_hists = parse_file("/home/aashish/data.dat", copy.deepcopy(hist_templates))
+	data_hists = parsed[0]
 
-	# corrected = data_hists['cor_hardest_pT']
-	corrected = data_hists['cor_hardest_pT']
+	corrected = data_hists['hardest_pT']
 	uncorrected = data_hists['uncor_hardest_pT']
 
 	compiled = []
@@ -144,50 +132,8 @@ def compile_data_and_pythia(all_hists, variables):
 
 
 
-end = time.time()
-
-print "Finished parsing all files in {} seconds. Now plotting them!".format(end - start)
 
 
-
-def load_root_file_to_hists(root_filename):
-	
-	f = TFile(root_filename, "read")
-
-	
-	hist = f.Get("hardest_pT")
-
-	print hist
-
-	rplt.errorbar(hist)
-
-	plt.savefig("plot.pdf")
-
-
-
-
-def save_hists_to_root_file(root_filename, hists_to_save):
-
-	hist_templates = hists.multi_page_plot_hist_templates()
-
-	f = TFile(root_filename, "RECREATE")
-
-	var = 'hardest_pT'
-	
-	
-	hist = Hist(25, 0, 1, name="hardest_pT", title="hardest_pT")
-	# hist2 = hist_templates[var][0].hist()		# This definitely works but we need to fill this manually (again).
-
-	hist2 = hists_to_save[var][0].hist()
-
-	print hist2.GetSumOfWeights()
-
-	hist = copy.deepcopy( hist2 )
-	hist.SetName("hardest_pT")
-
-	hist.Write()
-
-	
 
 
 def compile_hists(var, parsed_hists, x_scale='linear'):
@@ -237,33 +183,18 @@ default_dir = "plots/Version 5_2/"
 
 start = time.time()
 
-
-
 parsed_hists = parse_general()	
-# parsed_log_hists = parse_log()
+parsed_log_hists = parse_log()
 
-# parsed_data_only_hists = parse_data_only()
+parsed_data_only_hists = parse_data_only()
 
-
-
-save_hists_to_root_file("test.root", parsed_hists[0])
-load_root_file_to_hists("test.root")
-
-# create_data_only_plot(filename=default_dir + "data_pT.pdf", hists=parsed_data_only_hists, labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio\nto\nCorrected", ratio_to_index=0)
+end = time.time()
 
 
+print "Finished parsing all files in {} seconds. Now plotting them!".format(end - start)
 
-# create_data_only_plot(filename=default_dir + "all_track_zg_10.pdf", hists=compile_data_and_pythia([ parsed_log_hists[0], parsed_log_hists[2] ], variables=['zg_10', 'track_zg_10']), labels=["Everything", "Track", "Pythia 8.215", "Pythia 8.215 (Track)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
 
-
-# create_data_only_plot(filename=default_dir + "mass_softdrop.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['mass_pre_SD', 'mass_post_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
-# create_data_only_plot(filename=default_dir + "pT_softdrop.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['hardest_pT', 'pT_after_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
-# create_data_only_plot(filename=default_dir + "mul_softdrop.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['mul_pre_SD', 'mul_post_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
-# create_data_only_plot(filename=default_dir + "pT_D_softdrop.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['pT_D_pre_SD', 'pT_D_post_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
-# create_data_only_plot(filename=default_dir + "lha_softdrop.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['LHA_pre_SD', 'LHA_post_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
-# create_data_only_plot(filename=default_dir + "width_softdrop.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['width_pre_SD', 'width_post_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
-# create_data_only_plot(filename=default_dir + "thrust_softdrop.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['thrust_pre_SD', 'thrust_post_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
-
+start = time.time()
 
 
 # create_multi_page_plot(filename=default_dir + "pT.pdf", hists=compile_hists('hardest_pT', parsed_hists))
@@ -273,6 +204,10 @@ load_root_file_to_hists("test.root")
 # create_multi_page_plot(filename=default_dir + "eta.pdf", hists=compile_hists('hardest_eta', parsed_hists))
 
 # create_multi_page_plot(filename=default_dir + "frac_pT_loss.pdf", hists=compile_hists('frac_pT_loss', parsed_hists))
+
+# create_multi_page_plot(filename=default_dir + "frac_pT_loss_log.pdf", hists=compile_hists('frac_pT_loss', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
+
+# create_multi_page_plot(filename=default_dir + "softkill_pT_loss.pdf", hists=compile_hists('softkill_pT_loss', parsed_hists))
 
 # create_multi_page_plot(filename=default_dir + "constituent_multiplicity.pdf", hists=compile_hists('mul_pre_SD', parsed_hists))
 # create_multi_page_plot(filename=default_dir + "track_constituent_multiplicity.pdf", hists=compile_hists('track_mul_pre_SD', parsed_hists))
@@ -303,11 +238,14 @@ load_root_file_to_hists("test.root")
 
 
 
-# create_multi_page_plot(filename=default_dir + "theta_g/log/all/zg/zg_10.pdf", hists=compile_hists_with_theory('zg_10', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
-# create_multi_page_plot(filename=default_dir + "theta_g/log/all/rg/rg_10.pdf", hists=compile_hists_with_theory('rg_10', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
-# create_multi_page_plot(filename=default_dir + "theta_g/log/all/e1/e1_10.pdf", hists=compile_hists_with_theory('e1_10', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
-# create_multi_page_plot(filename=default_dir + "theta_g/log/all/e2/e2_10.pdf", hists=compile_hists_with_theory('e2_10', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
-# create_multi_page_plot(filename=default_dir + "theta_g/log/all/e05/e05_10.pdf", hists=compile_hists_with_theory('e05_10', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+create_multi_page_plot(filename=default_dir + "theta_g/log/all/zg/zg_10.pdf", hists=compile_hists_with_theory('zg_10', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+create_multi_page_plot(filename=default_dir + "theta_g/log/all/rg/rg_10.pdf", hists=compile_hists_with_theory('rg_10', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+create_multi_page_plot(filename=default_dir + "theta_g/log/all/e1/e1_10.pdf", hists=compile_hists_with_theory('e1_10', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+create_multi_page_plot(filename=default_dir + "theta_g/log/all/e2/e2_10.pdf", hists=compile_hists_with_theory('e2_10', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+create_multi_page_plot(filename=default_dir + "theta_g/log/all/e05/e05_10.pdf", hists=compile_hists_with_theory('e05_10', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+
+
+
 
 
 
@@ -327,15 +265,15 @@ load_root_file_to_hists("test.root")
 
 
 
-# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/zg/zg_05.pdf", hists=compile_hists('zg_05', parsed_hists), theory=False)
-# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/rg/rg_05.pdf", hists=compile_hists('rg_05', parsed_hists), theory=False)
-# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e1/e1_05.pdf", hists=compile_hists('e1_05', parsed_hists), theory=False)
-# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e2/e2_05.pdf", hists=compile_hists('e2_05', parsed_hists), theory=False)
-# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e05/e05_05.pdf", hists=compile_hists('e05_05', parsed_hists), theory=False)
+create_multi_page_plot(filename=default_dir + "theta_g/linear/all/zg/zg_05.pdf", hists=compile_hists('zg_05', parsed_hists), theory=False)
+create_multi_page_plot(filename=default_dir + "theta_g/linear/all/rg/rg_05.pdf", hists=compile_hists('rg_05', parsed_hists), theory=False)
+create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e1/e1_05.pdf", hists=compile_hists('e1_05', parsed_hists), theory=False)
+create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e2/e2_05.pdf", hists=compile_hists('e2_05', parsed_hists), theory=False)
+create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e05/e05_05.pdf", hists=compile_hists('e05_05', parsed_hists), theory=False)
 
 
 
-# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/zg/zg_20.pdf", hists=compile_hists('zg_20', parsed_hists), theory=False)
+create_multi_page_plot(filename=default_dir + "theta_g/linear/all/zg/zg_20.pdf", hists=compile_hists('zg_20', parsed_hists), theory=False)
 # create_multi_page_plot(filename=default_dir + "theta_g/linear/all/rg/rg_20.pdf", hists=compile_hists('rg_20', parsed_hists), theory=False)
 # create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e1/e1_20.pdf", hists=compile_hists('e1_20', parsed_hists), theory=False)
 # create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e2/e2_20.pdf", hists=compile_hists('e2_20', parsed_hists), theory=False)
@@ -344,11 +282,11 @@ load_root_file_to_hists("test.root")
 
 
 
-# create_multi_page_plot(filename=default_dir + "theta_g/log/all/zg/zg_05.pdf", hists=compile_hists('zg_05', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
-# create_multi_page_plot(filename=default_dir + "theta_g/log/all/rg/rg_05.pdf", hists=compile_hists('rg_05', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
-# create_multi_page_plot(filename=default_dir + "theta_g/log/all/e1/e1_05.pdf", hists=compile_hists('e1_05', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
-# create_multi_page_plot(filename=default_dir + "theta_g/log/all/e2/e2_05.pdf", hists=compile_hists('e2_05', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
-# create_multi_page_plot(filename=default_dir + "theta_g/log/all/e05/e05_05.pdf", hists=compile_hists('e05_05', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
+create_multi_page_plot(filename=default_dir + "theta_g/log/all/zg/zg_05.pdf", hists=compile_hists('zg_05', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
+create_multi_page_plot(filename=default_dir + "theta_g/log/all/rg/rg_05.pdf", hists=compile_hists('rg_05', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
+create_multi_page_plot(filename=default_dir + "theta_g/log/all/e1/e1_05.pdf", hists=compile_hists('e1_05', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
+create_multi_page_plot(filename=default_dir + "theta_g/log/all/e2/e2_05.pdf", hists=compile_hists('e2_05', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
+create_multi_page_plot(filename=default_dir + "theta_g/log/all/e05/e05_05.pdf", hists=compile_hists('e05_05', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
 
 
 # create_multi_page_plot(filename=default_dir + "theta_g/log/all/zg/zg_20.pdf", hists=compile_hists('zg_20', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
@@ -356,6 +294,30 @@ load_root_file_to_hists("test.root")
 # create_multi_page_plot(filename=default_dir + "theta_g/log/all/e1/e1_20.pdf", hists=compile_hists('e1_20', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
 # create_multi_page_plot(filename=default_dir + "theta_g/log/all/e2/e2_20.pdf", hists=compile_hists('e2_20', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
 # create_multi_page_plot(filename=default_dir + "theta_g/log/all/e05/e05_20.pdf", hists=compile_hists('e05_20', parsed_log_hists, x_scale='log'), theory=False, x_scale='log')
+
+
+
+
+# create_data_only_plot(filename=default_dir + "all_track_zg_10.pdf", hists=compile_data_and_pythia([ parsed_log_hists[0], parsed_log_hists[2] ], variables=['zg_10', 'track_zg_10']), labels=["Everything", "Track", "Pythia 8.215", "Pythia 8.215 (Track)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
+
+
+# create_data_only_plot(filename=default_dir + "mass_softdrop.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['mass_pre_SD', 'mass_post_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
+# create_data_only_plot(filename=default_dir + "pT_softdrop.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['hardest_pT', 'pT_after_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
+
+# create_data_only_plot(filename=default_dir + "mul_softdrop.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['mul_pre_SD', 'mul_post_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
+# create_data_only_plot(filename=default_dir + "pT_D_softdrop.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['pT_D_pre_SD', 'pT_D_post_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
+# create_data_only_plot(filename=default_dir + "lha_softdrop.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['LHA_pre_SD', 'LHA_post_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
+# create_data_only_plot(filename=default_dir + "width_softdrop.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['width_pre_SD', 'width_post_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
+# create_data_only_plot(filename=default_dir + "thrust_softdrop.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['thrust_pre_SD', 'thrust_post_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[1, 1, 2, 2], ratio_to_label="Ratio\nto\nPythia", ratio_to_index=2)
+
+
+
+
+
+
+##################################################################################################### DATA ONLY PLOTS ###################################################################################################
+
+# create_data_only_plot(filename=default_dir + "data_pT.pdf", hists=parsed_data_only_hists, labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio\nto\nCorrected", ratio_to_index=0)
 
 
 

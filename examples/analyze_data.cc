@@ -104,7 +104,7 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
 	properties.push_back(MOD::Property("jet_quality", trigger_jet.user_info<MOD::InfoCalibratedJet>().jet_quality())); 
 
 	properties.push_back(MOD::Property("uncor_hardest_pT", trigger_jet.pt()));
-	properties.push_back(MOD::Property("cor_hardest_pT", trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC()));
+	properties.push_back(MOD::Property("hardest_pT", trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC()));
 
    properties.push_back(MOD::Property("hardest_eta", trigger_jet.eta()));
 
@@ -118,7 +118,8 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
 	properties.push_back( MOD::Property("chrg_had_frac", trigger_jet.user_info<MOD::InfoCalibratedJet>().charged_hadron_fraction()) );
 	properties.push_back( MOD::Property("chrg_em_frac", trigger_jet.user_info<MOD::InfoCalibratedJet>().charged_em_fraction()) );
 	
-	properties.push_back( MOD::Property("JEC", trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC()) );
+   properties.push_back( MOD::Property("JEC", trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC()) );
+	properties.push_back( MOD::Property("npv", event_being_read.condition().npv()) );
 
 	string name;
 
