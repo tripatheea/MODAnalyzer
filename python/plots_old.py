@@ -162,7 +162,7 @@ def parse_pfc(input_file, pT_lower_cut=85., pT_upper_cut=150., eta_cut=2.4):
 
 	for line in lines:
 		
-		if line_number == 10000000:
+		if line_number == 100000:
 			break
 
 		line_number += 1
@@ -8743,9 +8743,9 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 		R_g_herwigs = properties_herwig[zg_filename.replace("zg", "rg")]
 		R_g_sherpas = properties_sherpa[zg_filename.replace("zg", "rg")]
 		
-		theta_g_pythias = np.divide(R_g_pythias, 0.5)
-		theta_g_herwigs = np.divide(R_g_herwigs, 0.5)
-		theta_g_sherpas = np.divide(R_g_sherpas, 0.5)
+		theta_g_pythias = R_g_pythias
+		theta_g_herwigs = R_g_herwigs
+		theta_g_sherpas = R_g_sherpas
 
 
 		counter = 0
@@ -8814,7 +8814,7 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 			plt.autoscale()
 			# plt.xlim(float(zg_cut), 0.5)
 			plt.xlim(0.0, 0.5)
-			plt.ylim(0.0, 3.)
+			plt.ylim(0.0, 2.)
 
 
 			logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
@@ -10395,19 +10395,23 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 			extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 			
 			if mode == "charged":
-				label = "Charged PFCs"
+				label = ["Charged PFCs"]
 			elif mode == "neutral":
-				label = "Neutral PFCs"
+				label = ["Neutral PFCs"]
 			else:
-				label = "All PFCs"
+				label = ["All PFCs"]
 
 			if upper != 100000.:
-				label += " \n $\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$ \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV};\eta<2.4$" 
+				label.extend( [r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"$p_{T} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$"] ) 
 			else:
-				label += " \n $\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$ \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n $p_{T} > " + str(lower) + "~\mathrm{GeV};\eta<2.4$" 
+				label.extend( [r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"$p_{T} > " + str(lower) + "~\mathrm{GeV}$"] ) 
 
-			ax0.legend([extra], [label], frameon=0, borderpad=0.1, fontsize=60, loc='upper left', bbox_to_anchor=[-0.09, 0.88])
+			ax0.legend([extra] * len(label), label, frameon=0, borderpad=0.1, fontsize=60, loc='upper left', bbox_to_anchor=[-0.09, 0.88])
 
+			if mode == "charged":
+				ax0.plot([0.5, 0.5], [1e-3, 1e1], color='red', linewidth=5, linestyle="dashed")
+			elif mode == "neutral":
+				ax0.plot([1.0, 1.0], [1e-3, 1e1], color='red', linewidth=5, linestyle="dashed")
 
 			ax0.set_yscale('log')
 
@@ -10427,17 +10431,17 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 				ax0.set_ylim(1e-3, 1e3)
 
 			if lower == 85 and upper != 100000.:
-				ax0.set_ylim(1e-3, 1e3)
+				ax0.set_ylim(1e-2, 1e1)
 			elif lower == 115 and upper != 100000.:
-				ax0.set_ylim(1e-3, 1e3)
+				ax0.set_ylim(1e-2, 1e1)
 			elif lower == 150 and upper != 100000.:
-				ax0.set_ylim(1e-3, 1e3)
+				ax0.set_ylim(1e-2, 1e1)
 			elif lower == 200 and upper != 100000.:
-				ax0.set_ylim(1e-3, 1e3)
+				ax0.set_ylim(1e-2, 1e1)
 			elif lower == 85 and upper == 100000.:
-				ax0.set_ylim(1e-3, 1e2)
+				ax0.set_ylim(1e-2, 1e1)
 			elif lower == 150 and upper == 100000.:
-				ax0.set_ylim(1e-3, 1e4)
+				ax0.set_ylim(1e-2, 1e2)
 
 
 			ax1.set_ylim(0, 2)
@@ -10545,6 +10549,273 @@ def plot_weighted_pts(mode=1, pT_lower_cut=85, pT_upper_cut=10000):
 	# plt.show()
 
 	plt.close(plt.gcf())
+
+
+
+
+
+
+
+
+def parse_pair_pfc(input_file, pT_lower_cut=150., pT_upper_cut=20000., eta_cut=2.4):
+
+	# We'll populate only those fileds that are in the list keywords_to_populate.
+
+
+	f = open(input_file, 'r')
+	lines = f.read().split("\n")
+
+	# FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3
+	
+	properties = defaultdict(list)
+
+	line_number = 0
+
+	keywords = []
+	keywords_set = False
+	for line in lines:
+
+		if line_number > 1000000000000:
+			break
+
+		line_number += 1
+
+		try:
+			numbers = line.split()
+
+			if numbers[0] == "#" and (not keywords_set):
+				keywords = numbers[2:]
+				keywords_set = True
+			elif numbers[0] == "Entry":
+				# pT_index = keywords.index("hardest_pT") + 1
+				# softdrop_pT_index = keywords.index("pT_after_SD") + 1
+
+				# eta_index = keywords.index("hardest_eta") + 1
+
+				# if abs(float(numbers[eta_index])) < eta_cut and float(numbers[pT_index]) > pT_lower_cut and float(numbers[pT_index]) < pT_upper_cut and float(numbers[softdrop_pT_index]) > softdrop_pT_lower_cut and float(numbers[softdrop_pT_index]) < softdrop_pT_upper_cut:
+					for i in range(len(keywords)):
+						keyword = keywords[i]
+
+						
+						properties[keyword].append( float(numbers[i + 1]) ) # + 1 because we ignore the first keyword "Entry".
+
+		except:
+			pass
+
+
+	return properties
+
+
+
+def plot_pair_pfc():
+	properties = parse_pair_pfc(input_analysis_file)
+	pythia_properties = parse_pair_pfc("/home/aashish/pythia_pair_pfc.dat")
+
+	# Do photons first. 
+
+	pdg_ids_1 = properties['pdg_id_1']
+	pdg_ids_2 = properties['pdg_id_2']
+	invariant_masses = properties['invariant_mass']
+	prescales = properties['prescale']
+
+
+	pythia_pdg_ids_1 = pythia_properties['pdg_id_1']
+	pythia_pdg_ids_2 = pythia_properties['pdg_id_2']
+	pythia_invariant_masses = pythia_properties['invariant_mass']
+	pythia_prescales = pythia_properties['prescale']
+
+
+
+	photons, photons_prescales = [], []
+	for i in range(len(pdg_ids_1)):
+		if pdg_ids_1[i] == 22:
+			photons.append(invariant_masses[i])
+			photons_prescales.append(prescales[i])
+
+	photons_hist = Hist(50, 0, 0.5, title="Photons")
+
+	map(photons_hist.Fill, photons, photons_prescales)
+	
+	bin_width = (photons_hist.upperbound() - photons_hist.lowerbound()) / photons_hist.nbins()
+	photons_hist.Scale(1.0 / (photons_hist.GetSumOfWeights() * bin_width))
+
+
+
+	pythia_photons, pythia_photons_prescales = [], []
+	for i in range(len(pythia_pdg_ids_1)):
+		if pythia_pdg_ids_1[i] == 22:
+			pythia_photons.append(pythia_invariant_masses[i])
+			pythia_photons_prescales.append(pythia_prescales[i])
+
+	pythia_photons_hist = Hist(50, 0, 0.5, title="Pythia Photons")
+
+	map(pythia_photons_hist.Fill, pythia_photons, pythia_photons_prescales)
+
+	bin_width = (pythia_photons_hist.upperbound() - pythia_photons_hist.lowerbound()) / pythia_photons_hist.nbins()
+	pythia_photons_hist.Scale(1.0 / (pythia_photons_hist.GetSumOfWeights() * bin_width))
+
+
+
+	rplt.errorbar(photons_hist, xerr=False, emptybins=False, markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+	rplt.hist(pythia_photons_hist)
+
+	plt.xlim(0, 0.5)
+
+
+	plt.gca().xaxis.set_minor_locator(MultipleLocator(0.01))
+
+	plt.tick_params(which='major', width=5, length=25, labelsize=70)
+	plt.tick_params(which='minor', width=3, length=15)
+
+	plt.gcf().set_size_inches(30, 30, forward=1)
+	plt.gcf().set_snap(True)
+
+
+	plt.savefig("plots/photons.pdf")
+	plt.clf()
+
+
+
+
+
+
+
+
+	pions, pions_prescales = [], []
+	for i in range(len(pdg_ids_1)):
+		if pdg_ids_1[i] == 211 and pdg_ids_2[i] == -211:
+			pions.append(invariant_masses[i])
+			pions_prescales.append(prescales[i])
+
+	pions_hist = Hist(50, 0, 2.0, title="pions")
+
+	map(pions_hist.Fill, pions, pions_prescales)
+
+	bin_width = (pions_hist.upperbound() - pions_hist.lowerbound()) / pions_hist.nbins()
+	pions_hist.Scale(1.0 / (pions_hist.GetSumOfWeights() * bin_width))
+
+
+
+	pythia_pions, pythia_pions_prescales = [], []
+	for i in range(len(pythia_pdg_ids_1)):
+		if pythia_pdg_ids_1[i] == 22:
+			pythia_pions.append(pythia_invariant_masses[i])
+			pythia_pions_prescales.append(pythia_prescales[i])
+
+	pythia_pions_hist = Hist(50, 0, 2.0, title="Pythia pions")
+
+	map(pythia_pions_hist.Fill, pythia_pions, pythia_pions_prescales)
+
+	bin_width = (pythia_pions_hist.upperbound() - pythia_pions_hist.lowerbound()) / pythia_pions_hist.nbins()
+	pythia_pions_hist.Scale(1.0 / (pythia_pions_hist.GetSumOfWeights() * bin_width))
+
+
+
+
+	rplt.errorbar(pions_hist, xerr=True, emptybins=False, markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+	rplt.hist(pythia_pions_hist, lw=8, color="blue")
+
+	plt.plot([0.770, 0.770], [0., 5.], color='red', linewidth=8, linestyle="dashed")
+
+
+	plt.xlabel("Invariant Mass")
+	plt.xlim(0, 2.0)
+
+	plt.legend()
+
+
+	plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
+
+	plt.tick_params(which='major', width=5, length=25, labelsize=70)
+	plt.tick_params(which='minor', width=3, length=15)
+
+	plt.gcf().set_size_inches(30, 30, forward=1)
+	plt.gcf().set_snap(True)
+
+
+	plt.savefig("plots/pions.pdf")
+	plt.clf()
+
+
+
+
+
+
+	electrons, electrons_prescales = [], []
+	for i in range(len(pdg_ids_1)):
+		if pdg_ids_1[i] == 11 and pdg_ids_2[i] == -11:
+			electrons.append(invariant_masses[i])
+			electrons_prescales.append(prescales[i])
+
+	electrons_hist = Hist(50, 0, 2.0, title="electrons")
+
+	map(electrons_hist.Fill, electrons, electrons_prescales)
+
+	bin_width = (electrons_hist.upperbound() - electrons_hist.lowerbound()) / electrons_hist.nbins()
+	electrons_hist.Scale(1.0 / (electrons_hist.GetSumOfWeights() * bin_width))
+
+
+
+
+	rplt.errorbar(electrons_hist, xerr=False, emptybins=False, markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+	plt.xlim(0, 2.0)
+
+
+	plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
+
+	plt.tick_params(which='major', width=5, length=25, labelsize=70)
+	plt.tick_params(which='minor', width=3, length=15)
+
+	plt.gcf().set_size_inches(30, 30, forward=1)
+	plt.gcf().set_snap(True)
+
+
+	plt.savefig("plots/electrons.pdf")
+	plt.clf()
+
+
+
+
+	muons, muons_prescales = [], []
+	for i in range(len(pdg_ids_1)):
+		if pdg_ids_1[i] == 13 and pdg_ids_2[i] == -13:
+			muons.append(invariant_masses[i])
+			muons_prescales.append(prescales[i])
+
+	muons_hist = Hist(50, 0, 2.0, title="muons")
+
+	map(muons_hist.Fill, muons, muons_prescales)
+
+	bin_width = (muons_hist.upperbound() - muons_hist.lowerbound()) / muons_hist.nbins()
+	muons_hist.Scale(1.0 / (muons_hist.GetSumOfWeights() * bin_width))
+
+
+
+
+	rplt.errorbar(muons_hist, xerr=False, emptybins=False, markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+	plt.xlim(0, 2.0)
+
+
+	plt.gca().xaxis.set_minor_locator(MultipleLocator(0.1))
+
+	plt.tick_params(which='major', width=5, length=25, labelsize=70)
+	plt.tick_params(which='minor', width=3, length=15)
+
+	plt.gcf().set_size_inches(30, 30, forward=1)
+	plt.gcf().set_snap(True)
+
+
+	plt.savefig("plots/muons.pdf")
+	plt.clf()
+
+
+
+
+# plot_pair_pfc()
+
+
 
 
 

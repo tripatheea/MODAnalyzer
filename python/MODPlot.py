@@ -481,6 +481,11 @@ class MODPlot:
 				plt.gca().set_xticks( [0, round(0.5*np.pi, 3), round(np.pi, 3), round(1.5*np.pi, 3), round(2*np.pi, 3)] )
 				plt.gca().set_xticklabels( ["0", "$\pi / 2$", "$\pi$", "$3 \pi / 2$", "$2 \pi$"] )				
 
+		if self._x_scale == "log":
+			plt.sca(ax0)
+			ax0.ticklabel_format(axis='x', style='sci')
+			plt.sca(ax1)
+			ax1.ticklabel_format(axis='x', style='sci')
 
 
 
