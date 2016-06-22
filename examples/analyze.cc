@@ -96,6 +96,9 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    Selector pT_1_GeV_selector = SelectorPtMin(1.0);
    Selector pT_0_5_GeV_selector = SelectorPtMin(0.5);
 
+   
+
+
    vector<PseudoJet> hardest_jet_constituents = pT_1_GeV_selector(event_being_read.hardest_jet().constituents());
    // vector<PseudoJet> hardest_jet_constituents = event_being_read.hardest_jet().constituents();
 
@@ -105,10 +108,17 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
       return;
    }
 
-   PseudoJet hardest_jet = cs.inclusive_jets()[0];
+   // This is the hardest FastJet jet. This does not have JEC applied to it. We need to go through this mess because we want to apply the pT selector to the hardest jet's constituents and then use the corresponding hardest jet.
+   // But since JEC does not apply to individual PFCs, we can't directly use event_being_read.hardest_jet().constituents().
 
-   double jec = event_being_read.hardest_jet().pt() / hardest_jet.pt();
-   hardest_jet *= jec;
+   ClusterSequence cs_uncorrected_jet_no_softkiller = ClusterSequence(event_being_read.hardest_jet().constituents(), jet_def_cambridge);
+   PseudoJet uncorrected_hardest_jet_no_softkiller = cs_uncorrected_jet_no_softkiller.inclusive_jets()[0];
+
+
+   PseudoJet uncorrected_hardest_jet_with_softkiller = cs.inclusive_jets()[0];
+
+   double jec = event_being_read.hardest_jet().pt() / uncorrected_hardest_jet_no_softkiller.pt();
+   PseudoJet hardest_jet = uncorrected_hardest_jet_with_softkiller * jec;
    
    SoftDrop soft_drop(0.0, 0.1);
    PseudoJet soft_drop_jet = soft_drop(hardest_jet);
@@ -120,8 +130,9 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    properties.push_back(MOD::Property("prescale", event_being_read.weight()));
    properties.push_back(MOD::Property("hardest_pT", event_being_read.hardest_jet().pt()));
-   properties.push_back(MOD::Property("uncor_hardest_pT", hardest_jet.pt()));
+   properties.push_back(MOD::Property("uncor_hardest_pT", uncorrected_hardest_jet_no_softkiller.pt()));
 
+   properties.push_back( MOD::Property("softkill_pT_loss", (uncorrected_hardest_jet_no_softkiller.pt() - uncorrected_hardest_jet_with_softkiller.pt() ) / uncorrected_hardest_jet_no_softkiller.pt() ) );
    properties.push_back( MOD::Property("frac_pT_loss", (hardest_jet.pt() - soft_drop( hardest_jet ).pt() ) / hardest_jet.pt() ) );
    properties.push_back( MOD::Property("hardest_eta", event_being_read.hardest_jet().eta()) );
    properties.push_back( MOD::Property("hardest_phi", event_being_read.hardest_jet().phi()) );

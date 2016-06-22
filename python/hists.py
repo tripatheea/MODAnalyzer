@@ -32,6 +32,8 @@ class MODHist:
 
 		self._axes_label_pi = axes_label_pi
 
+	def replace_hist(self, hist):
+		self._hist = hist
 
 	def hist(self):
 		return self._hist

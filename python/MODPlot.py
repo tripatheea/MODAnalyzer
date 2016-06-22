@@ -64,7 +64,7 @@ import rootpy.plotting.views
 
 
 logo_location = "/home/aashish/root/macros/MODAnalyzer/mod_logo.png"
-logo_text = "Prelim. (20\%)"
+logo_text = "Prelim."
 
 
 
@@ -393,7 +393,7 @@ class MODPlot:
 
 			handler_map = {th_line : HandlerLine2D(marker_pad = 0)}
 
-		legend = ax0.legend(handles, labels, loc=1, frameon=0, fontsize=60, handler_map=handler_map )
+		legend = ax0.legend(handles, labels, loc=1, frameon=0, fontsize=40, handler_map=handler_map )
 		ax0.add_artist(legend)
 
 		# Any additional texts.
@@ -402,7 +402,7 @@ class MODPlot:
 
 		for position, anchor_location, text in self._hists[0].additional_text():
 			texts = text.split("\n")
-			ax0.legend( [extra] * len(texts), texts, frameon=0, borderpad=0, fontsize=60, bbox_to_anchor=position, loc=anchor_location)
+			ax0.legend( [extra] * len(texts), texts, frameon=0, borderpad=0, fontsize=40, bbox_to_anchor=position, loc=anchor_location)
 		
 
 

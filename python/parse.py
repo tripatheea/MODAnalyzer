@@ -22,8 +22,8 @@ output_directory = "/home/aashish/root/macros/MODAnalyzer/parsed_root_files/"
 
 data_file = "/home/aashish/pristine.dat"
 pythia_file = "/home/aashish/pythia_truth.dat"
-herwig_file = "/home/aashish/pythia_truth.dat"
-sherpa_file = "/home/aashish/pythia_truth.dat"
+herwig_file = "/home/aashish/herwig_truth.dat"
+sherpa_file = "/home/aashish/sherpa_truth.dat"
 
 
 
@@ -47,9 +47,9 @@ def parse_file(input_file, all_hists):
 
 			# if line_number > 10000:	# Ideal length.
 			# if line_number > 100000:	# Big enough.
-			if line_number > 1000:		# Small tests.
+			# if line_number > 1000:		# Small tests.
 			# if line_number > 30000:		# Small tests.
-			# if False:
+			if False:
 				break
 
 			line_number += 1
@@ -134,11 +134,60 @@ def parse_to_root_file(input_filename, output_filename, hist_templates):
 	f.Close()
 
 
+def root_file_to_hist(input_filename, hist_templates):
+
+	hists = copy.deepcopy( hist_templates )
+
+	root_file = TFile(input_filename, "read")
+
+	for var in hists.keys():
+		
+		index = 0
+
+		for mod_hist in hists[var]:
+			hist_name = "{}#{}".format(var, index)
+
+			# Get hist from ROOT file.
+			hist = root_file.Get(hist_name)
+
+			mod_hist.replace_hist(hist)
+
+			index += 1
+
+	return hists
 
 
-hist_templates = hists.multi_page_plot_hist_templates()
 
-parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data.root", hist_templates=hist_templates)
-parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia.root", hist_templates=hist_templates)
-parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig.root", hist_templates=hist_templates)
-parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa.root", hist_templates=hist_templates)
+
+def parse_to_root_files():
+	hist_templates = hists.multi_page_plot_hist_templates()
+	log_hist_templates = hists.multi_page_log_plot_hist_templates()
+
+	# parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig.root", hist_templates=hist_templates)
+	parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa.root", hist_templates=hist_templates)
+
+	# parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data_log.root", hist_templates=log_hist_templates)
+	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia_log.root", hist_templates=log_hist_templates)
+	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig_log.root", hist_templates=log_hist_templates)
+	parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa_log.root", hist_templates=log_hist_templates)
+
+
+
+def load_root_files_to_hist(log=False):
+	hist_templates = hists.multi_page_plot_hist_templates()
+
+	if log:
+		filenames = ["data.root", "pythia.root", "herwig.root", "sherpa.root"]
+	else:
+		filenames = ["data_log.root", "pythia_log.root", "herwig_log.root", "sherpa_log.root"]
+
+	return  [ root_file_to_hist(output_directory + filename, hist_templates) for filename in filenames ] 
+
+
+
+
+# parse_to_root_files()
+
+load_root_files_to_hist()

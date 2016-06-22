@@ -354,6 +354,7 @@ void MOD::Event::establish_properties() {
 
    }
    else if (data_source() == PRISTINE) {
+
       double JEC = _cms_jets[0].user_info<MOD::InfoCalibratedJet>().JEC();
       vector<PseudoJet> jec_corrected_jets{ ak5_jets[0] * JEC };
       _jets = jec_corrected_jets;
