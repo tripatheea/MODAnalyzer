@@ -55,7 +55,7 @@ def parse_file(input_file, all_hists):
 
 			# if line_number > 10000:	# Ideal length.
 			# if line_number > 100000:	# Big enough.
-			# if line_number > 100:		# Small tests.
+			# if line_number > 500:		# Small tests.
 			# if line_number > 30000:		# Small tests.
 			if False:
 				break
@@ -79,6 +79,9 @@ def parse_file(input_file, all_hists):
 					for i in range(len(keywords)):
 
 						keyword = keywords[i]
+
+						if keyword == "hardest_pT":
+							pT_of_this_event = float(numbers[i + 1]) # + 1 because we ignore the first keyword "Entry".
 
 						if keyword in all_hists.keys():
 							
@@ -109,32 +112,39 @@ def parse_file(input_file, all_hists):
 
 									x = float(numbers[i + 1]) # + 1 because we ignore the first keyword "Entry".
 
-									if (not mod_hist.use_prescale()) and input_file == data_file:	# For data file only.
+									if input_file == data_file:	# For data file only.
 
-										if len(conditions) > 0:
-											if len(conditions[0]) == 2:
-
-												pT_condition_index = -1
-												abc = 0
-												for condition_keyword, condition_boundaries in conditions:
-													if condition_keyword == "hardest_pT":
-														pT_condition_index = abc
-
-													abc += 1
-												
-										if pT_condition_index == -1:
-											weight = 1.0
+										if not mod_hist.use_prescale():
+											hist.fill_array( [x] )
 										else:
-											pT_condition = conditions[pT_condition_index]
-											lower, upper = pT_condition[1]
-											weight = average_prescales[(lower, upper)]
-										
-										hist.fill_array( [x], [weight] )	 
-									else:
+											
+											#  Average prescale. 
+
+											# To find which prescale to use, we need to find which trigger fired. 
+											# To do that, we need to find the pT of the hardest jet.
+											
+											prescale_to_use = 0.0
+
+											if pT_of_this_event > 250.:
+												prescale_to_use = 1.0
+											else:
+												for pT_boundaries, prescale in average_prescales.items():
+													
+													lower, upper = pT_boundaries
+
+													if upper != None:
+														if pT_of_this_event > float(lower) and pT_of_this_event < float(upper):
+															prescale_to_use = prescale
+															break
+
+											hist.fill_array( [x], [prescale_to_use] )	 
+									
+									else:	# MC so always use prescales.
+
 										hist.fill_array( [x], [float(numbers[prescale_index])] )
 
 			except Exception as e:
-				print "Some exception occured!"
+				print "Some exception occured!",
 				print e
 
 
@@ -207,6 +217,7 @@ def parse_to_root_files():
 
 def load_root_files_to_hist(log=False):
 	
+	# parse_to_root_files()
 
 	if not log:
 		hist_templates = hists.multi_page_plot_hist_templates()

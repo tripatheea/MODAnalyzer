@@ -99,7 +99,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    
 
 
-   vector<PseudoJet> hardest_jet_constituents = pT_1_GeV_selector(event_being_read.hardest_jet().constituents());
+   vector<PseudoJet> hardest_jet_constituents = pT_0_5_GeV_selector(event_being_read.hardest_jet().constituents());
    // vector<PseudoJet> hardest_jet_constituents = event_being_read.hardest_jet().constituents();
 
    ClusterSequence cs = ClusterSequence(hardest_jet_constituents, jet_def_cambridge);
@@ -131,6 +131,8 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back(MOD::Property("prescale", event_being_read.weight()));
    properties.push_back(MOD::Property("hardest_pT", event_being_read.hardest_jet().pt()));
    properties.push_back(MOD::Property("uncor_hardest_pT", uncorrected_hardest_jet_no_softkiller.pt()));
+
+   properties.push_back(MOD::Property("jec", jec));
 
    properties.push_back( MOD::Property("softkill_pT_loss", (uncorrected_hardest_jet_no_softkiller.pt() - uncorrected_hardest_jet_with_softkiller.pt() ) / uncorrected_hardest_jet_no_softkiller.pt() ) );
    properties.push_back( MOD::Property("frac_pT_loss", (hardest_jet.pt() - soft_drop( hardest_jet ).pt() ) / hardest_jet.pt() ) );

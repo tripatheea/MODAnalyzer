@@ -108,7 +108,8 @@ def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut
         keywords = numbers[2:]
         keywords_set = True
       elif numbers[0] == "Entry":
-        pT_index = keywords.index("cor_hardest_pT") + 1
+        # pT_index = keywords.index("cor_hardest_pT") + 1
+        pT_index = keywords.index("hardest_pT") + 1
 
         # eta_index = keywords.index("hardest_eta") + 1
 
@@ -150,7 +151,7 @@ def parse_file_turn_on(input_file, pT_lower_cut = 0.00, jet_quality_level=1):
       if not numbers[0] == "#":
         if (float(numbers[5]) > pT_lower_cut) and (int(numbers[3]) == 1) and (int(numbers[4]) >= jet_quality_level):
           properties['event_number'].append( float( numbers[1] ) )
-          properties['corrected_hardest_pts'].append( float( numbers[5] ) )
+          properties['Cor_Hardest_pT'].append( float( numbers[5] ) )
           properties['prescale'].append( float( numbers[6] ) )
           properties['trigger_names'].append(  numbers[7] )
 
@@ -640,11 +641,11 @@ def plot_prescales():
 
 
   logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-  text_box = TextArea("Prelim.", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+  text_box = TextArea("Preliminary", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 
   logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
 
-  anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0.)
+  anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.14, 1.0], bbox_transform = plt.gcf().transFigure)
   plt.gca().add_artist(anchored_box)
 
 
@@ -711,7 +712,7 @@ def calculate_average_prescales():
 
 
 plot_turn_on_curves()
-plot_all_trigger_efficiency_curves()
+# plot_all_trigger_efficiency_curves()
 
 # plot_prescales()
 

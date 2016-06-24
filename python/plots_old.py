@@ -163,7 +163,7 @@ def parse_pfc(input_file, pT_lower_cut=85., pT_upper_cut=150., eta_cut=2.4):
 
 	for line in lines:
 		
-		if line_number == 100000:
+		if line_number == 50000000000000000:
 			break
 
 		line_number += 1
@@ -8783,8 +8783,8 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 					prescales.append( float(stuff[2]))
 
 			if log:
-				zg_bins = np.logspace(math.log(float(zg_cut), math.e), math.log(0.5, math.e), 25, base=np.e)
-				theta_g_bins = np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 25, base=np.e)
+				zg_bins = np.logspace(math.log(float(0.1), math.e), math.log(0.5, math.e), 25, base=np.e)
+				theta_g_bins = np.logspace(math.log(float(0.01), math.e), math.log(1.2, math.e), 25, base=np.e)
 				bins = [zg_bins, theta_g_bins]
 			else:
 				bins = [25, 25]
@@ -8846,18 +8846,18 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 
 			logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-			text_box = TextArea("Prelim.", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+			text_box = TextArea("Preliminary", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 			logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
-			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0.)
+			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.14, 1.0], bbox_transform = plt.gcf().transFigure)
 			plt.gca().add_artist(anchored_box)
 
 
 			label = []
 			
 			if upper != 100000.:
-				label.extend( [r"$\mathrm{PFC}~p_T > 1~\mathrm{GeV}$", r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"$p_{T} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$", r"Soft Drop: $\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+				label.extend( [r"$\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$", r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"Jet $p_{T} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$", r"Soft Drop: $\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 			else:
-				label.extend( [r"$\mathrm{PFC}~p_T > 1~\mathrm{GeV}$", r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"$p_{T} > " + str(lower) + "~\mathrm{GeV}$", r"Soft Drop: $\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+				label.extend( [r"$\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$", r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"Jet $p_{T} > " + str(lower) + "~\mathrm{GeV}$", r"Soft Drop: $\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 
 
 
@@ -10287,6 +10287,9 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 	lower_boundaries = [85, 115, 150, 200, 85, 150]
 	upper_boundaries = [115, 150, 200, 250, 100000., 100000.]
 
+	# lower_boundaries = [85]
+	# upper_boundaries = [115]
+
 	with PdfPages("plots/" + get_version(input_analysis_file) + "/PFC_pT/" + mode + "_pT_lower_" + str(pT_lower_cut) + "_pT_upper_" + str(pT_upper_cut) + ".pdf") as pdf:
 		
 		for i in range(len(lower_boundaries)):
@@ -10355,9 +10358,16 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 
 
 
-			rplt.hist(sherpa_pt_hist, zorder=1, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-			rplt.hist(herwig_pt_hist, zorder=2, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-			rplt.hist(pythia_pt_hist, zorder=3, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+			plot = rplt.hist(sherpa_pt_hist, zorder=1, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+			plot[1].set_dashes([7, 7])
+
+
+			plot = rplt.hist(herwig_pt_hist, zorder=2, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+			plot[1].set_dashes([50, 30])
+
+			plot = rplt.hist(pythia_pt_hist, zorder=3, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+			
+
 			data_plot = rplt.errorbar(experiment_pt_hist, zorder=10, axes=ax0, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 			
 
@@ -10384,23 +10394,34 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 
 			# Legends Begin.
 			handles, labels = ax0.get_legend_handles_labels()
-			legend = ax0.legend(handles[::-1], labels[::-1], loc=1, frameon=0, fontsize=60, bbox_to_anchor=[1.0, 1.0])
+			handles = handles[::-1]
+			
+			line, = ax0.plot(range(1), linewidth=8, color=plot_colors['pythia']) 
+			handles[1] = line
+
+			line, = ax0.plot(range(1), linewidth=8, color=plot_colors['herwig'], dashes=[50, 30])
+			handles[2] = line
+
+			line, = ax0.plot(range(1), linewidth=8, color=plot_colors['sherpa'], dashes=[7, 7])
+			handles[3] = line
+
+			legend = ax0.legend(handles, labels[::-1], loc=1, frameon=0, fontsize=50, bbox_to_anchor=[1.0, 1.0])
 			ax0.add_artist(legend)
 
 			# Legends End.
 
 
 
-			ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75, labelpad=45)
-			ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=75, labelpad=45)
-			ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=75, rotation=0, labelpad=75.)
+			ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=60, labelpad=45)
+			ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=60, labelpad=45)
+			ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=60, rotation=0, labelpad=75.)
 			ax1.set_ylabel("Ratio           \nto           \n" + "Pythia" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
 
 
 			logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-			text_box = TextArea("Prelim. (20\%)", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+			text_box = TextArea("Preliminary", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 			logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
-			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0.)
+			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.14, 1.0], bbox_transform = plt.gcf().transFigure)
 			ax0.add_artist(anchored_box)
 
 			# Ratio Plot.
@@ -10412,9 +10433,14 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 			sherpa_pt_hist.Divide(denominator_hist)
 			experiment_pt_hist.Divide(denominator_hist)
 
-			rplt.hist(pythia_pt_hist, axes=ax1, linewidth=5)
-			rplt.hist(herwig_pt_hist, axes=ax1, linewidth=5)
-			rplt.hist(sherpa_pt_hist, axes=ax1, linewidth=5)
+			plot = rplt.hist(pythia_pt_hist, axes=ax1, linewidth=5)
+
+			plot = rplt.hist(herwig_pt_hist, axes=ax1, linewidth=5)
+			plot[1].set_dashes([50, 30])
+
+			plot = rplt.hist(sherpa_pt_hist, axes=ax1, linewidth=5)
+			plot[1].set_dashes([7, 7])
+			
 			rplt.errorbar(experiment_pt_hist, xerr=data_to_data_x_err, yerr=data_to_data_y_err, axes=ax1, emptybins=False, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
 
@@ -10429,16 +10455,17 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 				label = ["All PFCs"]
 
 			if upper != 100000.:
-				label.extend( [r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"$p_{T} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$"] ) 
+				label.extend( [r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"Jet $p_{T} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$"] ) 
 			else:
-				label.extend( [r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"$p_{T} > " + str(lower) + "~\mathrm{GeV}$"] ) 
+				label.extend( [r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"Jet $p_{T} > " + str(lower) + "~\mathrm{GeV}$"] ) 
 
-			ax0.legend([extra] * len(label), label, frameon=0, borderpad=0.1, fontsize=60, loc='upper left', bbox_to_anchor=[-0.09, 0.88])
+			ax0.legend([extra] * len(label), label, frameon=0, borderpad=0.1, fontsize=50, loc='upper left', bbox_to_anchor=[-0.09, 0.98])
 
-			if mode == "charged":
-				ax0.plot([0.5, 0.5], [1e-3, 1e1], color='red', linewidth=5, linestyle="dashed")
-			elif mode == "neutral":
-				ax0.plot([1.0, 1.0], [1e-3, 1e1], color='red', linewidth=5, linestyle="dashed")
+			if pT_upper_cut < 10:
+				if mode == "charged":
+					ax0.plot([0.5, 0.5], [1e-3, 5.5], color='red', linewidth=5, linestyle="dashed")
+				elif mode == "neutral":
+					ax0.plot([0.5, 0.5], [1e-3, 5.5], color='red', linewidth=5, linestyle="dashed")
 
 			ax0.set_yscale('log')
 
@@ -10457,19 +10484,22 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 			elif pT_upper_cut == 0.5:
 				ax0.set_ylim(1e-3, 1e3)
 
-			if lower == 85 and upper != 100000.:
-				ax0.set_ylim(1e-2, 1e1)
-			elif lower == 115 and upper != 100000.:
-				ax0.set_ylim(1e-2, 1e1)
-			elif lower == 150 and upper != 100000.:
-				ax0.set_ylim(1e-2, 1e1)
-			elif lower == 200 and upper != 100000.:
-				ax0.set_ylim(1e-2, 1e1)
-			elif lower == 85 and upper == 100000.:
-				ax0.set_ylim(1e-2, 1e1)
-			elif lower == 150 and upper == 100000.:
-				ax0.set_ylim(1e-2, 1e2)
+			if pT_upper_cut < 10:
+				if lower == 85 and upper != 100000.:
+					ax0.set_ylim(1e-2, 1e1)
+				elif lower == 115 and upper != 100000.:
+					ax0.set_ylim(1e-2, 1e1)
+				elif lower == 150 and upper != 100000.:
+					ax0.set_ylim(1e-2, 1e1)
+				elif lower == 200 and upper != 100000.:
+					ax0.set_ylim(1e-2, 1e1)
+				elif lower == 85 and upper == 100000.:
+					ax0.set_ylim(1e-2, 1e1)
+				elif lower == 150 and upper == 100000.:
+					ax0.set_ylim(1e-2, 1e2)
 
+			else:
+				ax0.set_ylim(1e-5, 55)
 
 			ax1.set_ylim(0, 2)
 
@@ -10934,9 +10964,13 @@ def plot_npv(pT_lower_cut=100):
 
 
 
-# plot_pfc_pts(mode="charged", pT_lower_cut=0.0, pT_upper_cut=5)
-# plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=5)
+plot_pfc_pts(mode="charged", pT_lower_cut=0.0, pT_upper_cut=5)
+plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=5)
 
+
+
+plot_pfc_pts(mode="charged", pT_lower_cut=0.0, pT_upper_cut=100)
+plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=100)
 
 
 
@@ -11045,7 +11079,7 @@ def plot_npv(pT_lower_cut=100):
 # plot_2d_theta_g_zg(pT_lower_cut=150, log=False, which="sherpa")
 # plot_2d_theta_g_zg(pT_lower_cut=150, log=False, which="theory")
 
-plot_npv(pT_lower_cut=150)
+# plot_npv(pT_lower_cut=150)
 
 
 
