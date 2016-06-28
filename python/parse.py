@@ -55,9 +55,9 @@ def parse_file(input_file, all_hists):
 
 			# if line_number > 10000:	# Ideal length.
 			# if line_number > 100000:	# Big enough.
-			# if line_number > 500:		# Small tests.
+			if line_number > 100:		# Small tests.
 			# if line_number > 30000:		# Small tests.
-			if False:
+			# if False:
 				break
 
 			line_number += 1
@@ -203,10 +203,10 @@ def parse_to_root_files():
 	hist_templates = hists.multi_page_plot_hist_templates()
 	log_hist_templates = hists.multi_page_log_plot_hist_templates()
 
-	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data.root", hist_templates=hist_templates)
-	parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia.root", hist_templates=hist_templates)
-	parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig.root", hist_templates=hist_templates)
-	parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa.root", hist_templates=hist_templates)
 
 	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data_log.root", hist_templates=log_hist_templates)
 	parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia_log.root", hist_templates=log_hist_templates)
@@ -217,7 +217,7 @@ def parse_to_root_files():
 
 def load_root_files_to_hist(log=False):
 	
-	# parse_to_root_files()
+	parse_to_root_files()
 
 	if not log:
 		hist_templates = hists.multi_page_plot_hist_templates()
