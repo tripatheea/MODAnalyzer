@@ -87,7 +87,7 @@ def multi_page_log_plot_hist_templates():
 	thrust_hist =  Hist(np.logspace(math.log(float(0.001), math.e), math.log(1.0, math.e), 25, base=np.e))
 
 
-	zg_10_hist = Hist(np.logspace(math.log(float(0.01), math.e), math.log(0.5, math.e), 10, base=np.e))
+	zg_10_hist = Hist(np.logspace(math.log(float(0.01), math.e), math.log(0.5, math.e), 25, base=np.e))
 	rg_10_hist = Hist(np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 25, base=np.e))
 	e1_10_hist = Hist(np.logspace(math.log(float(0.001), math.e), math.log(1.0, math.e), 25, base=np.e))
 	e05_10_hist = Hist(np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 25, base=np.e))
