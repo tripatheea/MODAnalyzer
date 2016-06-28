@@ -426,6 +426,28 @@ class MODPlot:
 						y_s_to_use = self._plot_points_y_s[self._ratio_to_index]
 
 
+
+					theory_x_ss = self._plot_points_x_s[self._plot_types.index("error")]
+					theory_y_ss = theory_line_interpolate_function(theory_x_ss)
+
+					to_ratio_x_ss = self._plot_points_x_s[self._ratio_to_index]
+					to_ratio_y_ss = self._plot_points_y_s[self._ratio_to_index]
+
+					theory_to_ratio_y_ss = [a / b for a, b in zip(theory_y_ss, to_ratio_y_ss)]
+
+					test_hist = self._hists[self._ratio_to_index].hist().empty_clone()
+
+					test_hist.SetLineColor(self._plot_colors[i])
+					test_hist.SetLineWidth(8)
+
+					map(test_hist.Fill, theory_x_ss, theory_to_ratio_y_ss)
+
+					rplt.hist(test_hist, axes=ax1)
+
+
+					ax1.errorbar(theory_x_ss, theory_to_ratio_y_ss, color="brown", lw=0, marker="o", markersize=50)
+
+
 					ratio_theory_line = [0 if n == 0 else m / n for m, n in zip(theory_extrapolated_line, self._plot_points_y_s[self._ratio_to_index])]
 					ratio_theory_min = [0 if n == 0 else m / n for m, n in zip(theory_extrapolated_min, self._plot_points_y_s[self._ratio_to_index])]
 					ratio_theory_max = [0 if n == 0 else m / n for m, n in zip(theory_extrapolated_max, self._plot_points_y_s[self._ratio_to_index])]
@@ -457,10 +479,10 @@ class MODPlot:
 							break
 
 
-					self._plt.plot(line_plot[0][ : np_correction_index + 1], line_plot[1][ : np_correction_index + 1], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")], ls="dotted")
-					self._plt.plot(line_plot[0][np_correction_index : ], line_plot[1][np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
+					# self._plt.plot(line_plot[0][ : np_correction_index + 1], line_plot[1][ : np_correction_index + 1], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")], ls="dotted")
+					# self._plt.plot(line_plot[0][np_correction_index : ], line_plot[1][np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
 
-					ax1.fill_between( max_plot[0], max_plot[1], min_plot[1], zorder=z_indices[i], where=np.less_equal(min_plot[1], max_plot[1]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
+					# ax1.fill_between( max_plot[0], max_plot[1], min_plot[1], zorder=z_indices[i], where=np.less_equal(min_plot[1], max_plot[1]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
 
 
 					pass

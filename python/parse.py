@@ -217,7 +217,7 @@ def parse_to_root_files():
 
 def load_root_files_to_hist(log=False):
 	
-	parse_to_root_files()
+	# parse_to_root_files()
 
 	if not log:
 		hist_templates = hists.multi_page_plot_hist_templates()
