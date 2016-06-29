@@ -71,66 +71,66 @@ This repository is concerned with steps (4) to (6) only. Steps (1) to (3) are ca
 ####config_jthaler.mk:
 - [ ] It seems like you can delete this file, since you've set PATH_TO_FASTJET the same as I have on my computer.
 
-#examples:
+####examples:
 - [ ] This folder contains both example analyses and essential tools.  You should probably call it "exec" instead of examples.
 
-#interface:
+####interface:
 - [ ] All .hh/.cc files should be CamelCase capitalized.  Only .cc files for main routines should be lowercase with underscores.  (Basically, the name of the file should match the name of the class.
 
-#mod_logo.eps:
+####mod_logo.eps:
 - [ ] The bounding box seems to be a bit too small on the right-hand side, which will make the conversion to png a bit weird.  I can fix that if you don't know how.
 
-#README.md:
+####README.md:
 - [ ] You should emphasize that the skimming workflow only works for single jet triggers from the Jet Primary Data set, assuming the user agrees with our trigger boundaries.
 
-#src:
+####src:
 - [ ] Same comment as for interface.  Should be CamelCase file names.
 
-#analyze_data.cc:
+####analyze_data.cc:
 - [ ] Line 67:  You should say how much time has elapsed and the number of seconds per event.  Do you really need to write this out every 100 events?  (You should have the time elapsed in all of the files.)
 - [ ] Linee 111-112:  Does the order of entries matter?  If not, trigger name and prescale factor should come before jet pT information.
 - [ ] This code only looks at the kinematics of the hardest jet, right?  So I would call this analyze_hardest_jet_kinematics.cc
 
-#analyze_pair_pfc.cc:
+####analyze_pair_pfc.cc:
 - [ ] I guess we aren't going to use this, so can eventually go in obsolete.
 
-#analyze_pfc.cc:
+####analyze_pfc.cc:
 - [ ] Why aren't you checking that the assigned trigger fired, or using the hardest jet to trigger jet?  It seems that you are assuming that you are running this on the skimmed files, but you should not have to skim to make this analysis work.  Rather, skimmed files should have all of the flags set to give "true" as needed.  (Same comment for other files.)
 - [ ] You define "jet_def_cambridge", but never use it.
 - [ ] You should *always* output run number, event number, and name of the trigger used.  Otherwise, things are impossible to debug.
 - [ ] I'm a bit confused about the workflow.  Does hardest_jet() have the JEC factors applied?  As far as I can tell, it does not.  If the JEC factor is applied, does it apply to the constituents as well?  I think you always need to output the original jet pT, the JEC factor, and the corrected jet pT to make sure you don't have an issue.  If I were you, I would always apply JEC factors as part of the analysis, even if the JEC factors are just 1 in the case of MC.
 - [ ] The code only looks at the kinematics of the PFCs, so I would call it analyze_pfc_kinematics.cc.
 
-#analyze.cc:
+####analyze.cc:
 - [ ] I am going to stop looking at your code for the evening right now.  But I think you have the potential for lots of confusion with the JEC factor, especially with line 121 craziness which makes no sense to me.  It is unclear whether hardest_jet() means corrected or not, so you should probably be explicit about this and have separate corrected_hardest_jet() and uncorrected_hardest_jet() methods to deal with this.  You should also have a hardest_jet_JEC() method.
 - [ ] The more confusing technical issue is whether multiplying the JEC factor affects the constituents.  I think it does not.  So on line 136, this means that "frac_pT_loss" gives you garbage at the moment, since hardest_jet.pt() has the JEC factor applied, but soft_drop( hardest_jet ).pt() does not, since soft_drop rebuilds the jet from the constituents.
 - [ ] I think this means, in fact, that you should never multiply JEC times a PseudoJet, since it is ambiguous what it does.  Rather, you should only multiply JEC factors times doubles explicitly as needed.  This way, we always know exactly what we are doing.  I guess this means that you don't want a corrected_hardest_jet() method.  Rather, you should be doing a lot of your analysis on uncorrected jets, and then explicitly rescaling by the JEC factor later.
 - [ ] Last comment, and then I'll stop.  You should make sure to read through the PRD draft at some point and get clarification on any definition that you are unfamiliar with.  In particular, your function for angularity_lambda does not agree with what we have in the text, since in the text, I say that you calculate the angle to a recoil-free axis.  But don't change it, since we might want to use your definition since it is simpler to explain.
 
 
-#analyze.cc:
+####analyze.cc:
 - [ ] Line 152 and 157:  Beware of magic numbers.  Define beta = 0.0 and R0 = 0.5 before using them.
 - [ ] Line 164:  Instead of pow, define an inline sq() command that does multiplication rg*rg
 - [ ] Line 173:  We are no longer doing SoftKiller in this way, so get rid of that part of the code.
 - [ ] Line 219:  What does "pT_after_SD" mean?  Does it include soft killer?  JEC factors?  Also, you keep recalling, soft_drop(hardest_jet), which is computationally expense.
 - [ ] In angularity_lambda(), do not hard code in the jet radius, since we might want to use different values later.  Also, I am now thinking that we should do WTA axes for define the angularities.  I can tell you how to do that in person.
 
-#convert_to_pristine.cc:
+####convert_to_pristine.cc:
 - [ ] Change name of this program to convert_to_one_jet().
 - [ ] Similarly, get rid of all references to "pristine" everywhere in the code.
 
-#luminosity.cc:
+####luminosity.cc:
 - [ ] Change name to analyze_lumi.cc (or something like that)
 
-#turn_on.cc:
+####turn_on.cc:
 - [ ] Change name of this program to analyze_triggers.cc (or something like that)
 
-#event.h:
+####event.h:
 - [ ] When you return a reference (i.e. with a &) it makes sense to label it as const.  But when you return an object, then best not to have the output be const.  So "int event_number() const;"  The function is const, but the int that is returned can be changed by the user if desired.
 - [ ] Why is closest_fastjet_jet_to_trigger_jet() not const?  It shouldn't change the event.
 - [ ] Line 90:  I don't think that is valid C++ code using the old standard.  I'll see if it compiles on my machine, but the standard is to define these things in the constructor.
 
-#event.cc:
+####event.cc:
 - [ ] It seems to me that stringify_jet and stringify_pfc should really be part of InfoCalibratedJet and InfoPFC.  You are allowed to store a reference to the PseudoJet in those info classes so you can extract the px, py, etc information as needed to make the strings.
 - [ ] Line 196:  Your comment about "pristine" makes me think that _data_type needs to have three strings.  That way the user can know if it is original, skimmed, or hardest jet.  Probably the key words will be something like "All_Events", "Matched_Trigger_Selection", "Hardest_Jet_Restriction"
 - [ ] Line 359:  It seems like you treat the hardest jet case different from the ordinary case in terms of applying or not applying JEC factors.  As I said before, you should probably never rescale a PseudoJet by the JEC factor.  Only apply JECs to doubles.
