@@ -1,9 +1,4 @@
-ifeq ($(USER),jthaler)
-	-include config_jthaler.mk
-	PATH_TO_FASTJET = $(FASTJETLOCATION)/fastjet-config
-else 
-	PATH_TO_FASTJET = /usr/local/bin/fastjet-config
-endif
+PATH_TO_FASTJET = /usr/local/bin/fastjet-config
 
 CXX = g++
 CXXFLAGS= -O3 -Wall -Woverloaded-virtual -g -std=c++11
@@ -15,12 +10,12 @@ ROOTINC = `root-config --cflags --glibs`
 
 
 OBJDIR=src
-EXECDIR=examples
+EXECDIR=exec
 BINDIR=bin
 INCDIR=interface
 INC= -I$(INCDIR)
 
-_OBJ = info_calibrated_jet info_pfc event trigger property condition helpers
+_OBJ = InfoCalibratedJet InfoPFC Event Trigger Property Condition helpers
 OBJ  = $(patsubst %,$(OBJDIR)/%,$(_OBJ:=.o))
 
 

@@ -1,4 +1,4 @@
-#include "info_pfc.h"
+#include "InfoPFC.h"
 
 using namespace std;
 using namespace fastjet;

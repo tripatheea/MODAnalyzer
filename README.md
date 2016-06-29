@@ -69,13 +69,13 @@ This repository is concerned with steps (4) to (6) only. Steps (1) to (3) are ca
 
 
 ####config_jthaler.mk:
-- [ ] It seems like you can delete this file, since you've set PATH_TO_FASTJET the same as I have on my computer.
+- [x] It seems like you can delete this file, since you've set PATH_TO_FASTJET the same as I have on my computer.
 
 ####examples:
-- [ ] This folder contains both example analyses and essential tools.  You should probably call it "exec" instead of examples.
+- [x] This folder contains both example analyses and essential tools.  You should probably call it "exec" instead of examples.
 
 ####interface:
-- [ ] All .hh/.cc files should be CamelCase capitalized.  Only .cc files for main routines should be lowercase with underscores.  (Basically, the name of the file should match the name of the class.
+- [x] All .hh/.cc files should be CamelCase capitalized.  Only .cc files for main routines should be lowercase with underscores.  (Basically, the name of the file should match the name of the class.
 
 ####mod_logo.eps:
 - [ ] The bounding box seems to be a bit too small on the right-hand side, which will make the conversion to png a bit weird.  I can fix that if you don't know how.
@@ -84,7 +84,7 @@ This repository is concerned with steps (4) to (6) only. Steps (1) to (3) are ca
 - [ ] You should emphasize that the skimming workflow only works for single jet triggers from the Jet Primary Data set, assuming the user agrees with our trigger boundaries.
 
 ####src:
-- [ ] Same comment as for interface.  Should be CamelCase file names.
+- [x] Same comment as for interface.  Should be CamelCase file names.
 
 ####analyze_data.cc:
 - [ ] Line 67:  You should say how much time has elapsed and the number of seconds per event.  Do you really need to write this out every 100 events?  (You should have the time elapsed in all of the files.)

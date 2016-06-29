@@ -13,8 +13,8 @@
 
 
 #include "fastjet/ClusterSequence.hh"
-#include "info_pfc.h"
-#include "info_calibrated_jet.h"
+#include "InfoPFC.h"
+#include "InfoCalibratedJet.h"
 
 
 
