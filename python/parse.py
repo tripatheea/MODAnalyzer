@@ -53,11 +53,11 @@ def parse_file(input_file, all_hists):
 		for line in infile:
 
 
-			if line_number > 10000:	# Ideal length.
+			# if line_number > 10000:	# Ideal length.
 			# if line_number > 100000:	# Big enough.
 			# if line_number > 100:		# Small tests.
 			# if line_number > 30000:		# Small tests.
-			# if False:
+			if False:
 				break
 
 			line_number += 1
@@ -217,7 +217,7 @@ def parse_to_root_files():
 
 def load_root_files_to_hist(log=False):
 	
-	# parse_to_root_files()
+	parse_to_root_files()
 
 	if not log:
 		hist_templates = hists.multi_page_plot_hist_templates()

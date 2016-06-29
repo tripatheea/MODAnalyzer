@@ -118,7 +118,7 @@ This repository is concerned with steps (4) to (6) only. Steps (1) to (3) are ca
 
 ####convert_to_pristine.cc:
 - [x] Change name of this program to convert_to_one_jet().
-- [ ] [b]Partially Done[/b].Similarly, get rid of all references to "pristine" everywhere in the code.
+- [ ] **Partially Done**.Similarly, get rid of all references to "pristine" everywhere in the code.
 
 ####luminosity.cc:
 - [x] Change name to analyze_lumi.cc (or something like that)
