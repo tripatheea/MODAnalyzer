@@ -143,7 +143,7 @@ class MODPlot:
 
 		logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
 
-		anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.14, 1.0], bbox_transform = plt.gcf().transFigure)
+		anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.16, 0.98], bbox_transform = plt.gcf().transFigure)
 
 		return anchored_box
 		
@@ -663,7 +663,7 @@ plot_colors = {"theory": "red", "pythia": "blue", "herwig": "green", "sherpa": "
 global_plot_types = ['error', 'hist', 'hist', 'hist']
 global_colors = [ plot_colors['data'], plot_colors['pythia'], plot_colors['herwig'], plot_colors['sherpa'] ]
 global_labels = [ plot_labels['data'], plot_labels['pythia'], plot_labels['herwig'], plot_labels['sherpa'] ]
-global_line_styles = [ [], [], [50, 30], [7, 7] ]
+global_line_styles = [ [], [], [21, 7], [7, 7] ]
 
 def create_multi_page_plot(filename, hists, theory=False, x_scale='linear'):
 	# mod_hists is a list of MODHist objects.

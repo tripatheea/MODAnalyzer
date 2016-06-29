@@ -10411,6 +10411,12 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 			# Legends End.
 
 
+			if mode == "neutral":
+				x_label = "Neutral PFC $p_T~\mathrm{(GeV)}$"
+			elif mode == "charged":
+				x_label = "Charged PFC $p_T~\mathrm{(GeV)}$"
+			else:
+				x_label = "PFC $p_T~\mathrm{(GeV)}$"
 
 			ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=60, labelpad=45)
 			ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=60, labelpad=45)
@@ -10459,7 +10465,7 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 			else:
 				label.extend( [r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"Jet $p_{T} > " + str(lower) + "~\mathrm{GeV}$"] ) 
 
-			ax0.legend([extra] * len(label), label, frameon=0, borderpad=0.1, fontsize=50, loc='upper left', bbox_to_anchor=[-0.09, 0.98])
+			ax0.legend([extra] * len(label), label, frameon=0, borderpad=0.1, fontsize=50, loc='upper left', bbox_to_anchor=[-0.08, 0.98])
 
 			if pT_upper_cut < 10:
 				if mode == "charged":

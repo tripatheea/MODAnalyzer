@@ -532,7 +532,7 @@ def multi_page_plot_hist_templates():
 
 
 
-		additional_text = [ ( (-0.07, 0.95), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \\right| < 2.4$ \n Jet $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV}$" ) ]
+		additional_text = [ ( (-0.07, 0.95), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n Jet $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV}$" ) ]
 		all_hists['hardest_eta'].append( MODHist(copy.deepcopy(hardest_eta_hist), conditions=[('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], use_prescale=False, x_label="Jet $\eta$", y_label="A.U.", x_range=(-5., 5.), mark_regions=[-2.4, 2.4], additional_text=additional_text ) ) 
 
 
@@ -806,10 +806,10 @@ def multi_page_plot_hist_templates():
 	all_hists['pT_after_SD'].append( MODHist(copy.deepcopy(hardest_pT_hist), conditions=[('hardest_eta', (-2.4, 2.4)), ('hardest_pT', (150, None))], use_prescale=True, x_label="Jet $p_T$", y_label="A.U.", y_scale='log', x_range=(0, 1000), y_range=(1e-7, 1e0), additional_text=additional_text ) )
 
 
-	additional_text = [ ( (-0.07, 0.95), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \\right| < 2.4$ \n Jet $p_{T} > 85~\mathrm{GeV}$" ) ]
+	additional_text = [ ( (-0.07, 0.95), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n Jet $p_{T} > 85~\mathrm{GeV}$" ) ]
 	all_hists['hardest_eta'].append( MODHist(copy.deepcopy(hardest_eta_hist), conditions=[('hardest_pT', (85, None))], use_prescale=True, x_label="Jet $\eta$", y_label="A.U.", x_range=(-5., 5.), mark_regions=[-2.4, 2.4], additional_text=additional_text ) ) 
 
-	additional_text = [ ( (-0.07, 0.95), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \\right| < 2.4$ \n Jet $p_{T} > 150~\mathrm{GeV}$" ) ]
+	additional_text = [ ( (-0.07, 0.95), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5$ \n Jet $p_{T} > 150~\mathrm{GeV}$" ) ]
 	all_hists['hardest_eta'].append( MODHist(copy.deepcopy(hardest_eta_hist), conditions=[('hardest_pT', (150, None))], use_prescale=True, x_label="Jet $\eta$", y_label="A.U.", x_range=(-5., 5.), mark_regions=[-2.4, 2.4], additional_text=additional_text ) ) 
 
 
