@@ -68,7 +68,7 @@ This repository is concerned with steps (4) to (6) only. Steps (1) to (3) are ca
 
 
 
-###config_jthaler.mk:
+####config_jthaler.mk:
 - [ ] It seems like you can delete this file, since you've set PATH_TO_FASTJET the same as I have on my computer.
 
 #examples:
