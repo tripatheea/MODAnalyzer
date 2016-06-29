@@ -12,12 +12,12 @@
 #include <cstdio>
 
 #include "fastjet/ClusterSequence.hh"
-#include "../interface/event.h"
+#include "../interface/Event.h"
 
 using namespace std;
 using namespace fastjet;
 
-void convert_to_pristine(MOD::Event & event_being_read, ofstream & output_file);
+void convert_to_one_jet(MOD::Event & event_being_read, ofstream & output_file);
 
 int main(int argc, char * argv[]) {
    
@@ -48,7 +48,7 @@ int main(int argc, char * argv[]) {
    ifstream data_file(argv[1]);
    ofstream output_file(argv[2], ios::out | ios::app );
    
-   cout << endl << endl << "Starting convert_to_pristineming with the following given arguments: " << endl;
+   cout << endl << endl << "Starting convert_to_one_jet with the following given arguments: " << endl;
    cout << "Input file: " << argv[1] << endl;
    cout << "Output file: " << argv[2] << endl;
    cout << "Number of events: ";
@@ -63,10 +63,10 @@ int main(int argc, char * argv[]) {
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
 
       if( (event_serial_number % 1000) == 0 )
-         cout << "Converting event number " << event_serial_number << " to prisine form." << endl;
+         cout << "Converting event number " << event_serial_number << " to 1 jet form." << endl;
 
       if (event_being_read.assigned_trigger_fired())
-         convert_to_pristine(event_being_read, output_file);
+         convert_to_one_jet(event_being_read, output_file);
 
       event_being_read = MOD::Event();
       event_serial_number++;
@@ -75,7 +75,7 @@ int main(int argc, char * argv[]) {
    auto finish = std::chrono::steady_clock::now();
    double elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double> >(finish - start).count();
 
-   cout << "Finished converting " << (event_serial_number - 1) << " events to pristine form in " << elapsed_seconds << " seconds!" << endl << endl;
+   cout << "Finished converting " << (event_serial_number - 1) << " events to 1 jet form in " << elapsed_seconds << " seconds!" << endl << endl;
 
    // Write number of events processed to the num stream so that we can sum it up later.
    num_stream << (event_serial_number - 1) << endl;
@@ -87,10 +87,10 @@ int main(int argc, char * argv[]) {
 }
 
 
-void convert_to_pristine(MOD::Event & event_being_read, ofstream & output_file) {
+void convert_to_one_jet(MOD::Event & event_being_read, ofstream & output_file) {
    
    PseudoJet trigger_jet = event_being_read.trigger_jet();
-   event_being_read.convert_to_pristine();
+   event_being_read.convert_to_one_jet();
 
    if (event_being_read.trigger_jet_is_matched() && (trigger_jet.user_info<MOD::InfoCalibratedJet>().jet_quality() >= 1)) {   // Jet quality level: FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3      
       output_file << event_being_read;

@@ -15,8 +15,8 @@
 #include "fastjet/contrib/SoftDrop.hh"
 
 
-#include "../interface/event.h"
-#include "../interface/property.h"
+#include "../interface/Event.h"
+#include "../interface/Property.h"
 
 using namespace std;
 using namespace fastjet;
@@ -90,7 +90,7 @@ int main(int argc, char * argv[]) {
 void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number) {
 
 	fastjet::PseudoJet trigger_jet = event_being_read.trigger_jet();
-	fastjet::PseudoJet closest_jet_to_trigger_jet = event_being_read.closest_fastjet_jet_to_trigger_jet();
+	fastjet::PseudoJet const closest_jet_to_trigger_jet = event_being_read.closest_fastjet_jet_to_trigger_jet();
 
 
 	vector<MOD::Property> properties;

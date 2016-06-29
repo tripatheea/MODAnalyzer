@@ -13,8 +13,8 @@
 #include "fastjet/contrib/SoftDrop.hh"
 
 
-#include "../interface/event.h"
-#include "../interface/property.h"
+#include "../interface/Event.h"
+#include "../interface/Property.h"
 
 using namespace std;
 using namespace fastjet;

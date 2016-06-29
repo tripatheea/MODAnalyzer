@@ -9,7 +9,7 @@
 #include <iomanip>
 
 #include "fastjet/ClusterSequence.hh"
-#include "../interface/event.h"
+#include "../interface/Event.h"
 
 using namespace std;
 using namespace fastjet;

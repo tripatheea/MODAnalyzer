@@ -111,23 +111,24 @@ This repository is concerned with steps (4) to (6) only. Steps (1) to (3) are ca
 ####analyze.cc:
 - [ ] Line 152 and 157:  Beware of magic numbers.  Define beta = 0.0 and R0 = 0.5 before using them.
 - [ ] Line 164:  Instead of pow, define an inline sq() command that does multiplication rg*rg
-- [ ] Line 173:  We are no longer doing SoftKiller in this way, so get rid of that part of the code.
+- [x] Line 173:  We are no longer doing SoftKiller in this way, so get rid of that part of the code.
 - [ ] Line 219:  What does "pT_after_SD" mean?  Does it include soft killer?  JEC factors?  Also, you keep recalling, soft_drop(hardest_jet), which is computationally expense.
-- [ ] In angularity_lambda(), do not hard code in the jet radius, since we might want to use different values later.  Also, I am now thinking that we should do WTA axes for define the angularities.  I can tell you how to do that in person.
+- [x] In angularity_lambda(), do not hard code in the jet radius, since we might want to use different values later.  
+- [ ] Also, I am now thinking that we should do WTA axes for define the angularities.  I can tell you how to do that in person.
 
 ####convert_to_pristine.cc:
-- [ ] Change name of this program to convert_to_one_jet().
-- [ ] Similarly, get rid of all references to "pristine" everywhere in the code.
+- [x] Change name of this program to convert_to_one_jet().
+- [ ] [b]Partially Done[/b].Similarly, get rid of all references to "pristine" everywhere in the code.
 
 ####luminosity.cc:
-- [ ] Change name to analyze_lumi.cc (or something like that)
+- [x] Change name to analyze_lumi.cc (or something like that)
 
 ####turn_on.cc:
-- [ ] Change name of this program to analyze_triggers.cc (or something like that)
+- [x] Change name of this program to analyze_triggers.cc (or something like that)
 
 ####event.h:
 - [ ] When you return a reference (i.e. with a &) it makes sense to label it as const.  But when you return an object, then best not to have the output be const.  So "int event_number() const;"  The function is const, but the int that is returned can be changed by the user if desired.
-- [ ] Why is closest_fastjet_jet_to_trigger_jet() not const?  It shouldn't change the event.
+- [x] Why is closest_fastjet_jet_to_trigger_jet() not const?  It shouldn't change the event.
 - [ ] Line 90:  I don't think that is valid C++ code using the old standard.  I'll see if it compiles on my machine, but the standard is to define these things in the constructor.
 
 ####event.cc:
@@ -136,5 +137,5 @@ This repository is concerned with steps (4) to (6) only. Steps (1) to (3) are ca
 - [ ] Line 359:  It seems like you treat the hardest jet case different from the ordinary case in terms of applying or not applying JEC factors.  As I said before, you should probably never rescale a PseudoJet by the JEC factor.  Only apply JECs to doubles.
 - [ ] Line 394:  I'm a bit nervous about you having the weight in the "BeginEvent" line.  The data format of the first line should be identical between MC and data.  But this might have to wait for Version 6 if you already generated a ton of MC files with the weight put in the first line.
 - [ ] In read_event(), if the MOD file is formatted incorrectly with a combination of RPFC and PDPFC, etc., then no error is thrown.  Rather, the data source is just changed.  The data source should be unambiguous from the "BeginEvent" line, and then cross checked for each particle input.  In fact, there really isn't a reason to have separate PDPFC, RPFC, etc., since they all do the same thing, once the data source is centrally determined.  This might have to wait until Version 6, though.
-- [ ] Line 561.  We don't use HLT_Jet15U or HLT_L1Jet6U in our analysis, so you shouldn't assign a trigger for those ranges.
-- [ ] Line 680.  Change 10 and -3 to doubles, since sometimes pow is defined on integers to return integers.
+- [x] Line 561.  We don't use HLT_Jet15U or HLT_L1Jet6U in our analysis, so you shouldn't assign a trigger for those ranges.
+- [x] Line 680.  Change 10 and -3 to doubles, since sometimes pow is defined on integers to return integers.

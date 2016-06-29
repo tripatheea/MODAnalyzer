@@ -14,8 +14,8 @@
 #include "fastjet/contrib/SoftDrop.hh"
 
 
-#include "../interface/event.h"
-#include "../interface/property.h"
+#include "../interface/Event.h"
+#include "../interface/Property.h"
 
 using namespace std;
 using namespace fastjet;
@@ -23,7 +23,7 @@ using namespace contrib;
 
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number);
 
-double angularity_lambda(PseudoJet jet, float k, float beta);
+double angularity_lambda(PseudoJet jet, double jet_radius, float k, float beta);
 
 int main(int argc, char * argv[]) {
 
@@ -90,7 +90,9 @@ int main(int argc, char * argv[]) {
 
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number) {
 
-  
+   
+   double jet_radius = 0.5;
+
    JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
 
    Selector pT_1_GeV_selector = SelectorPtMin(1.0);
@@ -165,54 +167,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
       properties.push_back(MOD::Property("e05_" + label, sqrt(rg) * zg ));
    }
 
-   // SoftKiller.
-   // pT cut of 1, 2, 3, 5, 10 GeV used for SoftKiller.
-
-   vector<int> pT_cuts {1, 2, 3, 5, 10};
-
-   for (unsigned i = 0; i < pT_cuts.size(); i++) {
-      int pT_cut = pT_cuts[i];
-
-      Selector pT_selector = SelectorPtMin(pT_cut);
-      ClusterSequence cs = ClusterSequence(pT_selector(hardest_jet_constituents), jet_def_cambridge);
-
-      if (cs.inclusive_jets().size() > 0) {
-         
-         PseudoJet hardest_jet_pT_cut = cs.inclusive_jets()[0];
-
-         for (unsigned j = 0; j < zg_cuts.size(); j++) {
-            string label = zg_cuts[j].first;
-            double zg_cut = zg_cuts[j].second;
-
-            SoftDrop soft_drop_pT(0.0, zg_cut);
-            PseudoJet soft_drop_jet_pT = soft_drop_pT(hardest_jet_pT_cut);
-
-            double zg = soft_drop_jet_pT.structure_of<SoftDrop>().symmetry();
-            double rg = soft_drop_jet_pT.structure_of<SoftDrop>().delta_R() / 0.5;
-            
-            properties.push_back(MOD::Property("zg_" + label + "_pT_" + to_string(pT_cut), zg));
-            properties.push_back(MOD::Property("mu_" + label + "_pT_" + to_string(pT_cut), soft_drop_jet_pT.structure_of<SoftDrop>().mu()));
-
-            properties.push_back(MOD::Property("rg_" + label + "_pT_" + to_string(pT_cut), rg));
-            properties.push_back(MOD::Property("e1_" + label + "_pT_" + to_string(pT_cut), rg * zg));
-            properties.push_back(MOD::Property("e2_" + label + "_pT_" + to_string(pT_cut), pow(rg, 2) * zg ));
-            properties.push_back(MOD::Property("e05_" + label + "_pT_" + to_string(pT_cut), sqrt(rg) * zg ));
-
-         }
-      }
-      else {
-         for (unsigned j = 0; j < zg_cuts.size(); j++) {
-            string label = zg_cuts[j].first;
-            properties.push_back(MOD::Property("zg_" + label + "_pT_" + to_string(pT_cut), -1.));
-            properties.push_back(MOD::Property("mu_" + label + "_pT_" + to_string(pT_cut), -1.));
-
-            properties.push_back(MOD::Property("rg_" + label + "_pT_" + to_string(pT_cut), -1.));
-            properties.push_back(MOD::Property("e1_" + label + "_pT_" + to_string(pT_cut), -1.));
-            properties.push_back(MOD::Property("e2_" + label + "_pT_" + to_string(pT_cut), -1.));
-            properties.push_back(MOD::Property("e05_" + label + "_pT_" + to_string(pT_cut), -1.));
-         }
-      }
-   }   
+    
 
    // Analysis related to the effects of SoftDrop- observables before and after SoftDrop.
    
@@ -225,17 +180,17 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back( MOD::Property("mass_post_SD", soft_drop(hardest_jet).m()) );
 
 
-   properties.push_back( MOD::Property("pT_D_pre_SD", angularity_lambda(hardest_jet, 2, 0)) );
-   properties.push_back( MOD::Property("pT_D_post_SD", angularity_lambda(soft_drop(hardest_jet), 2, 0)) );
+   properties.push_back( MOD::Property("pT_D_pre_SD", angularity_lambda(hardest_jet, jet_radius, 2, 0)) );
+   properties.push_back( MOD::Property("pT_D_post_SD", angularity_lambda(soft_drop(hardest_jet), jet_radius, 2, 0)) );
 
-   properties.push_back( MOD::Property("LHA_pre_SD", angularity_lambda(hardest_jet, 1, 0.5)) );
-   properties.push_back( MOD::Property("LHA_post_SD", angularity_lambda(soft_drop(hardest_jet), 1, 0.5)) );
+   properties.push_back( MOD::Property("LHA_pre_SD", angularity_lambda(hardest_jet, jet_radius, 1, 0.5)) );
+   properties.push_back( MOD::Property("LHA_post_SD", angularity_lambda(soft_drop(hardest_jet), jet_radius, 1, 0.5)) );
 
-   properties.push_back( MOD::Property("width_pre_SD", angularity_lambda(hardest_jet, 1, 1)) );
-   properties.push_back( MOD::Property("width_post_SD", angularity_lambda(soft_drop(hardest_jet), 1, 1)) );
+   properties.push_back( MOD::Property("width_pre_SD", angularity_lambda(hardest_jet, jet_radius, 1, 1)) );
+   properties.push_back( MOD::Property("width_post_SD", angularity_lambda(soft_drop(hardest_jet), jet_radius, 1, 1)) );
 
-   properties.push_back( MOD::Property("thrust_pre_SD", angularity_lambda(hardest_jet, 1, 2)) );
-   properties.push_back( MOD::Property("thrust_post_SD", angularity_lambda(soft_drop(hardest_jet), 1, 2)) );
+   properties.push_back( MOD::Property("thrust_pre_SD", angularity_lambda(hardest_jet, jet_radius, 1, 2)) );
+   properties.push_back( MOD::Property("thrust_post_SD", angularity_lambda(soft_drop(hardest_jet), jet_radius, 1, 2)) );
 
 
 
@@ -283,17 +238,17 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
       properties.push_back( MOD::Property("track_mass_post_SD", soft_drop(hardest_track_jet).m()) );
 
 
-      properties.push_back( MOD::Property("track_pT_D_pre_SD", angularity_lambda(hardest_track_jet, 2, 0)) );
-      properties.push_back( MOD::Property("track_pT_D_post_SD", angularity_lambda(soft_drop(hardest_track_jet), 2, 0)) );
+      properties.push_back( MOD::Property("track_pT_D_pre_SD", angularity_lambda(hardest_track_jet, jet_radius, 2, 0)) );
+      properties.push_back( MOD::Property("track_pT_D_post_SD", angularity_lambda(soft_drop(hardest_track_jet), jet_radius, 2, 0)) );
 
-      properties.push_back( MOD::Property("track_LHA_pre_SD", angularity_lambda(hardest_track_jet, 1, 0.5)) );
-      properties.push_back( MOD::Property("track_LHA_post_SD", angularity_lambda(soft_drop(hardest_track_jet), 1, 0.5)) );
+      properties.push_back( MOD::Property("track_LHA_pre_SD", angularity_lambda(hardest_track_jet, jet_radius, 1, 0.5)) );
+      properties.push_back( MOD::Property("track_LHA_post_SD", angularity_lambda(soft_drop(hardest_track_jet), jet_radius, 1, 0.5)) );
 
-      properties.push_back( MOD::Property("track_width_pre_SD", angularity_lambda(hardest_track_jet, 1, 1)) );
-      properties.push_back( MOD::Property("track_width_post_SD", angularity_lambda(soft_drop(hardest_track_jet), 1, 1)) );
+      properties.push_back( MOD::Property("track_width_pre_SD", angularity_lambda(hardest_track_jet, jet_radius, 1, 1)) );
+      properties.push_back( MOD::Property("track_width_post_SD", angularity_lambda(soft_drop(hardest_track_jet), jet_radius, 1, 1)) );
 
-      properties.push_back( MOD::Property("track_thrust_pre_SD", angularity_lambda(hardest_track_jet, 1, 2)) );
-      properties.push_back( MOD::Property("track_thrust_post_SD", angularity_lambda(soft_drop(hardest_track_jet), 1, 2)) );
+      properties.push_back( MOD::Property("track_thrust_pre_SD", angularity_lambda(hardest_track_jet, jet_radius, 1, 2)) );
+      properties.push_back( MOD::Property("track_thrust_post_SD", angularity_lambda(soft_drop(hardest_track_jet), jet_radius, 1, 2)) );
 
    }
    else {
@@ -365,11 +320,11 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
 
-double angularity_lambda(PseudoJet jet, float k, float beta) {
+double angularity_lambda(PseudoJet jet, double jet_radius, float k, float beta) {
    
    double lambda = 0.0;
 
-   double R = 0.5;   // Jet Radius.
+   double R = jet_radius;   // Jet Radius.
 
    double total_pT = 0.0;
    for (unsigned j = 0; j < jet.constituents().size(); j++) {
