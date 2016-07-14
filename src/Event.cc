@@ -298,7 +298,7 @@ const PseudoJet & MOD::Event::hardest_jet() const {
 }
 
 
-void MOD::Event::convert_to_pristine() {
+void MOD::Event::convert_to_one_jet() {
 
    PseudoJet jet = _closest_fastjet_jet_to_trigger_jet;
    jet.set_user_info(new MOD::InfoCalibratedJet("1JET", _trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC()));
