@@ -10363,7 +10363,7 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 
 
 			plot = rplt.hist(herwig_pt_hist, zorder=2, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
-			plot[1].set_dashes([50, 30])
+			plot[1].set_dashes([21, 7])
 
 			plot = rplt.hist(pythia_pt_hist, zorder=3, axes=ax0, emptybins=False, marker='o',  markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 			
@@ -10399,7 +10399,7 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 			line, = ax0.plot(range(1), linewidth=8, color=plot_colors['pythia']) 
 			handles[1] = line
 
-			line, = ax0.plot(range(1), linewidth=8, color=plot_colors['herwig'], dashes=[50, 30])
+			line, = ax0.plot(range(1), linewidth=8, color=plot_colors['herwig'], dashes=[21, 7])
 			handles[2] = line
 
 			line, = ax0.plot(range(1), linewidth=8, color=plot_colors['sherpa'], dashes=[7, 7])
@@ -10418,8 +10418,8 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 			else:
 				x_label = "PFC $p_T~\mathrm{(GeV)}$"
 
-			ax0.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=60, labelpad=45)
-			ax1.set_xlabel('$p_T~\mathrm{(GeV)}$', fontsize=60, labelpad=45)
+			ax0.set_xlabel(x_label, fontsize=60, labelpad=45)
+			ax1.set_xlabel(x_label, fontsize=60, labelpad=45)
 			ax0.set_ylabel('$\mathrm{A.U.}$', fontsize=60, rotation=0, labelpad=75.)
 			ax1.set_ylabel("Ratio           \nto           \n" + "Pythia" + "           ", fontsize=55, rotation=0, labelpad=115, y=0.31)
 
@@ -10427,7 +10427,7 @@ def plot_pfc_pts(pT_lower_cut=100, pT_upper_cut=10000, mode="all"):
 			logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
 			text_box = TextArea("Preliminary", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 			logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
-			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.14, 1.0], bbox_transform = plt.gcf().transFigure)
+			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.16, 0.98], bbox_transform = plt.gcf().transFigure)
 			ax0.add_artist(anchored_box)
 
 			# Ratio Plot.

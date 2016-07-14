@@ -449,58 +449,81 @@ class MODPlot:
 
 				if plot_type == "theory":
 
-					theory_x_ss = self._plot_points_x_s[self._plot_types.index("error")]
-					theory_y_line_ss = theory_line_interpolate_function(theory_x_ss)
-					theory_y_min_ss = theory_min_interpolate_function(theory_x_ss)
-					theory_y_max_ss = theory_max_interpolate_function(theory_x_ss)
+					if self._x_scale == "log":
 
-					to_ratio_x_ss = self._plot_points_x_s[self._ratio_to_index]
-					to_ratio_y_ss = self._plot_points_y_s[self._ratio_to_index]
+						theory_x_ss = self._plot_points_x_s[self._plot_types.index("error")]
+						theory_y_line_ss = theory_line_interpolate_function(theory_x_ss)
+						theory_y_min_ss = theory_min_interpolate_function(theory_x_ss)
+						theory_y_max_ss = theory_max_interpolate_function(theory_x_ss)
 
-					theory_to_ratio_line = [a / b for a, b in zip(theory_y_line_ss, to_ratio_y_ss)]
-					theory_to_ratio_min = [a / b for a, b in zip(theory_y_min_ss, to_ratio_y_ss)]
-					theory_to_ratio_max = [a / b for a, b in zip(theory_y_max_ss, to_ratio_y_ss)]
+						to_ratio_x_ss = self._plot_points_x_s[self._ratio_to_index]
+						to_ratio_y_ss = self._plot_points_y_s[self._ratio_to_index]
 
-					ratio_theory_line_hist = self._hists[self._ratio_to_index].hist().empty_clone()
-					ratio_theory_min_hist = self._hists[self._ratio_to_index].hist().empty_clone()
-					ratio_theory_max_hist = self._hists[self._ratio_to_index].hist().empty_clone()
+						theory_to_ratio_line = [a / b for a, b in zip(theory_y_line_ss, to_ratio_y_ss)]
+						theory_to_ratio_min = [a / b for a, b in zip(theory_y_min_ss, to_ratio_y_ss)]
+						theory_to_ratio_max = [a / b for a, b in zip(theory_y_max_ss, to_ratio_y_ss)]
 
-					ratio_theory_line_hist.SetLineColor(self._plot_colors[i])
-					ratio_theory_line_hist.SetLineWidth(8)
+						ratio_theory_line_hist = self._hists[self._ratio_to_index].hist().empty_clone()
+						ratio_theory_min_hist = self._hists[self._ratio_to_index].hist().empty_clone()
+						ratio_theory_max_hist = self._hists[self._ratio_to_index].hist().empty_clone()
 
-					map(ratio_theory_line_hist.Fill, theory_x_ss, theory_to_ratio_line)
-					map(ratio_theory_min_hist.Fill, theory_x_ss, theory_to_ratio_min)
-					map(ratio_theory_max_hist.Fill, theory_x_ss, theory_to_ratio_max)
+						ratio_theory_line_hist.SetLineColor(self._plot_colors[i])
+						ratio_theory_line_hist.SetLineWidth(8)
+
+						map(ratio_theory_line_hist.Fill, theory_x_ss, theory_to_ratio_line)
+						map(ratio_theory_min_hist.Fill, theory_x_ss, theory_to_ratio_min)
+						map(ratio_theory_max_hist.Fill, theory_x_ss, theory_to_ratio_max)
 
 
-					line_x, line_y = self.convert_log_hist_to_line_plot(ratio_theory_line_hist, to_ratio_x_ss)
-					min_x, min_y = self.convert_log_hist_to_line_plot(ratio_theory_min_hist, to_ratio_x_ss)
-					max_x, max_y = self.convert_log_hist_to_line_plot(ratio_theory_max_hist, to_ratio_x_ss)
+						line_x, line_y = self.convert_log_hist_to_line_plot(ratio_theory_line_hist, to_ratio_x_ss)
+						min_x, min_y = self.convert_log_hist_to_line_plot(ratio_theory_min_hist, to_ratio_x_ss)
+						max_x, max_y = self.convert_log_hist_to_line_plot(ratio_theory_max_hist, to_ratio_x_ss)
 
-					
-					line_sorted_x = sorted(line_x)
-					line_sorted_y = [x for (y,x) in sorted(zip(line_x, line_y))]
+						
+						line_sorted_x = sorted(line_x)
+						line_sorted_y = [x for (y,x) in sorted(zip(line_x, line_y))]
 
-					min_sorted_x = sorted(min_x)
-					min_sorted_y = [x for (y,x) in sorted(zip(min_x, min_y))]
+						min_sorted_x = sorted(min_x)
+						min_sorted_y = [x for (y,x) in sorted(zip(min_x, min_y))]
 
-					max_sorted_x = sorted(max_x)
-					max_sorted_y = [x for (y,x) in sorted(zip(max_x, max_y))]
+						max_sorted_x = sorted(max_x)
+						max_sorted_y = [x for (y,x) in sorted(zip(max_x, max_y))]
 
-					# There are two portions of x. 
-					# Find the index where we need to switch.
-					np_correction_index = 0
-					for ab in range(len(line_sorted_x)):
-						if line_sorted_x[ab] > self.get_np_correction_boundary():
-							np_correction_index = ab
-							break
+						# There are two portions of x. 
+						# Find the index where we need to switch.
+						np_correction_index = 0
+						for ab in range(len(line_sorted_x)):
+							if line_sorted_x[ab] > self.get_np_correction_boundary():
+								np_correction_index = ab
+								break
 
-					self._plt.plot(line_sorted_x[ : np_correction_index + 1], line_sorted_y[ : np_correction_index + 1], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")], ls="dotted")
-					self._plt.plot(line_sorted_x[np_correction_index : ], line_sorted_y[np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
+						self._plt.plot(line_sorted_x[ : np_correction_index + 1], line_sorted_y[ : np_correction_index + 1], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")], ls="dotted")
+						self._plt.plot(line_sorted_x[np_correction_index : ], line_sorted_y[np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
 
-					ax1.fill_between( max_sorted_x, max_sorted_y, min_sorted_y, zorder=z_indices[i], where=np.less_equal(min_sorted_y, max_sorted_y), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
+						ax1.fill_between( max_sorted_x, max_sorted_y, min_sorted_y, zorder=z_indices[i], where=np.less_equal(min_sorted_y, max_sorted_y), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
 
-					pass
+					else:
+
+						ratio_theory_line = [None if n == 0 else m / n for m, n in zip(theory_extrapolated_line, self._plot_points_y_s[self._ratio_to_index])]
+						ratio_theory_min = [None if n == 0 else m / n for m, n in zip(theory_extrapolated_min, self._plot_points_y_s[self._ratio_to_index])]
+						ratio_theory_max = [None if n == 0 else m / n for m, n in zip(theory_extrapolated_max, self._plot_points_y_s[self._ratio_to_index])]
+
+						ratio_theory_line_hist = Hist(self._hists[self._plot_types.index("error")].hist().nbins(), self._hists[self._plot_types.index("error")].hist().bounds()[0], self._hists[self._plot_types.index("error")].hist().bounds()[1])
+						ratio_theory_min_hist = Hist(self._hists[self._plot_types.index("error")].hist().nbins(), self._hists[self._plot_types.index("error")].hist().bounds()[0], self._hists[self._plot_types.index("error")].hist().bounds()[1])
+						ratio_theory_max_hist = Hist(self._hists[self._plot_types.index("error")].hist().nbins(), self._hists[self._plot_types.index("error")].hist().bounds()[0], self._hists[self._plot_types.index("error")].hist().bounds()[1])
+						
+						ratio_theory_line_hist.fill_array(self._plot_points_x_s[self._ratio_to_index], ratio_theory_line)
+						ratio_theory_min_hist.fill_array(self._plot_points_x_s[self._ratio_to_index], ratio_theory_min)
+						ratio_theory_max_hist.fill_array(self._plot_points_x_s[self._ratio_to_index], ratio_theory_max)
+
+						line_plot = self.convert_hist_to_line_plot(ratio_theory_line_hist, ratio_theory_line_hist.bounds())
+						min_plot = self.convert_hist_to_line_plot(ratio_theory_min_hist, ratio_theory_min_hist.bounds())
+						max_plot = self.convert_hist_to_line_plot(ratio_theory_max_hist, ratio_theory_max_hist.bounds())
+						
+						self._plt.plot(line_plot[0], line_plot[1], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
+						ax1.fill_between( max_plot[0], max_plot[1], min_plot[1], zorder=z_indices[i], where=np.less_equal(min_plot[1], max_plot[1]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
+
+
 				else:
 					ratio_hist = copy.deepcopy( self._hists[i].hist() )
 					ratio_hist.Divide(denominator_hist)
