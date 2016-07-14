@@ -78,7 +78,7 @@ namespace MOD {
 
             
             
-            void convert_to_pristine();
+            void convert_to_one_jet();
 
             const bool trigger_exists(std::string trigger_name) const;  // You can give a trigger's full name or short name here.
             bool read_event(std::istream & data_stream);
