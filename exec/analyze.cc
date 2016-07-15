@@ -65,7 +65,7 @@ int main(int argc, char * argv[]) {
    int event_serial_number = 1;
    while( event_being_read.read_event(data_file) && ( event_serial_number <= number_of_events_to_process ) ) {
       
-      if( (event_serial_number % 1000) == 0 )
+      if( (event_serial_number % 5000) == 0 )
          cout << "Processing event number " << event_serial_number << endl;
 
       // Write out version info in the output file for the "syncing plots" thing to work (as it needs to figure out which directory to put things into).
