@@ -16,7 +16,7 @@ def run_turn_on(input_path, output_file):
   to_analyze.sort()
 
   for f in to_analyze:
-    call(['./bin/turn_on', input_path + f, output_file])
+    call(['./bin/analyze_triggers', input_path + f, output_file])
 
 
 start = time()

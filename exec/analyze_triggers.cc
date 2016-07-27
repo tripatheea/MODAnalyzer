@@ -103,16 +103,17 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
             properties.push_back(MOD::Property("# Entry", "  Entry"));
 
-            properties.push_back(MOD::Property("Event_Number", event_being_read.event_number()));
-            properties.push_back(MOD::Property("Run_Number", event_being_read.run_number()));
+            properties.push_back(MOD::Property("event_number", event_being_read.event_number()));
+            properties.push_back(MOD::Property("run_number", event_being_read.run_number()));
 
             properties.push_back(MOD::Property("trig_jet_matched", (int) event_being_read.trigger_jet_is_matched())); 
             properties.push_back(MOD::Property("jet_quality", trigger_jet.user_info<MOD::InfoCalibratedJet>().jet_quality())); 
    
-            properties.push_back(MOD::Property("Cor_Hardest_pT", trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC()));  
+            properties.push_back(MOD::Property("hardest_pT", trigger_jet.pt()));  
+            properties.push_back(MOD::Property("corr_hardest_pT", trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC()));  
             properties.push_back(MOD::Property("hardest_eta", trigger_jet.eta()));  
-            properties.push_back(MOD::Property("Prescale", triggers[i].prescale()));
-            properties.push_back(MOD::Property("Trigger_Name", triggers[i].name()));         
+            properties.push_back(MOD::Property("prescale", triggers[i].prescale()));
+            properties.push_back(MOD::Property("trigger_name", triggers[i].name()));         
        
             string name;
    
