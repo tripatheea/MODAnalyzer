@@ -89,8 +89,8 @@ void read_file(istream & data_stream, unordered_map<string, float> & trigger_pre
 		
 		line_number++;
 
-		if (line_number == 100000) {
-			cout << "Finished 100000 lines." << endl;
+		if (line_number == 1000000) {
+			cout << "Finished 1M lines." << endl;
 			write_average_prescales(output_filename, trigger_prescales);
 			line_number = 0;
 		}
