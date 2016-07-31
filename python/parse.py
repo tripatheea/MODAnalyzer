@@ -20,10 +20,10 @@ import rootpy.plotting.root2matplotlib as rplt
 
 output_directory = "/home/aashish/root/macros/MODAnalyzer/parsed_root_files/"
 
-data_file = "/home/aashish/pristine.dat"
-pythia_file = "/home/aashish/pythia_truth.dat"
-herwig_file = "/home/aashish/herwig_truth.dat"
-sherpa_file = "/home/aashish/sherpa_truth.dat"
+data_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/pristine.dat"
+pythia_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/pythia.dat"
+herwig_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/herwig.dat"
+sherpa_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/sherpa.dat"
 
 
 
@@ -55,7 +55,7 @@ def parse_file(input_file, all_hists):
 
 			# if line_number > 10000:	# Ideal length.
 			# if line_number > 100000:	# Big enough.
-			# if line_number > 100:		# Small tests.
+			# if line_number > 1000:		# Small tests.
 			# if line_number > 30000:		# Small tests.
 			if False:
 				break
@@ -217,7 +217,7 @@ def parse_to_root_files():
 
 def load_root_files_to_hist(log=False):
 	
-	parse_to_root_files()
+	# parse_to_root_files()
 
 	if not log:
 		hist_templates = hists.multi_page_plot_hist_templates()

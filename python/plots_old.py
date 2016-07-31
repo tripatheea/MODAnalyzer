@@ -8768,9 +8768,15 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 				prescales = properties['prescale']
 			else:
 				if upper == 100000.:
-					filename = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddifm{}.dat".format(lower)
+					if log:
+						filename = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddifm{}_log.dat".format(lower)
+					else:
+						filename = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddifm{}.dat".format(lower)
 				else:
-					filename = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddif{}.dat".format(lower)
+					if log:
+						filename = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddif{}_log.dat".format(lower)
+					else:
+						filename = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddif{}.dat".format(lower)
 				
 				f = open(filename, 'r')
 				lines = f.read().split("\n")
@@ -10970,13 +10976,13 @@ def plot_npv(pT_lower_cut=100):
 
 
 
-plot_pfc_pts(mode="charged", pT_lower_cut=0.0, pT_upper_cut=5)
-plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=5)
+# plot_pfc_pts(mode="charged", pT_lower_cut=0.0, pT_upper_cut=5)
+# plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=5)
 
 
 
-plot_pfc_pts(mode="charged", pT_lower_cut=0.0, pT_upper_cut=100)
-plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=100)
+# plot_pfc_pts(mode="charged", pT_lower_cut=0.0, pT_upper_cut=100)
+# plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=100)
 
 
 
@@ -11078,6 +11084,7 @@ plot_pfc_pts(mode="neutral", pT_lower_cut=0.0, pT_upper_cut=100)
 # plot_2d_theta_g_zg(pT_lower_cut=150, log=True, which="pythia")
 # plot_2d_theta_g_zg(pT_lower_cut=150, log=True, which="herwig")
 # plot_2d_theta_g_zg(pT_lower_cut=150, log=True, which="sherpa")
+plot_2d_theta_g_zg(pT_lower_cut=150, log=True, which="theory")
 
 # plot_2d_theta_g_zg(pT_lower_cut=150, log=False, which="data")
 # plot_2d_theta_g_zg(pT_lower_cut=150, log=False, which="pythia")
