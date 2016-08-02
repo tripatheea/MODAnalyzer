@@ -32,7 +32,7 @@ using namespace std;
 
 // void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number);
 void read_file(istream & data_stream, unordered_map<string, float> & trigger_prescales, unordered_map<string, int> & trigger_numbers, string output_filename);
-void write_average_prescales(string output_filename, unordered_map<string, float> & trigger_prescales);
+void write_average_prescales(string output_filename, unordered_map<string, float> & trigger_prescales, unordered_map<string, int> & trigger_numbers);
 
 int main(int argc, char * argv[]) {
 
@@ -59,7 +59,7 @@ int main(int argc, char * argv[]) {
    unordered_map<string, int> trigger_numbers;
    
    read_file(data_file, trigger_prescales, trigger_numbers, output_filename);
-   write_average_prescales(output_filename, trigger_prescales);
+   write_average_prescales(output_filename, trigger_prescales, trigger_numbers);
 
    auto finish = std::chrono::steady_clock::now();
    double elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<double> >(finish - start).count();
@@ -70,12 +70,12 @@ int main(int argc, char * argv[]) {
 }
 
 
-void write_average_prescales(string output_filename, unordered_map<string, float> & trigger_prescales) {
+void write_average_prescales(string output_filename, unordered_map<string, float> & trigger_prescales, unordered_map<string, int> & trigger_numbers) {
 	
 	ofstream output_stream(output_filename, ios::out);
 
 	for ( auto it = trigger_prescales.begin(); it != trigger_prescales.end(); ++it ) {
-  		output_stream << it-> first << "\t" << it->second << endl;
+  		output_stream << it-> first << "\t" << it->second << "\t" << trigger_numbers[it->first] << endl;
 	}
     
 }
@@ -91,7 +91,7 @@ void read_file(istream & data_stream, unordered_map<string, float> & trigger_pre
 
 		if (line_number == 1000000) {
 			cout << "Finished 1M lines." << endl;
-			write_average_prescales(output_filename, trigger_prescales);
+			write_average_prescales(output_filename, trigger_prescales, trigger_numbers);
 			line_number = 0;
 		}
 
