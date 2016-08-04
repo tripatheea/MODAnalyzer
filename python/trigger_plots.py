@@ -116,10 +116,14 @@ def trigger_efficiency_plot():
 		
 		first_hist, second_hist = mod_hists[hist_labels[i][0]], mod_hists[hist_labels[i][1]]
 
-		print first_hist
+		# print first_hist
 		# rplt.errorbar()
+		# first_hist = normalize_hist(first_hist.hist())
+		# second_hist = normalize_hist(second_hist.hist())
 
+		# new_hist = ( first_hist / second_hist )
 		new_hist = ( first_hist.hist() / second_hist.hist() )
+		# new_hist = first_hist.hist()
 
 		new_hist.SetColor(colors[i])
 

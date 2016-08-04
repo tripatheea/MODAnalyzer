@@ -18,6 +18,7 @@ import rootpy.plotting.root2matplotlib as rplt
 
 
 
+# output_directory = "./"
 output_directory = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/"
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/"
 
@@ -72,57 +73,65 @@ def parse_file(input_file, all_hists):
 					pT_index = keywords.index("corr_hardest_pT") + 1
 					trig_name_index = keywords.index("trigger_name") + 1
 
-					for i in range(len(keywords)):
-
-						keyword = keywords[i]
-
-						# print numbers[pT_index]
-
-						pT_of_this_event = float(numbers[pT_index])
 					
-						prescale = float(numbers[prescale_index])
-					
-						current_line_trig_name = numbers[trig_name_index]
-
-						# print pT_of_this_event, prescale, current_line_trig_name
-
 
 						
-						for key, value in all_hists.items():
-							if key in current_line_trig_name:
-								mod_hist = value
-								hist = mod_hist.hist()
 
-								conditions = mod_hist.conditions()
+					# print numbers[pT_index]
 
-								try:
-									condition_satisfied = 1
-									for condition_keyword, condition_func in conditions:
+					pT_of_this_event = float(numbers[pT_index])
+				
+					prescale = float(numbers[prescale_index])
+				
+					current_line_trig_name = numbers[trig_name_index]
 
-										keyword_index = keywords.index(condition_keyword[0]) + 1
-										condition_func_param = numbers[keyword_index]
-										
-										# print condition_keyword
+					# print pT_of_this_event, prescale, current_line_trig_name
 
-										if condition_keyword[0] == "jet_quality":
-											condition_satisfied *= int(condition_func(int(condition_keyword[1]), int(condition_func_param)))
-											# print condition_func_param, condition_keyword[1], condition_func(int(condition_keyword[1]), int(condition_func_param)), "; ",
-										else:
-											condition_satisfied *= int(condition_func(condition_keyword[1], condition_func_param))
+
+					
+					for key in all_hists.keys():
+						if key in current_line_trig_name:
+							
+							# print key, current_line_trig_name
+							# print all_hists
+							# print all_hists[key]
+
+							mod_hist = all_hists[key]
+							hist = mod_hist.hist()
+
+							conditions = mod_hist.conditions()
+
+							try:
+								condition_satisfied = 1
+								for condition_keyword, condition_func in conditions:
+
+									keyword_index = keywords.index(condition_keyword[0]) + 1
+									condition_func_param = numbers[keyword_index]
+									
+									# print condition_keyword
+
+									if condition_keyword[0] == "jet_quality":
+										condition_satisfied *= int(condition_func(int(condition_keyword[1]), int(condition_func_param)))
+										# print condition_func_param, condition_keyword[1], condition_func(int(condition_keyword[1]), int(condition_func_param)), "; ",
+									else:
+										condition_satisfied *= int(condition_func(condition_keyword[1], condition_func_param))
+								
+
 									
 
-										
+								condition_satisfied = bool(condition_satisfied)
+							except Exception as e:
+								print "ASF", e
+							
+							if condition_satisfied:
 
-									condition_satisfied = bool(condition_satisfied)
-								except Exception as e:
-									print "ASF", e
-								
-								if condition_satisfied:
+								x = pT_of_this_event
+								y = prescale
 
-									x = pT_of_this_event
-									y = prescale
+								# print "filling ", key, "with", x, y
+								all_hists[key].hist().fill_array( [x], [y] )
+								break
 
-									hist.fill_array( [x], [y] )
 
 							# print condition_func_param, condition_func("Jet30U", condition_func_param)
 						
