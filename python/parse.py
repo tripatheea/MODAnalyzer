@@ -19,7 +19,7 @@ import rootpy.plotting.root2matplotlib as rplt
 
 
 # output_directory = "/home/aashish/root/macros/MODAnalyzer/parsed_root_files/"
-output_directory = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/"
+output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/"
 
 data_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/experiment/pristine.dat"
 pythia_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/mc/pythia.dat"

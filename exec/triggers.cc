@@ -115,6 +115,10 @@ void read_file(istream & data_stream, unordered_map<string, float> & trigger_pre
 
 			stream >> tag >> event_number >> run_number >> trig_jet_matched >> jet_quality >> hardest_pT >> corr_hardest_pT >> hardest_eta >> prescale >> trigger_name;
 
+         if (trig_jet_matched != 1) {
+            cout << "Trig. not matched!" << endl;
+         }
+         
 			unordered_map<string, float>::const_iterator got = trigger_prescales.find(trigger_name);
 
 			if ( got == trigger_prescales.end() ) {

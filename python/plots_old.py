@@ -8769,14 +8769,14 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 			else:
 				if upper == 100000.:
 					if log:
-						filename = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddifm{}_log.dat".format(lower)
+						filename = "/media/aashish/My Files/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddifm{}_log.dat".format(lower)
 					else:
-						filename = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddifm{}.dat".format(lower)
+						filename = "/media/aashish/My Files/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddifm{}.dat".format(lower)
 				else:
 					if log:
-						filename = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddif{}_log.dat".format(lower)
+						filename = "/media/aashish/My Files/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddif{}_log.dat".format(lower)
 					else:
-						filename = "/home/aashish/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddif{}.dat".format(lower)
+						filename = "/media/aashish/My Files/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddif{}.dat".format(lower)
 				
 				f = open(filename, 'r')
 				lines = f.read().split("\n")
@@ -11090,7 +11090,7 @@ plot_2d_theta_g_zg(pT_lower_cut=150, log=True, which="theory")
 # plot_2d_theta_g_zg(pT_lower_cut=150, log=False, which="pythia")
 # plot_2d_theta_g_zg(pT_lower_cut=150, log=False, which="herwig")
 # plot_2d_theta_g_zg(pT_lower_cut=150, log=False, which="sherpa")
-# plot_2d_theta_g_zg(pT_lower_cut=150, log=False, which="theory")
+plot_2d_theta_g_zg(pT_lower_cut=150, log=False, which="theory")
 
 # plot_npv(pT_lower_cut=150)
 
@@ -11554,4 +11554,4 @@ plot_2d_theta_g_zg(pT_lower_cut=150, log=True, which="theory")
 
 
 
-call(["python", "/home/aashish/root/macros/MODAnalyzer/utilities/sync_plots.py"])
+# call(["python", "/home/aashish/root/macros/MODAnalyzer/utilities/sync_plots.py"])

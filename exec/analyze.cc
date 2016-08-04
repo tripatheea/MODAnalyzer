@@ -119,7 +119,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
    PseudoJet uncorrected_hardest_jet_with_softkiller = cs.inclusive_jets()[0];
 
-   double jec = event_being_read.hardest_jet().pt() / uncorrected_hardest_jet_no_softkiller.pt();
+   double jec = event_being_read.get_hardest_jet_jec();
    // PseudoJet hardest_jet = uncorrected_hardest_jet_with_softkiller * jec;
    PseudoJet hardest_jet = uncorrected_hardest_jet_with_softkiller;
    

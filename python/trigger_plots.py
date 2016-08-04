@@ -118,17 +118,19 @@ def trigger_efficiency_plot():
 
 		# print first_hist
 		# rplt.errorbar()
-		# first_hist = normalize_hist(first_hist.hist())
+		first_hist = normalize_hist(first_hist.hist())
 		# second_hist = normalize_hist(second_hist.hist())
 
 		# new_hist = ( first_hist / second_hist )
-		new_hist = ( first_hist.hist() / second_hist.hist() )
-		# new_hist = first_hist.hist()
+		# new_hist = ( first_hist.hist() / second_hist.hist() )
+		new_hist = first_hist
 
 		new_hist.SetColor(colors[i])
 
 		rplt.errorbar(new_hist)
 
+	plt.ylim(0, 0.1)
+	
 	plt.gcf().set_size_inches(30, 24, forward=1)
 
 	plt.savefig(default_dir + "trigger_efficiency.pdf")

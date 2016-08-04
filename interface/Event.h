@@ -69,6 +69,8 @@ namespace MOD {
             const fastjet::PseudoJet & hardest_jet() const;
             const fastjet::PseudoJet & trigger_jet() const;
 
+            double get_hardest_jet_jec() const;
+
             bool trigger_jet_is_matched() const;
             
             void add_condition(std::istringstream & input_stream); 
@@ -88,6 +90,8 @@ namespace MOD {
          private:
             int _run_number, _event_number, _version;
             double _weight = 1.0;
+
+            double _hardest_jet_jec = 1.0;
 
             std::pair<std::string, std::string> _data_type;
             Condition _condition;
@@ -126,7 +130,7 @@ namespace MOD {
             void set_data_source(int data_source);
             void set_weight(double weight);
 
-            std::vector<fastjet::PseudoJet> apply_jet_energy_corrections(std::vector<fastjet::PseudoJet> jets) const;
+            std::vector<fastjet::PseudoJet> apply_jet_energy_corrections(std::vector<fastjet::PseudoJet> jets);
 
             const std::string stringify_jet(fastjet::PseudoJet jet) const;
             const std::string stringify_pfc(fastjet::PseudoJet particle) const;

@@ -192,9 +192,9 @@ def plot_integrated_recorded_lumi(cumulative=False):
   plt.autoscale()
 
   if cumulative:
-    plt.ylim(0, 60)
+    plt.ylim(0, 100)
   else:
-    plt.ylim(0, 10)
+    plt.ylim(0, 20)
 
     
   # plt.xlim(datetime.date(2010, 3, 30), datetime.date(2010, 10, 31))
@@ -298,4 +298,4 @@ plot_integrated_recorded_lumi(cumulative=False)
 
 
 
-call(["python", "/home/aashish/root/macros/MODAnalyzer/utilities/sync_plots.py"])
+# call(["python", "/home/aashish/root/macros/MODAnalyzer/utilities/sync_plots.py"])

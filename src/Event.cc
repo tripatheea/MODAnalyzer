@@ -577,6 +577,11 @@ void MOD::Event::set_assigned_trigger() {
 }
 
 
+double MOD::Event::get_hardest_jet_jec() const {
+   return _hardest_jet_jec;
+}
+
+
 void MOD::Event::set_trigger_jet() {
    // Get the hardest jet, apply JEC, and then eta cut.
 
@@ -694,13 +699,16 @@ void MOD::Event::set_hardest_jet() {
 
 
 
-vector<PseudoJet> MOD::Event::apply_jet_energy_corrections(vector<PseudoJet> jets) const {
+vector<PseudoJet> MOD::Event::apply_jet_energy_corrections(vector<PseudoJet> jets) {
 
    vector<PseudoJet> jec_corrected_jets;
 
    for (unsigned i = 0; i < jets.size(); i++) {
       jec_corrected_jets.push_back( jets[i] * jets[i].user_info<InfoCalibratedJet>().JEC() );
    }
+
+   if (jets.size() > 0)
+      _hardest_jet_jec = jets[0].user_info<InfoCalibratedJet>().JEC();
 
    return jec_corrected_jets;
 }
