@@ -100,19 +100,26 @@ def normalize_hist(hist):
 	return hist
 
 def trigger_efficiency_plot():
-	mod_hists = parsed_linear[0]['corr_hardest_pT']
+	mod_hists = parsed_linear[0]
 
+
+	print mod_hists
 
 	colors = ['green', 'magenta', 'blue', 'red', 'brown', 'orange']
 	labels = ["Jet140U / 100U", "Jet100U / 70U", "Jet70U / 50U", "Jet50U / 30U", "Jet30U / 15U\_HNF", "" ]
+	hist_labels = [("Jet140U", "Jet100U"), ("Jet100U", "Jet70U"), ("Jet70U", "Jet50U"), ("Jet50U", "Jet30U"), ("Jet30U", "Jet15U_HcalNoiseFiltered") ]
 	lower_pTs = [140, 100, 70, 50, 30, 15]
 
 	# rplt.hist(mod_hists[0].hist())
 
-	for i in range(len(mod_hists) - 1):
-		# new_hist = mod_hists[i + 1].hist() / mod_hists[i].hist()
+	for i in range(len(hist_labels) - 1):
 		
-		new_hist = normalize_hist( mod_hists[i].hist() )
+		first_hist, second_hist = mod_hists[hist_labels[i][0]], mod_hists[hist_labels[i][1]]
+
+		print first_hist
+		# rplt.errorbar()
+
+		new_hist = normalize_hist( first_hist.hist() / second_hist.hist() )
 
 		new_hist.SetColor(colors[i])
 

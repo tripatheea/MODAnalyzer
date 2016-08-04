@@ -3,6 +3,7 @@ import numpy as np
 import copy
 import math
 
+from collections import defaultdict
 # RootPy
 from rootpy.plotting import Hist
 
@@ -1039,9 +1040,9 @@ def trigger_hists():
 	all_hists = {}
 
 		
-	pT_hist = Hist(25, 0, 1000)
+	pT_hist = Hist(50, 0, 300)
 
-	all_hists['corr_hardest_pT'] = []
+	# all_hists['corr_hardest_pT'] = []
 
 
 	trigger_names = ["Jet15U_HcalNoiseFiltered", "Jet30U", "Jet50U", "Jet70U", "Jet100U", "Jet140U"]
@@ -1049,7 +1050,7 @@ def trigger_hists():
 
 	for trigger_name in trigger_names:
 		additional_text = [ ( (-0.07, 0.95), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \\right| < 2.4$ \n Hardest Jet $p_{T} > 85~\mathrm{GeV}$" ) ]
-		all_hists['corr_hardest_pT'].append( MODHist(copy.deepcopy(pT_hist), conditions=[(['trigger_name', trigger_name], lambda x, y: x in y), (['jet_quality', 3], lambda x, y: y >= x)], use_prescale=True, x_scale='log', x_label="Fractional $p_T$ Loss", y_label="A.U.", y_range=(0., 1.2), additional_text=additional_text ) ) 
+		all_hists[trigger_name] =  MODHist(copy.deepcopy(pT_hist), conditions=[(['trigger_name', trigger_name], lambda x, y: x in y), (['jet_quality', 3], lambda x, y: y >= x)], use_prescale=True, x_scale='log', x_label="Fractional $p_T$ Loss", y_label="A.U.", y_range=(0., 1.2), additional_text=additional_text )
 
 
 

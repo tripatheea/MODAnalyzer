@@ -19,8 +19,10 @@ import rootpy.plotting.root2matplotlib as rplt
 
 
 output_directory = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/"
+# output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/"
 
 data_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/experiment/triggers.dat"
+# data_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/trig.dat"
 
 
 
@@ -39,6 +41,8 @@ def parse_file(input_file, all_hists):
 	with open(input_file) as infile:
 		
 		line_number = 0
+
+		current_line_trig_name = ""
 
 		for line in infile:
 
@@ -65,14 +69,65 @@ def parse_file(input_file, all_hists):
 				elif numbers[0] == "Entry":
 
 					prescale_index = keywords.index("prescale") + 1
+					pT_index = keywords.index("corr_hardest_pT") + 1
+					trig_name_index = keywords.index("trigger_name") + 1
 
 					for i in range(len(keywords)):
 
 						keyword = keywords[i]
 
-						if keyword == "corr_hardest_pT":
-							pT_of_this_event = float(numbers[i + 1]) # + 1 because we ignore the first keyword "Entry".
+						# print numbers[pT_index]
 
+						pT_of_this_event = float(numbers[pT_index])
+					
+						prescale = float(numbers[prescale_index])
+					
+						current_line_trig_name = numbers[trig_name_index]
+
+						# print pT_of_this_event, prescale, current_line_trig_name
+
+
+						
+						for key, value in all_hists.items():
+							if key in current_line_trig_name:
+								mod_hist = value
+								hist = mod_hist.hist()
+
+								conditions = mod_hist.conditions()
+
+								try:
+									condition_satisfied = 1
+									for condition_keyword, condition_func in conditions:
+
+										keyword_index = keywords.index(condition_keyword[0]) + 1
+										condition_func_param = numbers[keyword_index]
+										
+										# print condition_keyword
+
+										if condition_keyword[0] == "jet_quality":
+											condition_satisfied *= int(condition_func(int(condition_keyword[1]), int(condition_func_param)))
+											# print condition_func_param, condition_keyword[1], condition_func(int(condition_keyword[1]), int(condition_func_param)), "; ",
+										else:
+											condition_satisfied *= int(condition_func(condition_keyword[1], condition_func_param))
+									
+
+										
+
+									condition_satisfied = bool(condition_satisfied)
+								except Exception as e:
+									print "ASF", e
+								
+								if condition_satisfied:
+
+									x = pT_of_this_event
+									y = prescale
+
+									hist.fill_array( [x], [y] )
+
+							# print condition_func_param, condition_func("Jet30U", condition_func_param)
+						
+
+						'''
 						if keyword in all_hists.keys():
 							
 							for mod_hist in all_hists[keyword]:
@@ -111,10 +166,11 @@ def parse_file(input_file, all_hists):
 									hist.fill_array( [x], [y] )
 
 							# print condition_func_param, condition_func("Jet30U", condition_func_param)
-
+						'''
 			except Exception as e:
 				print "Some exception occured!",
 				print e
+				print line
 
 
 	return all_hists
@@ -133,12 +189,12 @@ def parse_to_root_file(input_filename, output_filename, hist_templates):
 		
 		index = 0
 
-		for mod_hist in parsed_hists[var]:
-			hist = copy.deepcopy( mod_hist.hist() )
-			hist.SetName("{}#{}".format(var, index))
-			hist.Write()
+		mod_hist = parsed_hists[var]
+		hist = copy.deepcopy( mod_hist.hist() )
+		hist.SetName("{}#{}".format(var, index))
+		hist.Write()
 
-			index += 1
+		index += 1
 
 	f.Close()
 
@@ -153,15 +209,17 @@ def root_file_to_hist(input_filename, hist_templates):
 		
 		index = 0
 
-		for mod_hist in hists[var]:
-			hist_name = "{}#{}".format(var, index)
+		mod_hist = hists[var]
 
-			# Get hist from ROOT file.
-			hist = root_file.Get(hist_name)
+	
+		hist_name = "{}#{}".format(var, index)
 
-			mod_hist.replace_hist(hist)
+		# Get hist from ROOT file.
+		hist = root_file.Get(hist_name)
 
-			index += 1
+		mod_hist.replace_hist(hist)
+
+		index += 1
 
 	return hists
 
