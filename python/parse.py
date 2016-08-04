@@ -18,12 +18,13 @@ import rootpy.plotting.root2matplotlib as rplt
 
 
 
-output_directory = "/home/aashish/root/macros/MODAnalyzer/parsed_root_files/"
+# output_directory = "/home/aashish/root/macros/MODAnalyzer/parsed_root_files/"
+output_directory = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/"
 
-data_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/pristine.dat"
-pythia_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/pythia.dat"
-herwig_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/herwig.dat"
-sherpa_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/sherpa.dat"
+data_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/experiment/pristine.dat"
+pythia_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/mc/pythia.dat"
+herwig_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/mc/herwig.dat"
+sherpa_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/mc/sherpa.dat"
 
 
 
