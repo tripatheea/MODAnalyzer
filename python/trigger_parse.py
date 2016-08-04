@@ -173,7 +173,7 @@ def load_root_files_to_hist(log=False):
 
 	filenames = ["trig.root"]
 
-	return  [ root_file_to_hist(output_directory + filename, hist_templates) for filename in filenames ] 
+	return  [ root_file_to_hist("/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/"+ filename, hist_templates) for filename in filenames ] 
 
 
 

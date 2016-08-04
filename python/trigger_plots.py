@@ -89,6 +89,16 @@ default_dir = "plots/Version 5_2/"
 
 parsed_linear = trigger_parse.load_root_files_to_hist()
 
+
+
+def normalize_hist(hist):
+	bin_width = (hist.upperbound() - hist.lowerbound()) / hist.nbins()
+	
+	if hist.GetSumOfWeights() != 0.0:
+		hist.Scale(1.0 / ( hist.GetSumOfWeights() * bin_width ))
+
+	return hist
+
 def trigger_efficiency_plot():
 	mod_hists = parsed_linear[0]['corr_hardest_pT']
 
@@ -100,10 +110,12 @@ def trigger_efficiency_plot():
 	# rplt.hist(mod_hists[0].hist())
 
 	for i in range(len(mod_hists) - 1):
-		new_hist = mod_hists[i].hist() / mod_hists[i + 1].hist()
+		# new_hist = mod_hists[i + 1].hist() / mod_hists[i].hist()
+		
+		new_hist = normalize_hist( mod_hists[i].hist() )
 
 		new_hist.SetColor(colors[i])
-		
+
 		rplt.errorbar(new_hist)
 
 	plt.gcf().set_size_inches(30, 24, forward=1)
