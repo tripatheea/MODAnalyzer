@@ -18,9 +18,9 @@ import rootpy.plotting.root2matplotlib as rplt
 
 
 
-output_directory = "/home/aashish/root/macros/MODAnalyzer/parsed_root_files/"
+output_directory = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/"
 
-data_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/trig.dat"
+data_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/experiment/triggers.dat"
 
 
 
@@ -44,10 +44,10 @@ def parse_file(input_file, all_hists):
 
 
 			# if line_number > 10000:	# Ideal length.
-			# if line_number > 100000:	# Big enough.
+			if line_number > 100000:	# Big enough.
 			# if line_number > 1000:		# Small tests.
 			# if line_number > 30000:		# Small tests.
-			if False:
+			# if False:
 				break
 
 			line_number += 1
@@ -84,13 +84,20 @@ def parse_file(input_file, all_hists):
 									for condition_keyword, condition_func in conditions:
 
 										
-
+									
 										keyword_index = keywords.index(condition_keyword[0]) + 1
 										condition_func_param = numbers[keyword_index]
+										
+										# print condition_keyword
+
+										if condition_keyword[0] == "jet_quality":
+											condition_satisfied *= int(condition_func(int(condition_keyword[1]), int(condition_func_param)))
+											# print condition_func_param, condition_keyword[1], condition_func(int(condition_keyword[1]), int(condition_func_param)), "; ",
+										else:
+											condition_satisfied *= int(condition_func(condition_keyword[1], condition_func_param))
+									
 
 										
-
-										condition_satisfied *= int(condition_func(condition_keyword[1], condition_func_param))
 
 									condition_satisfied = bool(condition_satisfied)
 								except Exception as e:
