@@ -30,10 +30,10 @@ sherpa_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/an
 average_prescales = {}
 
 average_prescales[(250, None)] = 1.0
-average_prescales[(200, 250)] = 2.06100454815
-average_prescales[(150, 200)] = 14.062697274
-average_prescales[(115, 150)] = 128.194511703
-average_prescales[(85, 115)] = 1013.80182713
+average_prescales[(200, 250)] = 2.27194896
+average_prescales[(150, 200)] = 11.26145158
+average_prescales[(115, 150)] = 82.83767615
+average_prescales[(85, 115)] = 680.4849117
 
 
 def parse_file(input_file, all_hists):
