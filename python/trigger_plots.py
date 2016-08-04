@@ -119,7 +119,7 @@ def trigger_efficiency_plot():
 		print first_hist
 		# rplt.errorbar()
 
-		new_hist = normalize_hist( first_hist.hist() / second_hist.hist() )
+		new_hist = ( first_hist.hist() / second_hist.hist() )
 
 		new_hist.SetColor(colors[i])
 
