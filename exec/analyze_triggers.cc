@@ -114,10 +114,11 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
             properties.push_back(MOD::Property("hardest_eta", trigger_jet.eta()));  
             properties.push_back(MOD::Property("prescale", triggers[i].prescale()));
             properties.push_back(MOD::Property("trigger_name", triggers[i].name()));         
+            properties.push_back(MOD::Property("trigger_fired", triggers[i].fired()));         
        
             string name;
    
-            int padding = 40;
+            int padding = 35;
 
             if (event_serial_number == 1) {
                for (unsigned p = 0; p < properties.size(); p++) {

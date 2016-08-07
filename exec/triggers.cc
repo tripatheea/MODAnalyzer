@@ -115,7 +115,7 @@ void read_file(istream & data_stream, unordered_map<string, float> & trigger_pre
 
 			stream >> tag >> event_number >> run_number >> trig_jet_matched >> jet_quality >> hardest_pT >> corr_hardest_pT >> hardest_eta >> prescale >> trigger_name;
 
-         if (trig_jet_matched != 1) {
+         if (trig_jet_matched == 0) {
             cout << "Trig. not matched!" << endl;
          }
          

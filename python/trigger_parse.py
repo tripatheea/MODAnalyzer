@@ -22,7 +22,7 @@ import rootpy.plotting.root2matplotlib as rplt
 output_directory = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/"
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/"
 
-data_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/experiment/triggers.dat"
+data_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/experiment/trig.dat"
 # data_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/trig.dat"
 
 
@@ -112,7 +112,9 @@ def parse_file(input_file, all_hists):
 
 									if condition_keyword[0] == "jet_quality":
 										condition_satisfied *= int(condition_func(int(condition_keyword[1]), int(condition_func_param)))
-										# print condition_func_param, condition_keyword[1], condition_func(int(condition_keyword[1]), int(condition_func_param)), "; ",
+									elif condition_keyword[0] == "trigger_fired":
+										# print condition_keyword[1], condition_func_param, condition_func(int(condition_keyword[1]), int(condition_func_param))
+										condition_satisfied *= int(condition_func(int(condition_keyword[1]), int(condition_func_param)))
 									else:
 										condition_satisfied *= int(condition_func(condition_keyword[1], condition_func_param))
 								
@@ -236,8 +238,12 @@ def root_file_to_hist(input_filename, hist_templates):
 
 
 def parse_to_root_files():
+	
+	print "Getting the templates."
+
 	hist_templates = hists.trigger_hists()
 	
+	print "Got the templates"
 
 	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "trig.root", hist_templates=hist_templates)
 
@@ -254,6 +260,8 @@ def load_root_files_to_hist(log=False):
 
 if __name__ == "__main__":
 
+	print "here"
+	
 	parse_to_root_files()
 
 	# load_root_files_to_hist()
