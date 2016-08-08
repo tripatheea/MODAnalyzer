@@ -33,7 +33,12 @@ def parse_weights(input_filename):
 def plot_weights(input_filename):
 	weights = parse_weights(input_filename)
 
-	plt.hist(weights, bins=25)
+	plt.hist(weights, bins=200, normed=1)
+
+	print max(weights)
+
+
+	print "Total number of events = ", len(weights)
 
 	plt.yscale("log")
 

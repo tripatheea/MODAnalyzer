@@ -273,7 +273,7 @@ class MODPlot:
 		# TODO: This is too hacky. Fix this + comment it properly.
 		z_cut = float(self._hists[0].additional_text()[0][2].split("=")[-1].split("$")[0])
 
-		if "e_g^{0.5}":
+		if "e_g^{0.5}" in var:
 			return (lambda_value / lower_pT)**0.5
 		elif "e_g^2" in var:
 			return (lambda_value**2) / (lower_pT * lower_pT * z_cut)
@@ -284,6 +284,7 @@ class MODPlot:
 		else:
 			min_value = 0.0
 		
+
 		return min_value
 
 	def plot(self):
@@ -593,7 +594,7 @@ class MODPlot:
 
 		# Any possible markers.
 		for marker in self._mark_regions:
-			ax0.plot([marker, marker], [ax0.get_ylim()[0], ax0.get_ylim()[1] / 2], color='red', linewidth=5, linestyle="dashed")
+			ax0.plot([marker, marker], [ax0.get_ylim()[0], 0.9 * ax0.get_ylim()[1] ], color='red', linewidth=5, linestyle="dashed")
 			
 
 		# Axes labels.

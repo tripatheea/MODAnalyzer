@@ -24,9 +24,14 @@ output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Gen
 data_file = "/media/aashish/Transcend/experiment/pristine.dat"
 pythia_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/mc/pythia.dat"
 herwig_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/mc/herwig.dat"
-sherpa_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/mc/sherpa.dat"
+# sherpa_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/mc/sherpa.dat"
+sherpa_file = "/home/aashish/sherpa.dat"
 
 
+pfc_data_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/pfc.dat"
+pfc_pythia_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/pythia_pfc.dat"
+pfc_herwig_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/herwig_pfc.dat"
+pfc_sherpa_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/sherpa_pfc.dat"
 
 average_prescales = {}
 
@@ -55,10 +60,10 @@ def parse_file(input_file, all_hists):
 
 
 			# if line_number > 10000:	# Ideal length.
-			if line_number > 100000:	# Big enough.
+			# if line_number > 100000:	# Big enough.
 			# if line_number > 1000:		# Small tests.
 			# if line_number > 30000:		# Small tests.
-			# if False:
+			if False:
 				break
 
 			line_number += 1
@@ -76,6 +81,18 @@ def parse_file(input_file, all_hists):
 				elif numbers[0] == "Entry":
 
 					prescale_index = keywords.index("prescale") + 1
+
+
+
+					# pdgId_index = keywords.index("pfc_pdgId") + 1
+					# pdgId = numbers[pdgId_index]
+					
+					# # print "starting again"
+
+					# if abs( int(pdgId) ) not in [11, 13, 15, 211, 321]: # This is supposed to be all the pdgIds of charged objects. 
+					# 	# print "charged"
+					# 	continue
+					
 
 					for i in range(len(keywords)):
 
@@ -204,17 +221,32 @@ def parse_to_root_files():
 	hist_templates = hists.multi_page_plot_hist_templates()
 	log_hist_templates = hists.multi_page_log_plot_hist_templates()
 
-	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data.root", hist_templates=hist_templates)
 	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia.root", hist_templates=hist_templates)
 	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig.root", hist_templates=hist_templates)
-	# parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa.root", hist_templates=hist_templates)
+	parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa2.root", hist_templates=hist_templates)
 
-	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data_log.root", hist_templates=log_hist_templates)
+	# parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data_log.root", hist_templates=log_hist_templates)
 	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia_log.root", hist_templates=log_hist_templates)
 	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig_log.root", hist_templates=log_hist_templates)
 	# parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa_log.root", hist_templates=log_hist_templates)
 
 
+def parse_pfc_to_root_files():
+	hist_templates = hists.get_pfc_hists()
+
+	parse_to_root_file(input_filename=pfc_data_file, output_filename=output_directory + "data_pfc.root", hist_templates=hist_templates)
+	parse_to_root_file(input_filename=pfc_pythia_file, output_filename=output_directory + "pythia_pfc.root", hist_templates=hist_templates)
+	parse_to_root_file(input_filename=pfc_herwig_file, output_filename=output_directory + "herwig_pfc.root", hist_templates=hist_templates)
+	parse_to_root_file(input_filename=pfc_sherpa_file, output_filename=output_directory + "sherpa_pfc.root", hist_templates=hist_templates)
+
+
+def load_pfc_root_files_to_hist():
+	hist_templates = hists.get_pfc_hists()
+	
+	filenames = ['data_pfc.root', 'pythia_pfc.root', 'herwig_pfc.root', 'sherpa_pfc.root']
+
+	return  [ root_file_to_hist(output_directory + filename, hist_templates) for filename in filenames ] 
 
 def load_root_files_to_hist(log=False):
 	
@@ -222,7 +254,7 @@ def load_root_files_to_hist(log=False):
 
 	if not log:
 		hist_templates = hists.multi_page_plot_hist_templates()
-		filenames = ["data.root", "pythia.root", "herwig.root", "sherpa.root"]
+		filenames = ["data.root", "pythia.root", "herwig.root", "sherpa2.root"]
 	else:
 		hist_templates = hists.multi_page_log_plot_hist_templates()
 		filenames = ["data_log.root", "pythia_log.root", "herwig_log.root", "sherpa_log.root"]
@@ -237,5 +269,7 @@ if __name__ == "__main__":
 	parse_to_root_files()
 
 	# load_root_files_to_hist()
+
+	# parse_pfc_to_root_files()
 
 	pass

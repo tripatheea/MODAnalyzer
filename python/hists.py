@@ -819,10 +819,10 @@ def multi_page_plot_hist_templates():
 
 
 	additional_text = [ ( (-0.07, 0.95), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \\right| < 2.4$ \n Hardest Jet $p_{T} > 85~\mathrm{GeV}$" ) ]
-	all_hists['hardest_phi'].append( MODHist(copy.deepcopy(hardest_phi_hist), conditions=[('hardest_eta', (-2.4, 2.4)), ('hardest_pT', (85, None))], use_prescale=True, x_label="Hardest Jet $\phi$", x_range=(0, 2 * np.pi), y_label="A.U.", y_range=(0.1, 0.2), additional_text=additional_text, axes_label_pi=True ) )
+	all_hists['hardest_phi'].append( MODHist(copy.deepcopy(hardest_phi_hist), conditions=[('hardest_eta', (-2.4, 2.4)), ('hardest_pT', (85, None))], use_prescale=True, x_label="Hardest Jet $\phi$", x_range=(0, 2 * np.pi), y_label="A.U.", y_range=(0.0, 0.5), additional_text=additional_text, axes_label_pi=True ) )
 
 	additional_text = [ ( (-0.07, 0.95), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \\right| < 2.4$ \n Hardest Jet $p_{T} > 150~\mathrm{GeV}$" ) ]
-	all_hists['hardest_phi'].append( MODHist(copy.deepcopy(hardest_phi_hist), conditions=[('hardest_eta', (-2.4, 2.4)), ('hardest_pT', (150, None))], use_prescale=True, x_label="Hardest Jet $\phi$", x_range=(0, 2 * np.pi), y_label="A.U.", y_range=(0.1, 0.2), additional_text=additional_text, axes_label_pi=True ) )
+	all_hists['hardest_phi'].append( MODHist(copy.deepcopy(hardest_phi_hist), conditions=[('hardest_eta', (-2.4, 2.4)), ('hardest_pT', (150, None))], use_prescale=True, x_label="Hardest Jet $\phi$", x_range=(0, 2 * np.pi), y_label="A.U.", y_range=(0.0, 0.5), additional_text=additional_text, axes_label_pi=True ) )
 
 
 
@@ -1057,7 +1057,31 @@ def trigger_hists():
 	return all_hists
 
 
+def get_pfc_hists():
+	pfc_hists = {}
 
+	pfc_hists['pfc_pT'] = []
+
+	pT_boundaries = [85, 115, 150, 200, 250]
+
+	for i in range(len(pT_boundaries) - 1):
+		
+		additional_text = [ ( (0.50, 0.70), 'upper left', "Charged PFCs \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \\right| < 2.4$ \n Hardest Jet $p_{T} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV}$" ) ]
+		pfc_hists['pfc_pT'].append( MODHist(Hist(25, 0, 5), conditions=[('jet_eta', (-2.4, 2.4)), ('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], mark_regions=[0.5], use_prescale=False, x_label="Charged PFC $p_T$ (GeV)", y_label="A.U.", x_range=(0, 5), additional_text=additional_text ) ) 
+
+
+	additional_text = [ ( (0.50, 0.70), 'upper left', "Charged PFCs \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \\right| < 2.4$ \n Hardest Jet $p_{T} > 85~\mathrm{GeV}$" ) ]
+	pfc_hists['pfc_pT'].append( MODHist(Hist(25, 0, 5), conditions=[('jet_eta', (-2.4, 2.4)), ('hardest_pT', (85, None))], mark_regions=[0.5], use_prescale=True, x_label="Charged PFC $p_T$ (GeV)", y_label="A.U.", x_range=(0, 5), additional_text=additional_text ) ) 
+
+	additional_text = [ ( (0.50, 0.70), 'upper left', "Charged PFCs \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \\right| < 2.4$ \n Hardest Jet $p_{T} > 150~\mathrm{GeV}$" ) ]
+	pfc_hists['pfc_pT'].append( MODHist(Hist(25, 0, 5), conditions=[('jet_eta', (-2.4, 2.4)), ('hardest_pT', (150, None))], mark_regions=[0.5], use_prescale=True, x_label="Charged PFC $p_T$ (GeV)", y_label="A.U.", x_range=(0, 5), additional_text=additional_text ) ) 
+
+	additional_text = [ ( (0.50, 0.70), 'upper left', "Charged PFCs \n $ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \\right| < 2.4$ \n Hardest Jet $p_{T} > 250~\mathrm{GeV}$" ) ]
+	pfc_hists['pfc_pT'].append( MODHist(Hist(25, 0, 5), conditions=[('jet_eta', (-2.4, 2.4)), ('hardest_pT', (250, None))], mark_regions=[0.5], use_prescale=True, x_label="Charged PFC $p_T$ (GeV)", y_label="A.U.", x_range=(0, 5), additional_text=additional_text ) ) 
+
+
+
+	return pfc_hists
 
 
 

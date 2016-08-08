@@ -73,6 +73,7 @@ def parse_file(input_file, all_hists):
 					prescale_index = keywords.index("prescale") + 1
 					pT_index = keywords.index("corr_hardest_pT") + 1
 					trig_name_index = keywords.index("trigger_name") + 1
+					eta_index = keywords.index("hardest_eta") + 1
 
 					
 
@@ -81,6 +82,7 @@ def parse_file(input_file, all_hists):
 					# print numbers[pT_index]
 
 					pT_of_this_event = float(numbers[pT_index])
+					eta_of_this_event = float(numbers[eta_index])
 				
 					prescale = float(numbers[prescale_index])
 				
@@ -88,7 +90,8 @@ def parse_file(input_file, all_hists):
 
 					# print pT_of_this_event, prescale, current_line_trig_name
 
-
+					if abs(eta_of_this_event) > 2.4:
+						continue 
 					
 					for key in all_hists.keys():
 						if key in current_line_trig_name:
