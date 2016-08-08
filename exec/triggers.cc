@@ -103,6 +103,7 @@ void read_file(istream & data_stream, unordered_map<string, float> & trigger_pre
 		float hardest_pT, corr_hardest_pT, hardest_eta;
 		int prescale;
 		string trigger_name;
+      int trigger_fired;
 
 		iss >> tag;      
 		istringstream stream(line);
@@ -113,29 +114,36 @@ void read_file(istream & data_stream, unordered_map<string, float> & trigger_pre
 		}
 		else {
 
-			stream >> tag >> event_number >> run_number >> trig_jet_matched >> jet_quality >> hardest_pT >> corr_hardest_pT >> hardest_eta >> prescale >> trigger_name;
+			stream >> tag >> event_number >> run_number >> trig_jet_matched >> jet_quality >> hardest_pT >> corr_hardest_pT >> hardest_eta >> prescale >> trigger_name >> trigger_fired;
 
          if (trig_jet_matched == 0) {
             cout << "Trig. not matched!" << endl;
          }
-         
-			unordered_map<string, float>::const_iterator got = trigger_prescales.find(trigger_name);
+         else {
+            if (trigger_fired == 1) {
+               unordered_map<string, float>::const_iterator got = trigger_prescales.find(trigger_name);
 
-			if ( got == trigger_prescales.end() ) {
-				// Trigger name is not in the hashmap yet.
-				trigger_prescales.emplace(trigger_name, prescale);
-				trigger_numbers.emplace(trigger_name, 1);
-			}
-			else {
-				// Trigger name already in the hashmap.
-				// Get the total number of prescales already in the hashmap.
-				int n = trigger_numbers[trigger_name];
-				float summation_x = n * trigger_prescales[trigger_name];
-				float new_mean = (summation_x + prescale) / (n + 1);
+               if ( got == trigger_prescales.end() ) {
+                  // Trigger name is not in the hashmap yet.
+                  trigger_prescales.emplace(trigger_name, prescale);
+                  trigger_numbers.emplace(trigger_name, 1);
+               }
+               else {
+                  // Trigger name already in the hashmap.
+                  // Get the total number of prescales already in the hashmap.
+                  int n = trigger_numbers[trigger_name];
+                  float summation_x = n * trigger_prescales[trigger_name];
+                  float new_mean = (summation_x + prescale) / (n + 1);
 
-				trigger_prescales[trigger_name] = new_mean;
-				trigger_numbers[trigger_name]++;
-			}
+                  trigger_prescales[trigger_name] = new_mean;
+                  trigger_numbers[trigger_name]++;
+               }        
+            }
+            else {
+               // cout << "Trigger did not fire." << endl;
+            }
+         }
+			
 
 		
 		}

@@ -21,7 +21,7 @@ import rootpy.plotting.root2matplotlib as rplt
 # output_directory = "/home/aashish/root/macros/MODAnalyzer/parsed_root_files/"
 output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/"
 
-data_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/experiment/pristine.dat"
+data_file = "/media/aashish/Transcend/experiment/pristine.dat"
 pythia_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/mc/pythia.dat"
 herwig_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/mc/herwig.dat"
 sherpa_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/mc/sherpa.dat"
@@ -31,10 +31,10 @@ sherpa_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/an
 average_prescales = {}
 
 average_prescales[(250, None)] = 1.0
-average_prescales[(200, 250)] = 2.27194896
-average_prescales[(150, 200)] = 11.26145158
-average_prescales[(115, 150)] = 82.83767615
-average_prescales[(85, 115)] = 680.4849117
+average_prescales[(200, 250)] = 1.811595878
+average_prescales[(150, 200)] = 4.697863641
+average_prescales[(115, 150)] = 95.96314646
+average_prescales[(85, 115)] = 829.1235844
 
 
 def parse_file(input_file, all_hists):
@@ -55,10 +55,10 @@ def parse_file(input_file, all_hists):
 
 
 			# if line_number > 10000:	# Ideal length.
-			# if line_number > 100000:	# Big enough.
+			if line_number > 100000:	# Big enough.
 			# if line_number > 1000:		# Small tests.
 			# if line_number > 30000:		# Small tests.
-			if False:
+			# if False:
 				break
 
 			line_number += 1
@@ -205,14 +205,14 @@ def parse_to_root_files():
 	log_hist_templates = hists.multi_page_log_plot_hist_templates()
 
 	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data.root", hist_templates=hist_templates)
-	parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia.root", hist_templates=hist_templates)
-	parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig.root", hist_templates=hist_templates)
-	parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa.root", hist_templates=hist_templates)
 
 	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data_log.root", hist_templates=log_hist_templates)
-	parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia_log.root", hist_templates=log_hist_templates)
-	parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig_log.root", hist_templates=log_hist_templates)
-	parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa_log.root", hist_templates=log_hist_templates)
+	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia_log.root", hist_templates=log_hist_templates)
+	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig_log.root", hist_templates=log_hist_templates)
+	# parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa_log.root", hist_templates=log_hist_templates)
 
 
 

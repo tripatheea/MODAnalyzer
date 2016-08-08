@@ -176,7 +176,7 @@ print "Finished parsing all files in {} seconds. Now plotting them!".format(end 
 start = time.time()
 
 
-# create_multi_page_plot(filename=default_dir + "pT.pdf", hists=compile_hists('hardest_pT', parsed_hists))
+create_multi_page_plot(filename=default_dir + "pT.pdf", hists=compile_hists('hardest_pT', parsed_hists))
 
 # create_multi_page_plot(filename=default_dir + "phi.pdf", hists=compile_hists('hardest_phi', parsed_hists))
 
@@ -273,20 +273,20 @@ start = time.time()
 
 
 
-create_multi_page_plot(filename=default_dir + "theta_g/linear/all/zg/zg_20.pdf", hists=compile_hists_with_theory('zg_20', parsed_hists), theory=True)
-create_multi_page_plot(filename=default_dir + "theta_g/linear/all/rg/rg_20.pdf", hists=compile_hists_with_theory('rg_20', parsed_hists), theory=True)
-create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e1/e1_20.pdf", hists=compile_hists_with_theory('e1_20', parsed_hists), theory=True)
-create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e2/e2_20.pdf", hists=compile_hists_with_theory('e2_20', parsed_hists), theory=True)
-create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e05/e05_20.pdf", hists=compile_hists_with_theory('e05_20', parsed_hists), theory=True)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/zg/zg_20.pdf", hists=compile_hists_with_theory('zg_20', parsed_hists), theory=True)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/rg/rg_20.pdf", hists=compile_hists_with_theory('rg_20', parsed_hists), theory=True)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e1/e1_20.pdf", hists=compile_hists_with_theory('e1_20', parsed_hists), theory=True)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e2/e2_20.pdf", hists=compile_hists_with_theory('e2_20', parsed_hists), theory=True)
+# create_multi_page_plot(filename=default_dir + "theta_g/linear/all/e05/e05_20.pdf", hists=compile_hists_with_theory('e05_20', parsed_hists), theory=True)
 
 
 
 
-create_multi_page_plot(filename=default_dir + "theta_g/log/all/zg/zg_20.pdf", hists=compile_hists_with_theory('zg_20', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
-create_multi_page_plot(filename=default_dir + "theta_g/log/all/rg/rg_20.pdf", hists=compile_hists_with_theory('rg_20', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
-create_multi_page_plot(filename=default_dir + "theta_g/log/all/e1/e1_20.pdf", hists=compile_hists_with_theory('e1_20', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
-create_multi_page_plot(filename=default_dir + "theta_g/log/all/e2/e2_20.pdf", hists=compile_hists_with_theory('e2_20', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
-create_multi_page_plot(filename=default_dir + "theta_g/log/all/e05/e05_20.pdf", hists=compile_hists_with_theory('e05_20', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/all/zg/zg_20.pdf", hists=compile_hists_with_theory('zg_20', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/all/rg/rg_20.pdf", hists=compile_hists_with_theory('rg_20', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/all/e1/e1_20.pdf", hists=compile_hists_with_theory('e1_20', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/all/e2/e2_20.pdf", hists=compile_hists_with_theory('e2_20', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
+# create_multi_page_plot(filename=default_dir + "theta_g/log/all/e05/e05_20.pdf", hists=compile_hists_with_theory('e05_20', parsed_log_hists, x_scale='log'), theory=True, x_scale='log')
 
 
 
@@ -318,7 +318,7 @@ create_multi_page_plot(filename=default_dir + "theta_g/log/all/e05/e05_20.pdf", 
 
 
 
-# create_data_only_plot(filename=default_dir + "data_pT.pdf", hists=[ [ parsed_linear[0]['hardest_pT'][i], parsed_linear[0]['uncor_hardest_pT'][i] ] for i in range(len(parsed_linear[0]['uncor_hardest_pT'])) ], labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio\nto\nCorrected", ratio_to_index=0)
+create_data_only_plot(filename=default_dir + "data_pT.pdf", hists=[ [ parsed_linear[0]['hardest_pT'][i], parsed_linear[0]['uncor_hardest_pT'][i] ] for i in range(len(parsed_linear[0]['uncor_hardest_pT'])) ], labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio\nto\nCorrected", ratio_to_index=0)
 
 # create_data_only_plot(filename=default_dir + "jec.pdf", hists=[ [x] for x in parsed_linear[0]['jec'] ], labels=["CMS Open Data 2010"], types=["error"], colors=["black"], line_styles=[[]], ratio_plot=False)
 

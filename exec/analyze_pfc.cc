@@ -104,7 +104,7 @@ void analyze_pfc(MOD::Event & event_being_read, ofstream & output_file, int & ev
    		properties.push_back(MOD::Property("# Entry", "  Entry"));
 
          properties.push_back(MOD::Property("prescale", event_being_read.weight()));
-	   	properties.push_back(MOD::Property("jet_pT", hardest_jet.pt()));
+	   	properties.push_back(MOD::Property("hardest_pT", hardest_jet.pt()));
 	   	properties.push_back(MOD::Property("jet_eta", hardest_jet.eta()));
 	   	properties.push_back(MOD::Property("pfc_pT", hardest_jet_pfcs[i].pt()));
 	   	properties.push_back(MOD::Property("pfc_pdgId", hardest_jet_pfcs[i].user_info<MOD::InfoPFC>().pdgId()));

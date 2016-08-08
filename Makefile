@@ -21,7 +21,7 @@ OBJ  = $(patsubst %,$(OBJDIR)/%,$(_OBJ:=.o))
 
 
 # _EXEC=skim analyze turn_on convert_to_pristine analyze_data write
-_EXEC=analyze_pair_pfc analyze_pfc analyze convert_to_one_jet write analyze_data skim analyze_triggers analyze_lumi triggers
+_EXEC=analyze_pair_pfc analyze_pfc analyze convert_to_one_jet write analyze_data skim analyze_triggers analyze_lumi triggers analyze_weights
 EXEC=$(patsubst %,$(EXECDIR)/%,$(_EXEC:=.o))
 BIN=$(patsubst %,$(BINDIR)/%,$(_EXEC))
 

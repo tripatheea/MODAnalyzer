@@ -1050,7 +1050,7 @@ def trigger_hists():
 
 	for trigger_name in trigger_names:
 		additional_text = [ ( (-0.07, 0.95), 'upper left', "$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \\right| < 2.4$ \n Hardest Jet $p_{T} > 85~\mathrm{GeV}$" ) ]
-		all_hists[trigger_name] =  MODHist(copy.deepcopy(Hist(50, 0, 300)), conditions=[(['jet_quality', 3], lambda x, y: y >= x), (['trigger_fired', 1], lambda x, y: y == x)], use_prescale=True, x_scale='log', x_label="Fractional $p_T$ Loss", y_label="A.U.", y_range=(0., 1.2), additional_text=additional_text )
+		all_hists[trigger_name] =  MODHist(copy.deepcopy(Hist(50, 0, 300)), conditions=[(['jet_quality', 3], lambda x, y: y >= x), (['trig_jet_matched', 1], lambda x, y: y == x)], use_prescale=True, x_scale='log', x_label="Fractional $p_T$ Loss", y_label="A.U.", y_range=(0., 1.2), additional_text=additional_text )
 
 
 

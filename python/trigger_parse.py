@@ -18,12 +18,12 @@ import rootpy.plotting.root2matplotlib as rplt
 
 
 
-# output_directory = "./"
-output_directory = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/"
+output_directory = "./"
+# output_directory = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/"
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/"
 
-data_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/experiment/trig.dat"
-# data_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/trig.dat"
+# data_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/experiment/trig.dat"
+data_file = "/media/aashish/Transcend/experiment/trig.dat"
 
 
 
@@ -49,10 +49,11 @@ def parse_file(input_file, all_hists):
 
 
 			# if line_number > 10000:	# Ideal length.
-			if line_number > 100000:	# Big enough.
+			# if line_number > 100000000:	# Huge.
+			# if line_number > 1000000:	# Big enough.
 			# if line_number > 1000:		# Small tests.
 			# if line_number > 30000:		# Small tests.
-			# if False:
+			if False:
 				break
 
 			line_number += 1
@@ -112,7 +113,7 @@ def parse_file(input_file, all_hists):
 
 									if condition_keyword[0] == "jet_quality":
 										condition_satisfied *= int(condition_func(int(condition_keyword[1]), int(condition_func_param)))
-									elif condition_keyword[0] == "trigger_fired":
+									elif condition_keyword[0] == "trig_jet_matched":
 										# print condition_keyword[1], condition_func_param, condition_func(int(condition_keyword[1]), int(condition_func_param))
 										condition_satisfied *= int(condition_func(int(condition_keyword[1]), int(condition_func_param)))
 									else:
@@ -182,6 +183,7 @@ def parse_file(input_file, all_hists):
 				print "Some exception occured!",
 				print e
 				print line
+				continue
 
 
 	return all_hists
@@ -239,13 +241,9 @@ def root_file_to_hist(input_filename, hist_templates):
 
 def parse_to_root_files():
 	
-	print "Getting the templates."
-
 	hist_templates = hists.trigger_hists()
-	
-	print "Got the templates"
 
-	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "trig.root", hist_templates=hist_templates)
+	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "trig_main.root", hist_templates=hist_templates)
 
 def load_root_files_to_hist(log=False):
 	
@@ -253,14 +251,13 @@ def load_root_files_to_hist(log=False):
 
 	filenames = ["trig.root"]
 
-	return  [ root_file_to_hist("/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/"+ filename, hist_templates) for filename in filenames ] 
+	return  [ root_file_to_hist("./"+ filename, hist_templates) for filename in filenames ] 
 
 
 
 
 if __name__ == "__main__":
 
-	print "here"
 	
 	parse_to_root_files()
 
