@@ -97,7 +97,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    try {
       for (unsigned i = 0; i < triggers.size(); i++) {
          
-         // if (triggers[i].fired()) {
+         if (triggers[i].fired()) {
 
             fastjet::PseudoJet trigger_jet = event_being_read.trigger_jet();
 
@@ -113,8 +113,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
             properties.push_back(MOD::Property("corr_hardest_pT", trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC()));  
             properties.push_back(MOD::Property("hardest_eta", trigger_jet.eta()));  
             properties.push_back(MOD::Property("prescale", triggers[i].prescale()));
-            properties.push_back(MOD::Property("trigger_name", triggers[i].name()));         
-            properties.push_back(MOD::Property("trigger_fired", triggers[i].fired()));         
+            properties.push_back(MOD::Property("trigger_name", triggers[i].name()));
        
             string name;
    
@@ -142,7 +141,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
             properties.clear();
 
-         // }
+         }
       }
    }
    catch (exception& e) {

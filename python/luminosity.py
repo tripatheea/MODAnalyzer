@@ -139,11 +139,13 @@ def plot_integrated_recorded_lumi(cumulative=False):
   dates = [datetime.datetime.fromtimestamp( int(time) ) for time in timestamps]
 
 
-  total_lumi = sum(intg_rec_lumi)
+  total_rec_lumi = sum(intg_rec_lumi)
+  total_del_lumi = sum(intg_del_lumi)
   max_lumi = max(intg_rec_lumi)
 
-  print "Total Luminosity: {}".format(total_lumi)
-  print "Max Luminosity: {}".format(max_lumi)
+  print "Total Rec. Luminosity: {}".format(total_rec_lumi)
+  print "Total Del. Luminosity: {}".format(total_del_lumi)
+  # print "Max Luminosity: {}".format(max_lumi)
 
   
 
@@ -151,7 +153,7 @@ def plot_integrated_recorded_lumi(cumulative=False):
   # dates = [datetime.datetime.fromtimestamp( int(time) ).strftime('%m-%d') for time in timestamps]
 
   if cumulative:
-    label = "CMS Recorded: " + str(round(total_lumi, 2)) + " $\mathrm{pb}^{-1}$"
+    label = "CMS Recorded: " + str(round(total_rec_lumi, 2)) + " $\mathrm{pb}^{-1}$"
   else:
     label = "CMS Recorded, max " + str(round(max_lumi, 2)) + " $\mathrm{pb}^{-1}$/day"
 

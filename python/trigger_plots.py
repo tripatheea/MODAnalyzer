@@ -252,7 +252,7 @@ def trigger_efficiency_plot():
 start = time.time()
 
 
-# trigger_turn_on_curves()
+trigger_turn_on_curves()
 
 trigger_efficiency_plot()
 

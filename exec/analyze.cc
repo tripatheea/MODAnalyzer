@@ -101,7 +101,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    
 
 
-   vector<PseudoJet> hardest_jet_constituents = pT_0_5_GeV_selector(event_being_read.hardest_jet().constituents());
+   vector<PseudoJet> hardest_jet_constituents = pT_1_GeV_selector(event_being_read.hardest_jet().constituents());
    // vector<PseudoJet> hardest_jet_constituents = event_being_read.hardest_jet().constituents();
 
    ClusterSequence cs = ClusterSequence(hardest_jet_constituents, jet_def_cambridge);

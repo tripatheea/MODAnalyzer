@@ -58,7 +58,7 @@ def parse_file(input_file, all_hists):
 
 			line_number += 1
 
-			if line_number % 10000 == 0:
+			if line_number % 1000000 == 0:
 				print "At line number {}".format(line_number)
 
 			try:
@@ -117,6 +117,9 @@ def parse_file(input_file, all_hists):
 									if condition_keyword[0] == "jet_quality":
 										condition_satisfied *= int(condition_func(int(condition_keyword[1]), int(condition_func_param)))
 									elif condition_keyword[0] == "trig_jet_matched":
+										# print condition_keyword[1], condition_func_param, condition_func(int(condition_keyword[1]), int(condition_func_param))
+										condition_satisfied *= int(condition_func(int(condition_keyword[1]), int(condition_func_param)))
+									elif condition_keyword[0] == "trigger_fired":
 										# print condition_keyword[1], condition_func_param, condition_func(int(condition_keyword[1]), int(condition_func_param))
 										condition_satisfied *= int(condition_func(int(condition_keyword[1]), int(condition_func_param)))
 									else:
@@ -252,7 +255,7 @@ def load_root_files_to_hist(log=False):
 	
 	hist_templates = hists.trigger_hists()
 
-	filenames = ["trig.root"]
+	filenames = ["trig_main.root"]
 
 	return  [ root_file_to_hist("./"+ filename, hist_templates) for filename in filenames ] 
 
