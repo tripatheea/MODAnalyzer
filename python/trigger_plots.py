@@ -137,8 +137,8 @@ def trigger_turn_on_curves():
 
 	for i in range(len(hist_labels)):
 		
-		hist = normalize_hist( mod_hists[hist_labels[i]].hist() )
-		# hist = mod_hists[hist_labels[i]].hist()
+		# hist = normalize_hist( mod_hists[hist_labels[i]].hist() )
+		hist = mod_hists[hist_labels[i]].hist()
 
 		n_bins = hist.nbins()
 
@@ -154,7 +154,7 @@ def trigger_turn_on_curves():
 		hist.SetColor(colors[i])
 		hist.SetTitle(labels[i])
 
-		rplt.errorbar(hist, emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+		rplt.errorbar(hist, zorder=range(len(hist_labels))[len(hist_labels) - i - 1], emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
 
 
 	# Info about R, pT_cut, etc.
@@ -165,7 +165,7 @@ def trigger_turn_on_curves():
 	plt.gca().add_artist(info_legend)
 
 
-	plt.gca().set_xlabel("Trigger Jet $p_T$ (GeV)", fontsize=60, labelpad=50)
+	plt.gca().set_xlabel("Trigger Jet $p_T$ [GeV]", fontsize=60, labelpad=50)
 	plt.gca().set_ylabel("A.U.", rotation=0, fontsize=60, labelpad=65)
 
 	plt.gca().add_artist(logo_box())
@@ -179,13 +179,14 @@ def trigger_turn_on_curves():
 
 
 	plt.autoscale()
+	plt.gca().set_ylim(1e2, 1e10)
 	
 	plt.tick_params(which='major', width=5, length=25, labelsize=50)
 	plt.tick_params(which='minor', width=3, length=15)
 
 	plt.gcf().set_size_inches(30, 24, forward=1)
 
-	plt.savefig(default_dir + "trigger_turn_on_curves.pdf")
+	plt.savefig(default_dir + "trigger_turn_on.pdf")
 
 	plt.clf()
 
@@ -203,6 +204,8 @@ def trigger_efficiency_plot():
 
 	# rplt.hist(mod_hists[0].hist())
 
+
+	plots = []
 	for i in range(len(hist_labels) ):
 		
 		first_hist, second_hist = mod_hists[hist_labels[i][0]], mod_hists[hist_labels[i][1]]
@@ -212,9 +215,50 @@ def trigger_efficiency_plot():
 		ratio_hist.SetColor(colors[i])
 		ratio_hist.SetTitle(labels[i])
 
-		rplt.errorbar(ratio_hist, emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+		# rplt.errorbar(ratio_hist, emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+		plots.append( rplt.errorbar(ratio_hist, emptybins=False, alpha=0.) )
 
-	
+
+	for i in range(len(plots)):
+	    data_plot = plots[i]
+
+
+	    data_x_errors, data_y_errors = [], []
+	    for x_segment in data_plot[2][0].get_segments():
+	      data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+	    for y_segment in data_plot[2][1].get_segments():
+	      data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
+
+	    data_points_x = data_plot[0].get_xdata()
+	    data_points_y = data_plot[0].get_ydata()
+
+	    filtered_x, filtered_y, filtered_x_err, filtered_y_err = [], [], [], []
+	    for x, y, xerr, yerr in zip(data_points_x, data_points_y, data_x_errors, data_y_errors):
+	      if x > lower_pTs[i]:
+	        filtered_x.append(x)
+	        filtered_y.append(y)
+	        filtered_x_err.append(xerr)
+	        filtered_y_err.append(yerr)
+
+	    plt.errorbar(filtered_x, filtered_y, zorder=range(len(plots))[len(plots) - i - 1], color=colors[i], markeredgecolor=colors[i], label=labels[i], xerr=filtered_x_err, yerr=filtered_y_err, ls='None', alpha=1.0, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+
+
+
+	cms_turn_on_pTs = [250, 200, 150, 115, 85]
+	for i in range(0, len(hist_labels)):
+
+		if cms_turn_on_pTs[i] != 0:
+			source = "MOD"
+			plt.gca().annotate(str(cms_turn_on_pTs[i]) + " GeV", xy=(cms_turn_on_pTs[i], 1.), xycoords='data', xytext=(-100, 350),  textcoords='offset points', color=colors[i], size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[i], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
+
+		  
+	# Horizontal Line.
+	plt.plot([0] + list(mod_hists[hist_labels[i][0]].hist().x()), [1] * (1 + len(list(mod_hists[hist_labels[i][0]].hist().x()))), color="black", linewidth=5, linestyle="dashed")
+
+
+
+
+
 	# Info about R, pT_cut, etc.
 	extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 	handles = [extra]
@@ -223,7 +267,7 @@ def trigger_efficiency_plot():
 	plt.gca().add_artist(info_legend)
 
 
-	plt.gca().set_xlabel("Trigger Jet $p_T$ (GeV)", fontsize=60, labelpad=50)
+	plt.gca().set_xlabel("Trigger Jet $p_T$ [GeV]", fontsize=60, labelpad=50)
 	plt.gca().set_ylabel("A.U.", rotation=0, fontsize=60, labelpad=65)
 
 	plt.gca().add_artist(logo_box())
@@ -232,12 +276,13 @@ def trigger_efficiency_plot():
 	plt.gca().set_yscale('log')
 
 	handles, labels = plt.gca().get_legend_handles_labels()
-	legend = plt.legend(handles[::-1], labels[::-1], frameon=0, bbox_to_anchor=[0.99, 0.99])
+	legend = plt.legend(handles[::-1][:-5], labels[::-1][:-5], frameon=0, bbox_to_anchor=[0.99, 0.99])
 	ax = plt.gca().add_artist(legend)
 
 
 	plt.autoscale()
-	
+	plt.gca().set_ylim(1e-3, 5e4)
+
 	plt.tick_params(which='major', width=5, length=25, labelsize=50)
 	plt.tick_params(which='minor', width=3, length=15)
 

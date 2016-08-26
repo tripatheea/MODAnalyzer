@@ -8718,39 +8718,39 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 
 	startcolor = 'white'  # a dark olive 
-	# midcolor = '#fcffc9'    # a bright yellow
 	endcolor = 'purple'    # medium dark red
 	cmap2 = col.LinearSegmentedColormap.from_list('purple',[startcolor, endcolor])
-	# extra arguments are N=256, gamma=1.0
 	cm.register_cmap(cmap=cmap2)
 
 
 	labels = ['theory', 'data', 'pythia', 'herwig', 'sherpa']
 	colors = ['Reds', 'Greys', 'Blues', 'Greens', 'purple'] 
-	
-
+	source_labels = ["Theory (MLL)", "CMS 2010 Open Data", "Pythia 8.215", "Herwig 7.0.1", "Sherpa 2.2.1" ]
+	hatch_colors = ['gray', 'blue', 'green', 'purple']
 
 
 	counter = labels.index(which)
 
 
 	if log:
-		filename = "plots/" + get_version(input_analysis_file) + "/zg_against_theta_g/log/" + which + "_zg_against_theta_g.pdf"
+		# filename = "plots/" + get_version(input_analysis_file) + "/zg_against_theta_g/log/" + which + "_zg_against_theta_g.pdf"
+		filename = "plots/" + get_version(input_analysis_file) + "/zg_against_theta_g/big5_zg_vs_rg_" + which + "_log.pdf"
 	else:
-		filename = "plots/" + get_version(input_analysis_file) + "/zg_against_theta_g/linear/" + which + "_zg_against_theta_g.pdf"
+		filename = "plots/" + get_version(input_analysis_file) + "/zg_against_theta_g/big5_zg_vs_rg_" + which + "_linear.pdf"
 
 
-
+	lambda_value = 3.
+	z_cut = 0.1
 		
 	with PdfPages(filename) as pdf:
 		
-		lower_boundaries = [85, 115, 150, 200, 85, 150]
-		upper_boundaries = [115, 150, 200, 250, 100000., 100000.]
+		lower_boundaries = [85, 115, 150, 200, 85, 150, 250]
+		upper_boundaries = [115, 150, 200, 250, 100000., 100000., 100000.]
 		
 		for i in range(len(lower_boundaries)):
 
 			lower, upper = lower_boundaries[i], upper_boundaries[i]
-
+			np_correction_boundary = lambda_value / (lower * z_cut)
 
 			if which == "data":
 				properties = parse_file(input_analysis_file, keywords_to_populate=keywords, pT_lower_cut=lower, pT_upper_cut=upper)
@@ -8788,73 +8788,64 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 					theta_g_s.append( float(stuff[1]))
 					prescales.append( float(stuff[2]))
 
+
 			if log:
 				zg_bins = np.logspace(math.log(float(0.1), math.e), math.log(0.5, math.e), 25, base=np.e)
-				theta_g_bins = np.logspace(math.log(float(0.01), math.e), math.log(1.2, math.e), 25, base=np.e)
+				theta_g_bins = np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 25, base=np.e)
 				bins = [zg_bins, theta_g_bins]
 			else:
 				bins = [25, 25]
 
 
-
 			H, xedges, yedges = np.histogram2d(z_g_s, theta_g_s, bins=bins, weights=prescales)
 
-			# H_normalized = []
-			# for i in range(0, 25):
-			# 	current_row = []
-			# 	factor = sum(H[i])
-			# 	for j in range(0, 25):
-			# 		current_row.append(H[i][j] / factor)
-
-			# 	H_normalized.append(current_row)
-
-			H_normalized = H
-
-
-			H_normalized = np.array(H_normalized)
-			H = H_normalized
-
+			H = np.array(H)
 			H = np.rot90(H)
 			H = np.flipud(H)
 
-			# for a in range(0, len(H)):
-			# 	for b in range(0, len(H[j])):
-			# 		if str(H[a][b]) == "nan":
-			# 			H[a][b] = 0.
-			
 			Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
 
-			plt.pcolormesh(xedges,yedges, Hmasked, cmap=colors[counter])
+			if log:
+				plt.pcolor(xedges, yedges, Hmasked, cmap=colors[counter], vmin=0, vmax=20)
+			else:
+				plt.pcolor(xedges, yedges, Hmasked, cmap=colors[counter], vmin=0, vmax=10)
+
+			cbar = plt.colorbar()
+			cbar.ax.set_ylabel('A.U.', labelpad=50)
+
+			# print [[min(z_g_s), min(theta_g_s)],[min(z_g_s), np_correction_boundary],[max(z_g_s), np_correction_boundary],[max(z_g_s), min(theta_g_s)]]
+			plt.gca().add_patch(mpl.patches.Polygon([[0.1, min(theta_g_s)],[0.1, np_correction_boundary],[0.5, np_correction_boundary],[0.5, min(theta_g_s)]], hatch='/', color='red', lw=0, fill=False))
+			# plt.gca().add_patch(mpl.patches.Polygon([[0.10000000000000002, 0.01], [0.10000000000000002, 0.35294117647058826], [0.4688254770010078, 0.35294117647058826], [0.4688254770010078, 0.01]], hatch='/', color='red', lw=0, fill=False))
+
 				
 			if log:
 				plt.xscale('log')
 				plt.yscale('log')
 
 
-			cbar = plt.colorbar()
-			cbar.ax.set_ylabel('Counts')
-
+			
 			plt.xlabel('$z_g$', fontsize=75, labelpad=40)
 			plt.ylabel('$\\theta_g$', rotation=0, fontsize=75, labelpad=40)
-
-			plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
-			plt.gca().yaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
+			
 
 			plt.autoscale()
 			# plt.xlim(float(zg_cut), 0.5)
 
 			if not log:
 				plt.xlim(0.0, 0.5)
-				plt.ylim(0.0, 1.5)
+				plt.ylim(0.0, 1.0)
 			else:
-				plt.xlim(0.0, 1.0)
-				plt.ylim(0.0, 3.5)
+				plt.xlim(0.1, 1.0)
+				plt.ylim(0.01, 1.0)
+
+			plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
+			plt.gca().yaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
 
 
 			logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
 			text_box = TextArea("Preliminary", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 			logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
-			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.14, 1.0], bbox_transform = plt.gcf().transFigure)
+			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.075, 1.0], bbox_transform = plt.gcf().transFigure)
 			plt.gca().add_artist(anchored_box)
 
 
@@ -8869,13 +8860,24 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 			extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 			
-			plt.legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[0.35, 0.98], loc="upper left")	
+			legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[1.0, 1.0], loc="upper right")	
+			plt.gca().add_artist(legend)
+
+
+			# Data Source Label.
+			label = []
+			label.extend( ["Theory (MLL)"] ) 
+			additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[1.02, 1.12], loc="upper right")	
+			plt.gca().add_artist(additional_legend)
 
 
 
-
-			plt.tick_params(which='major', width=5, length=25, labelsize=70)
+			plt.tick_params(which='major', width=5, length=25, labelsize=50)
 			plt.tick_params(which='minor', width=3, length=15)
+			
+			if not log:
+				plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+				plt.gca().yaxis.set_minor_locator(MultipleLocator(0.02))
 
 			plt.gcf().set_size_inches(30, 25, forward=1)
 			plt.gcf().set_snap(True)

@@ -108,4 +108,6 @@ def plot_weights(input_filename):
 	plt.savefig("plots/weights.pdf")
 	plt.clf()
 
-plot_weights(sys.argv[1])
+
+# plot_weights(sys.argv[1])
+

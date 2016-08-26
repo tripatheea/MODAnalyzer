@@ -51,8 +51,7 @@ from matplotlib import gridspec
 from matplotlib.cbook import get_sample_data
 from matplotlib._png import read_png
 
-
-from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
+from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox, AnchoredOffsetbox, HPacker
 
 from scipy.stats import norm
 from scipy.stats import gamma
@@ -147,7 +146,9 @@ def plot_integrated_recorded_lumi(cumulative=False):
   print "Total Del. Luminosity: {}".format(total_del_lumi)
   # print "Max Luminosity: {}".format(max_lumi)
 
-  
+  rec = [(36.1 * i) / total_del_lumi for i in intg_rec_lumi]
+  deli = [(36.1 * i) / total_del_lumi for i in intg_del_lumi]
+  intg_rec_lumi, intg_del_lumi = rec, deli
 
   
   # dates = [datetime.datetime.fromtimestamp( int(time) ).strftime('%m-%d') for time in timestamps]
@@ -169,21 +170,22 @@ def plot_integrated_recorded_lumi(cumulative=False):
   plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d %b'))
   # plt.gca().xaxis.set_major_locator(mdates.MonthLocator())
 
-  plt.xlabel("Date (UTC)", labelpad=40, fontsize=60)
+  plt.xlabel("Date", labelpad=25, fontsize=60)
 
   plt.gca().ticklabel_format(axis='y', style='sci')
 
   if cumulative:
-    plt.ylabel("Total Integrated Luminosity", labelpad=50, fontsize=60)
+    plt.ylabel("Total Integrated Luminosity ($\mathrm{pb}^{-1}$)", labelpad=50, fontsize=60)
   else:
-    plt.ylabel("Integrated Luminosity", labelpad=50, fontsize=60)
+    plt.ylabel("Integrated Luminosity ($\mathrm{pb}^{-1}$)", labelpad=50, fontsize=60)
 
 
-  plt.gca().get_yaxis().set_ticks([])
+  # plt.gca().get_yaxis().set_ticks([])
 
   print max(intg_rec_lumi),
   
-  plt.legend(bbox_to_anchor=[0.007, 0.85], frameon=False, loc='upper left', fontsize=50)
+  handles, labels = plt.gca().get_legend_handles_labels()
+  plt.gca().legend(handles[::-1], labels[::-1], bbox_to_anchor=[0.007, 0.99], frameon=False, loc='upper left', fontsize=50)
 
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
@@ -194,28 +196,38 @@ def plot_integrated_recorded_lumi(cumulative=False):
   plt.autoscale()
 
   if cumulative:
-    plt.ylim(0, 100)
+    plt.ylim(0, 40)
   else:
-    plt.ylim(0, 20)
+    plt.ylim(0, 8)
 
     
   # plt.xlim(datetime.date(2010, 3, 30), datetime.date(2010, 10, 31))
 
   plt.locator_params(axis='x', nbins=5)
+  
+  plt.tick_params(which='major', width=5, length=25, labelsize=50)
+  plt.tick_params(which='minor', width=3, length=15)
+  
+  # plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
+
+  if cumulative:
+    plt.gca().yaxis.set_minor_locator(MultipleLocator(1))
+  else:
+    plt.gca().yaxis.set_minor_locator(MultipleLocator(0.2))
 
   
-  plt.tick_params(which='major', width=5, length=15, labelsize=60)
+  logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
+  text_box = TextArea("Preliminary", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+  logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
+  anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.105, 1.01], bbox_transform = plt.gcf().transFigure)
 
-  ab = AnnotationBbox(OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.15, resample=1, dpi_cor=1), (0.205, 0.840), xycoords='figure fraction', frameon=0)
-  plt.gca().add_artist(ab)
-  preliminary_text = "Prelim. (20\%)"
-  plt.gcf().text(0.270, 0.825, preliminary_text, fontsize=60, weight='bold', color='#444444', multialignment='center')
+  plt.gca().add_artist(anchored_box)
 
 
   if cumulative:
-    plt.savefig("plots/Version 5/lumi/intg_rec_lumi_cumulative.pdf")
+    plt.savefig("plots/Version 5_2/lumi_cumulative.pdf")
   else:
-    plt.savefig("plots/Version 5/lumi/intg_rec_lumi.pdf")
+    plt.savefig("plots/Version 5_2/lumi.pdf")
 
   plt.clf()
    
