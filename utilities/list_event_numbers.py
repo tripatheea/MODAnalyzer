@@ -5,9 +5,9 @@ import sys
 from collections import defaultdict
 
 input_path = sys.argv[1]
-output_path = sys.argv[2]
+output_file = sys.argv[2]
 
-def run_analyzer(input_path, output_path):
+def run_analyzer(input_path, output_file):
   to_analyze = []
   for f in os.listdir(input_path):
     if f.endswith("mod"):
@@ -16,12 +16,12 @@ def run_analyzer(input_path, output_path):
   to_analyze.sort()
 
   for f in to_analyze:
-    call(['./bin/convert_to_one_jet', input_path + f, output_path + f, output_path])
+    call(['./bin/list_event_numbers', input_path + f, output_file])
 
 
 start = time()
 
-run_analyzer(input_path, output_path)
+run_analyzer(input_path, output_file)
 
 end = time()
 

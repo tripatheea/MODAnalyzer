@@ -70,6 +70,7 @@ namespace MOD {
             const fastjet::PseudoJet & trigger_jet() const;
 
             double get_hardest_jet_jec() const;
+            double get_hardest_jet_area() const;
 
             bool trigger_jet_is_matched() const;
             

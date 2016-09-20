@@ -107,7 +107,7 @@ const std::string MOD::InfoCalibratedJet::header() const {
 	
 	if (_tag == "AK5") {
 		// This is a CMS jet.
-		ss << "# AK5" << "              px              py              pz          energy             jec            area     no_of_const     chrg_multip    neu_had_frac     neu_em_frac   chrg_had_frac    chrg_em_frac" << endl;
+		ss << "#    AK5" << "              px              py              pz          energy             jec            area     no_of_const     chrg_multip    neu_had_frac     neu_em_frac   chrg_had_frac    chrg_em_frac" << endl;
 	}	
 	
 	return ss.str();

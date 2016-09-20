@@ -128,6 +128,8 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    
    vector<MOD::Property> properties;
    
+   cout << jec << endl;
+
    properties.push_back(MOD::Property("# Entry", "  Entry"));
 
 
@@ -141,6 +143,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back( MOD::Property("frac_pT_loss", (hardest_jet.pt() - soft_drop( hardest_jet ).pt() ) / hardest_jet.pt() ) );
    properties.push_back( MOD::Property("hardest_eta", event_being_read.hardest_jet().eta()) );
    properties.push_back( MOD::Property("hardest_phi", event_being_read.hardest_jet().phi()) );
+   properties.push_back( MOD::Property("hardest_area", event_being_read.get_hardest_jet_area()) );
 
 
    vector<pair<string, double>> zg_cuts { make_pair("05", 0.05), make_pair("10", 0.1), make_pair("20", 0.2) };

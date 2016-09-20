@@ -154,7 +154,7 @@ const string MOD::Event::stringify_jet(PseudoJet jet) const {
 
    if (jet.has_user_info() && jet.user_info<MOD::InfoCalibratedJet>().tag() == "AK5") {
       // This is a CMS jet.
-      ss << "  " << jet.user_info<MOD::InfoCalibratedJet>().tag()
+      ss << "     " << jet.user_info<MOD::InfoCalibratedJet>().tag()
         << setw(16) << fixed << setprecision(8) << jet.px()
         << setw(16) << fixed << setprecision(8) << jet.py()
         << setw(16) << fixed << setprecision(8) << jet.pz()
@@ -177,12 +177,12 @@ const string MOD::Event::stringify_jet(PseudoJet jet) const {
 
 const string MOD::Event::stringify_pfc(PseudoJet particle) const {
    stringstream ss;
-   ss << "  " << particle.user_info<MOD::InfoPFC>().tag()
+   ss << "     " << particle.user_info<MOD::InfoPFC>().tag()
         << setw(16) << fixed << setprecision(8) << particle.px()
         << setw(16) << fixed << setprecision(8) << particle.py()
         << setw(16) << fixed << setprecision(8) << particle.pz()
         << setw(16) << fixed << setprecision(8) << particle.E()
-        << setw(8) << noshowpos << particle.user_info<MOD::InfoPFC>().pdgId()
+        << setw(16) << noshowpos << particle.user_info<MOD::InfoPFC>().pdgId()
         << endl;
 
    return ss.str();
@@ -194,7 +194,7 @@ string MOD::Event::make_string() const {
    
  
    file_to_write << "BeginEvent Version " << _version << " " << _data_type.first << " " << _data_type.second;  // Don't put an endl here because for "pristine", we'll put a "Hardest_Jet_Selection" here. 
-    
+
 
    if (_data_source == EXPERIMENT) { // Data is from experiment.
       
@@ -238,6 +238,7 @@ string MOD::Event::make_string() const {
 
    }
    else if (_data_source == PRISTINE) {
+      
 
       file_to_write << " Hardest_Jet_Selection" << endl;
 
@@ -251,13 +252,14 @@ string MOD::Event::make_string() const {
 
       // While it's possible to do that for all jets, we output just the hardest jet's constituents because all analyses are going to be performed on the hardest jet anyway.
 
-      file_to_write << "#  1JET" << "              px              py              pz          energy             jec          weight" << endl;
+      file_to_write << "#  1JET" << "              px              py              pz          energy             jec            area          weight" << endl;
       file_to_write  << "   1JET"
                      << setw(16) << fixed << setprecision(8) << _cms_jets[0].px()
                      << setw(16) << fixed << setprecision(8) << _cms_jets[0].py()
                      << setw(16) << fixed << setprecision(8) << _cms_jets[0].pz()
                      << setw(16) << fixed << setprecision(8) << _cms_jets[0].E()
                      << setw(16) << fixed << setprecision(8) << _cms_jets[0].user_info<MOD::InfoCalibratedJet>().JEC()
+                     << setw(16) << _cms_jets[0].user_info<MOD::InfoCalibratedJet>().area()
                      << setw(16) << _weight
                      << endl;
 
@@ -581,6 +583,9 @@ double MOD::Event::get_hardest_jet_jec() const {
    return _hardest_jet_jec;
 }
 
+double MOD::Event::get_hardest_jet_area() const {
+   return sorted_by_pt(_jets)[0].user_info<InfoCalibratedJet>().area();
+}
 
 void MOD::Event::set_trigger_jet() {
    // Get the hardest jet, apply JEC, and then eta cut.

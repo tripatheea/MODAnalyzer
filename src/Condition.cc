@@ -72,9 +72,9 @@ string MOD::Condition::make_string() const {
        << setw(16) << _event_number
        << setw(16) << _lumi_block
        << setw(16) << _valid_lumi
-       << setw(16) << _integrated_delivered_lumi
-       << setw(16) << _integrated_recorded_lumi
-       << setw(16) << _average_instantaneous_lumi
+       << setw(16) << fixed << setprecision(8) << _integrated_delivered_lumi
+       << setw(16) << fixed << setprecision(8) << _integrated_recorded_lumi
+       << setw(16) << fixed << setprecision(8) << _average_instantaneous_lumi
        << setw(16) << _npv
        << setw(16) << _timestamp
        << setw(16) << _ms_offset
