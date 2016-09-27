@@ -580,11 +580,12 @@ void MOD::Event::set_assigned_trigger() {
 
 
 double MOD::Event::get_hardest_jet_jec() const {
-   return _hardest_jet_jec;
+   return sorted_by_pt(_cms_jets)[0].user_info<InfoCalibratedJet>().JEC();
 }
 
 double MOD::Event::get_hardest_jet_area() const {
-   return sorted_by_pt(_jets)[0].user_info<InfoCalibratedJet>().area();
+   // return sorted_by_pt(_jets)[0].user_info<InfoCalibratedJet>().area();
+   return sorted_by_pt(_cms_jets)[0].user_info<InfoCalibratedJet>().area();
 }
 
 void MOD::Event::set_trigger_jet() {

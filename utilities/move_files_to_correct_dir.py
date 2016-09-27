@@ -24,7 +24,7 @@ def run_analyzer(input_path, output_path, registry_path, completed_log):
 		
 		sleep(2)
 
-		call(['rm', input_path + "/" + f])
+		# call(['rm', input_path + "/" + f])
 
 
 

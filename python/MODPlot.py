@@ -145,7 +145,7 @@ class MODPlot:
 
 		logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
 
-		anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.105, 1.0], bbox_transform = plt.gcf().transFigure)
+		anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.159, 1.0], bbox_transform = plt.gcf().transFigure)
 
 		return anchored_box
 		
@@ -297,7 +297,7 @@ class MODPlot:
 	def plot(self):
 
 		if self._ratio_plot:
-			gs = gridspec.GridSpec(nrows=2, ncols=1, height_ratios=[3, 1], wspace=1.08, hspace=0.) 
+			gs = gridspec.GridSpec(nrows=2, ncols=1, height_ratios=[3, 1], wspace=1.08, hspace=0., bottom=0.12, left=0.18) 
 			# gs.update(wspace=0.1, hspace=0.1, left=0.1, right=0.4, bottom=0.1, top=0.9) 
 			# gs.update(hspace=0.05) # set the spacing between axes. 
 			# gs.update(left=0.05, right=0.48, wspace=0.05)
@@ -753,24 +753,28 @@ class MODPlot:
 		# Axes labels.
 
 		# ax0.set_xlabel(self._x_label, fontsize=60)
-		ax0.set_ylabel(self._y_label, rotation=0, fontsize=50, labelpad=85)
+
+		if self._y_label == "A.U.":
+			ax0.set_ylabel(self._y_label, fontsize=85, y=0.5)
+		else:
+			ax0.set_ylabel(self._y_label, fontsize=105, y=0.5)
 
 		if self._ratio_plot:
-			ax1.set_xlabel(self._x_label, fontsize=60)
-			ax1.set_ylabel(self._ratio_label, rotation=0, fontsize=55, labelpad=100, y=0.31)
+			ax1.set_xlabel(self._x_label, fontsize=70, labelpad=35)
+			ax1.set_ylabel(self._ratio_label, fontsize=55, labelpad=15)
 
 		# Axes labels end.
 
 
 		self._plt.sca(ax0)
 
-		self._plt.tick_params(which='major', width=5, length=25, labelsize=50)
+		self._plt.tick_params(which='major', width=5, length=25, labelsize=70)
 		self._plt.tick_params(which='minor', width=3, length=15)
 
 		if self._ratio_plot:
 			self._plt.sca(ax1)
 			
-			self._plt.tick_params(which='major', width=5, length=25, labelsize=50)
+			self._plt.tick_params(which='major', width=5, length=25, labelsize=70)
 			self._plt.tick_params(which='minor', width=3, length=15)
 
 
@@ -830,32 +834,77 @@ class MODPlot:
 		
 
 		if self._x_scale == "log":
-			plt.sca(ax1)
-			# ax1.xaxis.set_major_formatter(mtick.FormatStrFormatter('%.0e'))
-			ax1.xaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
+			if self._ratio_plot:
+				self._plt.sca(ax1)
+				# ax1.xaxis.set_major_formatter(mtick.FormatStrFormatter('%.0e'))
+				ax1.xaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
+
+			self._plt.sca(ax0)
+
+			print self._plt.gca().get_xlim()
+
+			upper_lim = self._plt.gca().get_xlim()[1]
+			lower_lim = self._plt.gca().get_xlim()[0]
+
+			denominations = [1, 3, 5] # 1 + 1 = 2; 2 + 3 = 5; 5 + 5 = 10. 
+			multiplier = lower_lim
+
+			count = 0
+			x_ticks = [lower_lim]
+			
+			# print abs(x_ticks[-1] - upper_lim) > 1e-6
+			
+			while abs(x_ticks[-1] - upper_lim) > 1e-6:
+				
+				x_ticks.append( x_ticks[-1] + denominations[count] * multiplier )
+
+				# print x_ticks[-1] + denominations[count] * multiplier
+				
+				if count == 2:
+					count = 0
+					multiplier = x_ticks[-1]
+				else:
+					count += 1
+
+				# print x_ticks[-1]
+
+			# print x_ticks
+			self._plt.xticks(x_ticks)
+
+			if self._ratio_plot:
+				self._plt.sca(ax1)
+				self._plt.xticks(x_ticks)
+
+			# plt.xticks([0.1, 0.2, 0.5, 1.0])
 
 		if self._ratio_plot:
 			self._plt.sca(ax1)
-			self._plt.gca().get_yaxis().set_ticks( [ x for x in self._plt.gca().get_yaxis().get_majorticklocs() if x < 2.5 ] )
-
+			self._plt.gca().get_yaxis().set_ticks( [ x for x in self._plt.gca().get_yaxis().get_majorticklocs() if x < 2.5 and x > 0.] )
+		
 		# Minor ticks.
 		if not self._x_scale == "log":
 			if len(ax0.get_xaxis().get_majorticklocs()) >= 2:
 				factor = abs(ax0.get_xaxis().get_majorticklocs()[1] - ax0.get_xaxis().get_majorticklocs()[0]) / 10
 				
 				ax0.xaxis.set_minor_locator(MultipleLocator(factor))
-				ax1.xaxis.set_minor_locator(MultipleLocator(factor))
+
+				if self._ratio_plot:
+					ax1.xaxis.set_minor_locator(MultipleLocator(factor))
 
 		if not self._y_scale == "log":
 			if len(ax0.get_yaxis().get_majorticklocs()) >= 2:
 				factor = abs(ax0.get_yaxis().get_majorticklocs()[1] - ax0.get_yaxis().get_majorticklocs()[0]) / 5
 
 				ax0.yaxis.set_minor_locator(MultipleLocator(factor))
-			
-		ax1.yaxis.set_minor_locator(MultipleLocator(0.1))
+		
+		if self._ratio_plot:
+			ax1.yaxis.set_minor_locator(MultipleLocator(0.1))
 
 		# Any possible markers.
 		for marker in self._mark_regions:
+
+			print marker
+
 			ax0.plot([marker[0], marker[0]], [ax0.get_ylim()[0], marker[1] ], zorder=9999, color='red', linewidth=8, linestyle="dashed")
 
 			unit_x_minor_tick_length = abs(ax0.get_xaxis().get_majorticklocs()[1] - ax0.get_xaxis().get_majorticklocs()[0]) /  10
@@ -870,8 +919,11 @@ class MODPlot:
 
 		self._plt.gcf().set_snap(True)
 
-		# Can't use this when GridSpace params (spacing) are specified.
-		# self._plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
+		
+		# gs.tight_layout(self._plt.gcf(), h_pad=0., w_pad=0.)
+		# , wspace=1.08, hspace=0., bottom=0.12, left=0.18
+
+		
 
 	def save_plot(self, filename):
 		self._plt.savefig(filename)

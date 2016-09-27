@@ -102,14 +102,14 @@ logo_text = "Preliminary"
 parsed_linear = trigger_parse.load_root_files_to_hist()
 
 
-def logo_box():
+def logo_box(x, y):
 	
 	logo_offset_image = OffsetImage(read_png(get_sample_data(logo_location, asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
 	text_box = TextArea(logo_text, textprops=dict(color='#444444', fontsize=50, weight='bold'))
 
 	logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
 
-	anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.13, 0.90], bbox_transform = plt.gcf().transFigure)
+	anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[x, y], bbox_transform = plt.gcf().transFigure)
 
 	return anchored_box
 
@@ -165,10 +165,10 @@ def trigger_turn_on_curves():
 	plt.gca().add_artist(info_legend)
 
 
-	plt.gca().set_xlabel("Trigger Jet $p_T$ [GeV]", fontsize=60, labelpad=50)
-	plt.gca().set_ylabel("A.U.", rotation=0, fontsize=60, labelpad=65)
+	plt.gca().set_xlabel("Trigger Jet $p_T$ [GeV]", fontsize=90, labelpad=50)
+	plt.gca().set_ylabel("A.U.", rotation=0, fontsize=90, labelpad=65)
 
-	plt.gca().add_artist(logo_box())
+	plt.gca().add_artist(logo_box(0.135, 0.99))
 
 	plt.gca().xaxis.set_minor_locator(MultipleLocator(10))
 	plt.gca().set_yscale('log')
@@ -181,10 +181,12 @@ def trigger_turn_on_curves():
 	plt.autoscale()
 	plt.gca().set_ylim(1e2, 1e10)
 	
-	plt.tick_params(which='major', width=5, length=25, labelsize=50)
+	plt.tick_params(which='major', width=5, length=25, labelsize=70)
 	plt.tick_params(which='minor', width=3, length=15)
 
 	plt.gcf().set_size_inches(30, 24, forward=1)
+
+	plt.tight_layout()
 
 	plt.savefig(default_dir + "trigger_turn_on.pdf")
 
@@ -249,7 +251,7 @@ def trigger_efficiency_plot():
 
 		if cms_turn_on_pTs[i] != 0:
 			source = "MOD"
-			plt.gca().annotate(str(cms_turn_on_pTs[i]) + " GeV", xy=(cms_turn_on_pTs[i], 1.), xycoords='data', xytext=(-100, 350),  textcoords='offset points', color=colors[i], size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[i], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
+			plt.gca().annotate(str(cms_turn_on_pTs[i]) + " GeV", xy=(cms_turn_on_pTs[i], 1.), xycoords='data', xytext=(-100, 350),  textcoords='offset points', color=colors[i], size=50, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[i], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
 
 		  
 	# Horizontal Line.
@@ -267,10 +269,10 @@ def trigger_efficiency_plot():
 	plt.gca().add_artist(info_legend)
 
 
-	plt.gca().set_xlabel("Trigger Jet $p_T$ [GeV]", fontsize=60, labelpad=50)
-	plt.gca().set_ylabel("A.U.", rotation=0, fontsize=60, labelpad=65)
+	plt.gca().set_xlabel("Trigger Jet $p_T$ [GeV]", fontsize=90, labelpad=50)
+	plt.gca().set_ylabel("A.U.", rotation=0, fontsize=90, labelpad=65)
 
-	plt.gca().add_artist(logo_box())
+	plt.gca().add_artist(logo_box(0.130, 0.98))
 
 	plt.gca().xaxis.set_minor_locator(MultipleLocator(10))
 	plt.gca().set_yscale('log')
@@ -283,8 +285,10 @@ def trigger_efficiency_plot():
 	plt.autoscale()
 	plt.gca().set_ylim(1e-3, 5e4)
 
-	plt.tick_params(which='major', width=5, length=25, labelsize=50)
+	plt.tick_params(which='major', width=5, length=25, labelsize=70)
 	plt.tick_params(which='minor', width=3, length=15)
+
+	plt.tight_layout()
 
 	plt.gcf().set_size_inches(30, 24, forward=1)
 	plt.savefig(default_dir + "trigger_efficiency.pdf")

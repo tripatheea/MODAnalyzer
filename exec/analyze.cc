@@ -128,7 +128,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    
    vector<MOD::Property> properties;
    
-   cout << jec << endl;
+   // cout << jec << endl;
 
    properties.push_back(MOD::Property("# Entry", "  Entry"));
 
@@ -146,149 +146,149 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back( MOD::Property("hardest_area", event_being_read.get_hardest_jet_area()) );
 
 
-   vector<pair<string, double>> zg_cuts { make_pair("05", 0.05), make_pair("10", 0.1), make_pair("20", 0.2) };
+   // vector<pair<string, double>> zg_cuts { make_pair("05", 0.05), make_pair("10", 0.1), make_pair("20", 0.2) };
 
-   // zg, dr, and mu for zg_cuts of 0.05, 0.1 and 0.2.
+   // // zg, dr, and mu for zg_cuts of 0.05, 0.1 and 0.2.
 
-   for (unsigned i = 0; i < zg_cuts.size(); i++) {
+   // for (unsigned i = 0; i < zg_cuts.size(); i++) {
 
-      string label = zg_cuts[i].first;
-      double zg_cut = zg_cuts[i].second;
+   //    string label = zg_cuts[i].first;
+   //    double zg_cut = zg_cuts[i].second;
 
-      SoftDrop soft_drop(0.0, zg_cut);
+   //    SoftDrop soft_drop(0.0, zg_cut);
    
-      PseudoJet soft_drop_jet = soft_drop(hardest_jet);
+   //    PseudoJet soft_drop_jet = soft_drop(hardest_jet);
 
-      double zg = soft_drop_jet.structure_of<SoftDrop>().symmetry();
-      double rg = soft_drop_jet.structure_of<SoftDrop>().delta_R() / 0.5;
+   //    double zg = soft_drop_jet.structure_of<SoftDrop>().symmetry();
+   //    double rg = soft_drop_jet.structure_of<SoftDrop>().delta_R() / 0.5;
 
-      properties.push_back(MOD::Property("zg_" + label, zg));
-      properties.push_back(MOD::Property("mu_" + label, soft_drop_jet.structure_of<SoftDrop>().mu()));
+   //    properties.push_back(MOD::Property("zg_" + label, zg));
+   //    properties.push_back(MOD::Property("mu_" + label, soft_drop_jet.structure_of<SoftDrop>().mu()));
 
-      properties.push_back(MOD::Property("rg_" + label, rg));
-      properties.push_back(MOD::Property("e1_" + label, rg * zg));
-      properties.push_back(MOD::Property("e2_" + label, pow(rg, 2) * zg ));
-      properties.push_back(MOD::Property("e05_" + label, sqrt(rg) * zg ));
-   }
+   //    properties.push_back(MOD::Property("rg_" + label, rg));
+   //    properties.push_back(MOD::Property("e1_" + label, rg * zg));
+   //    properties.push_back(MOD::Property("e2_" + label, pow(rg, 2) * zg ));
+   //    properties.push_back(MOD::Property("e05_" + label, sqrt(rg) * zg ));
+   // }
 
     
 
-   // Analysis related to the effects of SoftDrop- observables before and after SoftDrop.
+   // // Analysis related to the effects of SoftDrop- observables before and after SoftDrop.
    
-   properties.push_back(MOD::Property("pT_after_SD", soft_drop_jet.pt()));
+   // properties.push_back(MOD::Property("pT_after_SD", soft_drop_jet.pt()));
 
-   properties.push_back( MOD::Property("mul_pre_SD", (int) hardest_jet_constituents.size()) );
-   properties.push_back( MOD::Property("mul_post_SD", (int) soft_drop(hardest_jet).constituents().size() ) );   
+   // properties.push_back( MOD::Property("mul_pre_SD", (int) hardest_jet_constituents.size()) );
+   // properties.push_back( MOD::Property("mul_post_SD", (int) soft_drop(hardest_jet).constituents().size() ) );   
 
-   properties.push_back( MOD::Property("mass_pre_SD", hardest_jet.m()) );
-   properties.push_back( MOD::Property("mass_post_SD", soft_drop(hardest_jet).m()) );
-
-
-   properties.push_back( MOD::Property("pT_D_pre_SD", angularity_lambda(hardest_jet, jet_radius, 2, 0)) );
-   properties.push_back( MOD::Property("pT_D_post_SD", angularity_lambda(soft_drop(hardest_jet), jet_radius, 2, 0)) );
-
-   properties.push_back( MOD::Property("LHA_pre_SD", angularity_lambda(hardest_jet, jet_radius, 1, 0.5)) );
-   properties.push_back( MOD::Property("LHA_post_SD", angularity_lambda(soft_drop(hardest_jet), jet_radius, 1, 0.5)) );
-
-   properties.push_back( MOD::Property("width_pre_SD", angularity_lambda(hardest_jet, jet_radius, 1, 1)) );
-   properties.push_back( MOD::Property("width_post_SD", angularity_lambda(soft_drop(hardest_jet), jet_radius, 1, 1)) );
-
-   properties.push_back( MOD::Property("thrust_pre_SD", angularity_lambda(hardest_jet, jet_radius, 1, 2)) );
-   properties.push_back( MOD::Property("thrust_post_SD", angularity_lambda(soft_drop(hardest_jet), jet_radius, 1, 2)) );
+   // properties.push_back( MOD::Property("mass_pre_SD", hardest_jet.m()) );
+   // properties.push_back( MOD::Property("mass_post_SD", soft_drop(hardest_jet).m()) );
 
 
+   // properties.push_back( MOD::Property("pT_D_pre_SD", angularity_lambda(hardest_jet, jet_radius, 2, 0)) );
+   // properties.push_back( MOD::Property("pT_D_post_SD", angularity_lambda(soft_drop(hardest_jet), jet_radius, 2, 0)) );
 
+   // properties.push_back( MOD::Property("LHA_pre_SD", angularity_lambda(hardest_jet, jet_radius, 1, 0.5)) );
+   // properties.push_back( MOD::Property("LHA_post_SD", angularity_lambda(soft_drop(hardest_jet), jet_radius, 1, 0.5)) );
 
+   // properties.push_back( MOD::Property("width_pre_SD", angularity_lambda(hardest_jet, jet_radius, 1, 1)) );
+   // properties.push_back( MOD::Property("width_post_SD", angularity_lambda(soft_drop(hardest_jet), jet_radius, 1, 1)) );
 
-   // ================================================================ Track Based Analysis ================================================================
+   // properties.push_back( MOD::Property("thrust_pre_SD", angularity_lambda(hardest_jet, jet_radius, 1, 2)) );
+   // properties.push_back( MOD::Property("thrust_post_SD", angularity_lambda(soft_drop(hardest_jet), jet_radius, 1, 2)) );
 
 
 
 
-   // Get all charged particles with 0.5 GeV particles removed.
-   vector<fastjet::PseudoJet> track_constituents = MOD::filter_charged(pT_0_5_GeV_selector(event_being_read.hardest_jet().constituents()));
 
-   // Cluster them using Cambridge/Alachen with infinite radius. This makes sure that we get the same jets as "regular" ak5 jets except now with just charged particles.
-   ClusterSequence cs_track(track_constituents, jet_def_cambridge);
+   // // ================================================================ Track Based Analysis ================================================================
 
-   if (cs_track.inclusive_jets().size() > 0 ) {
 
-      PseudoJet hardest_track_jet = cs_track.inclusive_jets()[0];
 
-      for (unsigned i = 0; i < zg_cuts.size(); i++) {
-         string label = zg_cuts[i].first;
-         double zg_cut = zg_cuts[i].second;
 
-         SoftDrop soft_drop_track(0.0, zg_cut);
-         PseudoJet soft_drop_jet_track = soft_drop_track(hardest_track_jet);
+   // // Get all charged particles with 0.5 GeV particles removed.
+   // vector<fastjet::PseudoJet> track_constituents = MOD::filter_charged(pT_0_5_GeV_selector(event_being_read.hardest_jet().constituents()));
 
-         double zg = soft_drop_jet_track.structure_of<SoftDrop>().symmetry();
-         double rg = soft_drop_jet_track.structure_of<SoftDrop>().delta_R() / 0.5;
+   // // Cluster them using Cambridge/Alachen with infinite radius. This makes sure that we get the same jets as "regular" ak5 jets except now with just charged particles.
+   // ClusterSequence cs_track(track_constituents, jet_def_cambridge);
+
+   // if (cs_track.inclusive_jets().size() > 0 ) {
+
+   //    PseudoJet hardest_track_jet = cs_track.inclusive_jets()[0];
+
+   //    for (unsigned i = 0; i < zg_cuts.size(); i++) {
+   //       string label = zg_cuts[i].first;
+   //       double zg_cut = zg_cuts[i].second;
+
+   //       SoftDrop soft_drop_track(0.0, zg_cut);
+   //       PseudoJet soft_drop_jet_track = soft_drop_track(hardest_track_jet);
+
+   //       double zg = soft_drop_jet_track.structure_of<SoftDrop>().symmetry();
+   //       double rg = soft_drop_jet_track.structure_of<SoftDrop>().delta_R() / 0.5;
        
 
-         properties.push_back(MOD::Property("track_zg_" + label, zg));
-         properties.push_back(MOD::Property("track_mu_" + label, soft_drop_jet_track.structure_of<SoftDrop>().mu()));
+   //       properties.push_back(MOD::Property("track_zg_" + label, zg));
+   //       properties.push_back(MOD::Property("track_mu_" + label, soft_drop_jet_track.structure_of<SoftDrop>().mu()));
 
-         properties.push_back(MOD::Property("track_rg_" + label, rg));
-         properties.push_back(MOD::Property("track_e1_" + label, rg * zg));
-         properties.push_back(MOD::Property("track_e2_" + label, pow(rg, 2) * zg ));
-         properties.push_back(MOD::Property("track_e05_" + label, sqrt(rg) * zg ));
-      }
+   //       properties.push_back(MOD::Property("track_rg_" + label, rg));
+   //       properties.push_back(MOD::Property("track_e1_" + label, rg * zg));
+   //       properties.push_back(MOD::Property("track_e2_" + label, pow(rg, 2) * zg ));
+   //       properties.push_back(MOD::Property("track_e05_" + label, sqrt(rg) * zg ));
+   //    }
 
-      properties.push_back( MOD::Property("track_mul_pre_SD", (int) hardest_track_jet.constituents().size()) );
-      properties.push_back( MOD::Property("track_mul_post_SD", (int) soft_drop(hardest_track_jet).constituents().size()) );
+   //    properties.push_back( MOD::Property("track_mul_pre_SD", (int) hardest_track_jet.constituents().size()) );
+   //    properties.push_back( MOD::Property("track_mul_post_SD", (int) soft_drop(hardest_track_jet).constituents().size()) );
 
-      properties.push_back( MOD::Property("track_mass_pre_SD", hardest_track_jet.m()) );
-      properties.push_back( MOD::Property("track_mass_post_SD", soft_drop(hardest_track_jet).m()) );
-
-
-      properties.push_back( MOD::Property("track_pT_D_pre_SD", angularity_lambda(hardest_track_jet, jet_radius, 2, 0)) );
-      properties.push_back( MOD::Property("track_pT_D_post_SD", angularity_lambda(soft_drop(hardest_track_jet), jet_radius, 2, 0)) );
-
-      properties.push_back( MOD::Property("track_LHA_pre_SD", angularity_lambda(hardest_track_jet, jet_radius, 1, 0.5)) );
-      properties.push_back( MOD::Property("track_LHA_post_SD", angularity_lambda(soft_drop(hardest_track_jet), jet_radius, 1, 0.5)) );
-
-      properties.push_back( MOD::Property("track_width_pre_SD", angularity_lambda(hardest_track_jet, jet_radius, 1, 1)) );
-      properties.push_back( MOD::Property("track_width_post_SD", angularity_lambda(soft_drop(hardest_track_jet), jet_radius, 1, 1)) );
-
-      properties.push_back( MOD::Property("track_thrust_pre_SD", angularity_lambda(hardest_track_jet, jet_radius, 1, 2)) );
-      properties.push_back( MOD::Property("track_thrust_post_SD", angularity_lambda(soft_drop(hardest_track_jet), jet_radius, 1, 2)) );
-
-   }
-   else {
-
-      for (unsigned i = 0; i < zg_cuts.size(); i++) {
-         string label = zg_cuts[i].first;
-         properties.push_back(MOD::Property("track_zg_" + label, -1.0));
-         properties.push_back(MOD::Property("track_mu_" + label, -1.0));
-
-         properties.push_back(MOD::Property("track_rg_" + label, -1.));
-         properties.push_back(MOD::Property("track_e1_" + label, -1.));
-         properties.push_back(MOD::Property("track_e2_" + label, -1.));
-         properties.push_back(MOD::Property("track_e05_" + label, -1.));
-      }
-
-      properties.push_back( MOD::Property("track_mul_pre_SD", -1. ));
-      properties.push_back( MOD::Property("track_mul_post_SD", -1. ));
-
-      properties.push_back( MOD::Property("track_mass_pre_SD", -1. ));
-      properties.push_back( MOD::Property("track_mass_post_SD", -1. ));
+   //    properties.push_back( MOD::Property("track_mass_pre_SD", hardest_track_jet.m()) );
+   //    properties.push_back( MOD::Property("track_mass_post_SD", soft_drop(hardest_track_jet).m()) );
 
 
-      properties.push_back( MOD::Property("track_pT_D_pre_SD", -1.) );
-      properties.push_back( MOD::Property("track_pT_D_post_SD", -1.) );
+   //    properties.push_back( MOD::Property("track_pT_D_pre_SD", angularity_lambda(hardest_track_jet, jet_radius, 2, 0)) );
+   //    properties.push_back( MOD::Property("track_pT_D_post_SD", angularity_lambda(soft_drop(hardest_track_jet), jet_radius, 2, 0)) );
 
-      properties.push_back( MOD::Property("track_LHA_pre_SD", -1.) );
-      properties.push_back( MOD::Property("track_LHA_post_SD", -1.) );
+   //    properties.push_back( MOD::Property("track_LHA_pre_SD", angularity_lambda(hardest_track_jet, jet_radius, 1, 0.5)) );
+   //    properties.push_back( MOD::Property("track_LHA_post_SD", angularity_lambda(soft_drop(hardest_track_jet), jet_radius, 1, 0.5)) );
 
-      properties.push_back( MOD::Property("track_width_pre_SD", -1.) );
-      properties.push_back( MOD::Property("track_width_post_SD", -1.) );
+   //    properties.push_back( MOD::Property("track_width_pre_SD", angularity_lambda(hardest_track_jet, jet_radius, 1, 1)) );
+   //    properties.push_back( MOD::Property("track_width_post_SD", angularity_lambda(soft_drop(hardest_track_jet), jet_radius, 1, 1)) );
 
-      properties.push_back( MOD::Property("track_thrust_pre_SD", -1.) );
-      properties.push_back( MOD::Property("track_thrust_post_SD", -1.) );
+   //    properties.push_back( MOD::Property("track_thrust_pre_SD", angularity_lambda(hardest_track_jet, jet_radius, 1, 2)) );
+   //    properties.push_back( MOD::Property("track_thrust_post_SD", angularity_lambda(soft_drop(hardest_track_jet), jet_radius, 1, 2)) );
+
+   // }
+   // else {
+
+   //    for (unsigned i = 0; i < zg_cuts.size(); i++) {
+   //       string label = zg_cuts[i].first;
+   //       properties.push_back(MOD::Property("track_zg_" + label, -1.0));
+   //       properties.push_back(MOD::Property("track_mu_" + label, -1.0));
+
+   //       properties.push_back(MOD::Property("track_rg_" + label, -1.));
+   //       properties.push_back(MOD::Property("track_e1_" + label, -1.));
+   //       properties.push_back(MOD::Property("track_e2_" + label, -1.));
+   //       properties.push_back(MOD::Property("track_e05_" + label, -1.));
+   //    }
+
+   //    properties.push_back( MOD::Property("track_mul_pre_SD", -1. ));
+   //    properties.push_back( MOD::Property("track_mul_post_SD", -1. ));
+
+   //    properties.push_back( MOD::Property("track_mass_pre_SD", -1. ));
+   //    properties.push_back( MOD::Property("track_mass_post_SD", -1. ));
 
 
-   }
+   //    properties.push_back( MOD::Property("track_pT_D_pre_SD", -1.) );
+   //    properties.push_back( MOD::Property("track_pT_D_post_SD", -1.) );
+
+   //    properties.push_back( MOD::Property("track_LHA_pre_SD", -1.) );
+   //    properties.push_back( MOD::Property("track_LHA_post_SD", -1.) );
+
+   //    properties.push_back( MOD::Property("track_width_pre_SD", -1.) );
+   //    properties.push_back( MOD::Property("track_width_post_SD", -1.) );
+
+   //    properties.push_back( MOD::Property("track_thrust_pre_SD", -1.) );
+   //    properties.push_back( MOD::Property("track_thrust_post_SD", -1.) );
+
+
+   // }
  
    
 

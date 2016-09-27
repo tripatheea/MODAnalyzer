@@ -130,8 +130,8 @@ def two_dim_plots():
 	cmap2 = mpl.colors.LinearSegmentedColormap.from_list('purple',[startcolor, endcolor])
 	cm.register_cmap(cmap=cmap2)
 
-	lower_boundaries = [85, 115, 150, 200, 85, 150]
-	upper_boundaries = [115, 150, 200, 250, 100000., 100000.]
+	lower_boundaries = [85, 115, 150, 200, 85, 150, 250]
+	upper_boundaries = [115, 150, 200, 250, 100000., 100000., 100000.]
 
 	lambda_value = 3.
 	z_cut = 0.1
@@ -184,8 +184,8 @@ def two_dim_plots():
 
 				plt.pcolor(xedges,yedges, Hmasked, cmap=color, vmin=0, vmax=10)
 
-				cbar = plt.colorbar()
-				cbar.ax.set_ylabel('A.U.', labelpad=50)
+				cbar = plt.colorbar(ticks=[2 * i for i in range(6)])
+				cbar.ax.set_ylabel('$\\frac{1}{\sigma^2} \\frac{\mathrm{d}^2 \sigma}{\mathrm{d} z_g \mathrm{d} \\theta_g}$', labelpad=150, fontsize=105, rotation=0)
 				# cbar.ax.set_ylim(0, 24)
 
 				
@@ -198,24 +198,24 @@ def two_dim_plots():
 
 				extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 			
-				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[1.0, 1.0], loc="upper right")
+				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[0.98, 0.98], loc="upper right")
 				plt.gca().add_artist(additional_legend)
 
 
 				# Data Source Label.
 				label = []
 				label.extend( [source_label] ) 
-				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[1.02, 1.12], loc="upper right")	
+				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=60, bbox_to_anchor=[1.02, 1.12], loc="upper right")	
 				plt.gca().add_artist(additional_legend)
 
 
-				plt.xlabel('$z_g$', fontsize=75, labelpad=40)
-				plt.ylabel('$\\theta_g$', rotation=0, fontsize=75, labelpad=40)
+				plt.xlabel('$z_g$', fontsize=90, labelpad=40)
+				plt.ylabel('$\\theta_g$', rotation=0, fontsize=90, labelpad=40)
 
 				# plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
 				# plt.gca().yaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
 
-				plt.tick_params(which='major', width=5, length=25, labelsize=50)
+				plt.tick_params(which='major', width=5, length=25, labelsize=70)
 				plt.tick_params(which='minor', width=3, length=15)
 				
 				plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
@@ -230,7 +230,7 @@ def two_dim_plots():
 				logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
 				text_box = TextArea("Preliminary", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 				logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
-				anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.075, 1.0], bbox_transform = plt.gcf().transFigure)
+				anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.086, 1.0], bbox_transform = plt.gcf().transFigure)
 				plt.gca().add_artist(anchored_box)
 
 				plt.gcf().set_size_inches(30, 25, forward=1)
@@ -312,9 +312,10 @@ def two_dim_log_plots():
 				Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
 
 				plt.pcolor(xedges,yedges, Hmasked, cmap=color, vmin=0, vmax=20)
-				cbar = plt.colorbar()
-				cbar.ax.set_ylabel('A.U.', labelpad=50)
-				# cbar.ax.set_ylim(0, 24)
+				
+				cbar = plt.colorbar(ticks=[4 * i for i in range(6)])
+				cbar.ax.tick_params(labelsize=70) 
+				cbar.ax.set_ylabel('$\\frac{z_g \\theta_g}{\sigma^2} \\frac{\mathrm{d}^2 \sigma}{\mathrm{d} z_g \mathrm{d} \\theta_g}$', labelpad=150, fontsize=105, rotation=0)
 
 
 				label = []
@@ -325,26 +326,20 @@ def two_dim_log_plots():
 
 				extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 			
-				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[1.0, 1.0], loc="upper right")	
+				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[0.98, 0.98], loc="upper right")	
 				plt.gca().add_artist(additional_legend)
 
 				# Data Source Label.
 				label = []
 				label.extend( [source_label] ) 
-				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[1.02, 1.12], loc="upper right")	
+				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=60, bbox_to_anchor=[1.15, 1.12], loc="upper right")	
 				plt.gca().add_artist(additional_legend)
 
-				plt.xlabel('$z_g$', fontsize=75, labelpad=40)
-				plt.ylabel('$\\theta_g$', rotation=0, fontsize=75, labelpad=40)
+				plt.xlabel('$z_g$', fontsize=90, labelpad=40)
+				plt.ylabel('$\\theta_g$', rotation=0, fontsize=90, labelpad=40)
 
-				
-				plt.gca().set_xticks( [0.1, 1.0] )
-				plt.gca().set_xticklabels( ["0.1", "1.0"] )
 
-				plt.gca().set_yticks( [0.01, 0.1, 1.0] )
-				plt.gca().set_yticklabels( ["0.01", "0.1", "1.0"] )
-
-				plt.tick_params(which='major', width=5, length=25, labelsize=50)
+				plt.tick_params(which='major', width=5, length=25, labelsize=70)
 				plt.tick_params(which='minor', width=3, length=15)
 
 				plt.xscale('log')
@@ -357,11 +352,13 @@ def two_dim_log_plots():
 				plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
 				plt.gca().yaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
 
+				plt.xticks([0.1, 0.2, 0.5, 1.0])
+				plt.yticks([0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0])
 
 				logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
 				text_box = TextArea("Preliminary", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 				logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
-				anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.075, 1.0], bbox_transform = plt.gcf().transFigure)
+				anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.100, 1.0], bbox_transform = plt.gcf().transFigure)
 				plt.gca().add_artist(anchored_box)
 
 				plt.gcf().set_size_inches(30, 25, forward=1)

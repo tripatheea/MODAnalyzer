@@ -59,6 +59,13 @@ from scipy.stats import binned_statistic
 
 import rootpy.plotting.views
 
+import matplotlib.backends.backend_pdf
+from matplotlib.externals import six
+from matplotlib.backends.backend_pdf import Name, Op
+from matplotlib.transforms import Affine2D
+
+
+
 input_analysis_file = sys.argv[1]
 
 
@@ -8705,11 +8712,55 @@ def count_events(pT_lower_cut=150, pT_upper_cut=20000):
 
 
 
+def setCustomHatchWidth(customWidth):
 
+	def _writeHatches(self):
+		hatchDict = dict()
+		sidelen = 72.0
+		for hatch_style, name in six.iteritems(self.hatchPatterns):
+			ob = self.reserveObject('hatch pattern')
+			hatchDict[name] = ob
+			res = {'Procsets':
+				   [Name(x) for x in "PDF Text ImageB ImageC ImageI".split()]}
+			self.beginStream(
+				ob.id, None,
+				{'Type': Name('Pattern'),
+				 'PatternType': 1, 'PaintType': 1, 'TilingType': 1,
+				 'BBox': [0, 0, sidelen, sidelen],
+				 'XStep': sidelen, 'YStep': sidelen,
+				 'Resources': res})
+
+			stroke_rgb, fill_rgb, path = hatch_style
+			self.output(stroke_rgb[0], stroke_rgb[1], stroke_rgb[2],
+						Op.setrgb_stroke)
+			if fill_rgb is not None:
+				self.output(fill_rgb[0], fill_rgb[1], fill_rgb[2],
+							Op.setrgb_nonstroke,
+							0, 0, sidelen, sidelen, Op.rectangle,
+							Op.fill)
+
+			self.output(customWidth, Op.setlinewidth)
+
+			# TODO: We could make this dpi-dependent, but that would be
+			# an API change
+			self.output(*self.pathOperations(
+				mpl.path.Path.hatch(path),
+				Affine2D().scale(sidelen),
+				simplify=False))
+			self.output(Op.stroke)
+
+			self.endStream()
+		self.writeObject(self.hatchObject, hatchDict)
+
+	mpl.backends.backend_pdf.PdfFile.writeHatches = _writeHatches
 
 
 def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log=False, which='data'):
 	
+
+	
+
+
 	zg_cut = float(zg_cut)
 
 	
@@ -8795,14 +8846,19 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 				bins = [zg_bins, theta_g_bins]
 			else:
 				bins = [25, 25]
+				# zg_bins = np.arange(0.1, 0.5, (0.5 - 0.1) / 25)
+				# theta_g_bins = np.arange(0., 1.0, (1.0 - 0.0) / 25)
+				# bins = [zg_bins, theta_g_bins]
 
 
+				
 			H, xedges, yedges = np.histogram2d(z_g_s, theta_g_s, bins=bins, weights=prescales)
 
 			H = np.array(H)
 			H = np.rot90(H)
 			H = np.flipud(H)
 
+			# Hmasked = H
 			Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
 
 			if log:
@@ -8810,12 +8866,50 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 			else:
 				plt.pcolor(xedges, yedges, Hmasked, cmap=colors[counter], vmin=0, vmax=10)
 
-			cbar = plt.colorbar()
-			cbar.ax.set_ylabel('A.U.', labelpad=50)
+			if log:
+				cbar = plt.colorbar(ticks=[4 * i for i in range(6)])
+			else:
+				cbar = plt.colorbar(ticks=[2 * i for i in range(6)])
 
-			# print [[min(z_g_s), min(theta_g_s)],[min(z_g_s), np_correction_boundary],[max(z_g_s), np_correction_boundary],[max(z_g_s), min(theta_g_s)]]
-			plt.gca().add_patch(mpl.patches.Polygon([[0.1, min(theta_g_s)],[0.1, np_correction_boundary],[0.5, np_correction_boundary],[0.5, min(theta_g_s)]], hatch='/', color='red', lw=0, fill=False))
-			# plt.gca().add_patch(mpl.patches.Polygon([[0.10000000000000002, 0.01], [0.10000000000000002, 0.35294117647058826], [0.4688254770010078, 0.35294117647058826], [0.4688254770010078, 0.01]], hatch='/', color='red', lw=0, fill=False))
+			cbar.ax.tick_params(labelsize=70) 
+
+			if log:
+				cbar.ax.set_ylabel('$\\frac{z_g \\theta_g}{\sigma^2} \\frac{\mathrm{d}^2 \sigma}{\mathrm{d} z_g \mathrm{d} \\theta_g}$', labelpad=150, fontsize=105, rotation=0)
+			else:
+				cbar.ax.set_ylabel('$\\frac{1}{\sigma^2} \\frac{\mathrm{d}^2 \sigma}{\mathrm{d} z_g \mathrm{d} \\theta_g}$', labelpad=150, fontsize=105, rotation=0)
+
+
+			# Hashing.
+
+			# For each value of z_g, find the bounary value for theta_g.
+			R = 0.5
+			p_T = lower
+			LAMBDA = 1.
+			theta_g = lambda zg: LAMBDA / (zg * p_T * R)
+
+			boundary_z_g_s = z_g_s
+			boundary_theta_g_s = map(theta_g, boundary_z_g_s)
+
+			
+			
+			if log:
+				polygon_coords = [[0.10, 0.010]]
+				polygon_coords.extend([[0.1, theta_g(0.1)]])
+				polygon_coords.extend([[z, theta] for z, theta in zip(boundary_z_g_s, boundary_theta_g_s)])
+				polygon_coords.append([0.5, theta_g(0.5)])
+				polygon_coords.append([0.5, 0.010])
+			else:
+				polygon_coords = [[0.1, min(theta_g_s)]]
+				polygon_coords.extend([[0.1, theta_g(0.1)]])
+
+				polygon_coords.extend([[z, theta] for z, theta in zip(boundary_z_g_s, boundary_theta_g_s) if z >= 0.1 and theta >= 0.04])
+
+				polygon_coords.append([0.5, min(theta_g_s)])
+
+
+	
+			polygon = mpl.patches.Polygon(polygon_coords, hatch="/", color="red", lw=0, fill=False)
+			plt.gca().add_patch(polygon)
 
 				
 			if log:
@@ -8824,8 +8918,8 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 
 			
-			plt.xlabel('$z_g$', fontsize=75, labelpad=40)
-			plt.ylabel('$\\theta_g$', rotation=0, fontsize=75, labelpad=40)
+			plt.xlabel('$z_g$', fontsize=90, labelpad=40)
+			plt.ylabel('$\\theta_g$', rotation=0, fontsize=90, labelpad=40)
 			
 
 			plt.autoscale()
@@ -8842,10 +8936,11 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 			plt.gca().yaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
 
 
+
 			logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
 			text_box = TextArea("Preliminary", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 			logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
-			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.075, 1.0], bbox_transform = plt.gcf().transFigure)
+			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.105, 1.0], bbox_transform = plt.gcf().transFigure)
 			plt.gca().add_artist(anchored_box)
 
 
@@ -8860,30 +8955,36 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 			extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 			
-			legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[1.0, 1.0], loc="upper right")	
+			legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[0.98, 0.98], loc="upper right")	
 			plt.gca().add_artist(legend)
 
 
 			# Data Source Label.
 			label = []
 			label.extend( ["Theory (MLL)"] ) 
-			additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[1.02, 1.12], loc="upper right")	
+			additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=60, bbox_to_anchor=[1.02, 1.12], loc="upper right")	
 			plt.gca().add_artist(additional_legend)
 
 
+			if log:
+				plt.xticks([0.1, 0.2, 0.5, 1.0])
+				plt.yticks([0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0])
 
-			plt.tick_params(which='major', width=5, length=25, labelsize=50)
+			plt.tick_params(which='major', width=5, length=25, labelsize=70)
 			plt.tick_params(which='minor', width=3, length=15)
 			
 			if not log:
 				plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
 				plt.gca().yaxis.set_minor_locator(MultipleLocator(0.02))
 
+
+
 			plt.gcf().set_size_inches(30, 25, forward=1)
 			plt.gcf().set_snap(True)
 			plt.tight_layout(pad=1.08, h_pad=1.08, w_pad=1.08)
 
 
+			setCustomHatchWidth(5)
 			pdf.savefig()
 
 			plt.close(plt.gcf())
