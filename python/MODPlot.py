@@ -87,7 +87,7 @@ plt.rc('font', family='serif', size=43)
 
 class MODPlot:
 
-	def __init__(self, hists, plot_types, plot_colors, plot_labels, line_styles, x_scale='linear', y_scale='linear', mark_regions=[], ratio_plot=False, ratio_to_index=-1, ratio_label="", x_label="", y_label="", x_lims=(0, -1), y_lims=(0, -1), legend_location=(1., 1.)):
+	def __init__(self, hists, plot_types, plot_colors, plot_labels, line_styles, x_scale='linear', y_scale='linear', mark_regions=[], ratio_plot=False, ratio_to_index=-1, ratio_label="", x_label="", y_label="", x_lims=(0, -1), y_lims=(0, -1), legend_location=('upper right', (1., 1.))):
 		
 		self._hists = hists
 		self._plot_types = plot_types
@@ -462,7 +462,7 @@ class MODPlot:
 		if self._ratio_plot:
 
 			if self._plot_types[self._ratio_to_index] == "hist" or self._plot_types[self._ratio_to_index] == "error":
-				print "ratio to something else"
+				# print "ratio to something else"
 
 				denominator_hist = self._hists[self._ratio_to_index].hist()
 				
@@ -575,7 +575,7 @@ class MODPlot:
 						
 
 			elif self._plot_types[self._ratio_to_index] == "theory":
-				print "ratio to theory"
+				# print "ratio to theory"
 
 				denominator_x_s = self._hists[self._ratio_to_index][0]
 				denominator_y_line_s = self._hists[self._ratio_to_index][2]
@@ -731,7 +731,9 @@ class MODPlot:
 
 				handler_map[line] = HandlerLine2D(marker_pad=0)
 
-		legend = ax0.legend(handles, labels, frameon=0, fontsize=50, handler_map=handler_map, bbox_to_anchor=self._legend_location, loc="upper right" )
+
+		legend = ax0.legend(handles, labels, frameon=0, fontsize=60, handler_map=handler_map, bbox_to_anchor=self._legend_location[1], loc=self._legend_location[0] )
+		# legend = ax0.legend(handles, labels, frameon=0, fontsize=60, handler_map=handler_map, bbox_to_anchor=self._legend_location, loc="upper left" )
 		ax0.add_artist(legend)
 
 		# Any additional texts.
@@ -741,7 +743,7 @@ class MODPlot:
 		for position, anchor_location, text in self._hists[0].additional_text():
 			texts = text.split("\n")
 			ax0.legend( [extra] * len(texts), texts, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=position, loc=anchor_location)
-		
+			
 
 
 		
@@ -754,14 +756,14 @@ class MODPlot:
 
 		# ax0.set_xlabel(self._x_label, fontsize=60)
 
-		if self._y_label == "A.U.":
-			ax0.set_ylabel(self._y_label, fontsize=85, y=0.5)
+		if "$" in self._y_label:
+			ax0.set_ylabel(self._y_label, fontsize=105, y=0.5, rotation=0, labelpad=120)
 		else:
-			ax0.set_ylabel(self._y_label, fontsize=105, y=0.5)
+			ax0.set_ylabel(self._y_label, fontsize=85, y=0.5, labelpad=25)
 
 		if self._ratio_plot:
 			ax1.set_xlabel(self._x_label, fontsize=70, labelpad=35)
-			ax1.set_ylabel(self._ratio_label, fontsize=55, labelpad=15)
+			ax1.set_ylabel(self._ratio_label, fontsize=55, labelpad=25)
 
 		# Axes labels end.
 
@@ -841,32 +843,60 @@ class MODPlot:
 
 			self._plt.sca(ax0)
 
-			print self._plt.gca().get_xlim()
+			# print self._plt.gca().get_xlim()
 
 			upper_lim = self._plt.gca().get_xlim()[1]
 			lower_lim = self._plt.gca().get_xlim()[0]
 
-			denominations = [1, 3, 5] # 1 + 1 = 2; 2 + 3 = 5; 5 + 5 = 10. 
+			# print lower_lim
+
+			if lower_lim < 0.01:
+				denominations = [9] # 1 + 9 = 10.
+			else:
+				denominations = [1, 3, 5] # 1 + 1 = 2; 2 + 3 = 5; 5 + 5 = 10. 
+
 			multiplier = lower_lim
 
 			count = 0
 			x_ticks = [lower_lim]
 			
 			# print abs(x_ticks[-1] - upper_lim) > 1e-6
+	
+
+			if float(upper_lim) <= 5.:
+
+				while abs(x_ticks[-1] - upper_lim) > 1e-6:
+					
 			
-			while abs(x_ticks[-1] - upper_lim) > 1e-6:
-				
-				x_ticks.append( x_ticks[-1] + denominations[count] * multiplier )
+					x_ticks.append( x_ticks[-1] + denominations[count] * multiplier )
 
-				# print x_ticks[-1] + denominations[count] * multiplier
-				
-				if count == 2:
-					count = 0
-					multiplier = x_ticks[-1]
-				else:
-					count += 1
+					# print x_ticks[-1] + denominations[count] * multiplier
+					
+					if count == (len(denominations) - 1):
+						count = 0
+						multiplier = x_ticks[-1]
+					else:
+						count += 1
 
-				# print x_ticks[-1]
+					# print x_ticks[-1]
+			else:
+				# print abs(x_ticks[-1] - upper_lim)
+				# while abs(x_ticks[-1] - upper_lim) > 20:
+					
+				# 	x_ticks.append( x_ticks[-1] + denominations[count] * multiplier )
+
+				# 	# print x_ticks[-1] + denominations[count] * multiplier
+					
+				# 	if count == 2:
+				# 		count = 0
+				# 		multiplier = x_ticks[-1]
+				# 	else:
+				# 		count += 1
+				pass
+
+				x_ticks = [100, 200, 500, 1000, 2000]
+
+
 
 			# print x_ticks
 			self._plt.xticks(x_ticks)
@@ -875,7 +905,6 @@ class MODPlot:
 				self._plt.sca(ax1)
 				self._plt.xticks(x_ticks)
 
-			# plt.xticks([0.1, 0.2, 0.5, 1.0])
 
 		if self._ratio_plot:
 			self._plt.sca(ax1)
@@ -903,7 +932,7 @@ class MODPlot:
 		# Any possible markers.
 		for marker in self._mark_regions:
 
-			print marker
+			# print marker
 
 			ax0.plot([marker[0], marker[0]], [ax0.get_ylim()[0], marker[1] ], zorder=9999, color='red', linewidth=8, linestyle="dashed")
 
@@ -984,7 +1013,7 @@ def create_multi_page_plot(filename, hists, theory=False, x_scale='linear'):
 
 
 
-def create_data_only_plot(filename, hists, labels, types, colors, line_styles, ratio_plot=True, ratio_to_label="", ratio_to_index=1):
+def create_data_only_plot(filename, hists, labels, types, colors, line_styles, ratio_plot=True, ratio_to_label="", ratio_to_index=1, x_scale='linear'):
 	# mod_hists is a list of MODHist objects.
 
 	with PdfPages(filename) as pdf:

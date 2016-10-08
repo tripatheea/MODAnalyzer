@@ -26,6 +26,9 @@ MOD::InfoCalibratedJet::InfoCalibratedJet(std::string tag) : _tag(tag)
 MOD::InfoCalibratedJet::InfoCalibratedJet(std::string tag, double JEC) : _tag(tag), _JEC(JEC)
 {}
 
+MOD::InfoCalibratedJet::InfoCalibratedJet(std::string tag, double JEC, double area) : _tag(tag), _JEC(JEC), _area(area)
+{}
+
 const string MOD::InfoCalibratedJet::tag() const {
   return _tag;
 }

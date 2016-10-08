@@ -378,6 +378,7 @@ bool MOD::Event::read_event(istream & data_stream) {
 
       int version;
       double weight;
+      double area;
       string tag, version_keyword, a, b, c;
       double px, py, pz, energy, jec;
 
@@ -406,12 +407,12 @@ bool MOD::Event::read_event(istream & data_stream) {
             try {
                set_data_source(PRISTINE);
                
-               stream >> tag >> px >> py >> pz >> energy >> jec >> weight;
+               stream >> tag >> px >> py >> pz >> energy >> jec >> area >> weight;
 
                _weight = weight;
 
                PseudoJet jet = PseudoJet(px, py, pz, energy);
-               jet.set_user_info( new MOD::InfoCalibratedJet("1JET", jec) );
+               jet.set_user_info( new MOD::InfoCalibratedJet("1JET", jec, area) );
                vector<PseudoJet> jets{jet};
                
                _cms_jets = jets;

@@ -21,14 +21,16 @@ import rootpy.plotting.root2matplotlib as rplt
 # output_directory = "/home/aashish/root/macros/MODAnalyzer/parsed_root_files/"
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/"
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/"
-output_directory = "/home/aashish/"
+# output_directory = "/home/aashish/"
+output_directory = "/home/aashish/final_analyzed/"
 
-# data_file = "/media/aashish/My Files/pristine.dat"
-data_file = "/home/aashish/pristine_small.dat"
-pythia_file = "/media/aashish/My Files/pythia.dat"
-herwig_file = "/media/aashish/My Files/herwig.dat"
-# sherpa_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/mc/sherpa.dat"
-sherpa_file = "/media/aashish/My Files/sherpa.dat"
+
+
+
+data_file   = "/home/aashish/final_analyzed/pristine.dat"
+pythia_file = "/home/aashish/final_analyzed/pythia.dat"
+herwig_file = "/home/aashish/final_analyzed/herwig.dat"
+sherpa_file = "/home/aashish/final_analyzed/sherpa.dat"
 
 
 pfc_data_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/pfc.dat"
@@ -39,10 +41,10 @@ pfc_sherpa_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Gene
 average_prescales = {}
 
 average_prescales[(250, None)] = 1.0
-average_prescales[(200, 250)] = 1.811595878
-average_prescales[(150, 200)] = 4.697863641
-average_prescales[(115, 150)] = 95.96314646
-average_prescales[(85, 115)] = 829.1235844
+average_prescales[(200, 250)] = 6.148
+average_prescales[(150, 200)] = 28.299
+average_prescales[(115, 150)] =  117.588
+average_prescales[(85, 115)] =  634.555
 
 
 def parse_file(input_file, all_hists):
@@ -63,10 +65,10 @@ def parse_file(input_file, all_hists):
 
 
 			# if line_number > 10000:	# Ideal length.
-			if line_number > 100000:	# Big enough.
+			# if line_number > 100000:	# Big enough.
 			# if line_number > 1000:		# Small tests.
 			# if line_number > 30000:		# Small tests.
-			# if False:
+			if False:
 				break
 
 			line_number += 1
@@ -161,6 +163,8 @@ def parse_file(input_file, all_hists):
 														if pT_of_this_event > float(lower) and pT_of_this_event < float(upper):
 															prescale_to_use = prescale
 															break
+											# Remove the following.
+											prescale_to_use = float(numbers[prescale_index])
 
 											hist.fill_array( [x], [prescale_to_use] )	 
 									
@@ -232,15 +236,15 @@ def parse_to_root_files():
 	hist_templates = hists.multi_page_plot_hist_templates()
 	log_hist_templates = hists.multi_page_log_plot_hist_templates()
 
-	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data.root", hist_templates=hist_templates)
 	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia.root", hist_templates=hist_templates)
 	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig.root", hist_templates=hist_templates)
-	# parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa.root", hist_templates=hist_templates)
+	parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa.root", hist_templates=hist_templates)
 
 	# parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data_log.root", hist_templates=log_hist_templates)
 	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia_log.root", hist_templates=log_hist_templates)
 	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig_log.root", hist_templates=log_hist_templates)
-	# parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa_log.root", hist_templates=log_hist_templates)
+	parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa_log.root", hist_templates=log_hist_templates)
 
 
 def parse_pfc_to_root_files():
@@ -264,11 +268,12 @@ def load_root_files_to_hist(log=False):
 
 	if not log:
 		hist_templates = hists.multi_page_plot_hist_templates()
-		# filenames = ["data.root", "pythia.root", "herwig.root", "sherpa.root"]
-		filenames = ["data.root", "data.root", "data.root", "data.root"]
+		filenames = ["data.root", "pythia.root", "herwig.root", "sherpa.root"]
+		# filenames = ["data.root", "data.root", "data.root", "data.root"]
 	else:
 		hist_templates = hists.multi_page_log_plot_hist_templates()
 		filenames = ["data_log.root", "pythia_log.root", "herwig_log.root", "sherpa_log.root"]
+		# filenames = ["data_log.root", "data_log.root", "data_log.root", "data_log.root"]
 
 	return  [ root_file_to_hist(output_directory + filename, hist_templates) for filename in filenames ] 
 

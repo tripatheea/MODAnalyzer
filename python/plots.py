@@ -189,8 +189,8 @@ start = time.time()
 parsed_linear = parse.load_root_files_to_hist(log=False)
 parsed_hists = compile_sources(parsed_linear)
 
-# parsed_log = parse.load_root_files_to_hist(log=True)
-# parsed_log_hists = compile_sources(parsed_log)
+parsed_log = parse.load_root_files_to_hist(log=True)
+parsed_log_hists = compile_sources(parsed_log)
 
 
 # parsed_pfc = parse.load_pfc_root_files_to_hist()
@@ -212,7 +212,7 @@ start = time.time()
 
 
 # create_multi_page_plot(filename=default_dir + "hardest_jet_pT_all_linear.pdf", hists=compile_hists('hardest_pT', parsed_hists))
-# create_multi_page_plot(filename=default_dir + "hardest_jet_pT_all_log.pdf", hists=compile_hists('hardest_pT', parsed_log_hists, x_scale='log'), x_scale='log')
+
 
 # create_multi_page_plot(filename=default_dir + "hardest_jet_phi_all_linear.pdf", hists=compile_hists('hardest_phi', parsed_hists))
 
@@ -240,8 +240,8 @@ start = time.time()
 # create_multi_page_plot(filename=default_dir + "basic_sub_width_all_log.pdf", hists=compile_hists('width_pre_SD', parsed_log_hists), x_scale='log')
 # create_multi_page_plot(filename=default_dir + "basic_sub_width_track_log.pdf", hists=compile_hists('track_width_pre_SD', parsed_log_hists), x_scale='log')
 
-# create_multi_page_plot(filename=default_dir + "basic_sub_thrust_all_log.pdf", hists=compile_hists('thrust_pre_SD', parsed_log_hists), x_scale='log')
-# create_multi_page_plot(filename=default_dir + "basic_sub_thrust_track_log.pdf", hists=compile_hists('track_thrust_pre_SD', parsed_log_hists), x_scale='log')
+create_multi_page_plot(filename=default_dir + "basic_sub_thrust_all_log.pdf", hists=compile_hists('thrust_pre_SD', parsed_log_hists), x_scale='log')
+create_multi_page_plot(filename=default_dir + "basic_sub_thrust_track_log.pdf", hists=compile_hists('track_thrust_pre_SD', parsed_log_hists), x_scale='log')
 
 
 
@@ -426,16 +426,19 @@ start = time.time()
 
 
 
-# create_data_only_plot(filename=default_dir + "hardest_jet_pT_jec_all_linear.pdf", hists=[ [ parsed_linear[0]['hardest_pT'][i], parsed_linear[0]['uncor_hardest_pT'][i] ] for i in range(len(parsed_linear[0]['uncor_hardest_pT'])) ], labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio\nto\nCorrected", ratio_to_index=0)
+# create_data_only_plot(filename=default_dir + "hardest_jet_pT_jec_all_log.pdf", hists=[ [ parsed_log[0]['hardest_pT'][i], parsed_log[0]['uncor_hardest_pT'][i] ] for i in range(len(parsed_log[0]['uncor_hardest_pT'])) ], labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio\nto\nCorrected", ratio_to_index=0)
 
 # create_data_only_plot(filename=default_dir + "jec.pdf", hists=[ [x] for x in parsed_linear[0]['jec'] ], labels=["CMS Open Data 2010"], types=["error"], colors=["black"], line_styles=[[]], ratio_plot=False)
-create_data_only_plot(filename=default_dir + "area.pdf", hists=[ [x] for x in parsed_linear[0]['hardest_area'] ], labels=["CMS Open Data 2010"], types=["error"], colors=["black"], line_styles=[[]], ratio_plot=False)
+# create_data_only_plot(filename=default_dir + "area.pdf", hists=[ [x] for x in parsed_linear[0]['hardest_area'] ], labels=["CMS Open Data 2010"], types=["error"], colors=["black"], line_styles=[[]], ratio_plot=False)
 
 
 
 
 ##################################################################################################### NOT USED TYPICALLY ##################################################################################################
 
+
+# create_multi_page_plot(filename=default_dir + "hardest_jet_pT_all_log.pdf", hists=compile_hists('hardest_pT', parsed_log_hists, x_scale='log'), x_scale='log')
+# create_data_only_plot(filename=default_dir + "hardest_jet_pT_jec_all_linear.pdf", hists=[ [ parsed_linear[0]['hardest_pT'][i], parsed_linear[0]['uncor_hardest_pT'][i] ] for i in range(len(parsed_linear[0]['uncor_hardest_pT'])) ], labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio\nto\nCorrected", ratio_to_index=0)
 
 # create_multi_page_plot(filename=default_dir + "basic_sub_pTD_all_linear.pdf", hists=compile_hists('pT_D_pre_SD', parsed_hists))
 # create_multi_page_plot(filename=default_dir + "basic_sub_pTD_track_linear.pdf", hists=compile_hists('track_pT_D_pre_SD', parsed_hists))

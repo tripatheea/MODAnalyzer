@@ -117,7 +117,8 @@ def two_dim_plots():
 	
 	colors = ['Greys', 'Blues', 'Greens', 'purple'] 
 	hatch_colors = ['gray', 'blue', 'green', 'purple']
-	sources = ['data', 'pythia', 'herwig', 'sherpa']
+	# sources = ['data', 'pythia', 'herwig', 'sherpa']
+	sources = ['data']
 	source_labels = ["CMS 2010 Open Data", "Pythia 8.215", "Herwig 7.0.1", "Sherpa 2.2.1" ]
 
 	# colors = ['Greys'] 
@@ -161,18 +162,23 @@ def two_dim_plots():
 				y_s =[]
 				z_s = []
 
-				for i in range(hist.nbins(0)):
-					for j in range(hist.nbins(1)):
+				for i in range(1, hist.nbins(0) + 2):
+					for j in range(1, hist.nbins(1) + 2):
+						
 						z = hist.GetBinContent(i, j)
-						x = hist.GetXaxis().GetBinCenter(i)
-						y = hist.GetYaxis().GetBinCenter(j)
+						x = hist.GetXaxis().GetBinCenter(i) - (hist.GetXaxis().GetBinWidth(i) / 2)
+						y = hist.GetYaxis().GetBinCenter(j) - (hist.GetYaxis().GetBinWidth(j) / 2)
 
 						x_s.append(x)
 						y_s.append(y)
 						z_s.append(z)
 
-				# print len(x_s), len(y_s)
-				# print len(np_region_x_s), len(np_region_y_s)
+
+						print x, y
+
+
+
+				print len(x_s), len(y_s), len(z_s)
 
 				H, xedges, yedges = np.histogram2d(x_s, y_s, bins=[50, 50], weights=z_s, normed=True)
 
@@ -381,7 +387,7 @@ start = time.time()
 
 
 two_dim_plots()
-two_dim_log_plots()
+# two_dim_log_plots()
 
 end = time.time()
 

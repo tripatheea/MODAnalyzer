@@ -21,11 +21,11 @@ import rootpy.plotting.root2matplotlib as rplt
 # output_directory = "/home/aashish/root/macros/MODAnalyzer/parsed_root_files/"
 output_directory = "/media/aashish/My Files/Dropbox (MIT)/2d/"
 
-data_file = "/media/aashish/My Files/pristine.dat"
-pythia_file = "/media/aashish/My Files/pythia.dat"
-herwig_file = "/media/aashish/My Files/herwig.dat"
+data_file = "/home/aashish/analyzed/pristine.dat"
+pythia_file = "/home/aashish/analyzed/pythia.dat"
+herwig_file = "/home/aashish/analyzed/herwig.dat"
 # sherpa_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/mc/sherpa.dat"
-sherpa_file = "/media/aashish/My Files/sherpa.dat"
+sherpa_file = "/home/aashish/analyzed/sherpa.dat"
 
 
 average_prescales = {}
@@ -55,10 +55,11 @@ def parse_file(input_file, all_hists):
 
 
 			# if line_number > 10000:	# Ideal length.
-			# if line_number > 1000000:	# Big enough.
+			# if line_number > 100000:	# Ideal length.
+			if line_number > 1000000:	# Big enough.
 			# if line_number > 1000:		# Small tests.
 			# if line_number > 30000:		# Small tests.
-			if False:
+			# if False:
 				break
 
 			line_number += 1
@@ -206,19 +207,19 @@ def parse_to_root_files():
 	log_hist_templates = hists.two_dim_log_hists()
 
 	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "2d_data.root", hist_templates=hist_templates)
-	parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "2d_pythia.root", hist_templates=hist_templates)
-	parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "2d_herwig.root", hist_templates=hist_templates)
-	parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "2d_sherpa.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "2d_pythia.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "2d_herwig.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "2d_sherpa.root", hist_templates=hist_templates)
 
-	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "2d_data_log.root", hist_templates=log_hist_templates)
-	parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "2d_pythia_log.root", hist_templates=log_hist_templates)
-	parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "2d_herwig_log.root", hist_templates=log_hist_templates)
-	parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "2d_sherpa_log.root", hist_templates=log_hist_templates)
+	# parse_to_root_file(input_filename=data_file, output_filename=output_directory + "2d_data_log.root", hist_templates=log_hist_templates)
+	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "2d_pythia_log.root", hist_templates=log_hist_templates)
+	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "2d_herwig_log.root", hist_templates=log_hist_templates)
+	# parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "2d_sherpa_log.root", hist_templates=log_hist_templates)
 
 
 def load_root_files_to_hist(log=False):
 	
-	# parse_to_root_files()
+	parse_to_root_files()
 
 	if not log:
 		hist_templates = hists.two_dim_hists()
@@ -234,7 +235,7 @@ def load_root_files_to_hist(log=False):
 
 if __name__ == "__main__":
 
-	parse_to_root_files()
+	# parse_to_root_files()
 
 	# load_root_files_to_hist()
 
