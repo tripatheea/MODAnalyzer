@@ -461,12 +461,16 @@ class MODPlot:
 
 		if self._ratio_plot:
 
-			if self._plot_types[self._ratio_to_index] == "hist" or self._plot_types[self._ratio_to_index] == "error":
+			if (type(self._ratio_to_index) == dict) or (type(self._ratio_to_index) == int and self._plot_types[self._ratio_to_index] == "hist" or self._plot_types[self._ratio_to_index] == "error"):
 				# print "ratio to something else"
 
-				denominator_hist = self._hists[self._ratio_to_index].hist()
 				
 				for i in range(len(self._hists)):
+					
+					if type(self._ratio_to_index) == int:
+						denominator_hist = self._hists[self._ratio_to_index].hist()
+					elif type(self._ratio_to_index) == dict:
+						denominator_hist = self._hists[self._ratio_to_index[i]].hist()
 
 					plot_type = self._plot_types[i]
 
@@ -730,6 +734,8 @@ class MODPlot:
 				handles[i] = line
 
 				handler_map[line] = HandlerLine2D(marker_pad=0)
+		
+
 
 
 		legend = ax0.legend(handles, labels, frameon=0, fontsize=60, handler_map=handler_map, bbox_to_anchor=self._legend_location[1], loc=self._legend_location[0] )
@@ -759,7 +765,7 @@ class MODPlot:
 		if "$" in self._y_label:
 			ax0.set_ylabel(self._y_label, fontsize=105, y=0.5, rotation=0, labelpad=120)
 		else:
-			ax0.set_ylabel(self._y_label, fontsize=85, y=0.5, labelpad=25)
+			ax0.set_ylabel(self._y_label, fontsize=65, y=0.5, labelpad=50)
 
 		if self._ratio_plot:
 			ax1.set_xlabel(self._x_label, fontsize=70, labelpad=35)
@@ -776,8 +782,11 @@ class MODPlot:
 		if self._ratio_plot:
 			self._plt.sca(ax1)
 			
-			self._plt.tick_params(which='major', width=5, length=25, labelsize=70)
+			self._plt.tick_params(which='major', axis='x', width=5, length=25, labelsize=70)
+			self._plt.tick_params(which='major', axis='y', width=5, length=25, labelsize=45)
+
 			self._plt.tick_params(which='minor', width=3, length=15)
+
 
 
 		if self._ratio_plot:
@@ -844,6 +853,8 @@ class MODPlot:
 			self._plt.sca(ax0)
 
 			# print self._plt.gca().get_xlim()
+
+			
 
 			upper_lim = self._plt.gca().get_xlim()[1]
 			lower_lim = self._plt.gca().get_xlim()[0]
@@ -932,18 +943,19 @@ class MODPlot:
 		# Any possible markers.
 		for marker in self._mark_regions:
 
-			# print marker
+			print marker
 
 			ax0.plot([marker[0], marker[0]], [ax0.get_ylim()[0], marker[1] ], zorder=9999, color='red', linewidth=8, linestyle="dashed")
 
 			unit_x_minor_tick_length = abs(ax0.get_xaxis().get_majorticklocs()[1] - ax0.get_xaxis().get_majorticklocs()[0]) /  10
 			unit_y_minor_tick_length = abs(ax0.get_yaxis().get_majorticklocs()[1] - ax0.get_yaxis().get_majorticklocs()[0]) /  5
 
-			# Arrows.
-			if marker[2] == "right":
-				ax0.arrow(marker[0], marker[3], 0.5, 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
-			elif marker[2] == "left":
-				ax0.arrow(marker[0], marker[3], -0.5, 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
+			if marker[2] != None:
+				# Arrows.
+				if marker[2] == "right":
+					ax0.arrow(marker[0], marker[3], 0.5, 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
+				elif marker[2] == "left":
+					ax0.arrow(marker[0], marker[3], -0.5, 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
 			
 
 		self._plt.gcf().set_snap(True)
@@ -968,7 +980,7 @@ class MODPlot:
 
 
 
-plot_labels = { "data": "CMS 2010 Open Data", "pythia": "Pythia 8.215", "herwig": "Herwig 7.0.1", "sherpa": "Sherpa 2.2.0", "theory": "Theory (MLL)" }
+plot_labels = { "data": "CMS 2010 Open Data", "pythia": "Pythia 8.219", "herwig": "Herwig 7.0.3", "sherpa": "Sherpa 2.2.1", "theory": "Theory (MLL)" }
 plot_colors = {"theory": "red", "pythia": "blue", "herwig": "green", "sherpa": "purple", "pythia_post": "red", "data": "black", "data_post": "red"}
 
 global_plot_types = ['error', 'hist', 'hist', 'hist']
@@ -999,13 +1011,15 @@ def create_multi_page_plot(filename, hists, theory=False, x_scale='linear'):
 				
 				if theory:
 					ratio_to_index = 2	# 2 = Ratio to Pythia, 1 = Ratio to Theory.
-					ratio_to_label = "Ratio\nto\nTheory"
+					ratio_to_label = "Ratio to\nTheory"
 				else:
 					ratio_to_index = 1	# 1 = Ratio to Pythia.
-					ratio_to_label = "Ratio\nto\nPythia" 
-					
+					ratio_to_label = "Ratio to\nPythia" 
+				
+				ratio_to_index = 2
+				ratio_to_label = "Ratio to\nPythia"	
 
-				plot = MODPlot(mod_hists, plot_types=types, plot_colors=colors, plot_labels=labels, line_styles=line_styles, x_scale=mod_hists[0].x_scale(), y_scale=mod_hists[0].y_scale(), ratio_plot=True, ratio_to_index=ratio_to_index, ratio_label=ratio_to_label, mark_regions=mod_hists[0].mark_regions(), x_label=mod_hists[0].x_label(), legend_location=mod_hists[0].legend_location(), y_label=mod_hists[0].y_label(), x_lims=mod_hists[0].x_range(), y_lims=mod_hists[0].y_range())
+				plot = MODPlot(mod_hists, plot_types=types, plot_colors=colors, plot_labels=labels, line_styles=line_styles, x_scale=mod_hists[-1].x_scale(), y_scale=mod_hists[-1].y_scale(), ratio_plot=True, ratio_to_index=ratio_to_index, ratio_label=ratio_to_label, mark_regions=mod_hists[-1].mark_regions(), x_label=mod_hists[-1].x_label(), legend_location=mod_hists[-1].legend_location(), y_label=mod_hists[-1].y_label(), x_lims=mod_hists[-1].x_range(), y_lims=mod_hists[-1].y_range())
 				plot.plot()
 			
 				pdf.savefig()
@@ -1020,7 +1034,7 @@ def create_data_only_plot(filename, hists, labels, types, colors, line_styles, r
 
 		for mod_hists in hists:	# mod_hists contains a list [ data_mod_hist, pythia_mod_hist, ... ]
 
-			plot = MODPlot(mod_hists, plot_types=types, plot_colors=colors, plot_labels=labels, line_styles=line_styles, ratio_plot=ratio_plot, ratio_to_index=ratio_to_index, ratio_label=ratio_to_label, x_scale=mod_hists[0].x_scale(), y_scale=mod_hists[0].y_scale(), x_label=mod_hists[0].x_label(), y_label=mod_hists[0].y_label(), x_lims=mod_hists[-1].x_range(), y_lims=mod_hists[-1].y_range())
+			plot = MODPlot(mod_hists, plot_types=types, plot_colors=colors, plot_labels=labels, line_styles=line_styles, ratio_plot=ratio_plot, ratio_to_index=ratio_to_index, ratio_label=ratio_to_label, x_scale=mod_hists[-1].x_scale(), y_scale=mod_hists[-1].y_scale(), x_label=mod_hists[-1].x_label(), y_label=mod_hists[-1].y_label(), x_lims=mod_hists[-1].x_range(), y_lims=mod_hists[-1].y_range(), legend_location=mod_hists[-1].legend_location(), mark_regions=mod_hists[-1].mark_regions())
 			plot.plot()
 		
 			pdf.savefig()

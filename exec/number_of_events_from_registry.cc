@@ -37,12 +37,12 @@ int main(int argc, char * argv[]) {
    int event_serial_number = 1;
    string line;
    while(getline(registry_file, line)) {
-      string path, filename;
+      string filename;
       int event_number, run_number;
 
       istringstream iss(line);
 
-      iss >> event_number >> run_number >> path >> filename;
+      iss >> event_number >> run_number >> filename;
 
       filename = filename.substr(0, filename.length() - 5);
 

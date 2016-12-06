@@ -19,13 +19,12 @@ import rootpy.plotting.root2matplotlib as rplt
 
 
 # output_directory = "/home/aashish/root/macros/MODAnalyzer/parsed_root_files/"
-output_directory = "/media/aashish/My Files/Dropbox (MIT)/2d/"
+output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/"
 
-data_file = "/home/aashish/analyzed/pristine.dat"
-pythia_file = "/home/aashish/analyzed/pythia.dat"
-herwig_file = "/home/aashish/analyzed/herwig.dat"
-# sherpa_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/mc/sherpa.dat"
-sherpa_file = "/home/aashish/analyzed/sherpa.dat"
+data_file   = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pristine.dat"
+pythia_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pythia.dat"
+herwig_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/herwig.dat"
+sherpa_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/sherpa.dat"
 
 
 average_prescales = {}
@@ -37,7 +36,7 @@ average_prescales[(115, 150)] = 95.96314646
 average_prescales[(85, 115)] = 829.1235844
 
 
-def parse_file(input_file, all_hists):
+def parse_file(input_file, all_hists, log_hists):
 
 	print "Parsing {}".format(input_file)
 	
@@ -55,11 +54,13 @@ def parse_file(input_file, all_hists):
 
 
 			# if line_number > 10000:	# Ideal length.
-			# if line_number > 100000:	# Ideal length.
-			if line_number > 1000000:	# Big enough.
+			# if line_number > 10000:	# Ideal length.
+			# if line_number > 2500000:	# Big enough.
 			# if line_number > 1000:		# Small tests.
 			# if line_number > 30000:		# Small tests.
-			# if False:
+			# if line_number > 500000:		# Small tests.
+			# if line_number > 5000000:		# Small tests.
+			if False:
 				break
 
 			line_number += 1
@@ -140,7 +141,67 @@ def parse_file(input_file, all_hists):
 													prescale_to_use = prescale
 													break
 
-									hist.fill_array( np.array([[zg_10, rg_10]]), [prescale_to_use] )	 
+									# hist.fill_array( np.array([[zg_10, rg_10]]), [prescale_to_use] )	 
+									hist.fill_array( np.array([[zg_10, rg_10]]), [float(numbers[prescale_index])] )	 
+							
+							else:	# MC so always use prescales.
+
+								hist.fill_array( np.array([[zg_10, rg_10]]), [float(numbers[prescale_index])] )
+
+
+
+					for mod_hist in log_hists[('zg_10', 'rg_10')]:
+						hist = mod_hist.hist()
+						conditions = mod_hist.conditions()
+
+						try:
+							condition_satisfied = 1
+							for condition_keyword, condition_boundaries in conditions:
+								keyword_index = keywords.index(condition_keyword) + 1
+
+								if condition_boundaries[0] == None and condition_boundaries[1] != None:
+									condition_satisfied *= int( float(numbers[keyword_index]) < condition_boundaries[1] ) 
+								elif condition_boundaries[0] != None and condition_boundaries[1] == None:
+									condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] ) 
+								elif condition_boundaries[0] == None and condition_boundaries[1] == None:
+									condition_satisfied *= 1 
+								elif condition_boundaries[0] != None and condition_boundaries[1] != None:
+									condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] and float(numbers[keyword_index]) < condition_boundaries[1] )
+
+							condition_satisfied = bool(condition_satisfied)
+						except Exception as e:
+							print "ASF", e
+						
+
+						if condition_satisfied:
+								
+							if input_file == data_file:	# For data file only.
+
+								if not mod_hist.use_prescale():
+									hist.fill_array( np.array([[zg_10, rg_10]]) )
+								else:
+									
+									#  Average prescale. 
+
+									# To find which prescale to use, we need to find which trigger fired. 
+									# To do that, we need to find the pT of the hardest jet.
+									
+									prescale_to_use = 0.0
+
+									if pT_of_this_event > 250.:
+										prescale_to_use = 1.0
+									else:
+										for pT_boundaries, prescale in average_prescales.items():
+											
+											lower, upper = pT_boundaries
+
+											if upper != None:
+												if pT_of_this_event > float(lower) and pT_of_this_event < float(upper):
+													prescale_to_use = prescale
+													break
+
+									# hist.fill_array( np.array([[zg_10, rg_10]]), [prescale_to_use] )	 
+									hist.fill_array( np.array([[zg_10, rg_10]]), [float(numbers[prescale_index])] )	 
 							
 							else:	# MC so always use prescales.
 
@@ -151,7 +212,7 @@ def parse_file(input_file, all_hists):
 				print e
 
 
-	return all_hists
+	return all_hists, log_hists
 
 
 
@@ -159,15 +220,31 @@ def parse_to_root_file(input_filename, output_filename, hist_templates):
 
 	print "Parsing {} to {}".format(input_filename, output_filename)
 	
-	parsed_hists = parse_file( input_filename, copy.deepcopy( hist_templates ) )
+	parsed_hists, parsed_log_hists = parse_file( input_filename, copy.deepcopy( hist_templates[0] ), copy.deepcopy(hist_templates[1]) )
 
-	f = TFile(output_filename, "RECREATE")
+	f = TFile(output_filename[0], "RECREATE")
 
 	for var in parsed_hists.keys():
 		
 		index = 0
 
 		for mod_hist in parsed_hists[var]:
+			hist = copy.deepcopy( mod_hist.hist() )
+			hist.SetName("{}#{}".format(var, index))
+			hist.Write()
+
+			index += 1
+
+	f.Close()
+
+
+	f = TFile(output_filename[1], "RECREATE")
+
+	for var in parsed_log_hists.keys():
+		
+		index = 0
+
+		for mod_hist in parsed_log_hists[var]:
 			hist = copy.deepcopy( mod_hist.hist() )
 			hist.SetName("{}#{}".format(var, index))
 			hist.Write()
@@ -206,10 +283,10 @@ def parse_to_root_files():
 	hist_templates = hists.two_dim_hists()
 	log_hist_templates = hists.two_dim_log_hists()
 
-	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "2d_data.root", hist_templates=hist_templates)
-	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "2d_pythia.root", hist_templates=hist_templates)
-	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "2d_herwig.root", hist_templates=hist_templates)
-	# parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "2d_sherpa.root", hist_templates=hist_templates)
+	parse_to_root_file(input_filename=data_file, output_filename=(output_directory + "2d_data.root", output_directory + "2d_data_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	# parse_to_root_file(input_filename=pythia_file, output_filename=(output_directory + "2d_pythia.root", output_directory + "2d_pythia_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	# parse_to_root_file(input_filename=herwig_file, output_filename=(output_directory + "2d_herwig.root", output_directory + "2d_herwig_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	# parse_to_root_file(input_filename=sherpa_file, output_filename=(output_directory + "2d_sherpa.root", output_directory + "2d_sherpa_log.root"), hist_templates=(hist_templates, log_hist_templates))
 
 	# parse_to_root_file(input_filename=data_file, output_filename=output_directory + "2d_data_log.root", hist_templates=log_hist_templates)
 	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "2d_pythia_log.root", hist_templates=log_hist_templates)
@@ -219,7 +296,7 @@ def parse_to_root_files():
 
 def load_root_files_to_hist(log=False):
 	
-	parse_to_root_files()
+	# parse_to_root_files()
 
 	if not log:
 		hist_templates = hists.two_dim_hists()
@@ -235,7 +312,7 @@ def load_root_files_to_hist(log=False):
 
 if __name__ == "__main__":
 
-	# parse_to_root_files()
+	parse_to_root_files()
 
 	# load_root_files_to_hist()
 

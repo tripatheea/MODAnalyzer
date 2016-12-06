@@ -76,7 +76,8 @@ int main(int argc, char * argv[]) {
       }
 
       
-      output_file << event_being_read.run_number() << "\t" << event_being_read.event_number() << "\t" << filename.substr(0, filename.size() - 4) << endl;
+      // output_file << event_being_read.run_number() << "\t" << event_being_read.event_number() << "\t" << filename.substr(0, filename.size() - 4) << endl;
+      output_file << event_being_read.run_number() << "\t" << event_being_read.event_number() << endl;
 
       event_being_read = MOD::Event();
       event_serial_number++;

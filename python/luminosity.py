@@ -146,9 +146,9 @@ def plot_integrated_recorded_lumi(cumulative=False):
   print "Total Del. Luminosity: {}".format(total_del_lumi)
   # print "Max Luminosity: {}".format(max_lumi)
 
-  rec = [(36.1 * i) / total_del_lumi for i in intg_rec_lumi]
-  deli = [(36.1 * i) / total_del_lumi for i in intg_del_lumi]
-  intg_rec_lumi, intg_del_lumi = rec, deli
+  # rec = [(36.1 * i) / total_del_lumi for i in intg_rec_lumi]
+  # deli = [(36.1 * i) / total_del_lumi for i in intg_del_lumi]
+  # intg_rec_lumi, intg_del_lumi = rec, deli
 
   
   # dates = [datetime.datetime.fromtimestamp( int(time) ).strftime('%m-%d') for time in timestamps]
@@ -170,14 +170,14 @@ def plot_integrated_recorded_lumi(cumulative=False):
   plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d %b'))
   # plt.gca().xaxis.set_major_locator(mdates.MonthLocator())
 
-  plt.xlabel("Date", labelpad=25, fontsize=90)
+  plt.xlabel("Date", labelpad=25, fontsize=70)
 
   plt.gca().ticklabel_format(axis='y', style='sci')
 
   if cumulative:
-    plt.ylabel("Integrated Luminosity ($\mathrm{pb}^{-1}$)", labelpad=50, fontsize=90)
+    plt.ylabel("Integrated Luminosity ($\mathrm{pb}^{-1}$)", labelpad=50, fontsize=70)
   else:
-    plt.ylabel("Avg. Luminosity ($\mathrm{pb}^{-1} \mathrm{day}^{-1} $)", labelpad=50, fontsize=90)
+    plt.ylabel("Avg. Luminosity ($\mathrm{pb}^{-1} \mathrm{day}^{-1} $)", labelpad=50, fontsize=70)
 
 
   # plt.gca().get_yaxis().set_ticks([])
@@ -185,7 +185,7 @@ def plot_integrated_recorded_lumi(cumulative=False):
   print max(intg_rec_lumi),
   
   handles, labels = plt.gca().get_legend_handles_labels()
-  plt.gca().legend(handles[::-1], labels[::-1], bbox_to_anchor=[0.007, 0.99], frameon=False, loc='upper left', fontsize=50)
+  plt.gca().legend(handles[::-1], labels[::-1], bbox_to_anchor=[0.007, 0.99], frameon=False, loc='upper left', fontsize=70)
 
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
@@ -196,12 +196,12 @@ def plot_integrated_recorded_lumi(cumulative=False):
   plt.autoscale()
 
   if cumulative:
-    plt.ylim(0, 40)
+    plt.ylim(0, 100)
   else:
-    plt.ylim(0, 8)
+    plt.ylim(0, 15)
 
     
-  # plt.xlim(datetime.date(2010, 3, 30), datetime.date(2010, 10, 31))
+  plt.xlim(datetime.date(2010, 9, 20), datetime.date(2010, 10, 31))
 
   plt.locator_params(axis='x', nbins=5)
 
@@ -214,15 +214,16 @@ def plot_integrated_recorded_lumi(cumulative=False):
   # plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
 
   if cumulative:
-    plt.gca().yaxis.set_minor_locator(MultipleLocator(1))
+    plt.gca().yaxis.set_minor_locator(MultipleLocator(2))
   else:
     plt.gca().yaxis.set_minor_locator(MultipleLocator(0.2))
 
-  
+  # plt.xlim()
+
   if cumulative:
-    logo = [0.105, 0.99]
+    logo = [0.114, 0.99]
   else:
-    logo = [0.080, 0.985]
+    logo = [0.089, 0.985]
 
   logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
   text_box = TextArea("Preliminary", textprops=dict(color='#444444', fontsize=50, weight='bold'))

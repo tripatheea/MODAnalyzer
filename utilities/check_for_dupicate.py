@@ -12,23 +12,24 @@ def check_for_duplicate_events(input_file):
   total = 0
   unique = 0
 
-  all_events = []
+  all_events = {}
   with open(input_file) as f:
-  	for line in f.readlines():
+	for line in f.readlines():
 
-  		if total % 100000 == 0:
-  			print "On line number {}".format(total)
+		if total % 10000 == 0:
+			print "On line number {}".format(total)
 
-  		if len(line.strip()) != 0:
-	  		run_number, event_number = line.split()
-	  		
-	  		if (run_number, event_number) in all_events:
-	  			duplicates += 1
-	  		else:
-	  			all_events.append((run_number, event_number))
-	  			unique += 1
+		if len(line.strip()) != 0:
+			run_number, event_number = line.split()
+			
+			if (run_number, event_number) in all_events.keys():
+				print "Found a duplicate already."
+				duplicates += 1
+			else:
+				all_events[(run_number, event_number)] = 1
+				unique += 1
 
-	  		total += 1 
+			total += 1 
 
   return total, unique, duplicates
 

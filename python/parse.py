@@ -22,21 +22,23 @@ import rootpy.plotting.root2matplotlib as rplt
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/"
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/"
 # output_directory = "/home/aashish/"
-output_directory = "/home/aashish/final_analyzed/"
+output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/"
 
 
 
 
-data_file   = "/home/aashish/final_analyzed/pristine.dat"
-pythia_file = "/home/aashish/final_analyzed/pythia.dat"
-herwig_file = "/home/aashish/final_analyzed/herwig.dat"
-sherpa_file = "/home/aashish/final_analyzed/sherpa.dat"
+
+data_file   = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pristine.dat"
+# data_file   = "/home/aashish/new_pristine.dat"
+pythia_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pythia.dat"
+herwig_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/herwig.dat"
+sherpa_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/sherpa.dat"
 
 
-pfc_data_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/pfc.dat"
-pfc_pythia_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/pythia_pfc.dat"
-pfc_herwig_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/herwig_pfc.dat"
-pfc_sherpa_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/sherpa_pfc.dat"
+pfc_data_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pfc.dat"
+pfc_pythia_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pythia_pfc.dat"
+pfc_herwig_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/herwig_pfc.dat"
+pfc_sherpa_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/sherpa_pfc.dat"
 
 average_prescales = {}
 
@@ -47,7 +49,7 @@ average_prescales[(115, 150)] =  117.588
 average_prescales[(85, 115)] =  634.555
 
 
-def parse_file(input_file, all_hists):
+def parse_file(input_file, all_hists, log_hists):
 
 	print "Parsing {}".format(input_file)
 	
@@ -61,6 +63,10 @@ def parse_file(input_file, all_hists):
 		
 		line_number = 0
 
+
+		all_pT_s = []
+
+
 		for line in infile:
 
 
@@ -68,6 +74,9 @@ def parse_file(input_file, all_hists):
 			# if line_number > 100000:	# Big enough.
 			# if line_number > 1000:		# Small tests.
 			# if line_number > 30000:		# Small tests.
+			# if line_number > 1000000:		# Small tests.
+			# if line_number > 150000:		# Small tests.
+			# if line_number > 100000:		# Small tests.
 			if False:
 				break
 
@@ -105,6 +114,8 @@ def parse_file(input_file, all_hists):
 
 						if keyword == "hardest_pT":
 							pT_of_this_event = float(numbers[i + 1]) # + 1 because we ignore the first keyword "Entry".
+
+							all_pT_s.append(pT_of_this_event)
 
 						if keyword in all_hists.keys():
 							
@@ -176,12 +187,85 @@ def parse_file(input_file, all_hists):
 										# print "Tada"
 										# print [type(x)], [float(numbers[prescale_index])]
 
+
+						if keyword in log_hists.keys():
+							
+							for mod_hist in log_hists[keyword]:
+								hist = mod_hist.hist()
+								conditions = mod_hist.conditions()
+
+								try:
+									condition_satisfied = 1
+									for condition_keyword, condition_boundaries in conditions:
+										keyword_index = keywords.index(condition_keyword) + 1
+
+										if condition_boundaries[0] == None and condition_boundaries[1] != None:
+											condition_satisfied *= int( float(numbers[keyword_index]) < condition_boundaries[1] ) 
+										elif condition_boundaries[0] != None and condition_boundaries[1] == None:
+											condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] ) 
+										elif condition_boundaries[0] == None and condition_boundaries[1] == None:
+											condition_satisfied *= 1 
+										elif condition_boundaries[0] != None and condition_boundaries[1] != None:
+											condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] and float(numbers[keyword_index]) < condition_boundaries[1] )
+
+									condition_satisfied = bool(condition_satisfied)
+								except Exception as e:
+									print "ASF", e
+								
+								# if keyword == "jec":
+								# 	print condition_satisfied
+
+
+
+								if condition_satisfied:
+
+									x = float(numbers[i + 1]) # + 1 because we ignore the first keyword "Entry".
+
+									if input_file == data_file:	# For data file only.
+
+										if not mod_hist.use_prescale():
+											hist.fill_array( [x] )
+										else:
+											
+											#  Average prescale. 
+
+											# To find which prescale to use, we need to find which trigger fired. 
+											# To do that, we need to find the pT of the hardest jet.
+											
+											prescale_to_use = 0.0
+
+											if pT_of_this_event > 250.:
+												prescale_to_use = 1.0
+											else:
+												for pT_boundaries, prescale in average_prescales.items():
+													
+													lower, upper = pT_boundaries
+
+													if upper != None:
+														if pT_of_this_event > float(lower) and pT_of_this_event < float(upper):
+															prescale_to_use = prescale
+															break
+											# Remove the following.
+											prescale_to_use = float(numbers[prescale_index])
+
+											hist.fill_array( [x], [prescale_to_use] )	 
+									
+									else:	# MC so always use prescales.
+										# if type()
+										hist.fill_array( [x], [float(numbers[prescale_index])] )
+
+									# if keyword == "hardest_area":
+										# print "Tada"
+										# print [type(x)], [float(numbers[prescale_index])]
+
 			except Exception as e:
 				print "Some exception occured!",
 				print e
 
+	# print "Largest pT was", max(all_pT_s)
 
-	return all_hists
+
+	return all_hists, log_hists
 
 
 
@@ -189,15 +273,34 @@ def parse_to_root_file(input_filename, output_filename, hist_templates):
 
 	print "Parsing {} to {}".format(input_filename, output_filename)
 	
-	parsed_hists = parse_file( input_filename, copy.deepcopy( hist_templates ) )
+	parsed_hists, parsed_log_hists = parse_file( input_filename, copy.deepcopy( hist_templates[0] ), copy.deepcopy(hist_templates[1]) )
 
-	f = TFile(output_filename, "RECREATE")
+
+	f = TFile(output_filename[0], "RECREATE")
 
 	for var in parsed_hists.keys():
 		
 		index = 0
 
 		for mod_hist in parsed_hists[var]:
+			hist = copy.deepcopy( mod_hist.hist() )
+			hist.SetName("{}#{}".format(var, index))
+			hist.Write()
+
+			index += 1
+
+	f.Close()
+
+
+
+
+	f = TFile(output_filename[1], "RECREATE")
+
+	for var in parsed_log_hists.keys():
+		
+		index = 0
+
+		for mod_hist in parsed_log_hists[var]:
 			hist = copy.deepcopy( mod_hist.hist() )
 			hist.SetName("{}#{}".format(var, index))
 			hist.Write()
@@ -236,21 +339,21 @@ def parse_to_root_files():
 	hist_templates = hists.multi_page_plot_hist_templates()
 	log_hist_templates = hists.multi_page_log_plot_hist_templates()
 
-	# parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data.root", hist_templates=hist_templates)
-	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia.root", hist_templates=hist_templates)
-	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig.root", hist_templates=hist_templates)
-	parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=data_file, output_filename=(output_directory + "data.root", output_directory + "data_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	# parse_to_root_file(input_filename=pythia_file, output_filename=(output_directory + "pythia.root", output_directory + "pythia_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	# parse_to_root_file(input_filename=herwig_file, output_filename=(output_directory + "herwig.root", output_directory + "herwig_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	parse_to_root_file(input_filename=sherpa_file, output_filename=(output_directory + "sherpa.root", output_directory + "sherpa_log.root"), hist_templates=(hist_templates, log_hist_templates))
 
 	# parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data_log.root", hist_templates=log_hist_templates)
 	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia_log.root", hist_templates=log_hist_templates)
 	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig_log.root", hist_templates=log_hist_templates)
-	parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa_log.root", hist_templates=log_hist_templates)
+	# parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa_log.root", hist_templates=log_hist_templates)
 
 
 def parse_pfc_to_root_files():
 	hist_templates = hists.get_pfc_hists()
 
-	# parse_to_root_file(input_filename=pfc_data_file, output_filename=output_directory + "data_pfc.root", hist_templates=hist_templates)
+	parse_to_root_file(input_filename=pfc_data_file, output_filename=output_directory + "data_pfc.root", hist_templates=hist_templates)
 	# parse_to_root_file(input_filename=pfc_pythia_file, output_filename=output_directory + "pythia_pfc.root", hist_templates=hist_templates)
 	# parse_to_root_file(input_filename=pfc_herwig_file, output_filename=output_directory + "herwig_pfc.root", hist_templates=hist_templates)
 	# parse_to_root_file(input_filename=pfc_sherpa_file, output_filename=output_directory + "sherpa_pfc.root", hist_templates=hist_templates)
@@ -265,6 +368,7 @@ def load_pfc_root_files_to_hist():
 
 def load_root_files_to_hist(log=False):
 	
+	# parse_to_root_files()	
 
 	if not log:
 		hist_templates = hists.multi_page_plot_hist_templates()
@@ -282,7 +386,7 @@ def load_root_files_to_hist(log=False):
 
 if __name__ == "__main__":
 
-	parse_to_root_files()
+	# parse_to_root_files()
 
 	# load_root_files_to_hist()
 

@@ -18,12 +18,12 @@ import rootpy.plotting.root2matplotlib as rplt
 
 
 
-output_directory = "./"
+output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/"
 # output_directory = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/"
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/"
 
 # data_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/experiment/trig.dat"
-data_file = "/media/aashish/Transcend/experiment/trig.dat"
+data_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/trig.dat"
 
 
 

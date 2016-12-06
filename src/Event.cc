@@ -393,8 +393,8 @@ bool MOD::Event::read_event(istream & data_stream) {
 
          if (tag == "BeginEvent") {
 
-            // stream >> tag >> version_keyword >> version >> a >> b;
-            stream >> tag >> version_keyword >> version >> a >> b >> c >> weight;
+            // stream >> tag >> version_keyword >> version >> a >> b;               // For MOD files.
+            stream >> tag >> version_keyword >> version >> a >> b >> c >> weight;   // For pristine, I think. Or maybe skim.
 
             set_version(version);
             set_data_type(a, b);
@@ -535,6 +535,11 @@ void MOD::Event::set_assigned_trigger() {
    // First, figure out the hardest pT.
    PseudoJet trigger_jet = _trigger_jet;
 
+   // cout << trigger_jet.pt() << " vs. ";
+
+   trigger_jet *= _hardest_jet_jec;
+
+   // cout << trigger_jet.pt() << endl;
 
    if (trigger_jet.E() == 0.0) {
       _assigned_trigger_name = "";
@@ -590,6 +595,9 @@ double MOD::Event::get_hardest_jet_area() const {
 }
 
 void MOD::Event::set_trigger_jet() {
+
+   // TODO: THis selects trigger jet without JEC.
+
    // Get the hardest jet, apply JEC, and then eta cut.
 
    vector<PseudoJet> processed_jets = apply_jet_energy_corrections(_cms_jets);

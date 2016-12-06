@@ -334,19 +334,30 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
 double angularity_lambda(PseudoJet jet, double jet_radius, float k, float beta) {
+      
+
+   JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R, WTA_pt_scheme);
+   ClusterSequence cs = ClusterSequence(jet.constituents(), jet_def_cambridge);
    
+
+   if (cs.inclusive_jets().size() == 0) {
+      return 0;
+   }
+
+   PseudoJet recombined_jet = cs.inclusive_jets()[0];
+
    double lambda = 0.0;
 
    double R = jet_radius;   // Jet Radius.
 
    double total_pT = 0.0;
-   for (unsigned j = 0; j < jet.constituents().size(); j++) {
-      total_pT += jet.constituents()[j].pt();
+   for (unsigned j = 0; j < recombined_jet.constituents().size(); j++) {
+      total_pT += recombined_jet.constituents()[j].pt();
    }
 
-   for (unsigned i = 0; i < jet.constituents().size(); i++) {
+   for (unsigned i = 0; i < recombined_jet.constituents().size(); i++) {
       
-      PseudoJet constituent = jet.constituents()[i];
+      PseudoJet constituent = recombined_jet.constituents()[i];
 
       double z_i = constituent.pt() / total_pT;
       

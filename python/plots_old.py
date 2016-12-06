@@ -8833,11 +8833,19 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 				lines = f.read().split("\n")
 
 				z_g_s, theta_g_s, prescales = [], [], []
+
 				for line in lines:
 					stuff = line.split()
 					z_g_s.append( float(stuff[0]))
 					theta_g_s.append( float(stuff[1]))
 					prescales.append( float(stuff[2]))
+
+
+			# zg_hist = Hist2D(50, -1, 99, markersize=3.0, color=plot_colors['data'])
+			zg_hist = Hist2D(25, 0.0, 0.5, 25, 0.0, 1.0)
+
+			for z, r, prescale in zip(z_g_s, theta_g_s, prescales):
+				zg_hist.fill_array( np.array([[z, r]]), [prescale] )	 
 
 
 			if log:
@@ -8851,8 +8859,29 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 				# bins = [zg_bins, theta_g_bins]
 
 
-				
-			H, xedges, yedges = np.histogram2d(z_g_s, theta_g_s, bins=bins, weights=prescales)
+			# Loop through the hist and output numbers to np.histogram().
+
+			x_s = []
+			y_s =[]
+			z_s = []
+
+			for i in range(1, zg_hist.nbins(0) + 1):
+				for j in range(1, zg_hist.nbins(1) + 1):
+
+					z = zg_hist.GetBinContent(i, j)
+					x = zg_hist.GetXaxis().GetBinCenter(i)
+					y = zg_hist.GetYaxis().GetBinCenter(j)
+
+					x_s.append(x)
+					y_s.append(y)
+					z_s.append(z)
+
+					# print x, y, z
+
+			# print x_s, y_s, z_s
+
+			# H, xedges, yedges = np.histogram2d(x_s, y_s, bins=[25, 25], range=[[0.0, 0.5], [0.0, 1.0]], weights=z_s, normed=True)					# Use for linear.
+			H, xedges, yedges = np.histogram2d(z_g_s, theta_g_s, bins=bins, weights=prescales, normed=True)
 
 			H = np.array(H)
 			H = np.rot90(H)
@@ -8873,10 +8902,10 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 			cbar.ax.tick_params(labelsize=70) 
 
-			if log:
-				cbar.ax.set_ylabel('$\\frac{z_g \\theta_g}{\sigma^2} \\frac{\mathrm{d}^2 \sigma}{\mathrm{d} z_g \mathrm{d} \\theta_g}$', labelpad=150, fontsize=105, rotation=0)
-			else:
-				cbar.ax.set_ylabel('$\\frac{1}{\sigma^2} \\frac{\mathrm{d}^2 \sigma}{\mathrm{d} z_g \mathrm{d} \\theta_g}$', labelpad=150, fontsize=105, rotation=0)
+			# if log:
+			# 	cbar.ax.set_ylabel('$\\frac{z_g \\theta_g}{\sigma} \\frac{\mathrm{d}^2 \sigma}{\mathrm{d} z_g \mathrm{d} \\theta_g}$', labelpad=150, fontsize=105, rotation=0)
+			# else:
+			# 	cbar.ax.set_ylabel('$\\frac{1}{\sigma} \\frac{\mathrm{d}^2 \sigma}{\mathrm{d} z_g \mathrm{d} \\theta_g}$', labelpad=150, fontsize=105, rotation=0)
 
 
 			# Hashing.
@@ -8899,16 +8928,23 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 				polygon_coords.append([0.5, theta_g(0.5)])
 				polygon_coords.append([0.5, 0.010])
 			else:
+				'''
 				polygon_coords = [[0.1, min(theta_g_s)]]
 				polygon_coords.extend([[0.1, theta_g(0.1)]])
 
 				polygon_coords.extend([[z, theta] for z, theta in zip(boundary_z_g_s, boundary_theta_g_s) if z >= 0.1 and theta >= 0.04])
 
 				polygon_coords.append([0.5, min(theta_g_s)])
+				'''
+				polygon_coords = [[0.1, 0.0]]
+				polygon_coords.extend([[0.1, theta_g(0.1)]])
 
+				polygon_coords.extend([[z, theta] for z, theta in zip(boundary_z_g_s, boundary_theta_g_s) if z >= 0.1 and theta >= 0.04])
+
+				polygon_coords.append([0.5, 0.0])
 
 	
-			polygon = mpl.patches.Polygon(polygon_coords, hatch="/", color="red", lw=0, fill=False)
+			polygon = mpl.patches.Polygon(polygon_coords, hatch="/", color="white", lw=0, fill=False)
 			plt.gca().add_patch(polygon)
 
 				
@@ -8929,7 +8965,7 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 				plt.xlim(0.0, 0.5)
 				plt.ylim(0.0, 1.0)
 			else:
-				plt.xlim(0.1, 1.0)
+				plt.xlim(0.1, 0.5)
 				plt.ylim(0.01, 1.0)
 
 			plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
@@ -8940,16 +8976,16 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 			logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
 			text_box = TextArea("Preliminary", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 			logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
-			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.105, 1.0], bbox_transform = plt.gcf().transFigure)
+			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.085, 1.0], bbox_transform = plt.gcf().transFigure)
 			plt.gca().add_artist(anchored_box)
 
 
 			label = []
 			
 			if upper != 100000.:
-				label.extend( [r"$\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$", r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"Jet $p_{T} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$", r"Soft Drop: $\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+				label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5", "$\left| \eta \\right| < 2.4$; $p_{T}^{\mathrm{jet}} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$", "SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 			else:
-				label.extend( [r"$\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$", r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"Jet $p_{T} > " + str(lower) + "~\mathrm{GeV}$", r"Soft Drop: $\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+				label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5", "$\left| \eta \\right| < 2.4$; $p_{T}^{\mathrm{jet}} <" + str(lower) + "~\mathrm{GeV}$", "SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 
 
 
@@ -8967,7 +9003,8 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 
 			if log:
-				plt.xticks([0.1, 0.2, 0.5, 1.0])
+				# plt.xticks([0.1, 0.2, 0.5, 1.0])
+				plt.xticks([0.1, 0.2, 0.5])
 				plt.yticks([0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0])
 
 			plt.tick_params(which='major', width=5, length=25, labelsize=70)

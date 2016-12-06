@@ -129,7 +129,7 @@ def trigger_turn_on_curves():
 
 	mod_hists = parsed_linear[0]
 
-	colors = ['green', 'magenta', 'blue', 'red', 'brown', 'orange']
+	colors = ['green', 'magenta', 'blue', 'red', 'orange', 'gray']
 	labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15\_HNF" ]
 	hist_labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15U_HcalNoiseFiltered" ]
 	lower_pTs = [140, 100, 70, 50, 30, 15]
@@ -160,13 +160,13 @@ def trigger_turn_on_curves():
 	# Info about R, pT_cut, etc.
 	extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 	handles = [extra]
-	labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$\n$\eta<2.4$"]
-	info_legend = plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.99, 0.56])
+	labels = ["AK5; $\left| \eta \\right| < 2.4$"]
+	info_legend = plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.28, 0.92])
 	plt.gca().add_artist(info_legend)
 
 
-	plt.gca().set_xlabel("Trigger Jet $p_T$ [GeV]", fontsize=90, labelpad=50)
-	plt.gca().set_ylabel("A.U.", rotation=0, fontsize=90, labelpad=65)
+	plt.gca().set_xlabel("Trigger Jet $p_T$ [GeV]", fontsize=70, labelpad=50)
+	plt.gca().set_ylabel("Rescaled Events", fontsize=70, labelpad=25)
 
 	plt.gca().add_artist(logo_box(0.135, 0.99))
 
@@ -174,7 +174,7 @@ def trigger_turn_on_curves():
 	plt.gca().set_yscale('log')
 
 	handles, labels = plt.gca().get_legend_handles_labels()
-	legend = plt.legend(handles[::-1], labels[::-1], frameon=0, bbox_to_anchor=[0.97, 0.99])
+	legend = plt.legend(handles[::-1], labels[::-1], frameon=0, fontsize=60, bbox_to_anchor=[0.97, 0.99])
 	ax = plt.gca().add_artist(legend)
 
 
@@ -245,14 +245,23 @@ def trigger_efficiency_plot():
 	    plt.errorbar(filtered_x, filtered_y, zorder=range(len(plots))[len(plots) - i - 1], color=colors[i], markeredgecolor=colors[i], label=labels[i], xerr=filtered_x_err, yerr=filtered_y_err, ls='None', alpha=1.0, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
 
+	extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+
+	plt.autoscale()
+	plt.gca().set_ylim(1e-3, 7e4)
 
 	cms_turn_on_pTs = [250, 200, 150, 115, 85]
 	for i in range(0, len(hist_labels)):
 
+		'''
 		if cms_turn_on_pTs[i] != 0:
 			source = "MOD"
 			plt.gca().annotate(str(cms_turn_on_pTs[i]) + " GeV", xy=(cms_turn_on_pTs[i], 1.), xycoords='data', xytext=(-100, 350),  textcoords='offset points', color=colors[i], size=50, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[i], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
+		'''
 
+		plt.plot([ cms_turn_on_pTs[i], cms_turn_on_pTs[i] ], [ 1e0, 4e1 ], lw=10, ls="dashed", color=colors[i])
+
+		plt.gca().text((cms_turn_on_pTs[i] - 15), 5e1, str(cms_turn_on_pTs[i]) + " GeV", color=colors[i])
 		  
 	# Horizontal Line.
 	plt.plot([0] + list(mod_hists[hist_labels[i][0]].hist().x()), [1] * (1 + len(list(mod_hists[hist_labels[i][0]].hist().x()))), color="black", linewidth=5, linestyle="dashed")
@@ -262,15 +271,15 @@ def trigger_efficiency_plot():
 
 
 	# Info about R, pT_cut, etc.
-	extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+	
 	handles = [extra]
-	labels = ["$ \\textrm{Anti--}k_{t}\\textrm{:}~R = 0.5$\n$\eta<2.4$"]
-	info_legend = plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.33, 0.80])
+	labels = ["AK5; $\left| \eta \\right| < 2.4$"]
+	info_legend = plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.30, 0.92])
 	plt.gca().add_artist(info_legend)
 
 
-	plt.gca().set_xlabel("Trigger Jet $p_T$ [GeV]", fontsize=90, labelpad=50)
-	plt.gca().set_ylabel("A.U.", rotation=0, fontsize=90, labelpad=65)
+	plt.gca().set_xlabel("Trigger Jet $p_T$ [GeV]", fontsize=70, labelpad=50)
+	plt.gca().set_ylabel("Ratio", fontsize=70, labelpad=65)
 
 	plt.gca().add_artist(logo_box(0.130, 0.98))
 
@@ -278,12 +287,11 @@ def trigger_efficiency_plot():
 	plt.gca().set_yscale('log')
 
 	handles, labels = plt.gca().get_legend_handles_labels()
-	legend = plt.legend(handles[::-1][:-5], labels[::-1][:-5], frameon=0, bbox_to_anchor=[0.99, 0.99])
+	legend = plt.legend(handles[::-1][:-5], labels[::-1][:-5], fontsize=60, frameon=0, bbox_to_anchor=[0.99, 0.99])
 	ax = plt.gca().add_artist(legend)
 
 
-	plt.autoscale()
-	plt.gca().set_ylim(1e-3, 5e4)
+	
 
 	plt.tick_params(which='major', width=5, length=25, labelsize=70)
 	plt.tick_params(which='minor', width=3, length=15)

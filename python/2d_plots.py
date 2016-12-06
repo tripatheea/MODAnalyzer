@@ -117,9 +117,8 @@ def two_dim_plots():
 	
 	colors = ['Greys', 'Blues', 'Greens', 'purple'] 
 	hatch_colors = ['gray', 'blue', 'green', 'purple']
-	# sources = ['data', 'pythia', 'herwig', 'sherpa']
-	sources = ['data']
-	source_labels = ["CMS 2010 Open Data", "Pythia 8.215", "Herwig 7.0.1", "Sherpa 2.2.1" ]
+	sources = ['data', 'pythia', 'herwig', 'sherpa']
+	source_labels = ["CMS 2010 Open Data", "Pythia 8.219", "Herwig 7.0.3", "Sherpa 2.2.1" ]
 
 	# colors = ['Greys'] 
 	# hatch_colors = ['gray']
@@ -162,25 +161,20 @@ def two_dim_plots():
 				y_s =[]
 				z_s = []
 
-				for i in range(1, hist.nbins(0) + 2):
-					for j in range(1, hist.nbins(1) + 2):
-						
+				for i in range(1, hist.nbins(0) + 1):
+					for j in range(1, hist.nbins(1) + 1):
+
 						z = hist.GetBinContent(i, j)
-						x = hist.GetXaxis().GetBinCenter(i) - (hist.GetXaxis().GetBinWidth(i) / 2)
-						y = hist.GetYaxis().GetBinCenter(j) - (hist.GetYaxis().GetBinWidth(j) / 2)
+						x = hist.GetXaxis().GetBinCenter(i)
+						y = hist.GetYaxis().GetBinCenter(j)
 
 						x_s.append(x)
 						y_s.append(y)
 						z_s.append(z)
 
 
-						print x, y
 
-
-
-				print len(x_s), len(y_s), len(z_s)
-
-				H, xedges, yedges = np.histogram2d(x_s, y_s, bins=[50, 50], weights=z_s, normed=True)
+				H, xedges, yedges = np.histogram2d(x_s, y_s, bins=[25, 25], range=[[0.0, 0.5], [0.0, 1.0]], weights=z_s, normed=True)
 
 				H = np.array(H)
 
@@ -191,16 +185,17 @@ def two_dim_plots():
 				plt.pcolor(xedges,yedges, Hmasked, cmap=color, vmin=0, vmax=10)
 
 				cbar = plt.colorbar(ticks=[2 * i for i in range(6)])
-				cbar.ax.set_ylabel('$\\frac{1}{\sigma^2} \\frac{\mathrm{d}^2 \sigma}{\mathrm{d} z_g \mathrm{d} \\theta_g}$', labelpad=150, fontsize=105, rotation=0)
+				# cbar.ax.set_ylabel('$\\frac{1}{\sigma} \\frac{\mathrm{d}^2 \sigma}{\mathrm{d} z_g \mathrm{d} \\theta_g}$', labelpad=150, fontsize=105, rotation=0)
 				# cbar.ax.set_ylim(0, 24)
 
 				
 
 				label = []
 				if upper != 100000.:
-					label.extend( [r"$\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$", r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"Jet $p_{T} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$", r"Soft Drop: $\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+						# $p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$
+						label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 				else:
-					label.extend( [r"$\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$", r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"Jet $p_{T} > " + str(lower) + "~\mathrm{GeV}$", r"Soft Drop: $\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+					label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} >" + str(lower) + "~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 
 				extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 			
@@ -261,7 +256,7 @@ def two_dim_log_plots():
 	colors = ['Greys', 'Blues', 'Greens', 'purple'] 
 	hatch_colors = ['gray', 'blue', 'green', 'purple']
 	sources = ['data', 'pythia', 'herwig', 'sherpa']
-	source_labels = ["CMS 2010 Open Data", "Pythia 8.215", "Herwig 7.0.1", "Sherpa 2.2.1" ]
+	source_labels = ["CMS 2010 Open Data", "Pythia 8.219", "Herwig 7.0.3", "Sherpa 2.2.1" ]
 
 	startcolor = 'white'  # a dark olive 
 	endcolor = 'purple'    # medium dark red
@@ -274,7 +269,7 @@ def two_dim_log_plots():
 	z_cut = 0.1
 
 	a = 0
-	for a in range(4):
+	for a in range(len(sources)):
 		color, source, source_label, hatch_color = colors[a], sources[a], source_labels[a], hatch_colors[a]
 
 		with PdfPages("plots/Version 5/zg_against_theta_g/big5_zg_vs_rg_" + source + "_log.pdf") as pdf:
@@ -297,18 +292,28 @@ def two_dim_log_plots():
 
 				
 				np_region_x_s, np_region_y_s, np_region_z_s = [], [], []
-				for i in range(hist.nbins(0)):
-					for j in range(hist.nbins(1)):
+
+				# for i in range(1, hist.nbins(0) + 2):
+				for i in range(1, hist.nbins(0) + 3):
+					# for j in range(1, hist.nbins(1) + 2):
+					for j in range(1, hist.nbins(1) + 3):
+						
 						z = hist.GetBinContent(i, j)
-						x = hist.GetXaxis().GetBinCenter(i)
-						y = hist.GetYaxis().GetBinCenter(j)
+						x = hist.GetXaxis().GetBinCenter(i) - (hist.GetXaxis().GetBinWidth(i) / 2)
+						y = hist.GetYaxis().GetBinCenter(j) - (hist.GetYaxis().GetBinWidth(j) / 2)
 
 						x_s.append(x)
 						y_s.append(y)
 						z_s.append(z)
-							
 
-				H, xedges, yedges = np.histogram2d(x_s, y_s, bins=[np.logspace(math.log(float(0.1), math.e), math.log(0.5, math.e), 50, base=np.e), np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 50, base=np.e)], weights=z_s, normed=True)
+						# if i == 25:
+						# 	print x, y 
+
+				
+				# print i, j
+
+
+				H, xedges, yedges = np.histogram2d(x_s, y_s, bins=[np.logspace(math.log(float(0.1), math.e), math.log(0.5, math.e), 25, base=np.e), np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 25, base=np.e)], weights=z_s, normed=True)
 
 				H_normalized = np.array(H)
 				H = H_normalized
@@ -321,14 +326,15 @@ def two_dim_log_plots():
 				
 				cbar = plt.colorbar(ticks=[4 * i for i in range(6)])
 				cbar.ax.tick_params(labelsize=70) 
-				cbar.ax.set_ylabel('$\\frac{z_g \\theta_g}{\sigma^2} \\frac{\mathrm{d}^2 \sigma}{\mathrm{d} z_g \mathrm{d} \\theta_g}$', labelpad=150, fontsize=105, rotation=0)
+				# cbar.ax.set_ylabel('$\\frac{z_g \\theta_g}{\sigma} \\frac{\mathrm{d}^2 \sigma}{\mathrm{d} z_g \mathrm{d} \\theta_g}$', labelpad=150, fontsize=105, rotation=0)
 
 
 				label = []
 				if upper != 100000.:
-						label.extend( [r"$\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$", r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"Jet $p_{T} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$", r"Soft Drop: $\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+						# $p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$
+						label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 				else:
-					label.extend( [r"$\mathrm{PFC}~p_T > 0.5~\mathrm{GeV}$", r"$ \mathrm{Anti-}k_{t}\mathrm{:}~R = 0.5; \left| \eta \right| < 2.4$", r"Jet $p_{T} > " + str(lower) + "~\mathrm{GeV}$", r"Soft Drop: $\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+					label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} >" + str(lower) + "~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 
 				extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 			
@@ -352,13 +358,14 @@ def two_dim_log_plots():
 				plt.yscale('log')
 
 
-				plt.xlim(0.1, 1.0)
+				plt.xlim(0.1, 0.5)
 				plt.ylim(0.01, 1.0)
 
 				plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
 				plt.gca().yaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
 
-				plt.xticks([0.1, 0.2, 0.5, 1.0])
+				# plt.xticks([0.1, 0.2, 0.5, 1.0])
+				plt.xticks([0.1, 0.2, 0.3, 0.4, 0.5])
 				plt.yticks([0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0])
 
 				logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
@@ -387,7 +394,7 @@ start = time.time()
 
 
 two_dim_plots()
-# two_dim_log_plots()
+two_dim_log_plots()
 
 end = time.time()
 

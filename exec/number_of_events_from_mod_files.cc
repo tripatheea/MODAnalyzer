@@ -11,6 +11,8 @@
 
 #include <cstdio>
 
+#include <string>
+
 
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/contrib/SoftDrop.hh"
@@ -36,6 +38,8 @@ using namespace boost::filesystem;
 
 void get_all_files_to_process(std::vector<string> & all_files, boost::filesystem::path input_path);
 
+void get_files_already_processed(std::vector<string> & files_processed, int & total_count, string log_filename);
+
 int main(int argc, char * argv[]) {
    
    auto start = std::chrono::steady_clock::now();
@@ -54,12 +58,13 @@ int main(int argc, char * argv[]) {
    }
 
    path input_path(argv[1]);
-   ofstream output_file(argv[2], ios::out);
+   ofstream output_file(argv[2], ios::out | ios::app);
 
    cout << endl << endl << "Starting number_of_events_from_mod_files with the following given arguments: " << endl << endl;
    cout << "Input Path   : " << argv[1] << endl;
    cout << "Output File  : " << argv[2] << endl;
    cout << "No. of files : " << number_of_files_to_process << endl;
+   
    
    // Recursively collect all filenames to process.
 
@@ -74,58 +79,71 @@ int main(int argc, char * argv[]) {
    int total_files = all_filenames.size();
    int total_validated_events = 0;
 
+   // Read in files we have already counted events for.
+   vector<string> files_processed;
+   get_files_already_processed(files_processed, total_validated_events, argv[2]);
+
+
    int file_counter = 0;
    // Loop through all those files and count events. 
    for (int i = 0; i < total_files; i++) {
 
-      if (i < number_of_files_to_process) {
-         ifstream file_to_process(all_filenames[i]);
+      string filename = all_filenames[i];
+      filename = filename.substr(filename.length() - 40, 36);
 
-         string filename = all_filenames[i];
-         filename = filename.substr(filename.length() - 40, 36);
-
-         file_counter++;
-
-         if ((file_counter % 1) == 0)
-            cout << "Processing file number " << file_counter << " / " << total_files << endl;
-
-         MOD::Event event_being_read;
-         int event_serial_number = 1;
-
-         while (event_being_read.read_event(file_to_process)) {
-            
-            auto search = event_counts.find(filename);
-            if (search != event_counts.end()) {
-               search->second++;
-            }
-            else {
-               event_counts.insert(make_pair(filename, 1));
-            }
-
-            event_being_read = MOD::Event();
-            event_serial_number++;
-            total_validated_events++;
-         }   
-      }
-      else {
+      if ((i >= number_of_files_to_process)) {
          break;
+      } 
+      else {
+         if (std::find(files_processed.begin(), files_processed.end(), filename) == files_processed.end()) {
+            
+            ifstream file_to_process(all_filenames[i]);
+      
+            file_counter++;
+
+            if ((file_counter % 1) == 0) {
+               cout << "Processing file number " << (file_counter + files_processed.size()) << " / " << total_files << ". I have counted " << total_validated_events << " events so far." << endl;
+            }
+               
+            MOD::Event event_being_read;
+            int event_serial_number = 1;
+
+            while (event_being_read.read_event(file_to_process)) {
+               
+               auto search = event_counts.find(filename);
+               if (search != event_counts.end()) {
+                  search->second++;
+               }
+               else {
+                  event_counts.insert(make_pair(filename, 1));
+               }
+
+               event_being_read = MOD::Event();
+               event_serial_number++;
+               total_validated_events++;
+            }
+
+            output_file << filename << "\t" << event_counts[filename] << endl;   
+         }
       }
+      
+      
 
       
    }
 
    
-   vector<string> filenames;
-   for(auto kv : event_counts) {
-      filenames.push_back(kv.first);
-   }
+   // vector<string> filenames;
+   // for(auto kv : event_counts) {
+   //    filenames.push_back(kv.first);
+   // }
 
-   sort( filenames.begin(), filenames.end() );
+   // sort( filenames.begin(), filenames.end() );
 
 
-   for (string file : filenames) {
-      output_file << file << "\t" << event_counts[file] << endl;
-   }
+   // for (string file : filenames) {
+   //    output_file << file << "\t" << event_counts[file] << endl;
+   // }
 
 
 
@@ -153,6 +171,26 @@ void get_all_files_to_process(std::vector<string> & all_files, boost::filesystem
          // cout << itr->path().string() << endl;
          get_all_files_to_process(all_files, itr->path());
       }
+   }
+
+}
+
+
+void get_files_already_processed(std::vector<string> & files_processed, int & total_count, string log_filename) {
+   std::ifstream log_file(log_filename);
+
+   std::string line;
+   while (std::getline(log_file, line)) {
+      std::istringstream iss(line);
+
+      string filename;
+      int number;
+
+      iss >> filename >> number;
+
+      files_processed.push_back(filename);
+
+      total_count += number;
    }
 
 }

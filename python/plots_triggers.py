@@ -101,6 +101,7 @@ def parse_file(input_file, keywords_to_populate, pT_lower_cut=150., pT_upper_cut
   keywords = []
   keywords_set = False
   for line in lines:
+  # for line in lines[:100000]:
     try:
       numbers = line.split()
 
@@ -601,7 +602,9 @@ def plot_prescales():
   # properties = parse_file_turn_on(input_analysis_file, pT_lower_cut=0)
   
 
-  
+  average_prescales = [1.000, 6.148, 28.299, 117.588, 634.555]
+  average_prescales_y = [4e4, 6e2, 1e3, 4e2, 1e4]
+
   trigger_names = properties['trigger_name']
   prescales = properties['prescale']
 
@@ -624,7 +627,14 @@ def plot_prescales():
 
   for k in range(len(prescale_hists) - 1, -1, -1):
     # rplt.hist(prescale_hists[k], emptybins=False, lw=8, histtype='step')
+
+    avg_prescale = average_prescales[k]
+    plt.gca().annotate(str(avg_prescale), xy=(avg_prescale, average_prescales_y[k]), xycoords='data', xytext=(-100, [500, 500, 500, 700, 500][k]),  textcoords='offset points', color=colors[k], size=40, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[k], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
+
+
+
     plt.hist(prescale_hists[k], label=labels[k], color=colors[k], lw=8, histtype='step')
+
 
 
 
@@ -645,12 +655,12 @@ def plot_prescales():
 
   logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
 
-  anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.14, 1.0], bbox_transform = plt.gcf().transFigure)
+  anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.102, 0.98], bbox_transform = plt.gcf().transFigure)
   plt.gca().add_artist(anchored_box)
 
 
   plt.xlabel("Trigger Prescale", fontsize=65, rotation=0)
-  plt.ylabel("No. of \n Events", fontsize=65, rotation=0, labelpad=50.)
+  plt.ylabel("No. of Events", fontsize=65, labelpad=50.)
 
   plt.legend(frameon=False)
 
@@ -711,10 +721,10 @@ def calculate_average_prescales():
 
 
 
-plot_turn_on_curves()
+# plot_turn_on_curves()
 # plot_all_trigger_efficiency_curves()
 
-# plot_prescales()
+plot_prescales()
 
 
 # calculate_average_prescales()
