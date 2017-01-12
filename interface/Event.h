@@ -88,6 +88,10 @@ namespace MOD {
 
             friend std::ostream& operator<< (std::ostream&, const Event&);
             
+
+            bool is_trigger_jet_matched();
+
+            
          private:
             int _run_number, _event_number, _version;
             double _weight = 1.0;
@@ -121,7 +125,8 @@ namespace MOD {
             void establish_properties();
 
             void set_trigger_jet();
-            void set_trigger_jet_is_matched();
+            // void set_trigger_jet_is_matched();
+            
             void set_closest_fastjet_jet_to_trigger_jet();
 
             void set_event_number(int event_number);

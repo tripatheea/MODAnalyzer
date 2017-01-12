@@ -349,10 +349,12 @@ void MOD::Event::establish_properties() {
       set_closest_fastjet_jet_to_trigger_jet();
 
       // cout << "Trigger jet matched!" << endl;
-      set_trigger_jet_is_matched();
+      // set_trigger_jet_is_matched();
 
       // cout << "Assigned trigger!" << endl;
       set_assigned_trigger();
+
+      //cout << "Assigned trigger is " << _assigned_trigger.name() << endl;
 
    }
    else if (data_source() == PRISTINE) {
@@ -534,20 +536,23 @@ void MOD::Event::set_assigned_trigger() {
 
    // First, figure out the hardest pT.
    PseudoJet trigger_jet = _trigger_jet;
-
-   // cout << trigger_jet.pt() << " vs. ";
+   
+   //cout << "Pre trigger jet is: " << trigger_jet.pt() << endl;
+   //cout << "JEC is: " << _hardest_jet_jec << endl;
 
    trigger_jet *= _hardest_jet_jec;
 
-   // cout << trigger_jet.pt() << endl;
+   //cout << "Post trigger jet is: " << trigger_jet.pt() << endl;
 
    if (trigger_jet.E() == 0.0) {
       _assigned_trigger_name = "";
       _assigned_trigger = Trigger();
    }
    else {
-      double hardest_pT = trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC();
 
+      double hardest_pT = trigger_jet.pt();
+
+      //cout << hardest_pT << endl;
 
       // Next, lookup which trigger to use based on the pT value of the hardest jet.
 
@@ -580,7 +585,7 @@ void MOD::Event::set_assigned_trigger() {
    }
 
    
-   
+   //cout << "Here: " << _assigned_trigger.name() << endl;
 
 }
 
@@ -595,6 +600,14 @@ double MOD::Event::get_hardest_jet_area() const {
 }
 
 void MOD::Event::set_trigger_jet() {
+	
+   /*
+   for (unsigned i=0; i < _cms_jets.size(); i++) {
+	cout << _cms_jets[i].pt() << ", ";
+   }
+	
+   cout << endl << "========================================" << endl;
+   */
 
    // TODO: THis selects trigger jet without JEC.
 
@@ -604,16 +617,42 @@ void MOD::Event::set_trigger_jet() {
    // Selector rapidity_selector = SelectorAbsRapMax(2.4);
    // processed_jets = rapidity_selector(processed_jets);
 
+   /*
+   for (unsigned i=0; i < processed_jets.size(); i++) {
+	cout << processed_jets[i].pt() << ", ";
+   }
+	
+   cout << endl << "========================================" << endl;
+   
+
+   for (unsigned i=0; i < processed_jets.size(); i++) {
+	cout << processed_jets[i].user_info<InfoCalibratedJet>().JEC() << ", ";
+   }
+	
+   cout << endl << "========================================" << endl;
+
+
+
+   cout << processed_jets[0].pt() << endl;
+   */
 
    // cout << processed_jets.size() << endl;
 
    // Then, sort the jets and store the hardest one as _trigger_jet.
    if (processed_jets.size() > 0) {
-      sorted_by_pt(processed_jets);
+      vector<PseudoJet> sorted_processed_jets = sorted_by_pt(processed_jets);
       
-      auto it = find(processed_jets.begin(), processed_jets.end(), processed_jets[0]);
-      auto index = distance(processed_jets.begin(), it);
+      //cout << sorted_processed_jets[0].pt() << endl;
+
+      int index = find(processed_jets.begin(), processed_jets.end(), sorted_processed_jets[0]) - processed_jets.begin();
+      //auto index = distance(processed_jets.begin(), it);
       _trigger_jet = _cms_jets[index];
+
+      //cout << "index is " << index << endl;
+
+      //cout << "in processed jet it is, " << processed_jets[index].pt() << endl;
+
+      //cout << "Trigger jet is " << _trigger_jet.pt() << endl;
    }
    else {
       _trigger_jet = PseudoJet();
@@ -670,38 +709,72 @@ const PseudoJet & MOD::Event::trigger_jet() const {
    return _trigger_jet;
 }
 
-void MOD::Event::set_trigger_jet_is_matched() {
+// void MOD::Event::set_trigger_jet_is_matched() {
+
+
+//    // cout << "Energy: " << _trigger_jet.E() << endl;
+
+//    if (_trigger_jet.E() == 0.0) {
+//       _trigger_jet = PseudoJet();
+//       _trigger_jet_is_matched = false;
+//       cout << "Not matched " << _event_number << endl;
+//       return;
+//    }
+
+
+//    // Compare the number of constituents first.
+//    if ((unsigned) _trigger_jet.user_info<MOD::InfoCalibratedJet>().number_of_constituents() != (unsigned) _closest_fastjet_jet_to_trigger_jet.constituents().size()) {
+//       // _trigger_jet = PseudoJet();
+//       _trigger_jet_is_matched = false;
+//       cout << "Not matched " << _event_number << endl;
+//       return;
+//    }
+
+
+//    // Next, compare if the 4-vector matches upto 10e-4 precision or not.
+//    double tolerance = pow(10., -3.);
+//    if ( ( abs(_trigger_jet.px() - _closest_fastjet_jet_to_trigger_jet.px()) < tolerance ) && ( abs(_trigger_jet.py() - _closest_fastjet_jet_to_trigger_jet.py()) < tolerance ) && ( abs(_trigger_jet.pz() - _closest_fastjet_jet_to_trigger_jet.pz()) < tolerance ) && ( abs(_trigger_jet.E() - _closest_fastjet_jet_to_trigger_jet.E()) < tolerance ) ) {      
+//       _trigger_jet_is_matched = true;
+//       return;
+//    }
+
+
+
+//    _trigger_jet_is_matched = false;
+//    // _trigger_jet = PseudoJet();
+
+//    cout << "Not matched " << _event_number << endl;
+
+//    return;
+// }
+
+
+
+bool MOD::Event::is_trigger_jet_matched() {
 
 
    // cout << "Energy: " << _trigger_jet.E() << endl;
 
    if (_trigger_jet.E() == 0.0) {
-      _trigger_jet = PseudoJet();
-      _trigger_jet_is_matched = false;
-      return;
+      return false;
    }
 
 
    // Compare the number of constituents first.
    if ((unsigned) _trigger_jet.user_info<MOD::InfoCalibratedJet>().number_of_constituents() != (unsigned) _closest_fastjet_jet_to_trigger_jet.constituents().size()) {
-      _trigger_jet = PseudoJet();
-      _trigger_jet_is_matched = false;
-      return;
+      return false;
    }
 
 
    // Next, compare if the 4-vector matches upto 10e-4 precision or not.
    double tolerance = pow(10., -3.);
    if ( ( abs(_trigger_jet.px() - _closest_fastjet_jet_to_trigger_jet.px()) < tolerance ) && ( abs(_trigger_jet.py() - _closest_fastjet_jet_to_trigger_jet.py()) < tolerance ) && ( abs(_trigger_jet.pz() - _closest_fastjet_jet_to_trigger_jet.pz()) < tolerance ) && ( abs(_trigger_jet.E() - _closest_fastjet_jet_to_trigger_jet.E()) < tolerance ) ) {      
-      _trigger_jet_is_matched = true;
-
-      return;
+      return true;
    }
 
-   _trigger_jet_is_matched = false;
-   _trigger_jet = PseudoJet();
 
-   return;
+   return false;
+   
 }
 
 
@@ -722,8 +795,9 @@ vector<PseudoJet> MOD::Event::apply_jet_energy_corrections(vector<PseudoJet> jet
       jec_corrected_jets.push_back( jets[i] * jets[i].user_info<InfoCalibratedJet>().JEC() );
    }
 
-   if (jets.size() > 0)
-      _hardest_jet_jec = jets[0].user_info<InfoCalibratedJet>().JEC();
+   if (jets.size() > 0) {
+      _hardest_jet_jec = sorted_by_pt(jec_corrected_jets)[0].user_info<InfoCalibratedJet>().JEC();
+   }
 
    return jec_corrected_jets;
 }

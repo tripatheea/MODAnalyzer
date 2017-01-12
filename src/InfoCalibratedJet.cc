@@ -86,7 +86,7 @@ void MOD::InfoCalibratedJet::set_jet_quality_level() {
              ( _neutral_em_fraction < cut_offs[i] )     &&
              ( 
                 ( abs(_eta) >= 2.4 ) || 
-                ( _charged_em_fraction < 0.99 && _charged_hadron_fraction > 0.00 && _charged_multiplicity > 0) ); 
+                ( (_charged_em_fraction < 0.99) && (_charged_hadron_fraction > 0.00) && (_charged_multiplicity > 0) ) ); 
       
       // UNDETERMINED = -1, FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3
 
