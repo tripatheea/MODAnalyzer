@@ -19,21 +19,22 @@ import rootpy.plotting.root2matplotlib as rplt
 
 
 # output_directory = "/home/aashish/root/macros/MODAnalyzer/parsed_root_files/"
-output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/"
+output_directory = "/home/aashish/Feb5/histogrammed/2d/"
 
-data_file   = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pristine.dat"
-pythia_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pythia.dat"
-herwig_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/herwig.dat"
-sherpa_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/sherpa.dat"
+data_file   = "/home/aashish/Feb5/analyzed/pristine.dat"
+# pythia_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pythia.dat"
+# herwig_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/herwig.dat"
+# sherpa_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/sherpa.dat"
 
 
 average_prescales = {}
 
+
 average_prescales[(250, None)] = 1.0
-average_prescales[(200, 250)] = 1.811595878
-average_prescales[(150, 200)] = 4.697863641
-average_prescales[(115, 150)] = 95.96314646
-average_prescales[(85, 115)] = 829.1235844
+average_prescales[(200, 250)] = 1.933420103
+average_prescales[(150, 200)] = 5.361922609
+average_prescales[(115, 150)] =  100.3122906
+average_prescales[(85, 115)] =  851.3943491
 
 
 def parse_file(input_file, all_hists, log_hists):

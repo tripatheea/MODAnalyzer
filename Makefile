@@ -8,7 +8,7 @@ FASTINC = `$(PATH_TO_FASTJET) --cxxflags`
 FASTLIB = `$(PATH_TO_FASTJET) --libs --plugins` -lRecursiveTools
 
 BOOSTINC = `$(PATH_TO_BOOST)`
-BOOSTLIB = `$(PATH_TO_BOOST) -lboost_filesystem`
+BOOSTLIB = `$(PATH_TO_BOOST) -lboost_filesystem -lboost_regex`
 
 ROOTINC = `root-config --cflags --glibs`
 
@@ -33,13 +33,13 @@ BIN=$(patsubst %,$(BINDIR)/%,$(_EXEC))
 all: $(BIN)
 
 $(OBJDIR)/%.o : $(OBJDIR)/%.cc
-	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC) -lboost_system -lboost_filesystem
+	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC) -lboost_system -lboost_filesystem -lboost_regex
 
 $(EXECDIR)/%.o : $(EXECDIR)/%.cc
-	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC) -lboost_system -lboost_filesystem
+	$(CXX) -c -o $@ $< $(CXXFLAGS) $(INC) $(FASTINC) -lboost_system -lboost_filesystem -lboost_regex
 	
 $(BINDIR)/% : $(EXECDIR)/%.o $(OBJ)
-	$(CXX) $< $(OBJ) -o $@ $(CXXFLAGS) $(FASTLIB) -lboost_system -lboost_filesystem
+	$(CXX) $< $(OBJ) -o $@ $(CXXFLAGS) $(FASTLIB) -lboost_system -lboost_filesystem -lboost_regex
 
 .PHONY: clean
 .PRECIOUS: $(OBJ) $(EXEC)

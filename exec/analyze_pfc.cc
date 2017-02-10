@@ -90,13 +90,16 @@ int main(int argc, char * argv[]) {
 
 void analyze_pfc(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number) {
 
-  
-   JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
 
+   JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
    PseudoJet hardest_jet = event_being_read.hardest_jet();
 
-   vector<PseudoJet> hardest_jet_pfcs = hardest_jet.constituents();
+   if ( ! (hardest_jet.E() > 0.0)) {
+      return;
+   }
 
+   vector<PseudoJet> hardest_jet_pfcs = hardest_jet.constituents();
+      
    for (unsigned i = 0; i < hardest_jet_pfcs.size(); i++) {
 
    		vector<MOD::Property> properties;
@@ -107,7 +110,7 @@ void analyze_pfc(MOD::Event & event_being_read, ofstream & output_file, int & ev
 	   	properties.push_back(MOD::Property("hardest_pT", hardest_jet.pt()));
 	   	properties.push_back(MOD::Property("jet_eta", hardest_jet.eta()));
 	   	properties.push_back(MOD::Property("pfc_pT", hardest_jet_pfcs[i].pt()));
-	   	properties.push_back(MOD::Property("pfc_pdgId", hardest_jet_pfcs[i].user_info<MOD::InfoPFC>().pdgId()));
+	   	// properties.push_back(MOD::Property("pfc_pdgId", hardest_jet_pfcs[i].user_info<MOD::InfoPFC>().pdgId()));
 
    		// Now that we've calculated all observables, write them out.
 

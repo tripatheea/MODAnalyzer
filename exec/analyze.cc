@@ -139,7 +139,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
 
 
    properties.push_back(MOD::Property("prescale", event_being_read.weight()));
-   properties.push_back(MOD::Property("hardest_pT", jec * event_being_read.hardest_jet().pt()));
+   properties.push_back(MOD::Property("hardest_pT", event_being_read.hardest_jet().pt()));
    properties.push_back(MOD::Property("uncor_hardest_pT", uncorrected_hardest_jet_no_softkiller.pt()));
 
    properties.push_back(MOD::Property("jec", jec));
@@ -149,6 +149,7 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back( MOD::Property("hardest_eta", event_being_read.hardest_jet().eta()) );
    properties.push_back( MOD::Property("hardest_phi", event_being_read.hardest_jet().phi()) );
 
+   
    if ((event_being_read.data_source() == 3) || (event_being_read.data_source() == 0))
       properties.push_back( MOD::Property("hardest_area", event_being_read.get_hardest_jet_area()) );
    else

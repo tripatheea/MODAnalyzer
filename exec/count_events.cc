@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <chrono>
 
+
 #include <cstdio>
 
 
@@ -19,6 +20,7 @@
 
 #include <boost/unordered_map.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/regex.hpp>
 
 
 // test
@@ -35,7 +37,7 @@ using namespace boost::filesystem;
 
 
 void count_events(MOD::Event & event_being_read, boost::unordered_map<string, int> & trigger_numbers, boost::unordered_map<string, float> & trigger_prescales, boost::unordered_map<int, int> & npv, boost::unordered_map<int, int> & filtered_npv, boost::unordered_map<string, int> & jet_quality, boost::unordered_map<float, int> & passes_softdrop, int & assigned_trigger_fired, int & ak5_match, int & eta_24_cut);
-void get_all_files_to_process(std::vector<string> & all_files, boost::filesystem::path input_path);
+void get_all_files_to_process(std::vector<string> & all_files, vector<boost::filesystem::path> input_paths);
 void count_triggers(MOD::Event & event_being_read, boost::unordered_map<string, int> & trigger_numbers, boost::unordered_map<string, float> & trigger_prescales, boost::unordered_map<string, int> & fired_trigger_numbers, boost::unordered_map<string, float> & fired_trigger_prescales);
 
 
@@ -44,49 +46,41 @@ void write_stats(string filename, boost::unordered_map<string, int> & trigger_nu
 
 int main(int argc, char * argv[]) {
    
-
-
-   ofstream debug_file("debug.dat", ios::out);
-
-
-   auto start = std::chrono::steady_clock::now();
-
-   int number_of_events_to_process = std::numeric_limits<int>::max();
-   int number_of_files_to_process = std::numeric_limits<int>::max();
-
-   path input_path(argv[1]);
-   bool use_latex(argv[2]);
-   string filename(argv[3]);
-
    
-   if (argc == 5) {
-      // Number of files to process given. 
-      number_of_files_to_process = atoi(argv[4]);
-   }
-   else if (argc == 6) {
-      number_of_files_to_process = atoi(argv[4]);
-      number_of_events_to_process = atoi(argv[5]);
-   }
-   else if (argc < 4) {
-      std::cerr << "You need to give at least two arguments: input_path and whether or not to use LaTeX." << endl;
+   string filename(argv[1]);
+   
+   
+   if (argc < 3) {
+      std::cerr << "You need to give at least two arguments: output path and one or more input directories." << endl;
       return 0;
    }
 
-   cout << use_latex << endl;
+   vector<path> input_paths;
+   for (unsigned i=2; i < argc; i++) {
+     input_paths.push_back(argv[i]);
+   }
+
+
    
    cout << endl << endl << "Starting count_events with the following given arguments: " << endl << endl;
-   cout << "Input Path   : " << argv[1] << endl;
-   cout << "Use LaTeX    : " << use_latex << endl;
-   cout << "No. of Files : " << number_of_files_to_process << endl;
-   cout << "No. of Events: " << number_of_events_to_process << endl;
-   
+   cout << "Output File     : " << argv[1] << endl;
+   cout << "Input Paths (" << input_paths.size() << ") : ";
+   for (unsigned i=0; i < input_paths.size(); i++) {
+    if (i > 0)
+        cout << "                  " << input_paths[i] << endl;
+    else 
+        cout << input_paths[i] << endl;
+   }   
 
    // Recursively collect all filenames to process.
 
    vector<string> all_filenames;
-   get_all_files_to_process(all_filenames, input_path);
+   get_all_files_to_process(all_filenames, input_paths);
 
+   // Sort the list.
+   std::sort(all_filenames.begin(), all_filenames.end());
    
+   cout << endl << endl << "Starting counting event on " << all_filenames.size() << " files." << endl << endl;
 
    // Setup data structures to hold all counts. 
    boost::unordered_map<int, int> npv;
@@ -123,31 +117,32 @@ int main(int argc, char * argv[]) {
 
    int file_counter = 0;
    // Loop through all those files and count events. 
+
+
    for (int i = 0; i < total_files; i++) {
 
-      if (i < number_of_files_to_process) {
+      
          ifstream file_to_process(all_filenames[i]);
 
          // cout << endl << (file_counter + 1) << "/" << total_files << "\t" << all_filenames[i] << endl;
          
          file_counter++;
 
-         // if ((file_counter % 100) == 0)
-            // cout << "Processing file number " << file_counter << " / " << total_files << endl;
+         if ((file_counter % 100) == 0)
+            cout << "Processing file number " << file_counter << " / " << total_files << endl;
 
          MOD::Event event_being_read;
          int event_serial_number = 1;
 
          // cout << all_filenames[i] << endl;
 
-         while ((event_being_read.read_event(file_to_process)) && (event_serial_number <= number_of_events_to_process)) {
-         // while (event_being_read.read_event(file_to_process)) {
+         while (event_being_read.read_event(file_to_process)) {
 
             // if ((event_serial_number % 10000) == 0)
                // cout << "Reading event number " << event_serial_number << endl;
             
             count_events(event_being_read, trigger_numbers, trigger_prescales, npv, filtered_npv, jet_quality, passes_softdrop, assigned_trigger_fired, ak5_match, eta_24_cut);
-            // count_triggers(event_being_read, all_trigger_numbers, all_trigger_prescales, fired_all_trigger_numbers, fired_all_trigger_prescales);
+            count_triggers(event_being_read, all_trigger_numbers, all_trigger_prescales, fired_all_trigger_numbers, fired_all_trigger_prescales);
 
             event_being_read = MOD::Event();
             event_serial_number++;
@@ -155,18 +150,14 @@ int main(int argc, char * argv[]) {
          }
 
          
-         output_file << all_filenames[i] << "\t" << eta_24_cut << endl;
-         eta_24_cut = 0;
+        
 
          cout << "Total Validated Events: " << total_validated_events << endl;   
         
 
-      }
-      else {
-         break;
-      }
+      
 
-      // write_stats(filename, trigger_numbers, trigger_prescales, npv, filtered_npv, jet_quality, passes_softdrop, assigned_trigger_fired, ak5_match, eta_24_cut, total_validated_events, grand_total, all_trigger_numbers, all_trigger_prescales, fired_all_trigger_numbers, fired_all_trigger_prescales);
+      write_stats(filename, trigger_numbers, trigger_prescales, npv, filtered_npv, jet_quality, passes_softdrop, assigned_trigger_fired, ak5_match, eta_24_cut, total_validated_events, grand_total, all_trigger_numbers, all_trigger_prescales, fired_all_trigger_numbers, fired_all_trigger_prescales);
       
    }
 
@@ -176,57 +167,11 @@ int main(int argc, char * argv[]) {
    cout << endl << "==================================================================" << endl << endl;
 
 
-
-   // cout << "Assigned Trigger Fired: " << assigned_trigger_fired << endl << endl;
-   // cout << "AK5 Match: " << ak5_match << endl << endl;
-   // cout << "|eta| < 2.4: " << eta_24_cut << endl << endl;
-
-   // cout << "====== NPV ======" << endl;
-   // for (auto kv : npv) {
-   //    cout << kv.first << " => " << kv.second << endl;
-   // }
-   // cout << endl << endl;
-
-   // cout << "====== Jet Quality ======" << endl;
-   // for (auto kv : jet_quality) {
-   //    cout << kv.first << " => " << kv.second << endl;
-   // }
-   // cout << endl << endl;
-
-   // cout << "====== Total ======" << endl;
-   // cout << "Total Validated Events: " << total_validated_events << endl;   
-
-
-   if (use_latex) {
-
-
-      // cout << endl << endl << "================ LaTeX =============" << endl << endl;
-
-   
-      // cout << "\\hline" << endl;
-      // cout << "\\hline" << endl;
-      // cout << "& Events & Fraction\\\\" << endl;
-      // cout << "\\hline" << endl;
-      // cout << "Jet Primary Dataset & 20,022,826 & 1.000 \\\\" << endl;
-      // cout << "Validated Run & " << total_validated_events << " & " << fixed << setprecision(3) << (total_validated_events/float(grand_total)) << " \\\\" << " \\\\" << endl;
-      // cout << "Loose Jet Quality (\\Tab{tab:jet_quality}) & " << jet_quality["LOOSE"] << " & " << fixed << setprecision(3) << (jet_quality["LOOSE"]/float(grand_total)) << " \\\\" << endl;
-      // cout << "Assigned Trigger Fired (\\Tab{tab:trigger_table}) & " << assigned_trigger_fired << " & " << fixed << setprecision(3) << (assigned_trigger_fired/float(grand_total)) << " \\\\" << endl;
-      // cout << "\\hline" << endl;
-      // cout << "AK5 Match & " << ak5_match << " & " << fixed << setprecision(3) << (ak5_match/float(grand_total)) << "\\\\" << endl;
-      // cout << "$\\left| \\eta \\right| < 2.4$ & " << eta_24_cut << " & " << fixed << setprecision(3) << (eta_24_cut/float(grand_total)) << " \\\\" << endl;
-      // cout << "\\hline" << endl;
-      // cout << "Passes Soft Drop ($z_g > z_{\\rm cut}$) & " << passes_softdrop[0.1] << " & " << fixed << setprecision(3) << (passes_softdrop[0.1]/float(grand_total)) << " \\\\" << endl;
-      // cout << "\\hline" << endl;
-      // cout << "\\hline" << endl;
-
-      
-      // write_stats(filename, trigger_numbers, trigger_prescales, npv, filtered_npv, jet_quality, passes_softdrop, assigned_trigger_fired, ak5_match, eta_24_cut, total_validated_events, grand_total, all_trigger_numbers, all_trigger_prescales, fired_all_trigger_numbers, fired_all_trigger_prescales);
+    write_stats(filename, trigger_numbers, trigger_prescales, npv, filtered_npv, jet_quality, passes_softdrop, assigned_trigger_fired, ak5_match, eta_24_cut, total_validated_events, grand_total, all_trigger_numbers, all_trigger_prescales, fired_all_trigger_numbers, fired_all_trigger_prescales);
          
 
       
-   }
 
-   cout << endl << endl;
    
 
 }
@@ -327,13 +272,13 @@ void write_stats(string filename, boost::unordered_map<string, int> & trigger_nu
    output_file << "\\hline" << endl;
    output_file << "Hardest Jet $p_T$ & Trigger Name & Events  & $\\langle$Prescale$\\rangle$ \\\\" << endl;
    output_file << "\\hline" << endl;
-   output_file << "$[85, 115]~\\GeV$ & \\texttt{HLT\\_Jet30U} & " << trigger_numbers["HLT_Jet30U"] + trigger_numbers["HLT_Jet30U_v3"] << " & " << (trigger_prescales["HLT_Jet30U"] * trigger_numbers["HLT_Jet30U"] +  trigger_prescales["HLT_Jet30U_v3"] * trigger_numbers["HLT_Jet30U_v3"]) / (trigger_numbers["HLT_Jet30U"] + trigger_numbers["HLT_Jet30U_v3"]) << " \\\\" << endl;
-   output_file << "$[115, 150]~\\GeV$ & \\texttt{HLT\\_Jet50U} & " << trigger_numbers["HLT_Jet50U"] + trigger_numbers["HLT_Jet50U_v3"] << " & " << (trigger_prescales["HLT_Jet50U"] * trigger_numbers["HLT_Jet50U"] +  trigger_prescales["HLT_Jet50U_v3"] * trigger_numbers["HLT_Jet50U_v3"]) / (trigger_numbers["HLT_Jet50U"] + trigger_numbers["HLT_Jet50U_v3"]) << " \\\\" << endl;
-   output_file << "$[150, 200]~\\GeV$ & \\texttt{HLT\\_Jet70U}  & " << trigger_numbers["HLT_Jet70U"] + trigger_numbers["HLT_Jet70U_v2"] + trigger_numbers["HLT_Jet70U_v3"] << " & " << (trigger_prescales["HLT_Jet70U"] * trigger_numbers["HLT_Jet70U"] + trigger_prescales["HLT_Jet70U_v2"] * trigger_numbers["HLT_Jet70U_v2"] +  trigger_prescales["HLT_Jet70U_v3"] * trigger_numbers["HLT_Jet70U_v3"]) / (trigger_numbers["HLT_Jet70U"] + trigger_numbers["HLT_Jet70U_v2"] + trigger_numbers["HLT_Jet70U_v3"]) << " \\\\" << endl;
-   output_file << "$[200, 250]~\\GeV$ & \\texttt{HLT\\_Jet100U} & " << trigger_numbers["HLT_Jet100U"] + trigger_numbers["HLT_Jet100U_v2"] + trigger_numbers["HLT_Jet100U_v3"] << " & " << (trigger_prescales["HLT_Jet100U"] * trigger_numbers["HLT_Jet100U"] + trigger_prescales["HLT_Jet100U_v2"] * trigger_numbers["HLT_Jet100U_v2"] +  trigger_prescales["HLT_Jet100U_v3"] * trigger_numbers["HLT_Jet100U_v3"]) / (trigger_numbers["HLT_Jet100U"] + trigger_numbers["HLT_Jet100U_v2"] + trigger_numbers["HLT_Jet100U_v3"]) <<  "\\\\" << endl;
+   output_file << "$[85, 115]~\\GeV$ & \\texttt{HLT\\_Jet30U} & " << trigger_numbers["Jet30U"] <<  " & " << trigger_prescales["Jet30U"]  << " \\\\" << endl;
+   output_file << "$[115, 150]~\\GeV$ & \\texttt{HLT\\_Jet50U} & " << trigger_numbers["Jet50U"] << " & " << trigger_prescales["Jet50U"] << " \\\\" << endl;
+   output_file << "$[150, 200]~\\GeV$ & \\texttt{HLT\\_Jet70U}  & " << trigger_numbers["Jet70U"] << " & " << trigger_prescales["Jet70U"] << " \\\\" << endl;
+   output_file << "$[200, 250]~\\GeV$ & \\texttt{HLT\\_Jet100U} & " << trigger_numbers["Jet100U"] << " & " << trigger_prescales["Jet100U"] <<  "\\\\" << endl;
    output_file << "\\hline" << endl;
    output_file << "\\multirow{2}{*}{$> 250~\\GeV$} & \\texttt{HLT\\_Jet100U}   & " << trigger_numbers["extra_100U"] << " & " << trigger_prescales["extra_100U"] << "\\\\" << endl;
-   output_file << "& \\texttt{HLT\\_Jet140U} & " << trigger_numbers["HLT_Jet140U_v1"] + trigger_numbers["HLT_Jet140U_v3"] << " & " << (trigger_prescales["HLT_Jet140U_v1"] * trigger_numbers["HLT_Jet140U_v1"] +  trigger_prescales["HLT_Jet140U_v3"] * trigger_numbers["HLT_Jet140U_v3"]) / (trigger_numbers["HLT_Jet140U_v1"] + trigger_numbers["HLT_Jet140U_v3"]) << "\\\\" << endl;
+   output_file << "& \\texttt{HLT\\_Jet140U} & " << trigger_numbers["Jet140U"] << " & " << trigger_prescales["Jet140U"] << "\\\\" << endl;
    output_file << "\\hline" << endl;
    output_file << "\\hline" << endl;
 
@@ -343,49 +288,34 @@ void write_stats(string filename, boost::unordered_map<string, int> & trigger_nu
    output_file << endl << endl << endl << endl << endl;
 
 
-   for (auto kv : all_trigger_numbers) {
-      output_file << kv.first << " \t  " << kv.second <<  " \t " << all_trigger_prescales[kv.first] << endl;
-   }
-   
-   // cout << endl << endl << "================ LaTeX =============" << endl << endl;
-
-  
-
-   // ostringstream LaTeX_stream;
-
-   output_file << endl << endl << endl;
 
    output_file << "\\hline" << endl;
    output_file << "\\hline" << endl;
    output_file << "&Trigger & Trig Present & $\\langle$Prescale$\\rangle$ & Trig Fired? & $\\langle$Prescale$\\rangle$\\\\" << endl;
    output_file << "\\hline" << endl;
-   output_file << "Single-jet & \\texttt{HLT\\_Jet15U} & " << all_trigger_numbers["HLT_Jet15U"] + all_trigger_numbers["HLT_Jet15U_v3"] << " & " << (all_trigger_prescales["HLT_Jet15U"] * all_trigger_numbers["HLT_Jet15U"] +  all_trigger_prescales["HLT_Jet15U_v3"] * all_trigger_numbers["HLT_Jet15U_v3"]) / (all_trigger_numbers["HLT_Jet15U"] + all_trigger_numbers["HLT_Jet15U_v3"]) << " & " << fired_all_trigger_numbers["HLT_Jet15U"] + fired_all_trigger_numbers["HLT_Jet15U_v3"] << " & " << (fired_all_trigger_prescales["HLT_Jet15U"] * fired_all_trigger_numbers["HLT_Jet15U"] +  fired_all_trigger_prescales["HLT_Jet15U_v3"] * fired_all_trigger_numbers["HLT_Jet15U_v3"]) / (fired_all_trigger_numbers["HLT_Jet15U"] + fired_all_trigger_numbers["HLT_Jet15U_v3"]) << " \\\\" << endl;
-   output_file << "&\\texttt{* HLT\\_Jet15U\\_HNF} & " << all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered"] + all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered_v3"] << " & " << (all_trigger_prescales["HLT_Jet15U_HcalNoiseFiltered"] * all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered"] +  all_trigger_prescales["HLT_Jet15U_HcalNoiseFiltered_v3"] * all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered_v3"]) / (all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered"] + all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered_v3"]) << " & " << fired_all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered"] + fired_all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered_v3"] << " & " << (fired_all_trigger_prescales["HLT_Jet15U_HcalNoiseFiltered"] * fired_all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered"] +  fired_all_trigger_prescales["HLT_Jet15U_HcalNoiseFiltered_v3"] * fired_all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered_v3"]) / (fired_all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered"] + fired_all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered_v3"]) << "  \\\\" << endl;   
-   output_file << "&\\texttt{* HLT\\_Jet30U} & " << all_trigger_numbers["HLT_Jet30U"] + all_trigger_numbers["HLT_Jet30U_v3"] << " & " << (all_trigger_prescales["HLT_Jet30U"] * all_trigger_numbers["HLT_Jet30U"] +  all_trigger_prescales["HLT_Jet30U_v3"] * all_trigger_numbers["HLT_Jet30U_v3"]) / (all_trigger_numbers["HLT_Jet30U"] + all_trigger_numbers["HLT_Jet30U_v3"]) << " & " << fired_all_trigger_numbers["HLT_Jet30U"] + fired_all_trigger_numbers["HLT_Jet30U_v3"] << " & " << (fired_all_trigger_prescales["HLT_Jet30U"] * fired_all_trigger_numbers["HLT_Jet30U"] +  fired_all_trigger_prescales["HLT_Jet30U_v3"] * fired_all_trigger_numbers["HLT_Jet30U_v3"]) / (fired_all_trigger_numbers["HLT_Jet30U"] + fired_all_trigger_numbers["HLT_Jet30U_v3"]) << "  \\\\" << endl;   
-   output_file << "&\\texttt{* HLT\\_Jet50U} & " << all_trigger_numbers["HLT_Jet50U"] + all_trigger_numbers["HLT_Jet50U_v3"] << " & " << (all_trigger_prescales["HLT_Jet50U"] * all_trigger_numbers["HLT_Jet50U"] +  all_trigger_prescales["HLT_Jet50U_v3"] * all_trigger_numbers["HLT_Jet50U_v3"]) / (all_trigger_numbers["HLT_Jet50U"] + all_trigger_numbers["HLT_Jet50U_v3"]) << " &  " << fired_all_trigger_numbers["HLT_Jet50U"] + fired_all_trigger_numbers["HLT_Jet50U_v3"] << " & " << (fired_all_trigger_prescales["HLT_Jet50U"] * fired_all_trigger_numbers["HLT_Jet50U"] +  fired_all_trigger_prescales["HLT_Jet50U_v3"] * fired_all_trigger_numbers["HLT_Jet50U_v3"]) / (fired_all_trigger_numbers["HLT_Jet50U"] + fired_all_trigger_numbers["HLT_Jet50U_v3"]) << "  \\\\" << endl;   
-   output_file << "&\\texttt{* HLT\\_Jet70U} & " << all_trigger_numbers["HLT_Jet70U"] + all_trigger_numbers["HLT_Jet70U_v2"] + all_trigger_numbers["HLT_Jet70U_v3"] << " & " << (all_trigger_prescales["HLT_Jet70U"] * all_trigger_numbers["HLT_Jet70U"] + all_trigger_prescales["HLT_Jet70U_v2"] * all_trigger_numbers["HLT_Jet70U_v2"] +  all_trigger_prescales["HLT_Jet70U_v3"] * all_trigger_numbers["HLT_Jet70U_v3"]) / (all_trigger_numbers["HLT_Jet70U"] + all_trigger_numbers["HLT_Jet70U_v2"] + all_trigger_numbers["HLT_Jet70U_v3"]) << " & " << fired_all_trigger_numbers["HLT_Jet70U"] + fired_all_trigger_numbers["HLT_Jet70U_v2"] + fired_all_trigger_numbers["HLT_Jet70U_v3"] << " & " << (fired_all_trigger_prescales["HLT_Jet70U"] * fired_all_trigger_numbers["HLT_Jet70U"] + fired_all_trigger_prescales["HLT_Jet70U_v2"] * fired_all_trigger_numbers["HLT_Jet70U_v2"] +  fired_all_trigger_prescales["HLT_Jet70U_v3"] * fired_all_trigger_numbers["HLT_Jet70U_v3"]) / (fired_all_trigger_numbers["HLT_Jet70U"] + fired_all_trigger_numbers["HLT_Jet70U_v2"] + fired_all_trigger_numbers["HLT_Jet70U_v3"]) << "  \\\\" << endl;   
-   output_file << "&\\texttt{* HLT\\_Jet100U} & " << all_trigger_numbers["HLT_Jet100U"] + all_trigger_numbers["HLT_Jet100U_v2"] + all_trigger_numbers["HLT_Jet100U_v3"] << " & " << (all_trigger_prescales["HLT_Jet100U"] * all_trigger_numbers["HLT_Jet100U"] + all_trigger_prescales["HLT_Jet100U_v2"] * all_trigger_numbers["HLT_Jet100U_v2"] +  all_trigger_prescales["HLT_Jet100U_v3"] * all_trigger_numbers["HLT_Jet100U_v3"]) / (all_trigger_numbers["HLT_Jet100U"] + all_trigger_numbers["HLT_Jet100U_v2"] + all_trigger_numbers["HLT_Jet100U_v3"]) << "  & " << fired_all_trigger_numbers["HLT_Jet100U"] + fired_all_trigger_numbers["HLT_Jet100U_v2"] + fired_all_trigger_numbers["HLT_Jet100U_v3"] << " & " << (fired_all_trigger_prescales["HLT_Jet100U"] * fired_all_trigger_numbers["HLT_Jet100U"] + fired_all_trigger_prescales["HLT_Jet100U_v2"] * fired_all_trigger_numbers["HLT_Jet100U_v2"] +  fired_all_trigger_prescales["HLT_Jet100U_v3"] * fired_all_trigger_numbers["HLT_Jet100U_v3"]) / (fired_all_trigger_numbers["HLT_Jet100U"] + fired_all_trigger_numbers["HLT_Jet100U_v2"] + fired_all_trigger_numbers["HLT_Jet100U_v3"]) << "  \\\\" << endl;   
-   output_file << "&\\texttt{* HLT\\_Jet140U} & " << all_trigger_numbers["HLT_Jet140U_v1"] + all_trigger_numbers["HLT_Jet140U_v3"] << " & " << (all_trigger_prescales["HLT_Jet140U_v1"] * all_trigger_numbers["HLT_Jet140U_v1"] +  all_trigger_prescales["HLT_Jet140U_v3"] * all_trigger_numbers["HLT_Jet140U_v3"]) / (all_trigger_numbers["HLT_Jet140U_v1"] + all_trigger_numbers["HLT_Jet140U_v3"]) << "  & " << fired_all_trigger_numbers["HLT_Jet140U_v1"] + fired_all_trigger_numbers["HLT_Jet140U_v3"] << " & " << (fired_all_trigger_prescales["HLT_Jet140U_v1"] * fired_all_trigger_numbers["HLT_Jet140U_v1"] +  fired_all_trigger_prescales["HLT_Jet140U_v3"] * fired_all_trigger_numbers["HLT_Jet140U_v3"]) / (fired_all_trigger_numbers["HLT_Jet140U_v1"] + fired_all_trigger_numbers["HLT_Jet140U_v3"]) << "  \\\\" << endl;   
-   output_file << "&\\texttt{* HLT\\_Jet180U} & " << (all_trigger_numbers["HLT_Jet180U"] + all_trigger_numbers["HLT_Jet180U_v1"] + all_trigger_numbers["HLT_Jet180U_v2"] + all_trigger_numbers["HLT_Jet180U_v3"]) << " & " << ((all_trigger_numbers["HLT_Jet180U"] * all_trigger_prescales["HLT_Jet180U"] + all_trigger_numbers["HLT_Jet180U_v1"] * all_trigger_prescales["HLT_Jet180U_v1"] + all_trigger_numbers["HLT_Jet180U_v2"] * all_trigger_prescales["HLT_Jet180U_v2"] + all_trigger_numbers["HLT_Jet180U_v3"] * all_trigger_prescales["HLT_Jet180U_v3"]) / ( all_trigger_numbers["HLT_Jet180U"] + all_trigger_numbers["HLT_Jet180U_v1"] + all_trigger_numbers["HLT_Jet180U_v2"] + all_trigger_numbers["HLT_Jet180U_v3"]))  << "  & " << (fired_all_trigger_numbers["HLT_Jet180U"] + fired_all_trigger_numbers["HLT_Jet180U_v1"] + fired_all_trigger_numbers["HLT_Jet180U_v2"] + fired_all_trigger_numbers["HLT_Jet180U_v3"]) << " & " << (( fired_all_trigger_prescales["HLT_Jet180U"] * fired_all_trigger_numbers["HLT_Jet180U"] + fired_all_trigger_prescales["HLT_Jet180U_v1"] * fired_all_trigger_numbers["HLT_Jet180U_v1"] + fired_all_trigger_prescales["HLT_Jet180U_v2"] * fired_all_trigger_numbers["HLT_Jet180U_v2"] + fired_all_trigger_prescales["HLT_Jet180U_v3"] * fired_all_trigger_numbers["HLT_Jet180U_v3"] ) / (fired_all_trigger_numbers["HLT_Jet180U"] + fired_all_trigger_numbers["HLT_Jet180U_v1"] + fired_all_trigger_numbers["HLT_Jet180U_v2"] + fired_all_trigger_numbers["HLT_Jet180U_v3"])) << "  \\\\" << endl;   
-   
+   output_file << "Single-jet & \\texttt{HLT\\_Jet15U} & "   << all_trigger_numbers["Jet15U"]                   << " & " << all_trigger_prescales["Jet15U"]                   << " & " << fired_all_trigger_numbers["Jet15U"]                   << " & " << fired_all_trigger_prescales["Jet15U"]                   << " \\\\" << endl;
+   output_file << "&\\texttt{* HLT\\_Jet15U\\_HNF} & "       << all_trigger_numbers["Jet15U_HcalNoiseFiltered"] << " & " << all_trigger_prescales["Jet15U_HcalNoiseFiltered"] << " & " << fired_all_trigger_numbers["Jet15U_HcalNoiseFiltered"] << " & " << fired_all_trigger_prescales["Jet15U_HcalNoiseFiltered"] << " \\\\" << endl;   
+   output_file << "&\\texttt{* HLT\\_Jet30U} & "             << all_trigger_numbers["Jet30U"]                   << " & " << all_trigger_prescales["Jet30U"]                   << " & " << fired_all_trigger_numbers["Jet30U"]                   << " & " << fired_all_trigger_prescales["Jet30U"]                   << " \\\\" << endl;   
+   output_file << "&\\texttt{* HLT\\_Jet50U} & "             << all_trigger_numbers["Jet50U"]                   << " & " << all_trigger_prescales["Jet50U"]                   << " & " << fired_all_trigger_numbers["Jet50U"]                   << " & " << fired_all_trigger_prescales["Jet50U"]                   << " \\\\" << endl;   
+   output_file << "&\\texttt{* HLT\\_Jet70U} & "             << all_trigger_numbers["Jet70U"]                   << " & " << all_trigger_prescales["Jet70U"]                   << " & " << fired_all_trigger_numbers["Jet70U"]                   << " & " << fired_all_trigger_prescales["Jet70U"]                   << " \\\\" << endl;   
+   output_file << "&\\texttt{* HLT\\_Jet100U} & "            << all_trigger_numbers["Jet100U"]                  << " & " << all_trigger_prescales["Jet100U"]                  << " & " << fired_all_trigger_numbers["Jet100U"]                  << " & " << fired_all_trigger_prescales["Jet100U"]                  << " \\\\" << endl;   
+   output_file << "&\\texttt{* HLT\\_Jet140U} & "            << all_trigger_numbers["Jet140U"]                  << " & " << all_trigger_prescales["Jet140U"]                  << " & " << fired_all_trigger_numbers["Jet140U"]                  << " & " << fired_all_trigger_prescales["Jet140U"]                  << " \\\\" << endl;   
+   output_file << "&\\texttt{* HLT\\_Jet180U} & "            << all_trigger_numbers["Jet180U"]                  << " & " << all_trigger_prescales["Jet180U"]                  << " & " << fired_all_trigger_numbers["Jet180U"]                  << " & " << fired_all_trigger_prescales["Jet180U"]                  << " \\\\" << endl;   
    output_file << "\\hline" << endl;
-
-   output_file << "Di-jet & \\texttt{HLT\\_DiJetAve15U} & " << all_trigger_numbers["HLT_DiJetAve15U"] + all_trigger_numbers["HLT_DiJetAve15U_v3"] << " & " << (all_trigger_prescales["HLT_DiJetAve15U"] * all_trigger_numbers["HLT_DiJetAve15U"] +  all_trigger_prescales["HLT_DiJetAve15U_v3"] * all_trigger_numbers["HLT_DiJetAve15U_v3"]) / (all_trigger_numbers["HLT_DiJetAve15U"] + all_trigger_numbers["HLT_DiJetAve15U_v3"]) << " \\\\" << endl;
-   output_file << "&\\texttt{* HLT\\_DiJetAve30U} & " << all_trigger_numbers["HLT_DiJetAve30U"] + all_trigger_numbers["HLT_DiJetAve30U_v3"] << " & " << (all_trigger_prescales["HLT_DiJetAve30U"] * all_trigger_numbers["HLT_DiJetAve30U"] +  all_trigger_prescales["HLT_DiJetAve30U_v3"] * all_trigger_numbers["HLT_DiJetAve30U_v3"]) / (all_trigger_numbers["HLT_DiJetAve30U"] + all_trigger_numbers["HLT_DiJetAve30U_v3"]) << "  & " << fired_all_trigger_numbers["HLT_DiJetAve30U"] + fired_all_trigger_numbers["HLT_DiJetAve30U_v3"] << " & " << (fired_all_trigger_prescales["HLT_DiJetAve30U"] * fired_all_trigger_numbers["HLT_DiJetAve30U"] +  fired_all_trigger_prescales["HLT_DiJetAve30U_v3"] * fired_all_trigger_numbers["HLT_DiJetAve30U_v3"]) / (fired_all_trigger_numbers["HLT_DiJetAve30U"] + fired_all_trigger_numbers["HLT_DiJetAve30U_v3"]) << "  \\\\" << endl;   
-   output_file << "&\\texttt{* HLT\\_DiJetAve50U} & " << all_trigger_numbers["HLT_DiJetAve50U"] + all_trigger_numbers["HLT_DiJetAve50U_v3"] << " & " << (all_trigger_prescales["HLT_DiJetAve50U"] * all_trigger_numbers["HLT_DiJetAve50U"] +  all_trigger_prescales["HLT_DiJetAve50U_v3"] * all_trigger_numbers["HLT_DiJetAve50U_v3"]) / (all_trigger_numbers["HLT_DiJetAve50U"] + all_trigger_numbers["HLT_DiJetAve50U_v3"]) << " & " << fired_all_trigger_numbers["HLT_DiJetAve50U"] + fired_all_trigger_numbers["HLT_DiJetAve50U_v3"] << " & " << (fired_all_trigger_prescales["HLT_DiJetAve50U"] * fired_all_trigger_numbers["HLT_DiJetAve50U"] +  fired_all_trigger_prescales["HLT_DiJetAve50U_v3"] * fired_all_trigger_numbers["HLT_DiJetAve50U_v3"]) / (fired_all_trigger_numbers["HLT_DiJetAve50U"] + fired_all_trigger_numbers["HLT_DiJetAve50U_v3"]) << "  \\\\" << endl;   
-   output_file << "&\\texttt{* HLT\\_DiJetAve70U} & " << all_trigger_numbers["HLT_DiJetAve70U"] + all_trigger_numbers["HLT_DiJetAve70U_v2"] + all_trigger_numbers["HLT_DiJetAve70U_v3"] << " & " << (all_trigger_prescales["HLT_DiJetAve70U"] * all_trigger_numbers["HLT_DiJetAve70U"] + all_trigger_prescales["HLT_DiJetAve70U_v2"] * all_trigger_numbers["HLT_DiJetAve70U_v2"] +  all_trigger_prescales["HLT_DiJetAve70U_v3"] * all_trigger_numbers["HLT_DiJetAve70U_v3"]) / (all_trigger_numbers["HLT_DiJetAve70U"] + all_trigger_numbers["HLT_DiJetAve70U_v2"] + all_trigger_numbers["HLT_DiJetAve70U_v3"]) << "  & " << fired_all_trigger_numbers["HLT_DiJetAve70U"] + fired_all_trigger_numbers["HLT_DiJetAve70U_v2"] + fired_all_trigger_numbers["HLT_DiJetAve70U_v3"] << " & " << (fired_all_trigger_prescales["HLT_DiJetAve70U"] * fired_all_trigger_numbers["HLT_DiJetAve70U"] + fired_all_trigger_prescales["HLT_DiJetAve70U_v2"] * fired_all_trigger_numbers["HLT_DiJetAve70U_v2"] +  fired_all_trigger_prescales["HLT_DiJetAve70U_v3"] * fired_all_trigger_numbers["HLT_DiJetAve70U_v3"]) / (fired_all_trigger_numbers["HLT_DiJetAve70U"] + fired_all_trigger_numbers["HLT_DiJetAve70U_v2"] + fired_all_trigger_numbers["HLT_DiJetAve70U_v3"]) << "  \\\\" << endl;   
-   output_file << "&\\texttt{* HLT\\_DiJetAve100U} & " << all_trigger_numbers["HLT_DiJetAve100U_v1"] + all_trigger_numbers["HLT_DiJetAve100U_v3"] << " & " << (all_trigger_prescales["HLT_DiJetAve100U_v1"] * all_trigger_numbers["HLT_DiJetAve100U_v1"] + all_trigger_prescales["HLT_DiJetAve100U_v2"] * all_trigger_numbers["HLT_DiJetAve100U_v2"] +  all_trigger_prescales["HLT_DiJetAve100U_v3"] * all_trigger_numbers["HLT_DiJetAve100U_v3"]) / (all_trigger_numbers["HLT_DiJetAve100U"] + all_trigger_numbers["HLT_DiJetAve100U_v2"] + all_trigger_numbers["HLT_DiJetAve100U_v3"]) << "  & " << fired_all_trigger_numbers["HLT_DiJetAve100U_v1"] + fired_all_trigger_numbers["HLT_DiJetAve100U_v3"] << " & " << (fired_all_trigger_prescales["HLT_DiJetAve100U_v1"] * fired_all_trigger_numbers["HLT_DiJetAve100U_v1"] + fired_all_trigger_prescales["HLT_DiJetAve100U_v2"] * fired_all_trigger_numbers["HLT_DiJetAve100U_v2"] +  fired_all_trigger_prescales["HLT_DiJetAve100U_v3"] * fired_all_trigger_numbers["HLT_DiJetAve100U_v3"]) / (fired_all_trigger_numbers["HLT_DiJetAve100U"] + fired_all_trigger_numbers["HLT_DiJetAve100U_v2"] + fired_all_trigger_numbers["HLT_DiJetAve100U_v3"]) << "  \\\\" << endl;   
-   output_file << "&\\texttt{* HLT\\_DiJetAve140U} & " << all_trigger_numbers["HLT_DiJetAve140U"] << " & " << all_trigger_prescales["HLT_DiJetAve140U"] <<  " & " << fired_all_trigger_numbers["HLT_DiJetAve140U"] << " & " << fired_all_trigger_prescales["HLT_DiJetAve140U"] << "  \\\\" << endl;   
-   
+   output_file << "Di-jet & \\texttt{HLT\\_DiJetAve15U} & "  << all_trigger_numbers["DiJetAve15U"]              << " & " << all_trigger_prescales["DiJetAve15U"]              << " & " << fired_all_trigger_numbers["DiJetAve15U"]              << " & " << fired_all_trigger_prescales["DiJetAve15U"]              << " \\\\" << endl;
+   output_file << "&\\texttt{* HLT\\_DiJetAve30U} & "        << all_trigger_numbers["DiJetAve30U"]              << " & " << all_trigger_prescales["DiJetAve30U"]              << " & " << fired_all_trigger_numbers["DiJetAve30U"]              << " & " << fired_all_trigger_prescales["DiJetAve30U"]              << " \\\\" << endl;   
+   output_file << "&\\texttt{* HLT\\_DiJetAve50U} & "        << all_trigger_numbers["DiJetAve50U"]              << " & " << all_trigger_prescales["DiJetAve50U"]              << " & " << fired_all_trigger_numbers["DiJetAve50U"]              << " & " << fired_all_trigger_prescales["DiJetAve50U"]              << " \\\\" << endl;   
+   output_file << "&\\texttt{* HLT\\_DiJetAve70U} & "        << all_trigger_numbers["DiJetAve70U"]              << " & " << all_trigger_prescales["DiJetAve70U"]              << " & " << fired_all_trigger_numbers["DiJetAve70U"]              << " & " << fired_all_trigger_prescales["DiJetAve70U"]              << " \\\\" << endl;   
+   output_file << "&\\texttt{* HLT\\_DiJetAve100U} & "       << all_trigger_numbers["DiJetAve100U"]             << " & " << all_trigger_prescales["DiJetAve100U"]             << " & " << fired_all_trigger_numbers["DiJetAve100U"]             << " & " << fired_all_trigger_prescales["DiJetAve100U"]             << " \\\\" << endl;   
+   output_file << "&\\texttt{* HLT\\_DiJetAve140U} & "       << all_trigger_numbers["DiJetAve140U"]             << " & " << all_trigger_prescales["DiJetAve140U"]             << " & " << fired_all_trigger_numbers["DiJetAve140U"]             << " & " << fired_all_trigger_prescales["DiJetAve140U"]             << " \\\\" << endl;   
    output_file << "\\hline" << endl;
-
-   output_file << "Quad-jet & \\texttt{HLT\\_QuadJet20U} & " << all_trigger_numbers["HLT_QuadJet20U"] << " & " << all_trigger_prescales["HLT_QuadJet20U"] << " & " << fired_all_trigger_numbers["HLT_QuadJet20U"] << " & " << fired_all_trigger_prescales["HLT_QuadJet20U"] << " \\\\" << endl;
-   output_file << "& \\texttt{HLT\\_QuadJet25U} & " << all_trigger_numbers["HLT_QuadJet25U"] << " & " << all_trigger_prescales["HLT_QuadJet25U"] << " & " << fired_all_trigger_numbers["HLT_QuadJet25U"] << " & " << fired_all_trigger_prescales["HLT_QuadJet25U"] << " \\\\" << endl;
+   output_file << "Quad-jet & \\texttt{HLT\\_QuadJet20U} & " << all_trigger_numbers["QuadJet20U"]               << " & " << all_trigger_prescales["QuadJet20U"]               << " & " << fired_all_trigger_numbers["QuadJet20U"]               << " & " << fired_all_trigger_prescales["QuadJet20U"]               << " \\\\" << endl;
+   output_file << "& \\texttt{HLT\\_QuadJet25U} & "          << all_trigger_numbers["QuadJet25U"]               << " & " << all_trigger_prescales["QuadJet25U"]               << " & " << fired_all_trigger_numbers["QuadJet25U"]               << " & " << fired_all_trigger_prescales["QuadJet25U"]               << " \\\\" << endl;
    output_file << "\\hline" << endl;
-   output_file << "$H_T$ & \\texttt{HLT\\_HT100U} & " << all_trigger_numbers["HLT_HT100U"] << " & " << all_trigger_prescales["HLT_HT100U"] << " & " << fired_all_trigger_numbers["HLT_HT100U"] << " & " << fired_all_trigger_prescales["HLT_HT100U"] << " \\\\" << endl;
-   output_file << "&\\texttt{HLT\\_HT120U} & " << all_trigger_numbers["HLT_HT120U"] <<  " & " << all_trigger_prescales["HLT_HT120U"] <<  " & " << fired_all_trigger_numbers["HLT_HT120U"] <<  " & " << fired_all_trigger_prescales["HLT_HT120U"] << " \\\\" << endl;
-   output_file << "&\\texttt{HLT\\_HT140U} & " << all_trigger_numbers["HLT_HT140U"] <<  " & " << all_trigger_prescales["HLT_HT140U"] << " & " << fired_all_trigger_numbers["HLT_HT140U"] <<  " & " << fired_all_trigger_prescales["HLT_HT140U"] << " \\\\" << endl;
-   output_file << "&\\texttt{HLT\\_EcalOnly\\_SumEt160} & " << all_trigger_numbers["HLT_EcalOnly_SumEt160"] << " & " << all_trigger_prescales["HLT_EcalOnly_SumEt160"] << " & " << fired_all_trigger_numbers["HLT_EcalOnly_SumEt160"] << " & " << fired_all_trigger_prescales["HLT_EcalOnly_SumEt160"] << " \\\\" << endl;
+   output_file << "$H_T$ & \\texttt{HLT\\_HT100U} & "        << all_trigger_numbers["HT100U"]                   << " & " << all_trigger_prescales["HT100U"]                   << " & " << fired_all_trigger_numbers["HT100U"]                   << " & " << fired_all_trigger_prescales["HT100U"]                   << " \\\\" << endl;
+   output_file << "&\\texttt{HLT\\_HT120U} & "               << all_trigger_numbers["HT120U"]                   << " & " << all_trigger_prescales["HT120U"]                   << " & " << fired_all_trigger_numbers["HT120U"]                   << " & " << fired_all_trigger_prescales["HT120U"]                   << " \\\\" << endl;
+   output_file << "&\\texttt{HLT\\_HT140U} & "               << all_trigger_numbers["HT140U"]                   << " & " << all_trigger_prescales["HT140U"]                   << " & " << fired_all_trigger_numbers["HT140U"]                   << " & " << fired_all_trigger_prescales["HT140U"]                   << " \\\\" << endl;
+   output_file << "&\\texttt{HLT\\_EcalOnly\\_SumEt160} & "  << all_trigger_numbers["EcalOnly_SumEt160"]        << " & " << all_trigger_prescales["EcalOnly_SumEt160"]        << " & " << fired_all_trigger_numbers["EcalOnly_SumEt160"]        << " & " << fired_all_trigger_prescales["EcalOnly_SumEt160"]        << " \\\\" << endl;
 
    output_file << "\\hline" << endl;
    output_file << "\\hline" << endl;
@@ -441,13 +371,13 @@ void write_stats(string filename, boost::unordered_map<string, int> & trigger_nu
 
    output_file << "Hardest Jet p_T \t Trigger Name \t Events  \t <Prescale>" << endl;
    
-   output_file << "[85, 115] GeV \t HLTJet30U \t " << trigger_numbers["HLT_Jet30U"] + trigger_numbers["HLT_Jet30U_v1"] + trigger_numbers["HLT_Jet30U_v2"] + trigger_numbers["HLT_Jet30U_v3"] << " \t " << (trigger_prescales["HLT_Jet30U"] * trigger_numbers["HLT_Jet30U"] +  trigger_prescales["HLT_Jet30U_v3"] * trigger_numbers["HLT_Jet30U_v3"]) / (trigger_numbers["HLT_Jet30U"] + trigger_numbers["HLT_Jet30U_v3"]) << endl;
-   output_file << "[115, 150] GeV \t HLTJet50U \t " << trigger_numbers["HLT_Jet50U"] + trigger_numbers["HLT_Jet50U_v3"] << " \t " << (trigger_prescales["HLT_Jet50U"] * trigger_numbers["HLT_Jet50U"] +  trigger_prescales["HLT_Jet50U_v3"] * trigger_numbers["HLT_Jet50U_v3"]) / (trigger_numbers["HLT_Jet50U"] + trigger_numbers["HLT_Jet50U_v3"]) << endl;
-   output_file << "[150, 200] GeV \t HLTJet70U  \t " << trigger_numbers["HLT_Jet70U"] + trigger_numbers["HLT_Jet70U_v2"] + trigger_numbers["HLT_Jet70U_v3"] << " \t " << (trigger_prescales["HLT_Jet70U"] * trigger_numbers["HLT_Jet70U"] + trigger_prescales["HLT_Jet70U_v2"] * trigger_numbers["HLT_Jet70U_v2"] +  trigger_prescales["HLT_Jet70U_v3"] * trigger_numbers["HLT_Jet70U_v3"]) / (trigger_numbers["HLT_Jet70U"] + trigger_numbers["HLT_Jet70U_v2"] + trigger_numbers["HLT_Jet70U_v3"]) << endl;
-   output_file << "[200, 250] GeV \t HLTJet100U \t " << trigger_numbers["HLT_Jet100U"] + trigger_numbers["HLT_Jet100U_v2"] + trigger_numbers["HLT_Jet100U_v3"] << " \t " << (trigger_prescales["HLT_Jet100U"] * trigger_numbers["HLT_Jet100U"] + trigger_prescales["HLT_Jet100U_v2"] * trigger_numbers["HLT_Jet100U_v2"] +  trigger_prescales["HLT_Jet100U_v3"] * trigger_numbers["HLT_Jet100U_v3"]) / (trigger_numbers["HLT_Jet100U"] + trigger_numbers["HLT_Jet100U_v2"] + trigger_numbers["HLT_Jet100U_v3"]) << endl;
+   output_file << "[85, 115] GeV \t HLTJet30U \t "   << trigger_numbers["Jet30U"]     << " \t " << trigger_prescales["Jet30U"]     << endl;
+   output_file << "[115, 150] GeV \t HLTJet50U \t "  << trigger_numbers["Jet50U"]     << " \t " << trigger_prescales["Jet50U"]     << endl;
+   output_file << "[150, 200] GeV \t HLTJet70U  \t " << trigger_numbers["Jet70U"]     << " \t " << trigger_prescales["Jet70U"]     << endl;
+   output_file << "[200, 250] GeV \t HLTJet100U \t " << trigger_numbers["Jet100U"]    << " \t " << trigger_prescales["Jet100U"]    << endl;
    
-   output_file << "> 250 GeV \t HLT_Jet100U \t " << trigger_numbers["extra_100U"] << " \t " << trigger_prescales["extra_100U"] << endl;
-   output_file << "> 250 GeV \t HLT_Jet140U \t " << trigger_numbers["HLT_Jet140U_v1"] + trigger_numbers["HLT_Jet140U_v3"] << " \t " << (trigger_prescales["HLT_Jet140U_v1"] * trigger_numbers["HLT_Jet140U_v1"] +  trigger_prescales["HLT_Jet140U_v3"] * trigger_numbers["HLT_Jet140U_v3"]) / (trigger_numbers["HLT_Jet140U_v1"] + trigger_numbers["HLT_Jet140U_v3"]) << endl;
+   output_file << "> 250 GeV \t Jet100U \t "         << trigger_numbers["extra_100U"] << " \t " << trigger_prescales["extra_100U"] << endl;
+   output_file << "> 250 GeV \t Jet140U \t "         << trigger_numbers["Jet140U"]    << " \t " << trigger_prescales["Jet140U_"]   << endl;
    
 
    output_file << endl << endl << "Total number of events: " << eta_24_cut;
@@ -458,32 +388,30 @@ void write_stats(string filename, boost::unordered_map<string, int> & trigger_nu
    
 	output_file << "Trigger \t Trig Present \t <Prescale> \t Trig Fired? \t <Prescale>" << endl;
 
-	output_file << "Single-jet \t HLT_Jet15U \t " << all_trigger_numbers["HLT_Jet15U"] + all_trigger_numbers["HLT_Jet15U_v3"] << " \t " << (all_trigger_prescales["HLT_Jet15U"] * all_trigger_numbers["HLT_Jet15U"] +  all_trigger_prescales["HLT_Jet15U_v3"] * all_trigger_numbers["HLT_Jet15U_v3"]) / (all_trigger_numbers["HLT_Jet15U"] + all_trigger_numbers["HLT_Jet15U_v3"]) << " \t " << fired_all_trigger_numbers["HLT_Jet15U"] + fired_all_trigger_numbers["HLT_Jet15U_v3"] << " \t " << (fired_all_trigger_prescales["HLT_Jet15U"] * fired_all_trigger_numbers["HLT_Jet15U"] +  fired_all_trigger_prescales["HLT_Jet15U_v3"] * fired_all_trigger_numbers["HLT_Jet15U_v3"]) / (fired_all_trigger_numbers["HLT_Jet15U"] + fired_all_trigger_numbers["HLT_Jet15U_v3"])  << endl;
-	output_file << "Single-jet \t HLT_Jet15U_HNF \t " << all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered"] + all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered_v3"] << " \t " << (all_trigger_prescales["HLT_Jet15U_HcalNoiseFiltered"] * all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered"] +  all_trigger_prescales["HLT_Jet15U_HcalNoiseFiltered_v3"] * all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered_v3"]) / (all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered"] + all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered_v3"]) << " \t " << fired_all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered"] + fired_all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered_v3"] << " \t " << (fired_all_trigger_prescales["HLT_Jet15U_HcalNoiseFiltered"] * fired_all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered"] +  fired_all_trigger_prescales["HLT_Jet15U_HcalNoiseFiltered_v3"] * fired_all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered_v3"]) / (fired_all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered"] + fired_all_trigger_numbers["HLT_Jet15U_HcalNoiseFiltered_v3"]) << endl;   
-	output_file << "Single-jet \t HLT_Jet30U \t " << all_trigger_numbers["HLT_Jet30U"] + all_trigger_numbers["HLT_Jet30U_v3"] << " \t " << (all_trigger_prescales["HLT_Jet30U"] * all_trigger_numbers["HLT_Jet30U"] +  all_trigger_prescales["HLT_Jet30U_v3"] * all_trigger_numbers["HLT_Jet30U_v3"]) / (all_trigger_numbers["HLT_Jet30U"] + all_trigger_numbers["HLT_Jet30U_v3"]) << " \t " << fired_all_trigger_numbers["HLT_Jet30U"] + fired_all_trigger_numbers["HLT_Jet30U_v3"] << " \t " << (fired_all_trigger_prescales["HLT_Jet30U"] * fired_all_trigger_numbers["HLT_Jet30U"] +  fired_all_trigger_prescales["HLT_Jet30U_v3"] * fired_all_trigger_numbers["HLT_Jet30U_v3"]) / (fired_all_trigger_numbers["HLT_Jet30U"] + fired_all_trigger_numbers["HLT_Jet30U_v3"]) << endl;   
-	output_file << "Single-jet \t HLT_Jet50U \t " << all_trigger_numbers["HLT_Jet50U"] + all_trigger_numbers["HLT_Jet50U_v3"] << " \t " << (all_trigger_prescales["HLT_Jet50U"] * all_trigger_numbers["HLT_Jet50U"] +  all_trigger_prescales["HLT_Jet50U_v3"] * all_trigger_numbers["HLT_Jet50U_v3"]) / (all_trigger_numbers["HLT_Jet50U"] + all_trigger_numbers["HLT_Jet50U_v3"]) << " \t  " << fired_all_trigger_numbers["HLT_Jet50U"] + fired_all_trigger_numbers["HLT_Jet50U_v3"] << " \t " << (fired_all_trigger_prescales["HLT_Jet50U"] * fired_all_trigger_numbers["HLT_Jet50U"] +  fired_all_trigger_prescales["HLT_Jet50U_v3"] * fired_all_trigger_numbers["HLT_Jet50U_v3"]) / (fired_all_trigger_numbers["HLT_Jet50U"] + fired_all_trigger_numbers["HLT_Jet50U_v3"]) << endl;   
-	output_file << "Single-jet \t HLT_Jet70U \t " << all_trigger_numbers["HLT_Jet70U"] + all_trigger_numbers["HLT_Jet70U_v2"] + all_trigger_numbers["HLT_Jet70U_v3"] << " \t " << (all_trigger_prescales["HLT_Jet70U"] * all_trigger_numbers["HLT_Jet70U"] + all_trigger_prescales["HLT_Jet70U_v2"] * all_trigger_numbers["HLT_Jet70U_v2"] +  all_trigger_prescales["HLT_Jet70U_v3"] * all_trigger_numbers["HLT_Jet70U_v3"]) / (all_trigger_numbers["HLT_Jet70U"] + all_trigger_numbers["HLT_Jet70U_v2"] + all_trigger_numbers["HLT_Jet70U_v3"]) << " \t " << fired_all_trigger_numbers["HLT_Jet70U"] + fired_all_trigger_numbers["HLT_Jet70U_v2"] + fired_all_trigger_numbers["HLT_Jet70U_v3"] << " \t " << (fired_all_trigger_prescales["HLT_Jet70U"] * fired_all_trigger_numbers["HLT_Jet70U"] + fired_all_trigger_prescales["HLT_Jet70U_v2"] * fired_all_trigger_numbers["HLT_Jet70U_v2"] +  fired_all_trigger_prescales["HLT_Jet70U_v3"] * fired_all_trigger_numbers["HLT_Jet70U_v3"]) / (fired_all_trigger_numbers["HLT_Jet70U"] + fired_all_trigger_numbers["HLT_Jet70U_v2"] + fired_all_trigger_numbers["HLT_Jet70U_v3"]) << endl;   
-	output_file << "Single-jet \t HLT_Jet100U \t " << all_trigger_numbers["HLT_Jet100U"] + all_trigger_numbers["HLT_Jet100U_v2"] + all_trigger_numbers["HLT_Jet100U_v3"] << " \t " << (all_trigger_prescales["HLT_Jet100U"] * all_trigger_numbers["HLT_Jet100U"] + all_trigger_prescales["HLT_Jet100U_v2"] * all_trigger_numbers["HLT_Jet100U_v2"] +  all_trigger_prescales["HLT_Jet100U_v3"] * all_trigger_numbers["HLT_Jet100U_v3"]) / (all_trigger_numbers["HLT_Jet100U"] + all_trigger_numbers["HLT_Jet100U_v2"] + all_trigger_numbers["HLT_Jet100U_v3"]) << "  \t " << fired_all_trigger_numbers["HLT_Jet100U"] + fired_all_trigger_numbers["HLT_Jet100U_v2"] + fired_all_trigger_numbers["HLT_Jet100U_v3"] << " \t " << (fired_all_trigger_prescales["HLT_Jet100U"] * fired_all_trigger_numbers["HLT_Jet100U"] + fired_all_trigger_prescales["HLT_Jet100U_v2"] * fired_all_trigger_numbers["HLT_Jet100U_v2"] +  fired_all_trigger_prescales["HLT_Jet100U_v3"] * fired_all_trigger_numbers["HLT_Jet100U_v3"]) / (fired_all_trigger_numbers["HLT_Jet100U"] + fired_all_trigger_numbers["HLT_Jet100U_v2"] + fired_all_trigger_numbers["HLT_Jet100U_v3"]) << endl;   
-	output_file << "Single-jet \t HLT_Jet140U \t " << all_trigger_numbers["HLT_Jet140U_v1"] + all_trigger_numbers["HLT_Jet140U_v3"] << " \t " << (all_trigger_prescales["HLT_Jet140U_v1"] * all_trigger_numbers["HLT_Jet140U_v1"] +  all_trigger_prescales["HLT_Jet140U_v3"] * all_trigger_numbers["HLT_Jet140U_v3"]) / (all_trigger_numbers["HLT_Jet140U_v1"] + all_trigger_numbers["HLT_Jet140U_v3"]) << "  \t " << fired_all_trigger_numbers["HLT_Jet140U_v1"] + fired_all_trigger_numbers["HLT_Jet140U_v3"] << " \t " << (fired_all_trigger_prescales["HLT_Jet140U_v1"] * fired_all_trigger_numbers["HLT_Jet140U_v1"] +  fired_all_trigger_prescales["HLT_Jet140U_v3"] * fired_all_trigger_numbers["HLT_Jet140U_v3"]) / (fired_all_trigger_numbers["HLT_Jet140U_v1"] + fired_all_trigger_numbers["HLT_Jet140U_v3"]) << endl;   
-	output_file << "Single-jet \t HLT_Jet180U \t " << (all_trigger_numbers["HLT_Jet180U"] + all_trigger_numbers["HLT_Jet180U_v1"] + all_trigger_numbers["HLT_Jet180U_v2"] + all_trigger_numbers["HLT_Jet180U_v3"]) << " \t " << ((all_trigger_numbers["HLT_Jet180U"] * all_trigger_prescales["HLT_Jet180U"] + all_trigger_numbers["HLT_Jet180U_v1"] * all_trigger_prescales["HLT_Jet180U_v1"] + all_trigger_numbers["HLT_Jet180U_v2"] * all_trigger_prescales["HLT_Jet180U_v2"] + all_trigger_numbers["HLT_Jet180U_v3"] * all_trigger_prescales["HLT_Jet180U_v3"]) / ( all_trigger_numbers["HLT_Jet180U"] + all_trigger_numbers["HLT_Jet180U_v1"] + all_trigger_numbers["HLT_Jet180U_v2"] + all_trigger_numbers["HLT_Jet180U_v3"]))  << "  \t " << (fired_all_trigger_numbers["HLT_Jet180U"] + fired_all_trigger_numbers["HLT_Jet180U_v1"] + fired_all_trigger_numbers["HLT_Jet180U_v2"] + fired_all_trigger_numbers["HLT_Jet180U_v3"]) << " \t " << (( fired_all_trigger_prescales["HLT_Jet180U"] * fired_all_trigger_numbers["HLT_Jet180U"] + fired_all_trigger_prescales["HLT_Jet180U_v1"] * fired_all_trigger_numbers["HLT_Jet180U_v1"] + fired_all_trigger_prescales["HLT_Jet180U_v2"] * fired_all_trigger_numbers["HLT_Jet180U_v2"] + fired_all_trigger_prescales["HLT_Jet180U_v3"] * fired_all_trigger_numbers["HLT_Jet180U_v3"] ) / (fired_all_trigger_numbers["HLT_Jet180U"] + fired_all_trigger_numbers["HLT_Jet180U_v1"] + fired_all_trigger_numbers["HLT_Jet180U_v2"] + fired_all_trigger_numbers["HLT_Jet180U_v3"])) << endl;   
+	output_file << "Single-jet \t HLT_Jet15U \t "     << all_trigger_numbers["Jet15U"]                    << " \t " << all_trigger_prescales["Jet15U"]                   << " \t " << fired_all_trigger_numbers["Jet15U"]                   << " \t " << fired_all_trigger_prescales["Jet15U"]                   << endl;
+	output_file << "Single-jet \t HLT_Jet15U_HNF \t " << all_trigger_numbers["Jet15U_HcalNoiseFiltered"]  << " \t " << all_trigger_prescales["Jet15U_HcalNoiseFiltered"] << " \t " << fired_all_trigger_numbers["Jet15U_HcalNoiseFiltered"] << " \t " << fired_all_trigger_prescales["Jet15U_HcalNoiseFiltered"] << endl;   
+	output_file << "Single-jet \t HLT_Jet30U \t "     << all_trigger_numbers["Jet30U"]                    << " \t " << all_trigger_prescales["Jet30U"]                   << " \t " << fired_all_trigger_numbers["Jet30U"]                   << " \t " << fired_all_trigger_prescales["Jet30U"]                   << endl;   
+	output_file << "Single-jet \t HLT_Jet50U \t "     << all_trigger_numbers["Jet50U"]                    << " \t " << all_trigger_prescales["Jet50U"]                   << " \t " << fired_all_trigger_numbers["Jet50U"]                   << " \t " << fired_all_trigger_prescales["Jet50U"]                   << endl;   
+	output_file << "Single-jet \t HLT_Jet70U \t "     << all_trigger_numbers["Jet70U"]                    << " \t " << all_trigger_prescales["Jet70U"]                   << " \t " << fired_all_trigger_numbers["Jet70U"]                   << " \t " << fired_all_trigger_prescales["Jet70U"]                   << endl;   
+	output_file << "Single-jet \t HLT_Jet100U \t "    << all_trigger_numbers["Jet100U"]                   << " \t " << all_trigger_prescales["Jet100U"]                  << " \t " << fired_all_trigger_numbers["Jet100U"]                  << " \t " << fired_all_trigger_prescales["Jet100U"]                  << endl;   
+	output_file << "Single-jet \t HLT_Jet140U \t "    << all_trigger_numbers["Jet140U"]                   << " \t " << all_trigger_prescales["Jet140U"]                  << " \t " << fired_all_trigger_numbers["Jet140U"]                  << " \t " << fired_all_trigger_prescales["Jet140U"]                  << endl;   
+	output_file << "Single-jet \t HLT_Jet180U \t "    << all_trigger_numbers["Jet180U"]                   << " \t " << all_trigger_prescales["Jet180U"]                  << " \t " << fired_all_trigger_numbers["Jet180U"]                  << " \t " << fired_all_trigger_prescales["Jet180U"]                  << endl;   
 
 
+	output_file << "Di-jet \t HLT_DiJetAve15U \t "    << all_trigger_numbers["DiJetAve15U"]               << " \t " << all_trigger_prescales["DiJetAve15U"]              << " \t " << fired_all_trigger_numbers["DiJetAve15U"]              << " \t " << fired_all_trigger_prescales["DiJetAve15U"]              << endl;
+	output_file << "Di-jet \t HLT_DiJetAve30U \t "    << all_trigger_numbers["DiJetAve30U"]               << " \t " << all_trigger_prescales["DiJetAve30U"]              << " \t " << fired_all_trigger_numbers["DiJetAve30U"]              << " \t " << fired_all_trigger_prescales["DiJetAve30U"]              << endl;   
+	output_file << "Di-jet \t HLT_DiJetAve50U \t "    << all_trigger_numbers["DiJetAve50U"]               << " \t " << all_trigger_prescales["DiJetAve50U"]              << " \t " << fired_all_trigger_numbers["DiJetAve50U"]              << " \t " << fired_all_trigger_prescales["DiJetAve50U"]              << endl;   
+	output_file << "Di-jet \t HLT_DiJetAve70U \t "    << all_trigger_numbers["DiJetAve70U"]               << " \t " << all_trigger_prescales["DiJetAve70U"]              << " \t " << fired_all_trigger_numbers["DiJetAve70U"]              << " \t " << fired_all_trigger_prescales["DiJetAve70U"]              << endl;   
+	output_file << "Di-jet \t HLT_DiJetAve100U \t "   << all_trigger_numbers["DiJetAve100U"]              << " \t " << all_trigger_prescales["DiJetAve100U"]             << " \t " << fired_all_trigger_numbers["DiJetAve100U"]             << " \t " << fired_all_trigger_prescales["DiJetAve100U"]             << endl;   
+	output_file << "Di-jet \t HLT_DiJetAve140U \t "   << all_trigger_numbers["DiJetAve140U"]              << " \t " << all_trigger_prescales["DiJetAve140U"]             << " \t " << fired_all_trigger_numbers["DiJetAve140U"]             << " \t " << fired_all_trigger_prescales["DiJetAve140U"]             << endl;   
 
-	output_file << "Di-jet \t HLT_DiJetAve15U \t " << all_trigger_numbers["HLT_DiJetAve15U"] + all_trigger_numbers["HLT_DiJetAve15U_v3"] << " \t " << (all_trigger_prescales["HLT_DiJetAve15U"] * all_trigger_numbers["HLT_DiJetAve15U"] +  all_trigger_prescales["HLT_DiJetAve15U_v3"] * all_trigger_numbers["HLT_DiJetAve15U_v3"]) / (all_trigger_numbers["HLT_DiJetAve15U"] + all_trigger_numbers["HLT_DiJetAve15U_v3"])  << endl;
-	output_file << "Di-jet \t HLT_DiJetAve30U \t " << all_trigger_numbers["HLT_DiJetAve30U"] + all_trigger_numbers["HLT_DiJetAve30U_v3"] << " \t " << (all_trigger_prescales["HLT_DiJetAve30U"] * all_trigger_numbers["HLT_DiJetAve30U"] +  all_trigger_prescales["HLT_DiJetAve30U_v3"] * all_trigger_numbers["HLT_DiJetAve30U_v3"]) / (all_trigger_numbers["HLT_DiJetAve30U"] + all_trigger_numbers["HLT_DiJetAve30U_v3"]) << "  \t " << fired_all_trigger_numbers["HLT_DiJetAve30U"] + fired_all_trigger_numbers["HLT_DiJetAve30U_v3"] << " \t " << (fired_all_trigger_prescales["HLT_DiJetAve30U"] * fired_all_trigger_numbers["HLT_DiJetAve30U"] +  fired_all_trigger_prescales["HLT_DiJetAve30U_v3"] * fired_all_trigger_numbers["HLT_DiJetAve30U_v3"]) / (fired_all_trigger_numbers["HLT_DiJetAve30U"] + fired_all_trigger_numbers["HLT_DiJetAve30U_v3"]) << endl;   
-	output_file << "Di-jet \t HLT_DiJetAve50U \t " << all_trigger_numbers["HLT_DiJetAve50U"] + all_trigger_numbers["HLT_DiJetAve50U_v3"] << " \t " << (all_trigger_prescales["HLT_DiJetAve50U"] * all_trigger_numbers["HLT_DiJetAve50U"] +  all_trigger_prescales["HLT_DiJetAve50U_v3"] * all_trigger_numbers["HLT_DiJetAve50U_v3"]) / (all_trigger_numbers["HLT_DiJetAve50U"] + all_trigger_numbers["HLT_DiJetAve50U_v3"]) << " \t " << fired_all_trigger_numbers["HLT_DiJetAve50U"] + fired_all_trigger_numbers["HLT_DiJetAve50U_v3"] << " \t " << (fired_all_trigger_prescales["HLT_DiJetAve50U"] * fired_all_trigger_numbers["HLT_DiJetAve50U"] +  fired_all_trigger_prescales["HLT_DiJetAve50U_v3"] * fired_all_trigger_numbers["HLT_DiJetAve50U_v3"]) / (fired_all_trigger_numbers["HLT_DiJetAve50U"] + fired_all_trigger_numbers["HLT_DiJetAve50U_v3"]) << endl;   
-	output_file << "Di-jet \t HLT_DiJetAve70U \t " << all_trigger_numbers["HLT_DiJetAve70U"] + all_trigger_numbers["HLT_DiJetAve70U_v2"] + all_trigger_numbers["HLT_DiJetAve70U_v3"] << " \t " << (all_trigger_prescales["HLT_DiJetAve70U"] * all_trigger_numbers["HLT_DiJetAve70U"] + all_trigger_prescales["HLT_DiJetAve70U_v2"] * all_trigger_numbers["HLT_DiJetAve70U_v2"] +  all_trigger_prescales["HLT_DiJetAve70U_v3"] * all_trigger_numbers["HLT_DiJetAve70U_v3"]) / (all_trigger_numbers["HLT_DiJetAve70U"] + all_trigger_numbers["HLT_DiJetAve70U_v2"] + all_trigger_numbers["HLT_DiJetAve70U_v3"]) << "  \t " << fired_all_trigger_numbers["HLT_DiJetAve70U"] + fired_all_trigger_numbers["HLT_DiJetAve70U_v2"] + fired_all_trigger_numbers["HLT_DiJetAve70U_v3"] << " \t " << (fired_all_trigger_prescales["HLT_DiJetAve70U"] * fired_all_trigger_numbers["HLT_DiJetAve70U"] + fired_all_trigger_prescales["HLT_DiJetAve70U_v2"] * fired_all_trigger_numbers["HLT_DiJetAve70U_v2"] +  fired_all_trigger_prescales["HLT_DiJetAve70U_v3"] * fired_all_trigger_numbers["HLT_DiJetAve70U_v3"]) / (fired_all_trigger_numbers["HLT_DiJetAve70U"] + fired_all_trigger_numbers["HLT_DiJetAve70U_v2"] + fired_all_trigger_numbers["HLT_DiJetAve70U_v3"]) << endl;   
-	output_file << "Di-jet \t HLT_DiJetAve100U \t " << all_trigger_numbers["HLT_DiJetAve100U_v1"] + all_trigger_numbers["HLT_DiJetAve100U_v3"] << " \t " << (all_trigger_prescales["HLT_DiJetAve100U_v1"] * all_trigger_numbers["HLT_DiJetAve100U_v1"] + all_trigger_prescales["HLT_DiJetAve100U_v2"] * all_trigger_numbers["HLT_DiJetAve100U_v2"] +  all_trigger_prescales["HLT_DiJetAve100U_v3"] * all_trigger_numbers["HLT_DiJetAve100U_v3"]) / (all_trigger_numbers["HLT_DiJetAve100U"] + all_trigger_numbers["HLT_DiJetAve100U_v2"] + all_trigger_numbers["HLT_DiJetAve100U_v3"]) << "  \t " << fired_all_trigger_numbers["HLT_DiJetAve100U_v1"] + fired_all_trigger_numbers["HLT_DiJetAve100U_v3"] << " \t " << (fired_all_trigger_prescales["HLT_DiJetAve100U_v1"] * fired_all_trigger_numbers["HLT_DiJetAve100U_v1"] + fired_all_trigger_prescales["HLT_DiJetAve100U_v2"] * fired_all_trigger_numbers["HLT_DiJetAve100U_v2"] +  fired_all_trigger_prescales["HLT_DiJetAve100U_v3"] * fired_all_trigger_numbers["HLT_DiJetAve100U_v3"]) / (fired_all_trigger_numbers["HLT_DiJetAve100U"] + fired_all_trigger_numbers["HLT_DiJetAve100U_v2"] + fired_all_trigger_numbers["HLT_DiJetAve100U_v3"]) << endl;   
-	output_file << "Di-jet \t HLT_DiJetAve140U \t " << all_trigger_numbers["HLT_DiJetAve140U"] << " \t " << all_trigger_prescales["HLT_DiJetAve140U"] <<  " \t " << fired_all_trigger_numbers["HLT_DiJetAve140U"] << " \t " << fired_all_trigger_prescales["HLT_DiJetAve140U"] << endl;   
-
-
-	output_file << "Quad-jet \t HLT_QuadJet20U \t " << all_trigger_numbers["HLT_QuadJet20U"] << " \t " << all_trigger_prescales["HLT_QuadJet20U"] << " \t " << fired_all_trigger_numbers["HLT_QuadJet20U"] << " \t " << fired_all_trigger_prescales["HLT_QuadJet20U"]  << endl;
-	output_file << "Quad-jet \t HLT_QuadJet25U \t " << all_trigger_numbers["HLT_QuadJet25U"] << " \t " << all_trigger_prescales["HLT_QuadJet25U"] << " \t " << fired_all_trigger_numbers["HLT_QuadJet25U"] << " \t " << fired_all_trigger_prescales["HLT_QuadJet25U"]  << endl;
+	output_file << "Quad-jet \t HLT_QuadJet20U \t "   << all_trigger_numbers["QuadJet20U"]                << " \t " << all_trigger_prescales["QuadJet20U"]               << " \t " << fired_all_trigger_numbers["QuadJet20U"]               << " \t " << fired_all_trigger_prescales["QuadJet20U"]               << endl;
+	output_file << "Quad-jet \t HLT_QuadJet25U \t "   << all_trigger_numbers["QuadJet25U"]                << " \t " << all_trigger_prescales["QuadJet25U"]               << " \t " << fired_all_trigger_numbers["QuadJet25U"]               << " \t " << fired_all_trigger_prescales["QuadJet25U"]               << endl;
 	
-	output_file << "H_T \t HLT_HT100U \t " << all_trigger_numbers["HLT_HT100U"] << " \t " << all_trigger_prescales["HLT_HT100U"] << " \t " << fired_all_trigger_numbers["HLT_HT100U"] << " \t " << fired_all_trigger_prescales["HLT_HT100U"]  << endl;
-	output_file << "H_T \t HLT_HT120U \t " << all_trigger_numbers["HLT_HT120U"] <<  " \t " << all_trigger_prescales["HLT_HT120U"] <<  " \t " << fired_all_trigger_numbers["HLT_HT120U"] <<  " \t " << fired_all_trigger_prescales["HLT_HT120U"]  << endl;
-	output_file << "H_T \t HLT_HT140U \t " << all_trigger_numbers["HLT_HT140U"] <<  " \t " << all_trigger_prescales["HLT_HT140U"] << " \t " << fired_all_trigger_numbers["HLT_HT140U"] <<  " \t " << fired_all_trigger_prescales["HLT_HT140U"]  << endl;
-	output_file << "H_T \t HLT_EcalOnly_SumEt160 \t " << all_trigger_numbers["HLT_EcalOnly_SumEt160"] << " \t " << all_trigger_prescales["HLT_EcalOnly_SumEt160"] << " \t " << fired_all_trigger_numbers["HLT_EcalOnly_SumEt160"] << " \t " << fired_all_trigger_prescales["HLT_EcalOnly_SumEt160"]  << endl;
+	output_file << "H_T \t HLT_HT100U \t "            << all_trigger_numbers["HT100U"]                    << " \t " << all_trigger_prescales["HT100U"]                   << " \t " << fired_all_trigger_numbers["HT100U"]                   << " \t " << fired_all_trigger_prescales["HT100U"]                   << endl;
+	output_file << "H_T \t HLT_HT120U \t "            << all_trigger_numbers["HT120U"]                    << " \t " << all_trigger_prescales["HT120U"]                   << " \t " << fired_all_trigger_numbers["HT120U"]                   << " \t " << fired_all_trigger_prescales["HT120U"]                   << endl;
+	output_file << "H_T \t HLT_HT140U \t "            << all_trigger_numbers["HT140U"]                    << " \t " << all_trigger_prescales["HT140U"]                   << " \t " << fired_all_trigger_numbers["HT140U"]                   << " \t " << fired_all_trigger_prescales["HT140U"]                   << endl;
+	output_file << "H_T \t HLT_EcalOnly_SumEt160 \t " << all_trigger_numbers["EcalOnly_SumEt160"]         << " \t " << all_trigger_prescales["EcalOnly_SumEt160"]        << " \t " << fired_all_trigger_numbers["EcalOnly_SumEt160"]        << " \t " << fired_all_trigger_prescales["EcalOnly_SumEt160"]        << endl;
    
 
    output_file << endl << endl << endl << endl << endl;
@@ -498,47 +426,74 @@ void write_stats(string filename, boost::unordered_map<string, int> & trigger_nu
 
 
 
-void get_all_files_to_process(std::vector<string> & all_files, boost::filesystem::path input_path) {
+void get_all_files_to_process(std::vector<string> & all_files, vector<boost::filesystem::path> input_paths) {
    
-   directory_iterator end_itr;
+   for (unsigned i = 0; i < input_paths.size(); i++) {
+       boost::filesystem::path input_path = input_paths[i];
+       
+       directory_iterator end_itr;
 
-   for (directory_iterator itr(input_path); itr != end_itr; ++itr) {
-      
-      if (is_regular_file(itr->path())) {
-         string current_file = itr->path().string();
-         
-         if (current_file.substr( current_file.length() - 3, current_file.length()) == "mod") {
-            all_files.push_back(current_file);   
-         }
+       for (directory_iterator itr(input_path); itr != end_itr; ++itr) {
+          
+          if (is_regular_file(itr->path())) {
+             string current_file = itr->path().string();
+             
+             if (current_file.substr( current_file.length() - 3, current_file.length()) == "mod") {
+                all_files.push_back(current_file);   
+             }
 
-      }
-      else {
-         // cout << itr->path().string() << endl;
-         get_all_files_to_process(all_files, itr->path());
-      }
-   }
-
+          }
+          else {
+             // cout << itr->path().string() << endl;
+             get_all_files_to_process(all_files, { itr->path() });
+          }
+       }
+    }
 }
 
 void count_events(MOD::Event & event_being_read, boost::unordered_map<string, int> & trigger_numbers, boost::unordered_map<string, float> & trigger_prescales, boost::unordered_map<int, int> & npv, boost::unordered_map<int, int> & filtered_npv, boost::unordered_map<string, int> & jet_quality, boost::unordered_map<float, int> & passes_softdrop, int & assigned_trigger_fired, int & ak5_match, int & eta_24_cut) {
    
+
+    // second part => (?<!HLT)_([a-zA-Z][a-zA-Z][a-zA-Z\d]+)
+
+
+    // First part => HLT_([A-Za-z\d]+)*
+
+
    PseudoJet trigger_jet = event_being_read.trigger_jet();
    MOD::Trigger assigned_trigger = event_being_read.assigned_trigger();
     
 
-
+   // cout << assigned_trigger.name() << endl;
 
    // Assigned Trigger Fired. 
    if (event_being_read.assigned_trigger_fired()) {
       assigned_trigger_fired++;
 
+      // Everybody stand back, I know regular expressions.
+      boost::regex rgx_1("HLT_([A-Za-z\\d]+)*");
+      boost::regex rgx_2("(?<!HLT)_([a-zA-Z][a-zA-Z][a-zA-Z\\d]+)");
+      
+      string assigned_trigger_name;
 
-      string assigned_trigger_name = assigned_trigger.name();
+
+      boost::smatch what;
+      if (boost::regex_search(assigned_trigger.name(), what, rgx_1)) {
+        
+        string first_part(what[1]);
+        assigned_trigger_name = first_part;
+
+        boost::smatch what_2;
+        if (boost::regex_search(assigned_trigger.name(), what_2, rgx_2)) {
+            string second_part(what_2[1]);
+            assigned_trigger_name += second_part;
+        }
+      }
+
 
 
       if ( (assigned_trigger_name.find("100U") != std::string::npos) && (trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC() > 250.0)) {
          assigned_trigger_name = "extra_100U";
-      
       }
 
 
@@ -554,215 +509,213 @@ void count_events(MOD::Event & event_being_read, boost::unordered_map<string, in
 	   }
 
       
-      string looking_for = "100U";
+      // string looking_for = "100U";
 
 
-      if (assigned_trigger_name.find(looking_for) != std::string::npos) {
-        // cout << "Found." << endl;
-        eta_24_cut++;
-        // cout << fixed << setprecision(8) << trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC() << ", ";
-         // cout << event_being_read.event_number() << " => " << trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC() << " " << trigger_we_are_using << "....; ";
+      // if (assigned_trigger_name.find(looking_for) != std::string::npos) {
+      //   // cout << "Found." << endl;
+   
+      //   // cout << fixed << setprecision(8) << trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC() << ", ";
+      //    // cout << event_being_read.event_number() << " => " << trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC() << " " << trigger_we_are_using << "....; ";
+      // }
+
+
+      
+      
+
+	   // Average prescale.
+	   auto prescale_search = trigger_prescales.find(assigned_trigger_name);
+
+	   if (prescale_search != trigger_prescales.end()) {
+
+	      if (trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC() > 250) {
+	         if (assigned_trigger_name == "Jet140U") {
+	            // Get the total number of prescales already in the hashmap.
+	            int n = trigger_numbers[assigned_trigger_name];
+	            float summation_x = n * trigger_prescales[assigned_trigger_name];
+	            float new_mean = (summation_x + assigned_trigger.prescale()) / (n + 1);
+
+	            trigger_prescales[assigned_trigger_name] = new_mean;      
+	         }
+	         else {
+	            auto search_100U = trigger_numbers.find("extra_100U");
+	            if (search_100U != trigger_numbers.end()) {
+	               // Get the total number of prescales already in the hashmap.
+	               int n = trigger_numbers[assigned_trigger_name];
+	               float summation_x = n * trigger_prescales[assigned_trigger_name];
+	               float new_mean = (summation_x + assigned_trigger.prescale()) / (n + 1);
+
+	               trigger_prescales["extra_100U"] = new_mean;      
+	            }
+	            else {
+	               trigger_prescales.insert(make_pair("extra_100U", assigned_trigger.prescale()));
+	            }
+	               
+	         }
+	      }
+	      else {
+	         // Get the total number of prescales already in the hashmap.
+	         int n = trigger_numbers[assigned_trigger_name];
+	         float summation_x = n * trigger_prescales[assigned_trigger_name];
+	         float new_mean = (summation_x + assigned_trigger.prescale()) / (n + 1);
+
+	         trigger_prescales[assigned_trigger_name] = new_mean;      
+	      }
+	      
+	   }
+	   else {
+	      if (trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC() > 250) {
+	         if (assigned_trigger_name == "Jet140U") {
+	            trigger_prescales.insert(make_pair(assigned_trigger_name, assigned_trigger.prescale()));
+	         }
+	         else {
+	            trigger_prescales.insert(make_pair("extra_100U", assigned_trigger.prescale()));
+	         }     
+	      }
+	      else {
+	         trigger_prescales.insert(make_pair(assigned_trigger_name, assigned_trigger.prescale()));
+	      }
+	   }
+
+
+
+
+      // Loose jet quality.
+      
+      // First, find the trigger jet.
+      
+      string quality_string;
+
+      if (trigger_jet.has_user_info()) {
+         int quality = trigger_jet.user_info<MOD::InfoCalibratedJet>().jet_quality();
+
+         // cout << quality << ", ";
+
+         if (quality == 0) {
+            quality_string = "FAILED";
+         }
+         else if (quality > 0) {
+         	quality_string = "LOOSE";
+         }
+         else {
+         	quality_string = "ERROR";
+         	// cout << "ERROR" << quality << endl;
+         }
+            
+         
+         auto search = jet_quality.find(quality_string);
+
+         if (search != jet_quality.end()) {
+            search->second++;            
+         }
+         else {
+            jet_quality.insert(make_pair(quality_string, 1));
+         }
       }
 
 
-      
-      
-
-	  //  // Average prescale.
-	  //  auto prescale_search = trigger_prescales.find(assigned_trigger_name);
-
-	  //  if (prescale_search != trigger_prescales.end()) {
-
-	  //     if (trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC() > 250) {
-	  //        if ((assigned_trigger_name == "HLT_Jet140U_v1") || (assigned_trigger_name == "HLT_Jet140U_v3")) {
-	  //           // Get the total number of prescales already in the hashmap.
-	  //           int n = trigger_numbers[assigned_trigger_name];
-	  //           float summation_x = n * trigger_prescales[assigned_trigger_name];
-	  //           float new_mean = (summation_x + assigned_trigger.prescale()) / (n + 1);
-
-	  //           trigger_prescales[assigned_trigger_name] = new_mean;      
-	  //        }
-	  //        else {
-	  //           auto search_100U = trigger_numbers.find("extra_100U");
-	  //           if (search_100U != trigger_numbers.end()) {
-	  //              // Get the total number of prescales already in the hashmap.
-	  //              int n = trigger_numbers[assigned_trigger_name];
-	  //              float summation_x = n * trigger_prescales[assigned_trigger_name];
-	  //              float new_mean = (summation_x + assigned_trigger.prescale()) / (n + 1);
-
-	  //              trigger_prescales["extra_100U"] = new_mean;      
-	  //           }
-	  //           else {
-	  //              trigger_prescales.insert(make_pair("extra_100U", assigned_trigger.prescale()));
-	  //           }
-	               
-	  //        }
-	  //     }
-	  //     else {
-	  //        // Get the total number of prescales already in the hashmap.
-	  //        int n = trigger_numbers[assigned_trigger_name];
-	  //        float summation_x = n * trigger_prescales[assigned_trigger_name];
-	  //        float new_mean = (summation_x + assigned_trigger.prescale()) / (n + 1);
-
-	  //        trigger_prescales[assigned_trigger_name] = new_mean;      
-	  //     }
-	      
-	  //  }
-	  //  else {
-	  //     if (trigger_jet.pt() * trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC() > 250) {
-	  //        if ((assigned_trigger_name == "HLT_Jet140U_v1") || (assigned_trigger_name == "HLT_Jet140U_v3")) {
-	  //           trigger_prescales.insert(make_pair(assigned_trigger_name, assigned_trigger.prescale()));
-	  //        }
-	  //        else {
-	  //           trigger_prescales.insert(make_pair("extra_100U", assigned_trigger.prescale()));
-	  //        }     
-	  //     }
-	  //     else {
-	  //        trigger_prescales.insert(make_pair(assigned_trigger_name, assigned_trigger.prescale()));
-	  //     }
-	  //  }
-
-
-
-
-   //    // Loose jet quality.
-      
-   //    // First, find the trigger jet.
-      
-   //    string quality_string;
-
-   //    if (trigger_jet.has_user_info()) {
-   //       int quality = trigger_jet.user_info<MOD::InfoCalibratedJet>().jet_quality();
-
-   //       // cout << quality << ", ";
-
-   //       if (quality == 0) {
-   //          quality_string = "FAILED";
-   //       }
-   //       else if (quality > 0) {
-   //       	quality_string = "LOOSE";
-   //       }
-   //       else {
-   //       	quality_string = "ERROR";
-   //       	// cout << "ERROR" << quality << endl;
-   //       }
+      if (quality_string == "LOOSE") {
+         // AK5 match.
+         if (event_being_read.is_trigger_jet_matched()) {
+            ak5_match++;
             
-         
-   //       auto search = jet_quality.find(quality_string);
-
-   //       if (search != jet_quality.end()) {
-   //          search->second++;            
-   //       }
-   //       else {
-   //          jet_quality.insert(make_pair(quality_string, 1));
-   //       }
-   //    }
-
-
-   //    if (quality_string == "LOOSE") {
-   //       // AK5 match.
-   //       if (event_being_read.is_trigger_jet_matched()) {
-   //          ak5_match++;
-            
-   //          // Eta cut.
-   //          if (abs(event_being_read.hardest_jet().eta()) < 2.4) {
-   //             eta_24_cut++;
+            // Eta cut.
+            if (abs(event_being_read.hardest_jet().eta()) < 2.4) {
+               eta_24_cut++;
 
 
 
 
-			   
 
+               // NPV.
+               // NPV
+               auto search = filtered_npv.find(event_being_read.condition().npv());
 
-   //             // NPV.
-   //             // NPV
-   //             auto search = filtered_npv.find(event_being_read.condition().npv());
+               if (search != filtered_npv.end())
+                  search->second++;
+               else
+                  filtered_npv.insert(make_pair(event_being_read.condition().npv(), 1));
 
-   //             if (search != filtered_npv.end())
-   //                search->second++;
-   //             else
-   //                filtered_npv.insert(make_pair(event_being_read.condition().npv(), 1));
+               // // SoftDrop
 
-   //             // // SoftDrop
-
-   //             // // Passes SoftDrop
+               // // Passes SoftDrop
    
-   //             JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
+               JetDefinition jet_def_cambridge(cambridge_algorithm, fastjet::JetDefinition::max_allowable_R);
 
-   //             if (event_being_read.hardest_jet().has_structure()) {
+               if (event_being_read.hardest_jet().has_structure()) {
 
-   //                Selector pT_1_GeV_selector = SelectorPtMin(1.0);
-   //                vector<PseudoJet> hardest_jet_constituents = pT_1_GeV_selector(event_being_read.hardest_jet().constituents());
+                  Selector pT_1_GeV_selector = SelectorPtMin(1.0);
+                  vector<PseudoJet> hardest_jet_constituents = pT_1_GeV_selector(event_being_read.hardest_jet().constituents());
 
-   //                ClusterSequence cs_uncorrected_jet_no_softkiller = ClusterSequence(hardest_jet_constituents, jet_def_cambridge);   
+                  ClusterSequence cs_uncorrected_jet_no_softkiller = ClusterSequence(hardest_jet_constituents, jet_def_cambridge);   
 
-   //                PseudoJet uncorrected_hardest_jet_no_softkiller = cs_uncorrected_jet_no_softkiller.inclusive_jets()[0];
+                  PseudoJet uncorrected_hardest_jet_no_softkiller = cs_uncorrected_jet_no_softkiller.inclusive_jets()[0];
                   
-   //                if (uncorrected_hardest_jet_no_softkiller.has_structure()) {
-   //                   SoftDrop soft_drop_005(0.0, 0.05);
-   //                   SoftDrop soft_drop_01(0.0, 0.1);
-   //                   SoftDrop soft_drop_02(0.0, 0.2);
+                  if (uncorrected_hardest_jet_no_softkiller.has_structure()) {
+                     SoftDrop soft_drop_005(0.0, 0.05);
+                     SoftDrop soft_drop_01(0.0, 0.1);
+                     SoftDrop soft_drop_02(0.0, 0.2);
 
-   //                   PseudoJet soft_drop_005_jet = soft_drop_005(uncorrected_hardest_jet_no_softkiller);
-   //                   PseudoJet soft_drop_01_jet = soft_drop_01(uncorrected_hardest_jet_no_softkiller);
-   //                   PseudoJet soft_drop_02_jet = soft_drop_02(uncorrected_hardest_jet_no_softkiller);
+                     PseudoJet soft_drop_005_jet = soft_drop_005(uncorrected_hardest_jet_no_softkiller);
+                     PseudoJet soft_drop_01_jet = soft_drop_01(uncorrected_hardest_jet_no_softkiller);
+                     PseudoJet soft_drop_02_jet = soft_drop_02(uncorrected_hardest_jet_no_softkiller);
 
-   //                   double zg_005 = soft_drop_005_jet.structure_of<SoftDrop>().symmetry();
-   //                   double zg_01 = soft_drop_01_jet.structure_of<SoftDrop>().symmetry();
-   //                   double zg_02 = soft_drop_02_jet.structure_of<SoftDrop>().symmetry();
+                     double zg_005 = soft_drop_005_jet.structure_of<SoftDrop>().symmetry();
+                     double zg_01 = soft_drop_01_jet.structure_of<SoftDrop>().symmetry();
+                     double zg_02 = soft_drop_02_jet.structure_of<SoftDrop>().symmetry();
 
-   //                   if (zg_005 > 0.05) {
-   //                      auto search = passes_softdrop.find(0.05);
+                     if (zg_005 > 0.05) {
+                        auto search = passes_softdrop.find(0.05);
 
-   //                      if (search != passes_softdrop.end())
-   //                         search->second++;
-   //                      else
-   //                         passes_softdrop.insert(make_pair(0.05, 1));
-   //                   }
+                        if (search != passes_softdrop.end())
+                           search->second++;
+                        else
+                           passes_softdrop.insert(make_pair(0.05, 1));
+                     }
 
-   //                   if (zg_01 > 0.1) {
-   //                      auto search = passes_softdrop.find(0.1);
+                     if (zg_01 > 0.1) {
+                        auto search = passes_softdrop.find(0.1);
 
-   //                      if (search != passes_softdrop.end())
-   //                         search->second++;
-   //                      else
-   //                         passes_softdrop.insert(make_pair(0.1, 1));
-   //                   }
+                        if (search != passes_softdrop.end())
+                           search->second++;
+                        else
+                           passes_softdrop.insert(make_pair(0.1, 1));
+                     }
 
-   //                   if (zg_02 > 0.2) {
-   //                      auto search = passes_softdrop.find(0.2);
+                     if (zg_02 > 0.2) {
+                        auto search = passes_softdrop.find(0.2);
 
-   //                      if (search != passes_softdrop.end())
-   //                         search->second++;
-   //                      else
-   //                         passes_softdrop.insert(make_pair(0.2, 1));
-   //                   }
-   //                }
+                        if (search != passes_softdrop.end())
+                           search->second++;
+                        else
+                           passes_softdrop.insert(make_pair(0.2, 1));
+                     }
+                  }
                   
-   //             }
+               }
 
 
 
 
-   //          }
-   //       }
-   //       else {
-   //       	cout << "Found an event in loose for which there is no AK5 match." << endl;
-   //       }
+            }
+         }
+         else {
+         	cout << "Found an event in loose for which there is no AK5 match." << endl;
+         }
 
 
-   //    }
+      }
 
 
    }
       
-   // // NPV
-   // auto search = npv.find(event_being_read.condition().npv());
+   // NPV
+   auto search = npv.find(event_being_read.condition().npv());
 
-   // if (search != npv.end())
-   //    search->second++;
-   // else
-   //    npv.insert(make_pair(event_being_read.condition().npv(), 1));  
+   if (search != npv.end())
+      search->second++;
+   else
+      npv.insert(make_pair(event_being_read.condition().npv(), 1));  
    
 	
 
@@ -784,57 +737,84 @@ void count_triggers(MOD::Event & event_being_read, boost::unordered_map<string, 
    for (unsigned i=0; i < all_triggers.size(); i++) {
       MOD::Trigger trigger = all_triggers[i];
 
+      string trigger_name;
+
+      // Everybody stand back, I know regular expressions.
+      boost::regex rgx_1("HLT_([A-Za-z0-9]*)");
+      boost::regex rgx_2("(?<!HLT)_([a-zA-Z][a-zA-Z][a-zA-Z0-9]+)");
+      
+    
+      string given_trigger_name = trigger.name();
+
+      string first_part = "";
+      string second_part = "";
+      
+      boost::smatch what;
+      if (boost::regex_search(given_trigger_name, what, rgx_1)) {
+        
+        first_part = what[1];
+        
+        boost::smatch what_2;
+        if (boost::regex_search(given_trigger_name, what_2, rgx_2)) {
+            second_part = "_" + what_2[1];
+        }
+      }
+
+
+      trigger_name = first_part + second_part;
+      
+
 
       // First present triggers.
-      auto numbers_search = all_trigger_numbers.find(trigger.name());
+      auto numbers_search = all_trigger_numbers.find(trigger_name);
 
       if (numbers_search != all_trigger_numbers.end()) {
          numbers_search->second++;
       }
       else {
-         all_trigger_numbers.insert(make_pair(trigger.name(), 1));
+         all_trigger_numbers.insert(make_pair(trigger_name, 1));
       }
 
       // Average prescale.
-      auto prescale_search = all_trigger_prescales.find(trigger.name());
+      auto prescale_search = all_trigger_prescales.find(trigger_name);
 
       if (prescale_search != all_trigger_prescales.end()) {
          // Get the total number of prescales already in the hashmap.
-         int n = all_trigger_numbers[trigger.name()];
-         float summation_x = n * all_trigger_prescales[trigger.name()];
+         int n = all_trigger_numbers[trigger_name];
+         float summation_x = n * all_trigger_prescales[trigger_name];
          float new_mean = (summation_x + trigger.prescale()) / (n + 1);
 
-         all_trigger_prescales[trigger.name()] = new_mean;   
+         all_trigger_prescales[trigger_name] = new_mean;   
       }
       else {
-         all_trigger_prescales.insert(make_pair(trigger.name(), trigger.prescale()));
+         all_trigger_prescales.insert(make_pair(trigger_name, trigger.prescale()));
       }
 
 
       // Next, fired triggers.
       if (trigger.fired()) {
-         auto numbers_search = all_fired_trigger_numbers.find(trigger.name());
+         auto numbers_search = all_fired_trigger_numbers.find(trigger_name);
 
          if (numbers_search != all_fired_trigger_numbers.end()) {
             numbers_search->second++;
          }
          else {
-            all_fired_trigger_numbers.insert(make_pair(trigger.name(), 1));
+            all_fired_trigger_numbers.insert(make_pair(trigger_name, 1));
          }
 
          // Average prescale.
-         auto prescale_search = all_fired_trigger_prescales.find(trigger.name());
+         auto prescale_search = all_fired_trigger_prescales.find(trigger_name);
 
          if (prescale_search != all_fired_trigger_prescales.end()) {
             // Get the total number of prescales already in the hashmap.
-            int n = all_fired_trigger_numbers[trigger.name()];
-            float summation_x = n * all_fired_trigger_prescales[trigger.name()];
+            int n = all_fired_trigger_numbers[trigger_name];
+            float summation_x = n * all_fired_trigger_prescales[trigger_name];
             float new_mean = (summation_x + trigger.prescale()) / (n + 1);
 
-            all_fired_trigger_prescales[trigger.name()] = new_mean;   
+            all_fired_trigger_prescales[trigger_name] = new_mean;   
          }
          else {
-            all_fired_trigger_prescales.insert(make_pair(trigger.name(), trigger.prescale()));
+            all_fired_trigger_prescales.insert(make_pair(trigger_name, trigger.prescale()));
          }
       }
       

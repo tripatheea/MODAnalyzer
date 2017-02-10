@@ -1013,10 +1013,12 @@ def create_multi_page_plot(filename, hists, theory=False, x_scale='linear'):
 					ratio_to_index = 2	# 2 = Ratio to Pythia, 1 = Ratio to Theory.
 					ratio_to_label = "Ratio to\nTheory"
 				else:
-					ratio_to_index = 1	# 1 = Ratio to Pythia.
+					# ratio_to_index = 1	# 1 = Ratio to Pythia.
+					ratio_to_index = 0	# 1 = Ratio to Pythia.
 					ratio_to_label = "Ratio to\nPythia" 
 				
-				ratio_to_index = 2
+				# ratio_to_index = 2
+				ratio_to_index = 0
 				ratio_to_label = "Ratio to\nPythia"	
 
 				plot = MODPlot(mod_hists, plot_types=types, plot_colors=colors, plot_labels=labels, line_styles=line_styles, x_scale=mod_hists[-1].x_scale(), y_scale=mod_hists[-1].y_scale(), ratio_plot=True, ratio_to_index=ratio_to_index, ratio_label=ratio_to_label, mark_regions=mod_hists[-1].mark_regions(), x_label=mod_hists[-1].x_label(), legend_location=mod_hists[-1].legend_location(), y_label=mod_hists[-1].y_label(), x_lims=mod_hists[-1].x_range(), y_lims=mod_hists[-1].y_range())

@@ -303,6 +303,8 @@ const PseudoJet & MOD::Event::hardest_jet() const {
 void MOD::Event::convert_to_one_jet() {
 
    PseudoJet jet = _closest_fastjet_jet_to_trigger_jet;
+
+
    jet.set_user_info(new MOD::InfoCalibratedJet("1JET", _trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC()));
 
    vector<PseudoJet> particles = jet.constituents();
@@ -310,6 +312,7 @@ void MOD::Event::convert_to_one_jet() {
    int pdgId;
    for (unsigned i = 0; i < particles.size(); i++) {
       pdgId = particles[i].user_info<MOD::InfoPFC>().pdgId();
+
       particles[i].set_user_info( new MOD::InfoPFC(pdgId, "PDPFC") );
    }
 
@@ -321,11 +324,10 @@ void MOD::Event::convert_to_one_jet() {
    _data_source = PRISTINE;   // Set the data source to "Pristine".
    _weight = _assigned_trigger.prescale();
 
-   // Empty CMS jets and triggers.
-   _cms_jets.clear();
-   _triggers.clear();
+
 
    establish_properties();
+
 
 }
 
@@ -358,7 +360,6 @@ void MOD::Event::establish_properties() {
 
    }
    else if (data_source() == PRISTINE) {
-
       double JEC = _cms_jets[0].user_info<MOD::InfoCalibratedJet>().JEC();
       vector<PseudoJet> jec_corrected_jets{ ak5_jets[0] * JEC };
       _jets = jec_corrected_jets;
