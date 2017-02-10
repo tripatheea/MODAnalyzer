@@ -193,6 +193,7 @@ parsed_hists = compile_sources(parsed_linear)
 parsed_log = parse.load_root_files_to_hist(log=True)
 parsed_log_hists = compile_sources(parsed_log)
 
+print sorted(parsed_linear[0].keys())
 
 # parsed_pfc = parse.load_pfc_root_files_to_hist()
 # parsed_pfc_hists = compile_sources(parsed_pfc)
@@ -212,8 +213,8 @@ start = time.time()
 # create_multi_page_plot(filename=default_dir + "pfc_pT_track.pdf", hists=compile_hists('pfc_pT', parsed_pfc_hists))
 
 
-create_multi_page_plot(filename=default_dir + "hardest_jet_pT_all_linear.pdf", hists=compile_hists('hardest_pT', parsed_hists))
-# create_data_only_plot(filename=default_dir + "hardest_jet_pT_jec_all_linear.pdf", hists=[ [ parsed_linear[0]['hardest_pT'][i], parsed_linear[0]['uncor_hardest_pT'][i] ] for i in range(len(parsed_linear[0]['uncor_hardest_pT'])) ], labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio to\nCorrected", ratio_to_index=0)
+# create_multi_page_plot(filename=default_dir + "hardest_jet_pT_all_linear.pdf", hists=compile_hists('hardest_pT', parsed_hists))
+create_data_only_plot(filename=default_dir + "hardest_jet_pT_jec_all_linear.pdf", hists=[ [ parsed_linear[0]['hardest_pT'][i], parsed_linear[0]['uncor_hardest_pT'][i] ] for i in range(len(parsed_linear[0]['uncor_hardest_pT'])) ], labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio to\nCorrected", ratio_to_index=0)
 
 
 # create_multi_page_plot(filename=default_dir + "hardest_jet_phi_all_linear.pdf", hists=compile_hists('hardest_phi', parsed_hists))

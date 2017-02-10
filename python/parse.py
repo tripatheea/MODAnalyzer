@@ -23,6 +23,7 @@ import rootpy.plotting.root2matplotlib as rplt
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/"
 # output_directory = "/home/aashish/"
 output_directory = "/home/aashish/Feb5/histogrammed/"
+# output_directory = "/home/aashish/Feb5/histogrammed/pfc/"
 
 
 
@@ -336,7 +337,8 @@ def root_file_to_hist(input_filename, hist_templates):
 		
 		index = 0
 
-		if var != "uncor_hardest_pT":
+		# if var != "uncor_hardest_pT":
+		if True:
 			for mod_hist in hists[var]:
 				hist_name = "{}#{}".format(var, index)
 
@@ -387,12 +389,12 @@ def load_root_files_to_hist(log=False):
 	
 	if not log:
 		hist_templates = hists.multi_page_plot_hist_templates()
-		filenames = ["data.root", "pythia.root", "herwig.root", "sherpa.root"]
-		# filenames = ["data.root", "data.root", "data.root", "data.root"]
+		# filenames = ["data.root", "pythia.root", "herwig.root", "sherpa.root"]
+		filenames = ["data.root", "data.root", "data.root", "data.root"]
 	else:
 		hist_templates = hists.multi_page_log_plot_hist_templates()
-		filenames = ["data_log.root", "pythia_log.root", "herwig_log.root", "sherpa_log.root"]
-		# filenames = ["data_log.root", "data_log.root", "data_log.root", "data_log.root"]
+		# filenames = ["data_log.root", "pythia_log.root", "herwig_log.root", "sherpa_log.root"]
+		filenames = ["data_log.root", "data_log.root", "data_log.root", "data_log.root"]
 
 	return  [ root_file_to_hist(output_directory + filename, hist_templates) for filename in filenames ] 
 
@@ -405,6 +407,6 @@ if __name__ == "__main__":
 
 	# load_root_files_to_hist()
 
-	parse_pfc_to_root_files()
+	# parse_pfc_to_root_files()
 
 	pass

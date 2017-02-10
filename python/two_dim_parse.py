@@ -313,7 +313,7 @@ def load_root_files_to_hist(log=False):
 
 if __name__ == "__main__":
 
-	parse_to_root_files()
+	# parse_to_root_files()
 
 	# load_root_files_to_hist()
 

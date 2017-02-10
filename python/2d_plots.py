@@ -90,7 +90,7 @@ plt.rc('font', family='serif', size=43)
 
 
 
-default_dir = "plots/Version 5_2/"
+default_dir = "plots/Version 6/"
 
 
 logo_location = "/home/aashish/root/macros/MODAnalyzer/mod_logo.png"
