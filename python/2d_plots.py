@@ -94,7 +94,7 @@ default_dir = "plots/Version 6/"
 
 
 logo_location = "/home/aashish/root/macros/MODAnalyzer/mod_logo.png"
-logo_text = "Preliminary"
+logo_text = "v1"
 
 
 
@@ -229,7 +229,7 @@ def two_dim_plots():
 
 
 				logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-				text_box = TextArea("Preliminary", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+				text_box = TextArea("v1", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 				logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
 				anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.086, 1.0], bbox_transform = plt.gcf().transFigure)
 				plt.gca().add_artist(anchored_box)
@@ -344,7 +344,7 @@ def two_dim_log_plots():
 				# Data Source Label.
 				label = []
 				label.extend( [source_label] ) 
-				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=60, bbox_to_anchor=[1.15, 1.12], loc="upper right")	
+				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=60, bbox_to_anchor=[1.02, 1.12], loc="upper right")	
 				plt.gca().add_artist(additional_legend)
 
 				plt.xlabel('$z_g$', fontsize=90, labelpad=40)
@@ -369,7 +369,7 @@ def two_dim_log_plots():
 				plt.yticks([0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0])
 
 				logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-				text_box = TextArea("Preliminary", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+				text_box = TextArea("v1", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 				logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
 				anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.100, 1.0], bbox_transform = plt.gcf().transFigure)
 				plt.gca().add_artist(anchored_box)

@@ -19,7 +19,8 @@ import rootpy.plotting.root2matplotlib as rplt
 
 
 # output_directory = "/home/aashish/root/macros/MODAnalyzer/parsed_root_files/"
-output_directory = "/home/aashish/Feb5/histogrammed/2d/"
+# output_directory = "/home/aashish/Feb5/histogrammed/2d/"
+output_directory = "/media/aashish/opendata_mod/Feb5/histogrammed/2d/"
 
 data_file   = "/home/aashish/Feb5/analyzed/pristine.dat"
 # pythia_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pythia.dat"

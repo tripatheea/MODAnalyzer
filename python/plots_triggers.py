@@ -721,10 +721,10 @@ def calculate_average_prescales():
 
 
 
-# plot_turn_on_curves()
+plot_turn_on_curves()
 # plot_all_trigger_efficiency_curves()
 
-plot_prescales()
+# plot_prescales()
 
 
 # calculate_average_prescales()

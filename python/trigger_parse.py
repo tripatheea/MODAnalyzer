@@ -18,12 +18,12 @@ import rootpy.plotting.root2matplotlib as rplt
 
 
 
-output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/"
+output_directory = "/media/aashish/opendata_mod/Feb5/histogrammed/"
 # output_directory = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/"
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/"
 
 # data_file = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/analyzed/experiment/trig.dat"
-data_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/trig.dat"
+data_file = "/media/aashish/opendata_mod/Feb5/analyzed/trigger.dat"
 
 
 
@@ -74,10 +74,6 @@ def parse_file(input_file, all_hists):
 					pT_index = keywords.index("corr_hardest_pT") + 1
 					trig_name_index = keywords.index("trigger_name") + 1
 					eta_index = keywords.index("hardest_eta") + 1
-
-					
-
-						
 
 					# print numbers[pT_index]
 
@@ -249,7 +245,7 @@ def parse_to_root_files():
 	
 	hist_templates = hists.trigger_hists()
 
-	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "trig_main.root", hist_templates=hist_templates)
+	parse_to_root_file(input_filename=data_file, output_filename=output_directory + "trig.root", hist_templates=hist_templates)
 
 def load_root_files_to_hist(log=False):
 	
@@ -265,7 +261,7 @@ def load_root_files_to_hist(log=False):
 if __name__ == "__main__":
 
 	
-	parse_to_root_files()
+	# parse_to_root_files()
 
 	# load_root_files_to_hist()
 

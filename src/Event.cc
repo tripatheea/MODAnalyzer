@@ -321,6 +321,7 @@ void MOD::Event::convert_to_one_jet() {
    _particles = particles;
    _jets = jets;
 
+
    _data_source = PRISTINE;   // Set the data source to "Pristine".
    _weight = _assigned_trigger.prescale();
 
@@ -363,6 +364,8 @@ void MOD::Event::establish_properties() {
       double JEC = _cms_jets[0].user_info<MOD::InfoCalibratedJet>().JEC();
       vector<PseudoJet> jec_corrected_jets{ ak5_jets[0] * JEC };
       _jets = jec_corrected_jets;
+
+      // cout << "The only present jet is: " << _jets[0].pt() << endl;
    }
 
    set_hardest_jet();

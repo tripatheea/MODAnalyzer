@@ -8820,14 +8820,14 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 			else:
 				if upper == 100000.:
 					if log:
-						filename = "/media/aashish/My Files/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddifm{}_log.dat".format(lower)
+						filename = "/home/aashish/theory/ddifm{}_log.dat".format(lower)
 					else:
-						filename = "/media/aashish/My Files/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddifm{}.dat".format(lower)
+						filename = "/home/aashish/theory/ddifm{}.dat".format(lower)
 				else:
 					if log:
-						filename = "/media/aashish/My Files/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddif{}_log.dat".format(lower)
+						filename = "/home/aashish/theory/ddif{}_log.dat".format(lower)
 					else:
-						filename = "/media/aashish/My Files/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddif{}.dat".format(lower)
+						filename = "/home/aashish/theory/ddif{}.dat".format(lower)
 				
 				f = open(filename, 'r')
 				lines = f.read().split("\n")
@@ -8880,8 +8880,13 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 			# print x_s, y_s, z_s
 
-			# H, xedges, yedges = np.histogram2d(x_s, y_s, bins=[25, 25], range=[[0.0, 0.5], [0.0, 1.0]], weights=z_s, normed=True)					# Use for linear.
-			H, xedges, yedges = np.histogram2d(z_g_s, theta_g_s, bins=bins, weights=prescales, normed=True)
+			if log:
+				H, xedges, yedges = np.histogram2d(z_g_s, theta_g_s, bins=bins, weights=prescales, normed=True)
+			else:
+				H, xedges, yedges = np.histogram2d(x_s, y_s, bins=[25, 25], range=[[0.0, 0.5], [0.0, 1.0]], weights=z_s, normed=True)					# Use for linear.
+			
+
+
 
 			H = np.array(H)
 			H = np.rot90(H)
@@ -8944,7 +8949,7 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 				polygon_coords.append([0.5, 0.0])
 
 	
-			polygon = mpl.patches.Polygon(polygon_coords, hatch="/", color="white", lw=0, fill=False)
+			polygon = mpl.patches.Polygon(polygon_coords, hatch="/ ", color="white", lw=0, fill=False)
 			plt.gca().add_patch(polygon)
 
 				
@@ -8974,7 +8979,7 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 
 			logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-			text_box = TextArea("Preliminary", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+			text_box = TextArea("v1", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 			logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
 			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.085, 1.0], bbox_transform = plt.gcf().transFigure)
 			plt.gca().add_artist(anchored_box)

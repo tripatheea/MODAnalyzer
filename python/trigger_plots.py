@@ -90,11 +90,11 @@ plt.rc('font', family='serif', size=43)
 
 
 
-default_dir = "plots/Version 5_2/"
+default_dir = "plots/Version 6/"
 
 
 logo_location = "/home/aashish/root/macros/MODAnalyzer/mod_logo.png"
-logo_text = "Preliminary"
+logo_text = "v1"
 
 
 
@@ -168,7 +168,7 @@ def trigger_turn_on_curves():
 	plt.gca().set_xlabel("Trigger Jet $p_T$ [GeV]", fontsize=70, labelpad=50)
 	plt.gca().set_ylabel("Rescaled Events", fontsize=70, labelpad=25)
 
-	plt.gca().add_artist(logo_box(0.135, 0.99))
+	plt.gca().add_artist(logo_box(0.105, 0.99))
 
 	plt.gca().xaxis.set_minor_locator(MultipleLocator(10))
 	plt.gca().set_yscale('log')
@@ -199,7 +199,8 @@ def trigger_turn_on_curves():
 def trigger_efficiency_plot():
 	mod_hists = parsed_linear[0]
 
-	colors = ['green', 'magenta', 'blue', 'red', 'brown', 'orange']
+	
+	colors = ['green', 'magenta', 'blue', 'red', 'orange', 'gray']
 	labels = ["Jet140U / 100U", "Jet100U / 70U", "Jet70U / 50U", "Jet50U / 30U", "Jet30U / 15U\_HNF", "" ]
 	hist_labels = [("Jet140U", "Jet100U"), ("Jet100U", "Jet70U"), ("Jet70U", "Jet50U"), ("Jet50U", "Jet30U"), ("Jet30U", "Jet15U_HcalNoiseFiltered") ]
 	lower_pTs = [140, 100, 70, 50, 30, 15]
@@ -259,9 +260,9 @@ def trigger_efficiency_plot():
 			plt.gca().annotate(str(cms_turn_on_pTs[i]) + " GeV", xy=(cms_turn_on_pTs[i], 1.), xycoords='data', xytext=(-100, 350),  textcoords='offset points', color=colors[i], size=50, va="center", ha="center", arrowprops=dict(arrowstyle="simple", facecolor=colors[i], zorder=99, connectionstyle="angle3,angleA=0,angleB=90") )
 		'''
 
-		plt.plot([ cms_turn_on_pTs[i], cms_turn_on_pTs[i] ], [ 1e0, 4e1 ], lw=10, ls="dashed", color=colors[i])
+		plt.plot([ cms_turn_on_pTs[i], cms_turn_on_pTs[i] ], [ 1e0, 2e1 ], lw=10, ls="dashed", color=colors[i])
 
-		plt.gca().text((cms_turn_on_pTs[i] - 15), 5e1, str(cms_turn_on_pTs[i]) + " GeV", color=colors[i])
+		plt.gca().text((cms_turn_on_pTs[i] - 15), 3e1, str(cms_turn_on_pTs[i]) + " GeV", color=colors[i])
 		  
 	# Horizontal Line.
 	plt.plot([0] + list(mod_hists[hist_labels[i][0]].hist().x()), [1] * (1 + len(list(mod_hists[hist_labels[i][0]].hist().x()))), color="black", linewidth=5, linestyle="dashed")
@@ -279,9 +280,9 @@ def trigger_efficiency_plot():
 
 
 	plt.gca().set_xlabel("Trigger Jet $p_T$ [GeV]", fontsize=70, labelpad=50)
-	plt.gca().set_ylabel("Ratio", fontsize=70, labelpad=65)
+	plt.gca().set_ylabel("Ratio", fontsize=70, labelpad=50)
 
-	plt.gca().add_artist(logo_box(0.130, 0.98))
+	plt.gca().add_artist(logo_box(0.114, 0.98))
 
 	plt.gca().xaxis.set_minor_locator(MultipleLocator(10))
 	plt.gca().set_yscale('log')

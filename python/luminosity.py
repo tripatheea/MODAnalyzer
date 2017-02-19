@@ -158,6 +158,10 @@ def plot_integrated_recorded_lumi(cumulative=False):
   else:
     label = "CMS Recorded, max " + str(round(max_lumi, 2)) + " $\mathrm{pb}^{-1}$/day"
 
+
+  print "Min date = ", min(dates)
+  print "Max date = ", max(dates)
+
   plt.hist(mpl.dates.date2num(dates), label="Recorded Lumi", weights=intg_rec_lumi, lw=8, bins=50, cumulative=cumulative, histtype='step', color='orange')
   plt.hist(mpl.dates.date2num(dates), label="Delivered Lumi", weights=intg_del_lumi, lw=8, bins=50, cumulative=cumulative, histtype='step', color='green')
   
@@ -170,17 +174,19 @@ def plot_integrated_recorded_lumi(cumulative=False):
   plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d %b'))
   # plt.gca().xaxis.set_major_locator(mdates.MonthLocator())
 
+  
+
   plt.xlabel("Date", labelpad=25, fontsize=70)
 
   plt.gca().ticklabel_format(axis='y', style='sci')
 
   if cumulative:
-    plt.ylabel("Integrated Luminosity ($\mathrm{pb}^{-1}$)", labelpad=50, fontsize=70)
+    plt.ylabel("Integrated Luminosity", labelpad=50, fontsize=70)
   else:
-    plt.ylabel("Avg. Luminosity ($\mathrm{pb}^{-1} \mathrm{day}^{-1} $)", labelpad=50, fontsize=70)
+    plt.ylabel("Avg. Luminosity", labelpad=50, fontsize=70)
 
 
-  # plt.gca().get_yaxis().set_ticks([])
+  plt.gca().get_yaxis().set_ticks([])
 
   print max(intg_rec_lumi),
   
@@ -196,9 +202,9 @@ def plot_integrated_recorded_lumi(cumulative=False):
   plt.autoscale()
 
   if cumulative:
-    plt.ylim(0, 100)
+    plt.ylim(0, 330)
   else:
-    plt.ylim(0, 15)
+    plt.ylim(0, 55)
 
     
   plt.xlim(datetime.date(2010, 9, 20), datetime.date(2010, 10, 31))
@@ -214,19 +220,19 @@ def plot_integrated_recorded_lumi(cumulative=False):
   # plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
 
   if cumulative:
-    plt.gca().yaxis.set_minor_locator(MultipleLocator(2))
+    plt.gca().yaxis.set_minor_locator(MultipleLocator(10))
   else:
-    plt.gca().yaxis.set_minor_locator(MultipleLocator(0.2))
+    plt.gca().yaxis.set_minor_locator(MultipleLocator(2))
 
   # plt.xlim()
 
   if cumulative:
-    logo = [0.114, 0.99]
+    logo = [0.063, 0.99]
   else:
-    logo = [0.089, 0.985]
+    logo = [0.053, 0.985]
 
   logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-  text_box = TextArea("Preliminary", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+  text_box = TextArea("v1", textprops=dict(color='#444444', fontsize=50, weight='bold'))
   logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
   anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=logo, bbox_transform = plt.gcf().transFigure)
 
@@ -236,9 +242,9 @@ def plot_integrated_recorded_lumi(cumulative=False):
   plt.gcf().set_size_inches(30, 24, forward=1)
 
   if cumulative:
-    plt.savefig("plots/Version 5_2/lumi_cumulative.pdf")
+    plt.savefig("plots/Version 6/lumi_cumulative.pdf")
   else:
-    plt.savefig("plots/Version 5_2/lumi.pdf")
+    plt.savefig("plots/Version 6/lumi.pdf")
 
   plt.clf()
    
@@ -305,7 +311,7 @@ def plot_inst_lumi():
   plt.gcf().text(0.270, 0.825, preliminary_text, fontsize=60, weight='bold', color='#444444', multialignment='center')
 
 
-  plt.savefig("plots/Version 5/lumi/inst_lumi_number.pdf")
+  plt.savefig("plots/Version 6/lumi/inst_lumi_number.pdf")
 
   plt.clf()
 

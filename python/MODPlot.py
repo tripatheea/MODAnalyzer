@@ -67,7 +67,7 @@ import rootpy.plotting.views
 
 
 logo_location = "/home/aashish/root/macros/MODAnalyzer/mod_logo.png"
-logo_text = "Preliminary"
+logo_text = "v1"
 
 
 
@@ -375,10 +375,11 @@ class MODPlot:
 
 				# print x_s[ : np_correction_index]
 				# Distribution.
-				ax0.plot(x_s[ : np_correction_index + 1], y_line_s[ : np_correction_index + 1], lw=8, zorder=z_indices[i], color=self._plot_colors[i], ls="dotted")
-				ax0.plot(x_s[np_correction_index : ], y_line_s[np_correction_index : ], lw=8, zorder=z_indices[i], color=self._plot_colors[i])
+				ax0.plot(x_s[ : np_correction_index + 1], y_line_s[ : np_correction_index + 1], lw=12, zorder=z_indices[i], color=self._plot_colors[i], ls="dotted")
+				# ax0.plot(x_s[np_correction_index : ], y_line_s[np_correction_index : ], lw=8, zorder=z_indices[i], color=self._plot_colors[i])
+				ax0.plot(x_s[np_correction_index : ], y_line_s[np_correction_index : ], ls="dotted", lw=12, zorder=z_indices[i], color=self._plot_colors[i])
 
-				ax0.fill_between(x_s[np_correction_index : ], y_max_s[np_correction_index : ], y_min_s[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(y_min_s[np_correction_index : ], y_max_s[np_correction_index : ]), facecolor=self._plot_colors[i], color=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.)
+				# ax0.fill_between(x_s[np_correction_index : ], y_max_s[np_correction_index : ], y_min_s[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(y_min_s[np_correction_index : ], y_max_s[np_correction_index : ]), facecolor=self._plot_colors[i], color=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.)
 
 				theory_min_interpolate_function = self.extrap1d(interpolate.interp1d(x_s, y_min_s))
 				theory_line_interpolate_function = self.extrap1d(interpolate.interp1d(x_s, y_line_s))
@@ -524,10 +525,12 @@ class MODPlot:
 									np_correction_index = ab
 									break
 
-							self._plt.plot(line_sorted_x[ : np_correction_index + 1], line_sorted_y[ : np_correction_index + 1], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")], ls="dotted")
-							self._plt.plot(line_sorted_x[np_correction_index : ], line_sorted_y[np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
+							self._plt.plot(line_sorted_x[ : np_correction_index + 1], line_sorted_y[ : np_correction_index + 1], zorder=z_indices[i], axes=ax1, lw=12, color=self._plot_colors[self._plot_types.index("theory")], ls="dotted")
+							# self._plt.plot(line_sorted_x[np_correction_index : ], line_sorted_y[np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
+							self._plt.plot(line_sorted_x[np_correction_index : ], line_sorted_y[np_correction_index : ], ls="dotted", zorder=z_indices[i], axes=ax1, lw=12, color=self._plot_colors[self._plot_types.index("theory")])
 
-							ax1.fill_between( max_sorted_x[np_correction_index : ], max_sorted_y[np_correction_index : ], min_sorted_y[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(min_sorted_y[np_correction_index : ], max_sorted_y[np_correction_index : ]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
+							# if "track" not in self._hists[i].hist()
+							# ax1.fill_between( max_sorted_x[np_correction_index : ], max_sorted_y[np_correction_index : ], min_sorted_y[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(min_sorted_y[np_correction_index : ], max_sorted_y[np_correction_index : ]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
 							
 						else:
 
@@ -555,10 +558,11 @@ class MODPlot:
 									np_correction_index = ab
 									break
 
-							self._plt.plot(line_x, line_y, zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")], ls="dotted")
-							self._plt.plot(line_x[np_correction_index : ], line_y[np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
+							self._plt.plot(line_x, line_y, zorder=z_indices[i], axes=ax1, lw=12, color=self._plot_colors[self._plot_types.index("theory")], ls="dotted")
+							# self._plt.plot(line_x[np_correction_index : ], line_y[np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
+							self._plt.plot(line_x[np_correction_index : ], line_y[np_correction_index : ], ls="dotted", zorder=z_indices[i], axes=ax1, lw=12, color=self._plot_colors[self._plot_types.index("theory")])
 
-							ax1.fill_between( max_x[np_correction_index : ], max_y[np_correction_index : ], min_y[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(min_y[np_correction_index : ], max_y[np_correction_index : ]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
+							# ax1.fill_between( max_x[np_correction_index : ], max_y[np_correction_index : ], min_y[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(min_y[np_correction_index : ], max_y[np_correction_index : ]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
 							
 					else:
 						ratio_hist = copy.deepcopy( self._hists[i].hist() )
@@ -681,10 +685,11 @@ class MODPlot:
 									np_correction_index = ab
 									break
 
-							self._plt.plot(line_x, line_y, zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")], ls="dotted")
-							self._plt.plot(line_x[np_correction_index : ], line_y[np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
+							self._plt.plot(line_x, line_y, zorder=z_indices[i], axes=ax1, lw=12, color=self._plot_colors[self._plot_types.index("theory")], ls="dotted")
+							# self._plt.plot(line_x[np_correction_index : ], line_y[np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
+							self._plt.plot(line_x[np_correction_index : ], line_y[np_correction_index : ], ls="dotted", zorder=z_indices[i], axes=ax1, lw=12, color=self._plot_colors[self._plot_types.index("theory")])
 
-							ax1.fill_between( max_x[np_correction_index : ], max_y[np_correction_index : ], min_y[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(min_y[np_correction_index : ], max_y[np_correction_index : ]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
+							# ax1.fill_between( max_x[np_correction_index : ], max_y[np_correction_index : ], min_y[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(min_y[np_correction_index : ], max_y[np_correction_index : ]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
 							
 					else:
 						# Get plot points.
@@ -720,10 +725,12 @@ class MODPlot:
 
 		handler_map = {}
 		if "theory" in self._plot_types:
-			th_line, = ax0.plot(range(1), linewidth=8, color='red')
-			th_patch = mpatches.Patch(facecolor='red', alpha=0.2, linewidth=0., edgecolor='red')
+			# th_line, = ax0.plot(range(1), linewidth=8, color='red')
+			th_line, = ax0.plot(range(1), linewidth=12, ls="dotted", color='red')
+			# th_patch = mpatches.Patch(facecolor='red', alpha=0.2, linewidth=0., edgecolor='red')
 
-			handles.insert( self._plot_types.index("theory"), (th_patch, th_line))
+			# handles.insert( self._plot_types.index("theory"), (th_patch, th_line))
+			handles.insert( self._plot_types.index("theory"), (th_line, ))
 			# labels.insert( self._plot_types.index("theory"), self._plot_labels[self._plot_types.index("theory")])
 
 			handler_map[th_line ] = HandlerLine2D(marker_pad=0)
@@ -980,7 +987,7 @@ class MODPlot:
 
 
 
-plot_labels = { "data": "CMS 2010 Open Data", "pythia": "Pythia 8.219", "herwig": "Herwig 7.0.3", "sherpa": "Sherpa 2.2.1", "theory": "Theory (MLL)" }
+plot_labels = { "data": "CMS 2010 Open Data", "pythia": "Pythia 8.219", "herwig": "Herwig 7.0.3", "sherpa": "Sherpa 2.2.1", "theory": "Theory (MLL; $z_g^{all}$)" }
 plot_colors = {"theory": "red", "pythia": "blue", "herwig": "green", "sherpa": "purple", "pythia_post": "red", "data": "black", "data_post": "red"}
 
 global_plot_types = ['error', 'hist', 'hist', 'hist']
@@ -1013,12 +1020,11 @@ def create_multi_page_plot(filename, hists, theory=False, x_scale='linear'):
 					ratio_to_index = 2	# 2 = Ratio to Pythia, 1 = Ratio to Theory.
 					ratio_to_label = "Ratio to\nTheory"
 				else:
-					# ratio_to_index = 1	# 1 = Ratio to Pythia.
-					ratio_to_index = 0	# 1 = Ratio to Pythia.
+					ratio_to_index = 1	# 1 = Ratio to Pythia. 0 = Data
 					ratio_to_label = "Ratio to\nPythia" 
 				
 				# ratio_to_index = 2
-				ratio_to_index = 0
+				# ratio_to_index = 0
 				ratio_to_label = "Ratio to\nPythia"	
 
 				plot = MODPlot(mod_hists, plot_types=types, plot_colors=colors, plot_labels=labels, line_styles=line_styles, x_scale=mod_hists[-1].x_scale(), y_scale=mod_hists[-1].y_scale(), ratio_plot=True, ratio_to_index=ratio_to_index, ratio_label=ratio_to_label, mark_regions=mod_hists[-1].mark_regions(), x_label=mod_hists[-1].x_label(), legend_location=mod_hists[-1].legend_location(), y_label=mod_hists[-1].y_label(), x_lims=mod_hists[-1].x_range(), y_lims=mod_hists[-1].y_range())
