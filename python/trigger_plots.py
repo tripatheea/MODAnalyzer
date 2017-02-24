@@ -94,7 +94,7 @@ default_dir = "plots/Version 6/"
 
 
 logo_location = "/home/aashish/root/macros/MODAnalyzer/mod_logo.png"
-logo_text = "v1"
+logo_text = "v1.1"
 
 
 

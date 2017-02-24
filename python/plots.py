@@ -213,8 +213,8 @@ start = time.time()
 # create_multi_page_plot(filename=default_dir + "pfc_pT_track.pdf", hists=compile_hists('pfc_pT', parsed_pfc_hists))
 
 
-create_multi_page_plot(filename=default_dir + "hardest_jet_pT_all_linear.pdf", hists=compile_hists('hardest_pT', parsed_hists))
-create_data_only_plot(filename=default_dir + "hardest_jet_pT_jec_all_linear.pdf", hists=[ [ parsed_linear[0]['hardest_pT'][i], parsed_linear[0]['uncor_hardest_pT'][i] ] for i in range(len(parsed_linear[0]['uncor_hardest_pT'])) ], labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio to\nCorrected", ratio_to_index=0)
+# create_multi_page_plot(filename=default_dir + "hardest_jet_pT_all_linear.pdf", hists=compile_hists('hardest_pT', parsed_hists))
+# create_data_only_plot(filename=default_dir + "hardest_jet_pT_jec_all_linear.pdf", hists=[ [ parsed_linear[0]['hardest_pT'][i], parsed_linear[0]['uncor_hardest_pT'][i] ] for i in range(len(parsed_linear[0]['uncor_hardest_pT'])) ], labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio to\nCorrected", ratio_to_index=0)
 
 
 # create_multi_page_plot(filename=default_dir + "hardest_jet_phi_all_linear.pdf", hists=compile_hists('hardest_phi', parsed_hists))
@@ -444,8 +444,8 @@ create_data_only_plot(filename=default_dir + "hardest_jet_pT_jec_all_linear.pdf"
 
 
 
-# create_data_only_plot(filename=default_dir + "jec.pdf", hists=[ [x] for x in parsed_linear[0]['jec'] ], labels=["CMS Open Data 2010"], types=["error"], colors=["black"], line_styles=[[]], ratio_plot=False)
-# create_data_only_plot(filename=default_dir + "area.pdf", hists=[ [x] for x in parsed_linear[0]['hardest_area'] ], labels=["CMS Open Data 2010"], types=["error"], colors=["black"], line_styles=[[]], ratio_plot=False)
+create_data_only_plot(filename=default_dir + "jec.pdf", hists=[ [x] for x in parsed_linear[0]['jec'] ], labels=["CMS Open Data 2010"], types=["error"], colors=["black"], line_styles=[[]], ratio_plot=False)
+create_data_only_plot(filename=default_dir + "area.pdf", hists=[ [x] for x in parsed_linear[0]['hardest_area'] ], labels=["CMS Open Data 2010"], types=["error"], colors=["black"], line_styles=[[]], ratio_plot=False)
 
 
 

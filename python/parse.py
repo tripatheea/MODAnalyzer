@@ -21,20 +21,22 @@ import rootpy.plotting.root2matplotlib as rplt
 # output_directory = "/home/aashish/root/macros/MODAnalyzer/parsed_root_files/"
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/"
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/"
-# output_directory = "/home/aashish/"
+# output_directory = "/home/aashish/Feb22/"
 output_directory = "/media/aashish/opendata_mod/Feb5/histogrammed/"
-# output_directory = "/home/aashish/Feb5/histogrammed/pfc/"
+# output_directory = "/home/aashish/Feb5/histogrammed/"
 
 
 
 
 
 # data_file   = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pristine.dat"
-# data_file   = "/home/aashish/new_pristine.dat"
+# data_file   = "/home/aashish/data.dat"
 # data_file   = "/home/aashish/Feb5/analyzed/pristine.dat"
-# data_file   = "/media/aashish/opendata_mod/Feb5/analyzed/pristine.dat"
+data_file   = "/media/aashish/opendata_mod/Feb5/analyzed/pristine.dat"
+# data_file   = "/media/aashish/opendata_mod/Feb5/analyzed/pt/0004.dat"
+# data_file   = "/home/aashish/root/macros/MODAnalyzer/abcde.dat"
 # data_file   = "/media/aashish/opendata_mod/Feb5/analyzed/pt.dat"
-data_file   = "/home/aashish/root/macros/MODAnalyzer/test.dat"
+# data_file   = "/home/aashish/root/macros/MODAnalyzer/test.dat"
 # pythia_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pythia.dat"
 # herwig_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/herwig.dat"
 # sherpa_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/sherpa.dat"
@@ -48,21 +50,20 @@ pfc_sherpa_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyz
 average_prescales = {}
 
 average_prescales[(250, None)] = 1.	
-# average_prescales[(200, 250)] = 1.933420103
-# average_prescales[(150, 200)] = 5.361922609
-# average_prescales[(115, 150)] =  100.3122906
-# average_prescales[(85, 115)] =  851.3943491
+average_prescales[(200, 250)] = 1.933420103
+average_prescales[(150, 200)] = 5.361922609
+average_prescales[(115, 150)] =  100.3122906
+average_prescales[(85, 115)] =  851.3943491
 
-average_prescales[(200, 250)] = 1.
-average_prescales[(150, 200)] = 1.
-average_prescales[(115, 150)] = 1.
-average_prescales[(85, 115)] =  1.
+
 
 
 my_prescales = defaultdict(float)
 my_numbers = defaultdict(int)
 
 def parse_file(input_file, all_hists, log_hists):
+
+	f = open("./pt_output.dat", 'w')
 
 	print "Parsing {}".format(input_file)
 	
@@ -124,6 +125,7 @@ def parse_file(input_file, all_hists, log_hists):
 					# 	continue
 					
 
+					# for i in range(len(keywords)):
 					for i in range(len(keywords)):
 
 						keyword = keywords[i]
@@ -137,8 +139,11 @@ def parse_file(input_file, all_hists, log_hists):
 						if keyword in all_hists.keys():
 							
 							for mod_hist in all_hists[keyword]:
+							# for mod_hist in [all_hists['hardest_pT'][0]]:
 								hist = mod_hist.hist()
 								conditions = mod_hist.conditions()
+
+								conditions = [conditions[0]]
 
 								try:
 									condition_satisfied = 1
@@ -173,6 +178,23 @@ def parse_file(input_file, all_hists, log_hists):
 
 									x = float(numbers[i + 1]) # + 1 because we ignore the first keyword "Entry".
 
+
+									'''			
+									if i == len(keywords) - 1:
+									
+
+
+										# if pT_of_this_event > 130.4 and pT_of_this_event < 140.2:
+										if pT_of_this_event > 148.6 and pT_of_this_event < 150.:
+											# print numbers[2], numbers[4], numbers[8]
+											# print "Test"
+											f.write("{}\t{}\t{}\n".format(numbers[2], numbers[4], numbers[8]))
+										# hardest_pt => 2; jec => 3
+
+
+									continue
+									'''
+
 									if input_file == data_file:	# For data file only.
 
 										if not mod_hist.use_prescale():
@@ -198,13 +220,12 @@ def parse_file(input_file, all_hists, log_hists):
 															prescale_to_use = prescale
 															break
 
-											print "Using the prescale", prescale_to_use
+											# print "Using the prescale", prescale_to_use
 											hist.fill_array( [x], [prescale_to_use] )	 
 
 									
 									else:	# MC so always use prescales.
 										# if type()
-										print "I am here."
 										hist.fill_array( [x], [float(numbers[prescale_index])] )
 
 									# if keyword == "hardest_area":
@@ -306,15 +327,15 @@ def parse_to_root_file(input_filename, output_filename, hist_templates):
 	for var in parsed_hists.keys():
 		
 		
-		if var in ['hardest_pT', 'uncor_hardest_pT', 'hardest_eta']:
-			index = 0
+	
+		index = 0
 
-			for mod_hist in parsed_hists[var]:
-				hist = copy.deepcopy( mod_hist.hist() )
-				hist.SetName("{}#{}".format(var, index))
-				hist.Write()
+		for mod_hist in parsed_hists[var]:
+			hist = copy.deepcopy( mod_hist.hist() )
+			hist.SetName("{}#{}".format(var, index))
+			hist.Write()
 
-				index += 1
+			index += 1
 
 	f.Close()
 
@@ -337,7 +358,7 @@ def parse_to_root_file(input_filename, output_filename, hist_templates):
 	f.Close()
 
 
-def root_file_to_hist(input_filename, hist_templates):
+def root_file_to_hist(input_filename, hist_templates, is_this_data):
 
 	hists = copy.deepcopy( hist_templates )
 
@@ -348,8 +369,8 @@ def root_file_to_hist(input_filename, hist_templates):
 		index = 0
 
 		# if var in ['hardest_pT', 'uncor_hardest_pT', 'hardest_eta']:
-		if var not in ['uncor_hardest_pT']:
-		# if True:
+		# if var not in ['uncor_hardest_pT']:
+		if is_this_data:
 			for mod_hist in hists[var]:
 				hist_name = "{}#{}".format(var, index)
 
@@ -360,6 +381,18 @@ def root_file_to_hist(input_filename, hist_templates):
 
 				index += 1
 
+		else:
+			if var != 'uncor_hardest_pT':
+				for mod_hist in hists[var]:
+					hist_name = "{}#{}".format(var, index)
+
+					# Get hist from ROOT file.
+					hist = root_file.Get(hist_name)
+
+					mod_hist.replace_hist(hist)
+
+					index += 1
+
 	return hists
 
 
@@ -369,16 +402,11 @@ def parse_to_root_files():
 	hist_templates = hists.multi_page_plot_hist_templates()
 	log_hist_templates = hists.multi_page_log_plot_hist_templates()
 
-	# parse_to_root_file(input_filename=data_file, output_filename=(output_directory + "data.root", output_directory + "data_log.root"), hist_templates=(hist_templates, log_hist_templates))
-	parse_to_root_file(input_filename=data_file, output_filename=(output_directory + "pt.root", output_directory + "pt_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	parse_to_root_file(input_filename=data_file, output_filename=(output_directory + "data.root", output_directory + "data_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	# parse_to_root_file(input_filename=data_file, output_filename=(output_directory + "pt.root", output_directory + "pt_log.root"), hist_templates=(hist_templates, log_hist_templates))
 	# parse_to_root_file(input_filename=pythia_file, output_filename=(output_directory + "pythia.root", output_directory + "pythia_log.root"), hist_templates=(hist_templates, log_hist_templates))
 	# parse_to_root_file(input_filename=herwig_file, output_filename=(output_directory + "herwig.root", output_directory + "herwig_log.root"), hist_templates=(hist_templates, log_hist_templates))
 	# parse_to_root_file(input_filename=sherpa_file, output_filename=(output_directory + "sherpa.root", output_directory + "sherpa_log.root"), hist_templates=(hist_templates, log_hist_templates))
-
-	# parse_to_root_file(input_filename=data_file, output_filename=output_directory + "data_log.root", hist_templates=log_hist_templates)
-	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "pythia_log.root", hist_templates=log_hist_templates)
-	# parse_to_root_file(input_filename=herwig_file, output_filename=output_directory + "herwig_log.root", hist_templates=log_hist_templates)
-	# parse_to_root_file(input_filename=sherpa_file, output_filename=output_directory + "sherpa_log.root", hist_templates=log_hist_templates)
 
 
 def load_root_files_to_hist(log=False):
@@ -392,8 +420,9 @@ def load_root_files_to_hist(log=False):
 		hist_templates = hists.multi_page_log_plot_hist_templates()
 		filenames = ["data_log.root", "pythia_log.root", "herwig_log.root", "sherpa_log.root"]
 		# filenames = ["data_log.root", "data_log.root", "data_log.root", "data_log.root"]
+		# filenames = ["pt.root", "pt.root", "pt.root", "pt.root"]
 
-	return  [ root_file_to_hist(output_directory + filename, hist_templates) for filename in filenames ] 
+	return  [ root_file_to_hist(output_directory + filename, hist_templates, is_this_data) for filename, is_this_data in zip(filenames, [True, False, False, False]) ] 
 
 
 

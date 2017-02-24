@@ -1068,6 +1068,7 @@ def multi_page_plot_hist_templates():
 		
 		additional_text = [ ( (-0.08, 0.98), 'upper left', "AK5; \left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV}$" ) ]
 		all_hists['hardest_pT'].append( MODHist(Hist(25, pT_boundaries[i], pT_boundaries[i + 1]), conditions=[('hardest_eta', (-2.4, 2.4)), ('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], use_prescale=False, x_label="$p_T$ [GeV]", y_label="Probability Density", y_scale='log', x_range=(pT_boundaries[i], pT_boundaries[i + 1]), y_range=(5e-3, 5e-1), additional_text=additional_text ) ) 
+		# all_hists['hardest_pT'].append( MODHist(Hist(25, pT_boundaries[i], pT_boundaries[i + 1]), conditions=[('hardest_eta', (-2.4, 2.4)), ('hardest_pT', (pT_boundaries[i], pT_boundaries[i + 1]))], use_prescale=False, x_label="$p_T$ [GeV]", y_label="Probability Density", y_scale='linear', x_range=(pT_boundaries[i], pT_boundaries[i + 1]), y_range=(0, 1e3), additional_text=additional_text ) ) 
 
 
 

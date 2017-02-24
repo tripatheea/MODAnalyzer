@@ -65,9 +65,11 @@ int main(int argc, char * argv[]) {
       if( (event_serial_number % 1000) == 0 )
          cout << "Converting event number " << event_serial_number << " to 1 jet form." << endl;
 
+      
       if (event_being_read.assigned_trigger_fired()) {
-        convert_to_one_jet(event_being_read, output_file);
-      }
+         convert_to_one_jet(event_being_read, output_file);
+      }   
+   
 
       event_being_read = MOD::Event();
       event_serial_number++;

@@ -244,6 +244,10 @@ string MOD::Event::make_string() const {
 
       // This output is for pristine form. Data in "pristine form" is used as-it-is i.e. without any consideration for things like jet quality levels and triggers.
 
+      // First, write out conditions.
+      file_to_write << _condition.make_header_string();
+      file_to_write << _condition;   
+      
       // We only output the hardest jet and its constituents.
       // The reason for that is, we want to do our analysis on FastJet-clustered jets instead of on cms jets. However, we need to apply JEC to our AK5 jets. 
       // Those JEC factors are known for cms jets but not for FastJet-clustered jets. This means, we need to figure out a correspondance between cms and FastJet-clustered jets.
@@ -254,12 +258,12 @@ string MOD::Event::make_string() const {
 
       file_to_write << "#  1JET" << "              px              py              pz          energy             jec            area          weight" << endl;
       file_to_write  << "   1JET"
-                     << setw(16) << fixed << setprecision(8) << _cms_jets[0].px()
-                     << setw(16) << fixed << setprecision(8) << _cms_jets[0].py()
-                     << setw(16) << fixed << setprecision(8) << _cms_jets[0].pz()
-                     << setw(16) << fixed << setprecision(8) << _cms_jets[0].E()
-                     << setw(16) << fixed << setprecision(8) << _cms_jets[0].user_info<MOD::InfoCalibratedJet>().JEC()
-                     << setw(16) << _cms_jets[0].user_info<MOD::InfoCalibratedJet>().area()
+                     << setw(16) << fixed << setprecision(8) << _jets[0].px()
+                     << setw(16) << fixed << setprecision(8) << _jets[0].py()
+                     << setw(16) << fixed << setprecision(8) << _jets[0].pz()
+                     << setw(16) << fixed << setprecision(8) << _jets[0].E()
+                     << setw(16) << fixed << setprecision(8) << _jets[0].user_info<MOD::InfoCalibratedJet>().JEC()
+                     << setw(16) << fixed << setprecision(8) << _jets[0].user_info<MOD::InfoCalibratedJet>().area()
                      << setw(16) << _weight
                      << endl;
 
@@ -316,10 +320,10 @@ void MOD::Event::convert_to_one_jet() {
       particles[i].set_user_info( new MOD::InfoPFC(pdgId, "PDPFC") );
    }
 
-   vector<PseudoJet> jets{jet};
+   vector<PseudoJet> just_one_jet{jet};
 
    _particles = particles;
-   _jets = jets;
+   _jets = just_one_jet;
 
 
    _data_source = PRISTINE;   // Set the data source to "Pristine".
@@ -327,7 +331,11 @@ void MOD::Event::convert_to_one_jet() {
 
 
 
-   establish_properties();
+   // cout << _jets[0].px() << endl;
+
+   // cout << _jets[0].px() << endl;
+
+   
 
 
 }
@@ -361,12 +369,9 @@ void MOD::Event::establish_properties() {
 
    }
    else if (data_source() == PRISTINE) {
-      double JEC = _cms_jets[0].user_info<MOD::InfoCalibratedJet>().JEC();
-      vector<PseudoJet> jec_corrected_jets{ ak5_jets[0] * JEC };
-      _jets = jec_corrected_jets;
 
-      // cout << "The only present jet is: " << _jets[0].pt() << endl;
    }
+
 
    set_hardest_jet();
 
@@ -787,6 +792,8 @@ bool MOD::Event::is_trigger_jet_matched() {
 
 void MOD::Event::set_hardest_jet() {
    _hardest_jet = sorted_by_pt(_jets)[0];
+
+   // cout << _jets.size() << endl;
 }
 
 
