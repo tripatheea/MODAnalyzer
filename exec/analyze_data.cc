@@ -100,7 +100,7 @@ void analyze_event_data(MOD::Event & event_being_read, ofstream & output_file, i
 	properties.push_back(MOD::Property("event_number", event_being_read.event_number()));
 	properties.push_back(MOD::Property("run_number", event_being_read.run_number()));
 
-	properties.push_back(MOD::Property("trig_jet_matched", (int) event_being_read.trigger_jet_is_matched())); 
+	properties.push_back(MOD::Property("trig_jet_matched", (int) event_being_read.is_trigger_jet_matched())); 
 	properties.push_back(MOD::Property("jet_quality", trigger_jet.user_info<MOD::InfoCalibratedJet>().jet_quality())); 
 
 	properties.push_back(MOD::Property("uncor_hardest_pT", trigger_jet.pt()));

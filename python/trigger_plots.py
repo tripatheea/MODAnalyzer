@@ -94,7 +94,7 @@ default_dir = "plots/Version 6/"
 
 
 logo_location = "/home/aashish/root/macros/MODAnalyzer/mod_logo.png"
-logo_text = "v1.1"
+logo_text = "v1.2"
 
 
 
@@ -129,7 +129,7 @@ def trigger_turn_on_curves():
 
 	mod_hists = parsed_linear[0]
 
-	colors = ['green', 'magenta', 'blue', 'red', 'orange', 'gray']
+	colors = ['green', 'magenta', 'blue', 'red', 'orange', '#cecece']
 	labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15\_HNF" ]
 	hist_labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15U_HcalNoiseFiltered" ]
 	lower_pTs = [140, 100, 70, 50, 30, 15]
@@ -200,7 +200,7 @@ def trigger_efficiency_plot():
 	mod_hists = parsed_linear[0]
 
 	
-	colors = ['green', 'magenta', 'blue', 'red', 'orange', 'gray']
+	colors = ['green', 'magenta', 'blue', 'red', 'orange', '#cecece']
 	labels = ["Jet140U / 100U", "Jet100U / 70U", "Jet70U / 50U", "Jet50U / 30U", "Jet30U / 15U\_HNF", "" ]
 	hist_labels = [("Jet140U", "Jet100U"), ("Jet100U", "Jet70U"), ("Jet70U", "Jet50U"), ("Jet50U", "Jet30U"), ("Jet30U", "Jet15U_HcalNoiseFiltered") ]
 	lower_pTs = [140, 100, 70, 50, 30, 15]
@@ -275,7 +275,7 @@ def trigger_efficiency_plot():
 	
 	handles = [extra]
 	labels = ["AK5; $\left| \eta \\right| < 2.4$"]
-	info_legend = plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.30, 0.92])
+	info_legend = plt.gca().legend(handles, labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.28, 0.92])
 	plt.gca().add_artist(info_legend)
 
 
@@ -307,12 +307,99 @@ def trigger_efficiency_plot():
 
 
 
+
+def trigger_prescales():
+	mod_hists = parsed_linear[0]
+
+	prescale_hists = {}
+	for key, value in mod_hists.items():
+		prescale_hists[key.split("_prescale")[0]] = value
+
+
+
+	
+	colors = ['green', 'magenta', 'blue', 'red', 'orange'][::-1]
+	legend_labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U"][::-1]
+	hist_labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U" ][::-1]
+	
+	# rplt.hist(mod_hists[0].hist())
+
+
+	plots = []
+	for i in range(len(hist_labels) ):
+		mod_hist = prescale_hists[hist_labels[i]]
+		hist = mod_hist.hist()
+
+		hist.SetColor(colors[i])
+		hist.SetTitle(legend_labels[i])
+		hist.SetLineWidth(5)
+
+		plots.append( rplt.hist(hist, linewidth=10) )
+
+	
+
+	plt.autoscale()
+	plt.gca().set_ylim(1e1, 1e9)
+	plt.gca().set_xlim(0.5, 5e4)
+
+	average_prescales = [1.00, 1.93, 5.36, 100.31, 851.39][::-1]
+	for i in range(0, len(hist_labels)):
+
+		plt.plot([ average_prescales[i], average_prescales[i] ], [ 1e9, 1e8 ], lw=10, ls="dashed", color=colors[i])
+
+		plt.gca().text((average_prescales[i] - average_prescales[i] * 0.25), 5e7, str(average_prescales[i]), color=colors[i])
+		  
+
+
+
+
+
+	# # Info about R, pT_cut, etc.
+	extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+	handles = [extra]
+	labels = ["AK5; $\left| \eta \\right| < 2.4$"]
+	info_legend = plt.gca().legend(handles, labels, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[0.98, 0.65])
+	plt.gca().add_artist(info_legend)
+
+
+	plt.gca().set_xlabel("Trigger Prescale", fontsize=70, labelpad=10)
+	plt.gca().set_ylabel("A.U.", fontsize=70, labelpad=50)
+
+	plt.gca().add_artist(logo_box(0.103, 1.005))
+
+
+	plt.gca().set_xscale('log')
+	plt.gca().set_yscale('log')
+
+
+	handles = plots
+	legend = plt.legend(handles, legend_labels, fontsize=60, frameon=0, bbox_to_anchor=[0.99, 0.99])
+	ax = plt.gca().add_artist(legend)
+
+	# plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
+	
+
+	plt.tick_params(which='major', width=5, length=25, labelsize=70)
+	plt.tick_params(which='minor', width=3, length=15)
+
+	# plt.tight_layout()
+
+	plt.gcf().set_size_inches(30, 24, forward=1)
+	plt.savefig(default_dir + "trigger_prescales.pdf")
+
+	plt.clf()
+
+
+
+
 start = time.time()
 
 
-trigger_turn_on_curves()
+# trigger_turn_on_curves()
 
-trigger_efficiency_plot()
+# trigger_efficiency_plot()
+
+trigger_prescales()
 
 end = time.time()
 

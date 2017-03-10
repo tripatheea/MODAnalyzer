@@ -67,7 +67,7 @@ import rootpy.plotting.views
 
 
 logo_location = "/home/aashish/root/macros/MODAnalyzer/mod_logo.png"
-logo_text = "v1.1"
+logo_text = "v1.2"
 
 
 
@@ -262,7 +262,7 @@ class MODPlot:
         # Just use lower boundary of pT for now.
 
 
-        lambda_value = 3.
+        lambda_value = 2.
 
         lower_pT = 85
         # lower_pT = 0.1
@@ -769,7 +769,8 @@ class MODPlot:
 
         # ax0.set_xlabel(self._x_label, fontsize=60)
 
-        if "$" in self._y_label:
+        # if "$" in self._y_label:
+        if self._y_label[0] == "$":
             ax0.set_ylabel(self._y_label, fontsize=105, y=0.5, rotation=0, labelpad=120)
         else:
             ax0.set_ylabel(self._y_label, fontsize=65, y=0.5, labelpad=50)
@@ -950,7 +951,7 @@ class MODPlot:
         # Any possible markers.
         for marker in self._mark_regions:
 
-            print marker
+            # print marker
 
             ax0.plot([marker[0], marker[0]], [ax0.get_ylim()[0], marker[1] ], zorder=9999, color='red', linewidth=8, linestyle="dashed")
 

@@ -24,6 +24,7 @@ using namespace contrib;
 void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & event_serial_number);
 
 double angularity_lambda(PseudoJet jet, double jet_radius, float k, float beta);
+double pT_D(PseudoJet jet);
 
 int main(int argc, char * argv[]) {
 
@@ -198,8 +199,8 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
    properties.push_back( MOD::Property("mass_post_SD", soft_drop(hardest_jet).m()) );
 
 
-   properties.push_back( MOD::Property("pT_D_pre_SD", angularity_lambda(hardest_jet, jet_radius, 2, 0)) );
-   properties.push_back( MOD::Property("pT_D_post_SD", angularity_lambda(soft_drop(hardest_jet), jet_radius, 2, 0)) );
+   properties.push_back( MOD::Property("pT_D_pre_SD", pT_D(hardest_jet)) );
+   properties.push_back( MOD::Property("pT_D_post_SD", pT_D(soft_drop(hardest_jet)) ));
 
    properties.push_back( MOD::Property("LHA_pre_SD", angularity_lambda(hardest_jet, jet_radius, 1, 0.5)) );
    properties.push_back( MOD::Property("LHA_post_SD", angularity_lambda(soft_drop(hardest_jet), jet_radius, 1, 0.5)) );
@@ -256,8 +257,8 @@ void analyze_event(MOD::Event & event_being_read, ofstream & output_file, int & 
       properties.push_back( MOD::Property("track_mass_post_SD", soft_drop(hardest_track_jet).m()) );
 
 
-      properties.push_back( MOD::Property("track_pT_D_pre_SD", angularity_lambda(hardest_track_jet, jet_radius, 2, 0)) );
-      properties.push_back( MOD::Property("track_pT_D_post_SD", angularity_lambda(soft_drop(hardest_track_jet), jet_radius, 2, 0)) );
+      properties.push_back( MOD::Property("track_pT_D_pre_SD", pT_D(hardest_track_jet)) );
+      properties.push_back( MOD::Property("track_pT_D_post_SD", pT_D(soft_drop(hardest_track_jet))) );
 
       properties.push_back( MOD::Property("track_LHA_pre_SD", angularity_lambda(hardest_track_jet, jet_radius, 1, 0.5)) );
       properties.push_back( MOD::Property("track_LHA_post_SD", angularity_lambda(soft_drop(hardest_track_jet), jet_radius, 1, 0.5)) );
@@ -375,5 +376,31 @@ double angularity_lambda(PseudoJet jet, double jet_radius, float k, float beta) 
    }
 
    return lambda;
+
+}
+
+
+
+
+
+
+
+double pT_D(PseudoJet jet) {
+      
+   if (jet.constituents().size() == 0) {
+      return 0;
+   }
+
+   double total_pT = 0.0;
+   for (unsigned j = 0; j < jet.constituents().size(); j++) {
+      total_pT += jet.constituents()[j].pt();
+   }
+
+   double numerator = 0.0;
+   for (unsigned i = 0; i < jet.constituents().size(); i++) {
+      numerator += jet.constituents()[i].pt() * jet.constituents()[i].pt();
+   }
+
+   return pow(numerator, 0.5) / total_pT;
 
 }

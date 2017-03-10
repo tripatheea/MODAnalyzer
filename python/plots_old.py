@@ -8820,14 +8820,15 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 			else:
 				if upper == 100000.:
 					if log:
-						filename = "/home/aashish/theory/ddifm{}_log.dat".format(lower)
+
+						filename = "/media/aashish/My Files/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddifm{}_log.dat".format(lower)
 					else:
-						filename = "/home/aashish/theory/ddifm{}.dat".format(lower)
+						filename = "/media/aashish/My Files/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddifm{}.dat".format(lower)
 				else:
 					if log:
-						filename = "/home/aashish/theory/ddif{}_log.dat".format(lower)
+						filename = "/media/aashish/My Files/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddif{}_log.dat".format(lower)
 					else:
-						filename = "/home/aashish/theory/ddif{}.dat".format(lower)
+						filename = "/media/aashish/My Files/Dropbox (MIT)/Research/CMSOpenData/Andrew/DDist/ddif{}.dat".format(lower)
 				
 				f = open(filename, 'r')
 				lines = f.read().split("\n")
@@ -8849,8 +8850,8 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 
 			if log:
-				zg_bins = np.logspace(math.log(float(0.1), math.e), math.log(0.5, math.e), 25, base=np.e)
-				theta_g_bins = np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 25, base=np.e)
+				zg_bins = np.logspace(math.log(float(0.02), math.e), math.log(0.5, math.e), 25, base=np.e)
+				theta_g_bins = np.logspace(math.log(float(0.02), math.e), math.log(1.0, math.e), 25, base=np.e)
 				bins = [zg_bins, theta_g_bins]
 			else:
 				bins = [25, 25]
@@ -8918,7 +8919,7 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 			# For each value of z_g, find the bounary value for theta_g.
 			R = 0.5
 			p_T = lower
-			LAMBDA = 1.
+			LAMBDA = 2.
 			theta_g = lambda zg: LAMBDA / (zg * p_T * R)
 
 			boundary_z_g_s = z_g_s
@@ -8990,7 +8991,7 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 			if upper != 100000.:
 				label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5", "$\left| \eta \\right| < 2.4$; $p_{T}^{\mathrm{jet}} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$", "SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 			else:
-				label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5", "$\left| \eta \\right| < 2.4$; $p_{T}^{\mathrm{jet}} <" + str(lower) + "~\mathrm{GeV}$", "SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+				label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5", "$\left| \eta \\right| < 2.4$; $p_{T}^{\mathrm{jet}} >" + str(lower) + "~\mathrm{GeV}$", "SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 
 
 
@@ -9009,7 +9010,7 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 			if log:
 				# plt.xticks([0.1, 0.2, 0.5, 1.0])
-				plt.xticks([0.1, 0.2, 0.5])
+				plt.xticks([0.1, 0.2, 0.3, 0.4, 0.5])
 				plt.yticks([0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0])
 
 			plt.tick_params(which='major', width=5, length=25, labelsize=70)

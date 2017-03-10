@@ -61,6 +61,10 @@ from scipy.stats import binned_statistic
 
 import rootpy.plotting.views
 
+from matplotlib.dates import MonthLocator, WeekdayLocator, DateFormatter, DayLocator
+
+
+
 input_analysis_file = sys.argv[1]
 
 
@@ -162,8 +166,8 @@ def plot_integrated_recorded_lumi(cumulative=False):
   print "Min date = ", min(dates)
   print "Max date = ", max(dates)
 
-  plt.hist(mpl.dates.date2num(dates), label="Recorded Lumi", weights=intg_rec_lumi, lw=8, bins=50, cumulative=cumulative, histtype='step', color='orange')
-  plt.hist(mpl.dates.date2num(dates), label="Delivered Lumi", weights=intg_del_lumi, lw=8, bins=50, cumulative=cumulative, histtype='step', color='green')
+  plt.hist(mpl.dates.date2num(dates), label="Recorded", weights=intg_rec_lumi, lw=8, bins=50, cumulative=cumulative, histtype='step', color='orange')
+  plt.hist(mpl.dates.date2num(dates), label="Delivered", weights=intg_del_lumi, lw=8, bins=50, cumulative=cumulative, histtype='step', color='green')
   
 
   years = mdates.YearLocator()   # every year
@@ -176,14 +180,14 @@ def plot_integrated_recorded_lumi(cumulative=False):
 
   
 
-  plt.xlabel("Date", labelpad=25, fontsize=70)
+  plt.xlabel("Date (2010)", labelpad=25, fontsize=70)
 
   plt.gca().ticklabel_format(axis='y', style='sci')
 
   if cumulative:
-    plt.ylabel("Integrated Luminosity", labelpad=50, fontsize=70)
+    plt.ylabel("Integrated Luminosity [A.U.]", labelpad=50, fontsize=70)
   else:
-    plt.ylabel("Avg. Luminosity", labelpad=50, fontsize=70)
+    plt.ylabel("Avg. Luminosity [A.U.]", labelpad=50, fontsize=70)
 
 
   plt.gca().get_yaxis().set_ticks([])
@@ -211,8 +215,14 @@ def plot_integrated_recorded_lumi(cumulative=False):
 
   plt.locator_params(axis='x', nbins=5)
 
+  months = DayLocator([4, 10, 16, 22, 29])
+  
 
-  plt.gca().set_xticks(plt.gca().get_xticks()[1:])
+  monthsFmt = DateFormatter("%b '%y")
+  plt.gca().xaxis.set_major_locator(months)
+  # plt.gca().xaxis.set_major_formatter(monthsFmt)
+
+  # plt.gca().set_xticks(plt.gca().get_xticks()[1:])
   
   plt.tick_params(which='major', width=5, length=25, labelsize=70)
   plt.tick_params(which='minor', width=3, length=15)
@@ -232,7 +242,7 @@ def plot_integrated_recorded_lumi(cumulative=False):
     logo = [0.053, 0.985]
 
   logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-  text_box = TextArea("v1", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+  text_box = TextArea("v1.2", textprops=dict(color='#444444', fontsize=50, weight='bold'))
   logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
   anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=logo, bbox_transform = plt.gcf().transFigure)
 

@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import rootpy.plotting.root2matplotlib as rplt
 
 
-output_directory = "/home/aashish/"
+output_directory = "/media/aashish/opendata_mod/Feb5/histogrammed/"
 
 
 pfc_data_file = "/media/aashish/opendata_mod/Feb5/analyzed/pfc.dat"
@@ -60,7 +60,7 @@ def parse_file(input_file, output_filename, all_hists):
 
 			# if line_number > 10000:	# Ideal length.
 			# if line_number > 100000:	# Big enough.
-			# if line_number > 1000:		# Small tests.
+			# if line_number > 100:		# Small tests.
 			# if line_number > 30000:		# Small tests.
 			# if line_number > 1000000:		# Small tests.
 			# if line_number > 150000:		# Small tests.
@@ -89,18 +89,6 @@ def parse_file(input_file, output_filename, all_hists):
 
 					prescale_index = keywords.index("prescale") + 1
 
-
-
-					# pdgId_index = keywords.index("pfc_pdgId") + 1
-					# pdgId = numbers[pdgId_index]
-					
-					# # print "starting again"
-
-					# if abs( int(pdgId) ) not in [11, 13, 15, 211, 321]: # This is supposed to be all the pdgIds of charged objects. 
-					# 	# print "charged"
-					# 	continue
-					
-					print keywords
 
 					for i in range(len(keywords)):
 
@@ -137,9 +125,12 @@ def parse_file(input_file, output_filename, all_hists):
 											elif condition_boundaries[0] != None and condition_boundaries[1] != None:
 												condition_satisfied *= int( float(numbers[keyword_index]) > float(condition_boundaries[0]) and float(numbers[keyword_index]) < float(condition_boundaries[1]) )
 										else:
-											condition_satisfied = False
-											print ":bingo"
-
+											
+											if condition_boundaries[0] == "in":
+												condition_satisfied *= int( int(numbers[keyword_index]) in list(condition_boundaries[1:]) )
+											else:
+												condition_satisfied *= int( int(numbers[keyword_index]) not in list(condition_boundaries[1:]) )
+											
 									condition_satisfied = bool(condition_satisfied)
 								except Exception as e:
 									print "ASF", e
@@ -241,17 +232,16 @@ def root_file_to_hist(input_filename, hist_templates):
 		
 		index = 0
 
-		# if var != "uncor_hardest_pT":
-		if True:
-			for mod_hist in hists[var]:
-				hist_name = "{}#{}".format(var, index)
 
-				# Get hist from ROOT file.
-				hist = root_file.Get(hist_name)
+		for mod_hist in hists[var]:
+			hist_name = "{}#{}".format(var, index)
 
-				mod_hist.replace_hist(hist)
+			# Get hist from ROOT file.
+			hist = root_file.Get(hist_name)
 
-				index += 1
+			mod_hist.replace_hist(hist)
+
+			index += 1
 
 	return hists
 
@@ -262,8 +252,8 @@ def root_file_to_hist(input_filename, hist_templates):
 def parse_pfc_to_root_files():
 	hist_templates = hists.get_pfc_hists()
 
-	parse_to_root_file(input_filename=pfc_data_file, output_filename=output_directory + "data_pfc.root", hist_templates=hist_templates)
-	# parse_to_root_file(input_filename=pfc_pythia_file, output_filename=output_directory + "pythia_pfc.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=pfc_data_file, output_filename=output_directory + "data_pfc.root", hist_templates=hist_templates)
+	parse_to_root_file(input_filename=pfc_pythia_file, output_filename=output_directory + "pythia_pfc.root", hist_templates=hist_templates)
 	# parse_to_root_file(input_filename=pfc_herwig_file, output_filename=output_directory + "herwig_pfc.root", hist_templates=hist_templates)
 	# parse_to_root_file(input_filename=pfc_sherpa_file, output_filename=output_directory + "sherpa_pfc.root", hist_templates=hist_templates)
 
@@ -272,7 +262,8 @@ def load_pfc_root_files_to_hist():
 	hist_templates = hists.get_pfc_hists()
 	
 	# filenames = ['data_pfc.root', 'pythia_pfc.root', 'herwig_pfc.root', 'sherpa_pfc.root']
-	filenames = ['pfc.root', 'pfc.root', 'pfc.root', 'pfc.root']
+	# filenames = ['data_pfc.root', 'data_pfc.root', 'data_pfc.root', 'data_pfc.root']
+	filenames = ['data_pfc.root', 'pythia_pfc.root', 'pythia_pfc.root', 'pythia_pfc.root']
 
 	return  [ root_file_to_hist(output_directory + filename, hist_templates) for filename in filenames ] 
 

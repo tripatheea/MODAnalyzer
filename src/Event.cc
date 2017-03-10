@@ -309,7 +309,7 @@ void MOD::Event::convert_to_one_jet() {
    PseudoJet jet = _closest_fastjet_jet_to_trigger_jet;
 
 
-   jet.set_user_info(new MOD::InfoCalibratedJet("1JET", _trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC()));
+   jet.set_user_info(new MOD::InfoCalibratedJet("1JET", _trigger_jet.user_info<MOD::InfoCalibratedJet>().JEC(), _trigger_jet.user_info<MOD::InfoCalibratedJet>().area()));
 
    vector<PseudoJet> particles = jet.constituents();
 
@@ -427,6 +427,7 @@ bool MOD::Event::read_event(istream & data_stream) {
                vector<PseudoJet> jets{jet};
                
                _cms_jets = jets;
+               _jets = jets;
 
             }
             catch (exception& e) {
@@ -600,6 +601,7 @@ void MOD::Event::set_assigned_trigger() {
 
 
 double MOD::Event::get_hardest_jet_jec() const {
+   // return sorted_by_pt(_jets)[0].user_info<InfoCalibratedJet>().JEC();
    return sorted_by_pt(_cms_jets)[0].user_info<InfoCalibratedJet>().JEC();
 }
 
@@ -814,9 +816,7 @@ vector<PseudoJet> MOD::Event::apply_jet_energy_corrections(vector<PseudoJet> jet
 }
 
 
-bool MOD::Event::trigger_jet_is_matched() const {
-   return _trigger_jet_is_matched;
-}
+
 
 
 
