@@ -37,7 +37,7 @@ data_file   = "/media/aashish/opendata_mod/Feb5/analyzed/pristine.dat"
 # data_file   = "/home/aashish/root/macros/MODAnalyzer/abcde.dat"
 # data_file   = "/media/aashish/opendata_mod/Feb5/analyzed/pt.dat"
 # data_file   = "/home/aashish/root/macros/MODAnalyzer/test.dat"
-# pythia_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pythia.dat"
+pythia_file = "/media/aashish/opendata_mod/Feb5/analyzed/pythia.dat"
 # herwig_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/herwig.dat"
 # sherpa_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/sherpa.dat"
 
@@ -86,12 +86,12 @@ def parse_file(input_file, all_hists, log_hists):
 
 			# if line_number > 10000:	# Ideal length.
 			# if line_number > 100000:	# Big enough.
-			# if line_number > 1000:		# Small tests.
+			if line_number > 100:		# Small tests.
 			# if line_number > 30000:		# Small tests.
 			# if line_number > 1000000:		# Small tests.
 			# if line_number > 150000:		# Small tests.
 			# if line_number > 100000:		# Small tests.
-			if False:
+			# if False:
 				break
 
 			if len(line.strip()) == 0:
@@ -99,7 +99,7 @@ def parse_file(input_file, all_hists, log_hists):
 
 			line_number += 1
 
-			if line_number % 10000 == 0:
+			if line_number % 100 == 0:
 				print "At line number {}".format(line_number)
 
 			try:
@@ -163,6 +163,7 @@ def parse_file(input_file, all_hists, log_hists):
 										elif condition_boundaries[0] == None and condition_boundaries[1] == None:
 											condition_satisfied *= 1 
 										elif condition_boundaries[0] != None and condition_boundaries[1] != None:
+											print float(numbers[keyword_index]), float(condition_boundaries[0]), float(numbers[keyword_index]), float(condition_boundaries[1])
 											condition_satisfied *= int( float(numbers[keyword_index]) > float(condition_boundaries[0]) and float(numbers[keyword_index]) < float(condition_boundaries[1]) )
 
 									condition_satisfied = bool(condition_satisfied)
@@ -251,7 +252,7 @@ def parse_file(input_file, all_hists, log_hists):
 										elif condition_boundaries[0] == None and condition_boundaries[1] == None:
 											condition_satisfied *= 1 
 										elif condition_boundaries[0] != None and condition_boundaries[1] != None:
-											condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] and float(numbers[keyword_index]) < condition_boundaries[1] )
+											condition_satisfied *= int( float(numbers[keyword_index]) > float(condition_boundaries[0]) and float(numbers[keyword_index]) < float(condition_boundaries[1]) )
 
 									condition_satisfied = bool(condition_satisfied)
 								except Exception as e:
@@ -413,13 +414,15 @@ def load_root_files_to_hist(log=False):
 	
 	if not log:
 		hist_templates = hists.multi_page_plot_hist_templates()
-		filenames = ["data.root", "pythia.root", "herwig.root", "sherpa.root"]
-		# filenames = ["data.root", "data.root", "data.root", "data.root"]
+		# filenames = ["data.root", "pythia.root", "herwig.root", "sherpa.root"]
+		# filenames = ["data.root", "pythia.root", "pythia.root", "pythia.root"]
+		filenames = ["data.root", "data.root", "data.root", "data.root"]
 		# filenames = ["pt.root", "pt.root", "pt.root", "pt.root"]
 	else:
 		hist_templates = hists.multi_page_log_plot_hist_templates()
-		filenames = ["data_log.root", "pythia_log.root", "herwig_log.root", "sherpa_log.root"]
-		# filenames = ["data_log.root", "data_log.root", "data_log.root", "data_log.root"]
+		# filenames = ["data_log.root", "pythia_log.root", "herwig_log.root", "sherpa_log.root"]
+		# filenames = ["data_log.root", "pythia_log.root", "pythia_log.root", "pythia_log.root"]
+		filenames = ["data_log.root", "data_log.root", "data_log.root", "data_log.root"]
 		# filenames = ["pt.root", "pt.root", "pt.root", "pt.root"]
 
 	return  [ root_file_to_hist(output_directory + filename, hist_templates, is_this_data) for filename, is_this_data in zip(filenames, [True, False, False, False]) ] 

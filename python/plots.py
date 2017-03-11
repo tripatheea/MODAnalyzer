@@ -188,15 +188,15 @@ default_dir = "plots/Version 6/"
 start = time.time()
 
 
-# parsed_linear = parse.load_root_files_to_hist(log=False)
-# parsed_hists = compile_sources(parsed_linear)
+parsed_linear = parse.load_root_files_to_hist(log=False)
+parsed_hists = compile_sources(parsed_linear)
 
-# parsed_log = parse.load_root_files_to_hist(log=True)
-# parsed_log_hists = compile_sources(parsed_log)
+parsed_log = parse.load_root_files_to_hist(log=True)
+parsed_log_hists = compile_sources(parsed_log)
 
 
-parsed_pfc = pfc_parse.load_pfc_root_files_to_hist()
-parsed_pfc_hists = compile_sources(parsed_pfc)
+# parsed_pfc = pfc_parse.load_pfc_root_files_to_hist()
+# parsed_pfc_hists = compile_sources(parsed_pfc)
 
 
 
@@ -209,7 +209,7 @@ print "Finished parsing all files in {} seconds. Now plotting them!".format(end 
 start = time.time()
 
 
-create_multi_page_plot(filename=default_dir + "pfc_pT.pdf", hists=compile_hists('pfc_pT', parsed_pfc_hists))
+# create_multi_page_plot(filename=default_dir + "pfc_pT.pdf", hists=compile_hists('pfc_pT', parsed_pfc_hists))
 
 # create_multi_page_plot(filename=default_dir + "hardest_jet_pT_all_linear.pdf", hists=compile_hists('hardest_pT', parsed_hists))
 # create_data_only_plot(filename=default_dir + "hardest_jet_pT_jec_all_linear.pdf", hists=[ [ parsed_linear[0]['hardest_pT'][i], parsed_linear[0]['uncor_hardest_pT'][i] ] for i in range(len(parsed_linear[0]['uncor_hardest_pT'])) ], labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio to\nCorrected", ratio_to_index=0)
@@ -389,7 +389,7 @@ create_multi_page_plot(filename=default_dir + "pfc_pT.pdf", hists=compile_hists(
 
 
 
-# create_multi_page_plot(filename=default_dir + "basic_sub_mul_all_linear.pdf", hists=compile_hists('mul_pre_SD', parsed_hists))
+create_multi_page_plot(filename=default_dir + "basic_sub_mul_all_linear.pdf", hists=compile_hists('mul_pre_SD', parsed_hists))
 # create_multi_page_plot(filename=default_dir + "basic_sub_mul_track_linear.pdf", hists=compile_hists('track_mul_pre_SD', parsed_hists))
 
 # create_data_only_plot(filename=default_dir + "basic_sub_mul_softdrop_all_linear.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['mul_pre_SD', 'mul_post_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[[], [], [7, 7], [7, 7]], ratio_to_label="Ratio to\nPythia", ratio_to_index={0: 2, 1: 3, 2: 2, 3: 3})

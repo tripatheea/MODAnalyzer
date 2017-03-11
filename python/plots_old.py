@@ -8839,7 +8839,7 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 					stuff = line.split()
 					z_g_s.append( float(stuff[0]))
 					theta_g_s.append( float(stuff[1]))
-					prescales.append( float(stuff[2]))
+					prescales.append( float(stuff[2]) )
 
 
 			# zg_hist = Hist2D(50, -1, 99, markersize=3.0, color=plot_colors['data'])
@@ -8850,8 +8850,8 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 
 			if log:
-				zg_bins = np.logspace(math.log(float(0.02), math.e), math.log(0.5, math.e), 25, base=np.e)
-				theta_g_bins = np.logspace(math.log(float(0.02), math.e), math.log(1.0, math.e), 25, base=np.e)
+				zg_bins = np.logspace(math.log(float(0.1001), math.e), math.log(0.5001, math.e), 25 + 1, base=np.e)
+				theta_g_bins = np.logspace(math.log(float(0.01001), math.e), math.log(1.001, math.e), 25 + 1, base=np.e)
 				bins = [zg_bins, theta_g_bins]
 			else:
 				bins = [25, 25]
@@ -8865,6 +8865,8 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 			x_s = []
 			y_s =[]
 			z_s = []
+
+			# print zg_hist.nbins(0), zg_hist.nbins(1)
 
 			for i in range(1, zg_hist.nbins(0) + 1):
 				for j in range(1, zg_hist.nbins(1) + 1):
@@ -8882,9 +8884,10 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 			# print x_s, y_s, z_s
 
 			if log:
-				H, xedges, yedges = np.histogram2d(z_g_s, theta_g_s, bins=bins, weights=prescales, normed=True)
+				# DO NOT USE NORMED=True HERE.
+				H, xedges, yedges = np.histogram2d(z_g_s, theta_g_s, bins=bins, weights=prescales)
 			else:
-				H, xedges, yedges = np.histogram2d(x_s, y_s, bins=[25, 25], range=[[0.0, 0.5], [0.0, 1.0]], weights=z_s, normed=True)					# Use for linear.
+				H, xedges, yedges = np.histogram2d(x_s, y_s, bins=[25, 25], range=[[0.0, 0.5], [0.0, 1.0]], weights=z_s)					# Use for linear.
 			
 
 
@@ -8897,14 +8900,14 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 			Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
 
 			if log:
-				plt.pcolor(xedges, yedges, Hmasked, cmap=colors[counter], vmin=0, vmax=20)
+				plt.pcolor(xedges, yedges, Hmasked, cmap=colors[counter], vmin=0, vmax=0.5)
 			else:
-				plt.pcolor(xedges, yedges, Hmasked, cmap=colors[counter], vmin=0, vmax=10)
+				plt.pcolor(xedges, yedges, Hmasked, cmap=colors[counter], vmin=0, vmax=20)
 
 			if log:
-				cbar = plt.colorbar(ticks=[4 * i for i in range(6)])
+				cbar = plt.colorbar(ticks=[0.1 * i for i in range(6)])
 			else:
-				cbar = plt.colorbar(ticks=[2 * i for i in range(6)])
+				cbar = plt.colorbar(ticks=[4 * i for i in range(6)])
 
 			cbar.ax.tick_params(labelsize=70) 
 
@@ -8980,7 +8983,7 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 
 
 			logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-			text_box = TextArea("v1", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+			text_box = TextArea("v1.2", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 			logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
 			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.085, 1.0], bbox_transform = plt.gcf().transFigure)
 			plt.gca().add_artist(anchored_box)

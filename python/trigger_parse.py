@@ -188,7 +188,7 @@ def parse_file(input_file, all_hists):
 												break
 
 
-								all_hists[key].hist().fill_array( [y], [prescale_to_use] )
+								all_hists[key].hist().fill_array( [y] )
 
 								# print key
 

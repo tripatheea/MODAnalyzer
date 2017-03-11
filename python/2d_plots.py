@@ -94,7 +94,7 @@ default_dir = "plots/Version 6/"
 
 
 logo_location = "/home/aashish/root/macros/MODAnalyzer/mod_logo.png"
-logo_text = "v1.1"
+logo_text = "v1.2"
 
 
 
@@ -182,9 +182,9 @@ def two_dim_plots():
 				H = np.flipud(H)
 				Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
 
-				plt.pcolor(xedges,yedges, Hmasked, cmap=color, vmin=0, vmax=10)
+				plt.pcolor(xedges,yedges, Hmasked, cmap=color, vmin=0, vmax=20)
 
-				cbar = plt.colorbar(ticks=[2 * i for i in range(6)])
+				cbar = plt.colorbar(ticks=[4 * i for i in range(6)])
 				# cbar.ax.set_ylabel('$\\frac{1}{\sigma} \\frac{\mathrm{d}^2 \sigma}{\mathrm{d} z_g \mathrm{d} \\theta_g}$', labelpad=150, fontsize=105, rotation=0)
 				# cbar.ax.set_ylim(0, 24)
 
@@ -293,14 +293,31 @@ def two_dim_log_plots():
 				
 				np_region_x_s, np_region_y_s, np_region_z_s = [], [], []
 
+				# print 
+				total_integral = hist.integral()
+				
+				x_bounds = hist.bounds(axis=0)
+				y_bounds = hist.bounds(axis=1)
+
+				area = (math.log(x_bounds[1], math.e) - math.log(x_bounds[0], math.e)) *  (math.log(y_bounds[1], math.e) - math.log(y_bounds[0], math.e))
+
+				sum_of_bin_contents = sum([hist.GetBinContent(i, j) for i in range(1, hist.nbins(0) + 1) for j in range(1, hist.nbins(1) + 1)])
+
+				# print sum_of_bin_contents, total_integral
+
 				# for i in range(1, hist.nbins(0) + 2):
-				for i in range(1, hist.nbins(0) + 3):
+				for i in range(1, hist.nbins(0) + 1):
 					# for j in range(1, hist.nbins(1) + 2):
-					for j in range(1, hist.nbins(1) + 3):
+					for j in range(1, hist.nbins(1) + 1):
 						
-						z = hist.GetBinContent(i, j)
-						x = hist.GetXaxis().GetBinCenter(i) - (hist.GetXaxis().GetBinWidth(i) / 2)
-						y = hist.GetYaxis().GetBinCenter(j) - (hist.GetYaxis().GetBinWidth(j) / 2)
+						z = hist.nbins(0) * hist.nbins(1) * hist.GetBinContent(i, j) / ( total_integral * area )
+						# x = hist.GetXaxis().GetBinCenter(i) - (hist.GetXaxis().GetBinWidth(i) / 2)
+						# y = hist.GetYaxis().GetBinCenter(j) - (hist.GetYaxis().GetBinWidth(j) / 2)
+
+						# print z
+
+						x = hist.GetXaxis().GetBinCenter(i)
+						y = hist.GetYaxis().GetBinCenter(j)
 
 						x_s.append(x)
 						y_s.append(y)
@@ -312,8 +329,10 @@ def two_dim_log_plots():
 				
 				# print i, j
 
+				# print max(z_s)
 
-				H, xedges, yedges = np.histogram2d(x_s, y_s, bins=[np.logspace(math.log(float(0.1), math.e), math.log(0.5, math.e), 25, base=np.e), np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 25, base=np.e)], weights=z_s, normed=True)
+				# DO NOT USE NORMED=True HERE.
+				H, xedges, yedges = np.histogram2d(x_s, y_s, bins=[np.logspace(math.log(float(0.1), math.e), math.log(0.5, math.e), (25 + 1), base=np.e), np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), (25 + 1), base=np.e)], weights=z_s)
 
 				H_normalized = np.array(H)
 				H = H_normalized
@@ -322,9 +341,9 @@ def two_dim_log_plots():
 				H = np.flipud(H)
 				Hmasked = np.ma.masked_where(H == 0, H) # Mask pixels with a value of zero
 
-				plt.pcolor(xedges,yedges, Hmasked, cmap=color, vmin=0, vmax=20)
+				plt.pcolor(xedges,yedges, Hmasked, cmap=color, vmin=0, vmax=0.5)
 				
-				cbar = plt.colorbar(ticks=[4 * i for i in range(6)])
+				cbar = plt.colorbar(ticks=[0.1 * i for i in range(6)])
 				cbar.ax.tick_params(labelsize=70) 
 				# cbar.ax.set_ylabel('$\\frac{z_g \\theta_g}{\sigma} \\frac{\mathrm{d}^2 \sigma}{\mathrm{d} z_g \mathrm{d} \\theta_g}$', labelpad=150, fontsize=105, rotation=0)
 
@@ -393,7 +412,7 @@ def two_dim_log_plots():
 start = time.time()
 
 
-two_dim_plots()
+# two_dim_plots()
 two_dim_log_plots()
 
 end = time.time()

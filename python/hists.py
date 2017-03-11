@@ -2152,7 +2152,7 @@ def trigger_hists():
 
 
 		additional_text = [ ( (-0.08, 0.98), 'upper left', "AK5; \left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 85~\mathrm{GeV}$" ) ]
-		all_hists[trigger_name + "_prescale"] =  MODHist(Hist(np.logspace(math.log(float(1e-1), math.e), math.log(1e5, math.e), 100, base=np.e)), conditions=[(['jet_quality', 3], lambda x, y: y >= x), (['trig_jet_matched', 1], lambda x, y: y == x)], use_prescale=True, x_scale='log', y_scale='log', x_label="Trigger Prescale", y_label="A.U.", y_range=(0., 1.2), additional_text=additional_text )
+		all_hists[trigger_name + "_prescale"] =  MODHist(Hist(np.logspace(math.log(float(1e0), math.e), math.log(1e4, math.e), (100 + 1), base=np.e)), conditions=[(['jet_quality', 3], lambda x, y: y >= x), (['trig_jet_matched', 1], lambda x, y: y == x)], use_prescale=True, x_scale='log', y_scale='log', x_label="Trigger Prescale", y_label="A.U.", y_range=(0., 1.2), additional_text=additional_text )
 
 
 	return all_hists
@@ -2282,7 +2282,7 @@ def two_dim_log_hists():
 			
 	# zg_hist = Hist2D(50, 0.0, 0.5, 50, 0, 1.0)
 	# zg_10_hist = Hist(np.logspace(math.log(float(0.01), math.e), math.log(0.5, math.e), 50, base=np.e))
-	zg_hist = Hist2D(np.logspace(math.log(float(0.1), math.e), math.log(0.5, math.e), 26, base=np.e), np.logspace(math.log(float(0.01), math.e), math.log(1.05, math.e), 26, base=np.e))
+	zg_hist = Hist2D(np.logspace(math.log(float(0.1), math.e), math.log(0.5, math.e), (25 + 1), base=np.e), np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), (25 + 1), base=np.e))
 
 	pT_boundaries = [85, 115, 150, 200, 250]
 

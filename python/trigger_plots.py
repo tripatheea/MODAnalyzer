@@ -262,7 +262,7 @@ def trigger_efficiency_plot():
 
 		plt.plot([ cms_turn_on_pTs[i], cms_turn_on_pTs[i] ], [ 1e0, 2e1 ], lw=10, ls="dashed", color=colors[i])
 
-		plt.gca().text((cms_turn_on_pTs[i] - 15), 3e1, str(cms_turn_on_pTs[i]) + " GeV", color=colors[i])
+		plt.gca().text((cms_turn_on_pTs[i]), 3e1, str(cms_turn_on_pTs[i]) + " GeV", color=colors[i], horizontalalignment='center')
 		  
 	# Horizontal Line.
 	plt.plot([0] + list(mod_hists[hist_labels[i][0]].hist().x()), [1] * (1 + len(list(mod_hists[hist_labels[i][0]].hist().x()))), color="black", linewidth=5, linestyle="dashed")
@@ -334,20 +334,23 @@ def trigger_prescales():
 		hist.SetTitle(legend_labels[i])
 		hist.SetLineWidth(5)
 
-		plots.append( rplt.hist(hist, linewidth=10) )
+		# plots.append( rplt.hist(hist, linewidth=10) )
+
+		# , markeredgecolor=colors[i], label=labels[i], xerr=filtered_x_err, yerr=filtered_y_err, ls='None', alpha=1.0, marker='o'
+		plots.append( rplt.errorbar(hist, linewidth=5, markeredgecolor=colors[i], marker="o", markersize=15, pickradius=20, yerr=False, capthick=5, capsize=8, elinewidth=5) )
 
 	
 
 	plt.autoscale()
-	plt.gca().set_ylim(1e1, 1e9)
-	plt.gca().set_xlim(0.5, 5e4)
+	plt.gca().set_ylim(1e1, 1e5)
+	plt.gca().set_xlim(0.5, 1e4)
 
 	average_prescales = [1.00, 1.93, 5.36, 100.31, 851.39][::-1]
 	for i in range(0, len(hist_labels)):
 
-		plt.plot([ average_prescales[i], average_prescales[i] ], [ 1e9, 1e8 ], lw=10, ls="dashed", color=colors[i])
+		plt.plot([ average_prescales[i], average_prescales[i] ], [ 3e1, 1e2 ], lw=10, ls="dashed", color=colors[i])
 
-		plt.gca().text((average_prescales[i] - average_prescales[i] * 0.25), 5e7, str(average_prescales[i]), color=colors[i])
+		plt.gca().text((average_prescales[i]), 2e1, str(average_prescales[i]), color=colors[i], horizontalalignment='center')
 		  
 
 
@@ -363,7 +366,7 @@ def trigger_prescales():
 
 
 	plt.gca().set_xlabel("Trigger Prescale", fontsize=70, labelpad=10)
-	plt.gca().set_ylabel("A.U.", fontsize=70, labelpad=50)
+	plt.gca().set_ylabel("Events", fontsize=70, labelpad=50)
 
 	plt.gca().add_artist(logo_box(0.103, 1.005))
 

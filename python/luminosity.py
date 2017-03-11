@@ -187,7 +187,7 @@ def plot_integrated_recorded_lumi(cumulative=False):
   if cumulative:
     plt.ylabel("Integrated Luminosity [A.U.]", labelpad=50, fontsize=70)
   else:
-    plt.ylabel("Avg. Luminosity [A.U.]", labelpad=50, fontsize=70)
+    plt.ylabel("Average Luminosity [A.U.]", labelpad=50, fontsize=70)
 
 
   plt.gca().get_yaxis().set_ticks([])
@@ -215,7 +215,9 @@ def plot_integrated_recorded_lumi(cumulative=False):
 
   plt.locator_params(axis='x', nbins=5)
 
-  months = DayLocator([4, 10, 16, 22, 29])
+  # months = DayLocator([4, 10, 16, 22, 29])
+  # months = DayLocator([1, 8, 15, 22, 29])
+  months = WeekdayLocator(mdates.FR)
   
 
   monthsFmt = DateFormatter("%b '%y")
