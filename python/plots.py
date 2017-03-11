@@ -191,8 +191,8 @@ start = time.time()
 parsed_linear = parse.load_root_files_to_hist(log=False)
 parsed_hists = compile_sources(parsed_linear)
 
-parsed_log = parse.load_root_files_to_hist(log=True)
-parsed_log_hists = compile_sources(parsed_log)
+# parsed_log = parse.load_root_files_to_hist(log=True)
+# parsed_log_hists = compile_sources(parsed_log)
 
 
 # parsed_pfc = pfc_parse.load_pfc_root_files_to_hist()

@@ -84,9 +84,9 @@ def parse_file(input_file, all_hists, log_hists):
 		for line in infile:
 
 
-			# if line_number > 10000:	# Ideal length.
+			if line_number > 10000:	# Ideal length.
 			# if line_number > 100000:	# Big enough.
-			if line_number > 100:		# Small tests.
+			# if line_number > 100:		# Small tests.
 			# if line_number > 30000:		# Small tests.
 			# if line_number > 1000000:		# Small tests.
 			# if line_number > 150000:		# Small tests.
@@ -99,11 +99,15 @@ def parse_file(input_file, all_hists, log_hists):
 
 			line_number += 1
 
-			if line_number % 100 == 0:
+			if line_number % 1000 == 0:
 				print "At line number {}".format(line_number)
 
 			try:
 				numbers = line.split()
+
+				# print numbers
+
+				# print numbers[2]
 
 				if numbers[0] == "#" and (not keywords_set):
 					keywords = numbers[2:]
@@ -113,23 +117,11 @@ def parse_file(input_file, all_hists, log_hists):
 
 					prescale_index = keywords.index("prescale") + 1
 
+					# print numbers
 
-
-					# pdgId_index = keywords.index("pfc_pdgId") + 1
-					# pdgId = numbers[pdgId_index]
-					
-					# # print "starting again"
-
-					# if abs( int(pdgId) ) not in [11, 13, 15, 211, 321]: # This is supposed to be all the pdgIds of charged objects. 
-					# 	# print "charged"
-					# 	continue
-					
-
-					# for i in range(len(keywords)):
 					for i in range(len(keywords)):
 
 						keyword = keywords[i]
-
 						
 						if keyword == "hardest_pT":
 							pT_of_this_event = float(numbers[i + 1]) # + 1 because we ignore the first keyword "Entry".
@@ -143,30 +135,28 @@ def parse_file(input_file, all_hists, log_hists):
 								hist = mod_hist.hist()
 								conditions = mod_hist.conditions()
 
-								conditions = [conditions[0]]
+								# print conditions
 
-								try:
-									condition_satisfied = 1
+								# print conditions
+
+								condition_satisfied = True
+
+								try:					
 									for condition_keyword, condition_boundaries in conditions:
 										keyword_index = keywords.index(condition_keyword) + 1
 
-										# print condition_boundaries[0], condition_boundaries[1], keyword_index
+										
+										
+										if condition_boundaries[0] != None and float(numbers[keyword_index]) < float(condition_boundaries[0]):
+											condition_satisfied = False
+											
 
-										# print numbers[keyword_index]
+										if condition_boundaries[1] != None and float(numbers[keyword_index]) > float(condition_boundaries[1]):
+											condition_satisfied = False
+											
 
-										if condition_boundaries[0] == None and condition_boundaries[1] != None:
-											condition_satisfied *= int( float(numbers[keyword_index]) < float(condition_boundaries[1]) ) 
-										elif condition_boundaries[0] != None and condition_boundaries[1] == None:
-											condition_satisfied *= int( float(numbers[keyword_index]) > float(condition_boundaries[0]) )
-											# print "here", int( float(numbers[keyword_index]) > condition_boundaries[0] )
 
-										elif condition_boundaries[0] == None and condition_boundaries[1] == None:
-											condition_satisfied *= 1 
-										elif condition_boundaries[0] != None and condition_boundaries[1] != None:
-											print float(numbers[keyword_index]), float(condition_boundaries[0]), float(numbers[keyword_index]), float(condition_boundaries[1])
-											condition_satisfied *= int( float(numbers[keyword_index]) > float(condition_boundaries[0]) and float(numbers[keyword_index]) < float(condition_boundaries[1]) )
-
-									condition_satisfied = bool(condition_satisfied)
+									
 								except Exception as e:
 									print "ASF", e
 								
@@ -240,21 +230,24 @@ def parse_file(input_file, all_hists, log_hists):
 								hist = mod_hist.hist()
 								conditions = mod_hist.conditions()
 
-								try:
-									condition_satisfied = 1
+								condition_satisfied = True
+
+								try:					
 									for condition_keyword, condition_boundaries in conditions:
 										keyword_index = keywords.index(condition_keyword) + 1
 
-										if condition_boundaries[0] == None and condition_boundaries[1] != None:
-											condition_satisfied *= int( float(numbers[keyword_index]) < condition_boundaries[1] ) 
-										elif condition_boundaries[0] != None and condition_boundaries[1] == None:
-											condition_satisfied *= int( float(numbers[keyword_index]) > condition_boundaries[0] ) 
-										elif condition_boundaries[0] == None and condition_boundaries[1] == None:
-											condition_satisfied *= 1 
-										elif condition_boundaries[0] != None and condition_boundaries[1] != None:
-											condition_satisfied *= int( float(numbers[keyword_index]) > float(condition_boundaries[0]) and float(numbers[keyword_index]) < float(condition_boundaries[1]) )
+										
+										
+										if condition_boundaries[0] != None and float(numbers[keyword_index]) < float(condition_boundaries[0]):
+											condition_satisfied = False
+											
 
-									condition_satisfied = bool(condition_satisfied)
+										if condition_boundaries[1] != None and float(numbers[keyword_index]) > float(condition_boundaries[1]):
+											condition_satisfied = False
+											
+
+
+									
 								except Exception as e:
 									print "ASF", e
 								
