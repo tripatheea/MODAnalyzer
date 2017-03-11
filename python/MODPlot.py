@@ -146,6 +146,7 @@ class MODPlot:
         logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
 
         anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.159, 1.0], bbox_transform = plt.gcf().transFigure)
+        # anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.104, 1.0], bbox_transform = plt.gcf().transFigure)
 
         return anchored_box
         
@@ -278,15 +279,20 @@ class MODPlot:
         # TODO: This is too hacky. Fix this + comment it properly.
         z_cut = float(self._hists[0].additional_text()[0][2].split("=")[-1].split("$")[0])
 
-        if "e_g^{0.5}" in var:
+        # print " cut at ", max(1.0, z_cut ** (1 - 0.5)) * (lambda_value / (lower_pT * R))**0.5, "... ",
+        print var
+
+        if "e_g^{(0.5)}" in var:
+            # print "correct"
             return max(1.0, z_cut ** (1 - 0.5)) * (lambda_value / (lower_pT * R))**0.5
-        elif "e_g^2" in var:
-            # return (lambda_value**2) / (lower_pT * lower_pT * z_cut)
+        elif "e_g^{(2)}" in var:
+            # print "incorrect1"
             return max(1.0, z_cut ** (1 - 2)) * (lambda_value / (lower_pT * R))**2
-        elif "e_g" in var:
-            # return lambda_value / lower_pT
+        elif "e_g^{(1)}" in var:
+            # print "incorrect2"
             return max(1.0, z_cut ** (1 - 1)) * (lambda_value / (lower_pT * R))**1
         elif "theta_g" in var:
+            # print "incorrect3"
             min_value = lambda_value / (z_cut * lower_pT * R)
         else:
             min_value = 0.0
@@ -367,7 +373,8 @@ class MODPlot:
                         break
 
 
-                    
+                # print np_correction_index, self.get_np_correction_boundary()
+                # print x_s
                 
                 y_line_s = self._hists[i][2]
                 y_min_s = self._hists[i][1]
@@ -376,10 +383,16 @@ class MODPlot:
                 # print x_s[ : np_correction_index]
                 # Distribution.
                 ax0.plot(x_s[ : np_correction_index + 1], y_line_s[ : np_correction_index + 1], lw=12, zorder=z_indices[i], color=self._plot_colors[i], ls="dotted")
-                # ax0.plot(x_s[np_correction_index : ], y_line_s[np_correction_index : ], lw=8, zorder=z_indices[i], color=self._plot_colors[i])
-                ax0.plot(x_s[np_correction_index : ], y_line_s[np_correction_index : ], ls="dotted", lw=12, zorder=z_indices[i], color=self._plot_colors[i])
 
-                # ax0.fill_between(x_s[np_correction_index : ], y_max_s[np_correction_index : ], y_min_s[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(y_min_s[np_correction_index : ], y_max_s[np_correction_index : ]), facecolor=self._plot_colors[i], color=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.)
+
+                
+
+                if "Track" not in self._x_label: 
+                    ax0.plot(x_s[np_correction_index : ], y_line_s[np_correction_index : ], lw=8, zorder=z_indices[i], color=self._plot_colors[i])
+                    ax0.fill_between(x_s[np_correction_index : ], y_max_s[np_correction_index : ], y_min_s[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(y_min_s[np_correction_index : ], y_max_s[np_correction_index : ]), facecolor=self._plot_colors[i], color=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.)
+                else:
+                    ax0.plot(x_s[np_correction_index : ], y_line_s[np_correction_index : ], ls="dotted", lw=12, zorder=z_indices[i], color=self._plot_colors[i])
+
 
                 theory_min_interpolate_function = self.extrap1d(interpolate.interp1d(x_s, y_min_s))
                 theory_line_interpolate_function = self.extrap1d(interpolate.interp1d(x_s, y_line_s))
@@ -526,12 +539,16 @@ class MODPlot:
                                     break
 
                             self._plt.plot(line_sorted_x[ : np_correction_index + 1], line_sorted_y[ : np_correction_index + 1], zorder=z_indices[i], axes=ax1, lw=12, color=self._plot_colors[self._plot_types.index("theory")], ls="dotted")
-                            # self._plt.plot(line_sorted_x[np_correction_index : ], line_sorted_y[np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
-                            self._plt.plot(line_sorted_x[np_correction_index : ], line_sorted_y[np_correction_index : ], ls="dotted", zorder=z_indices[i], axes=ax1, lw=12, color=self._plot_colors[self._plot_types.index("theory")])
-
-                            # if "track" not in self._hists[i].hist()
-                            # ax1.fill_between( max_sorted_x[np_correction_index : ], max_sorted_y[np_correction_index : ], min_sorted_y[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(min_sorted_y[np_correction_index : ], max_sorted_y[np_correction_index : ]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
                             
+                            
+                            # if "track" not in self._hists[i].hist()
+                            if "Track" not in self._x_label: 
+                                self._plt.plot(line_sorted_x[np_correction_index : ], line_sorted_y[np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
+                                ax1.fill_between( max_sorted_x[np_correction_index : ], max_sorted_y[np_correction_index : ], min_sorted_y[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(min_sorted_y[np_correction_index : ], max_sorted_y[np_correction_index : ]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
+                            else:
+                                self._plt.plot(line_sorted_x[np_correction_index : ], line_sorted_y[np_correction_index : ], ls="dotted", zorder=z_indices[i], axes=ax1, lw=12, color=self._plot_colors[self._plot_types.index("theory")])
+
+    
                         else:
 
                             ratio_theory_line = [None if n == 0 else m / n for m, n in zip(theory_extrapolated_line, self._plot_points_y_s[self._ratio_to_index])]
@@ -559,11 +576,13 @@ class MODPlot:
                                     break
 
                             self._plt.plot(line_x, line_y, zorder=z_indices[i], axes=ax1, lw=12, color=self._plot_colors[self._plot_types.index("theory")], ls="dotted")
-                            # self._plt.plot(line_x[np_correction_index : ], line_y[np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
-                            self._plt.plot(line_x[np_correction_index : ], line_y[np_correction_index : ], ls="dotted", zorder=z_indices[i], axes=ax1, lw=12, color=self._plot_colors[self._plot_types.index("theory")])
-
-                            # ax1.fill_between( max_x[np_correction_index : ], max_y[np_correction_index : ], min_y[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(min_y[np_correction_index : ], max_y[np_correction_index : ]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
                             
+                            if "Track" not in self._x_label: 
+                                self._plt.plot(line_x[np_correction_index : ], line_y[np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
+                                ax1.fill_between( max_x[np_correction_index : ], max_y[np_correction_index : ], min_y[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(min_y[np_correction_index : ], max_y[np_correction_index : ]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
+                            else:
+                                self._plt.plot(line_x[np_correction_index : ], line_y[np_correction_index : ], ls="dotted", zorder=z_indices[i], axes=ax1, lw=12, color=self._plot_colors[self._plot_types.index("theory")])
+
                     else:
                         ratio_hist = copy.deepcopy( self._hists[i].hist() )
                         ratio_hist.Divide(denominator_hist)
@@ -686,11 +705,13 @@ class MODPlot:
                                     break
 
                             self._plt.plot(line_x, line_y, zorder=z_indices[i], axes=ax1, lw=12, color=self._plot_colors[self._plot_types.index("theory")], ls="dotted")
-                            # self._plt.plot(line_x[np_correction_index : ], line_y[np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
-                            self._plt.plot(line_x[np_correction_index : ], line_y[np_correction_index : ], ls="dotted", zorder=z_indices[i], axes=ax1, lw=12, color=self._plot_colors[self._plot_types.index("theory")])
-
-                            # ax1.fill_between( max_x[np_correction_index : ], max_y[np_correction_index : ], min_y[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(min_y[np_correction_index : ], max_y[np_correction_index : ]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
                             
+
+                            if "Track" not in self._x_label: 
+                                self._plt.plot(line_x[np_correction_index : ], line_y[np_correction_index : ], zorder=z_indices[i], axes=ax1, lw=8, color=self._plot_colors[self._plot_types.index("theory")])
+                                ax1.fill_between( max_x[np_correction_index : ], max_y[np_correction_index : ], min_y[np_correction_index : ], zorder=z_indices[i], where=np.less_equal(min_y[np_correction_index : ], max_y[np_correction_index : ]), color=self._plot_colors[i], facecolor=self._plot_colors[i], interpolate=True, alpha=0.2, linewidth=0.0)
+                            else:
+                                self._plt.plot(line_x[np_correction_index : ], line_y[np_correction_index : ], ls="dotted", zorder=z_indices[i], axes=ax1, lw=12, color=self._plot_colors[self._plot_types.index("theory")])
                     else:
                         # Get plot points.
                         x_s, y_s = self._plot_points_x_s[i], self._plot_points_y_s[i]
@@ -725,12 +746,18 @@ class MODPlot:
 
         handler_map = {}
         if "theory" in self._plot_types:
-            # th_line, = ax0.plot(range(1), linewidth=8, color='red')
-            th_line, = ax0.plot(range(1), linewidth=12, ls="dotted", color='red')
-            # th_patch = mpatches.Patch(facecolor='red', alpha=0.2, linewidth=0., edgecolor='red')
+            
+            
 
-            # handles.insert( self._plot_types.index("theory"), (th_patch, th_line))
-            handles.insert( self._plot_types.index("theory"), (th_line, ))
+            if "Track" not in self._x_label: 
+                th_line, = ax0.plot(range(1), linewidth=8, color='red')
+                th_patch = mpatches.Patch(facecolor='red', alpha=0.2, linewidth=0., edgecolor='red')
+
+                handles.insert( self._plot_types.index("theory"), (th_patch, th_line))
+            else:
+                th_line, = ax0.plot(range(1), linewidth=12, ls="dotted", color='red')
+                handles.insert( self._plot_types.index("theory"), (th_line, ))
+            
             # labels.insert( self._plot_types.index("theory"), self._plot_labels[self._plot_types.index("theory")])
 
             handler_map[th_line ] = HandlerLine2D(marker_pad=0)
@@ -753,9 +780,20 @@ class MODPlot:
         extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
         # ax0.legend([extra]*len(labels), labels, loc=7, frameon=0, borderpad=0.1, fontsize=60, bbox_to_anchor=[1.00, 0.53])
 
+
+        # get the width of your widest label, since every label will need 
+        #to shift by this amount after we align to the right
+        shift = max([t.get_window_extent(plt.gcf().canvas.get_renderer()).width for t in legend.get_texts()])
+
         for position, anchor_location, text in self._hists[0].additional_text():
             texts = text.split("\n")
-            ax0.legend( [extra] * len(texts), texts, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=position, loc=anchor_location)
+            additional_info = ax0.legend( [extra] * len(texts), texts, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=position, loc=anchor_location)
+
+            if position[0] > 0.30:
+                for t in additional_info.get_texts():
+                    t.set_ha('right') # ha is alias for horizontalalignment
+                    t.set_position((shift,0))
+                
             
         # if len()
 
@@ -778,6 +816,8 @@ class MODPlot:
         if self._ratio_plot:
             ax1.set_xlabel(self._x_label, fontsize=70, labelpad=35)
             ax1.set_ylabel(self._ratio_label, fontsize=55, labelpad=25)
+        else:
+            ax0.set_xlabel(self._x_label, fontsize=70, labelpad=35)
 
         # Axes labels end.
 
@@ -958,13 +998,19 @@ class MODPlot:
             unit_x_minor_tick_length = abs(ax0.get_xaxis().get_majorticklocs()[1] - ax0.get_xaxis().get_majorticklocs()[0]) /  10
             unit_y_minor_tick_length = abs(ax0.get_yaxis().get_majorticklocs()[1] - ax0.get_yaxis().get_majorticklocs()[0]) /  5
 
+            print ax0.get_yaxis().get_majorticklocs()[1], ax0.get_yaxis().get_majorticklocs()[0]
+
             if marker[2] != None:
                 # Arrows.
                 if marker[2] == "right":
-                    ax0.arrow(marker[0], marker[3], 0.5, 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
+                    ax0.arrow(marker[0], marker[3], marker[4], 0., transform=self._plt.gcf().transFigure, head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
                 elif marker[2] == "left":
-                    ax0.arrow(marker[0], marker[3], -0.5, 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
+                    ax0.arrow(marker[0], marker[3], marker[4], 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
             
+
+            if "Area" in self._x_label:
+                ax0.text(marker[0], marker[1], "$\pi \mathrm{R}^2$", color='red', fontsize=75, horizontalalignment='center')
+          
 
         self._plt.gcf().set_snap(True)
 
@@ -988,7 +1034,8 @@ class MODPlot:
 
 
 
-plot_labels = { "data": "CMS 2010 Open Data", "pythia": "Pythia 8.219", "herwig": "Herwig 7.0.3", "sherpa": "Sherpa 2.2.1", "theory": "Theory (MLL; $z_g^{all}$)" }
+plot_labels = { "data": "CMS 2010 Open Data", "pythia": "Pythia 8.219", "herwig": "Herwig 7.0.3", "sherpa": "Sherpa 2.2.1", "theory": "Theory (MLL)" }
+plot_track_labels = { "data": "CMS 2010 Open Data", "pythia": "Pythia 8.219", "herwig": "Herwig 7.0.3", "sherpa": "Sherpa 2.2.1", "theory": "Theory (MLL; all)" }
 plot_colors = {"theory": "red", "pythia": "blue", "herwig": "green", "sherpa": "purple", "pythia_post": "red", "data": "black", "data_post": "red"}
 
 global_plot_types = ['error', 'hist', 'hist', 'hist']
@@ -1008,7 +1055,12 @@ def create_multi_page_plot(filename, hists, theory=False, x_scale='linear'):
     if theory and "theory" not in types:
         types.insert(1, "theory")
         colors.insert(1, plot_colors['theory'])
-        labels.insert(1, plot_labels['theory'])
+
+        if "track" in filename:
+            labels.insert(1, plot_track_labels['theory'])
+        else:
+            labels.insert(1, plot_labels['theory'])
+
         line_styles.insert(1, "")
 
     with PdfPages(filename) as pdf:

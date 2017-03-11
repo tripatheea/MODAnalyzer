@@ -113,12 +113,15 @@ def normalize_hist(hist):
 	return hist
 
 
-def two_dim_plots():
+def two_dim_plots(track=False):
 	
 	colors = ['Greys', 'Blues', 'Greens', 'purple'] 
 	hatch_colors = ['gray', 'blue', 'green', 'purple']
 	sources = ['data', 'pythia', 'herwig', 'sherpa']
 	source_labels = ["CMS 2010 Open Data", "Pythia 8.219", "Herwig 7.0.3", "Sherpa 2.2.1" ]
+
+	if track:
+		sources = [sources[0]]
 
 	# colors = ['Greys'] 
 	# hatch_colors = ['gray']
@@ -133,16 +136,26 @@ def two_dim_plots():
 	lower_boundaries = [85, 115, 150, 200, 85, 150, 250]
 	upper_boundaries = [115, 150, 200, 250, 100000., 100000., 100000.]
 
-	lambda_value = 3.
+	lambda_value = 2.
 	z_cut = 0.1
 
 	a = 0
 	for a in range(len(sources)):
 		color, source, source_label, hatch_color = colors[a], sources[a], source_labels[a], hatch_colors[a]
 
-		# with PdfPages("plots/Version 5/zg_against_theta_g/linear/" + source + "_zg_against_theta_g.pdf") as pdf:
-		with PdfPages("plots/Version 5/zg_against_theta_g/big5_zg_vs_rg_" + source + "_linear.pdf") as pdf:
-			for b in range(len(parsed_linear[a][('zg_10', 'rg_10')])):
+		if track:
+			filename = "big5_zg_vs_rg_" + source + "_track_linear.pdf"
+		else:
+			filename = "big5_zg_vs_rg_" + source + "_linear.pdf"
+		
+		with PdfPages("plots/Version 5/zg_against_theta_g/" + filename) as pdf:
+
+			if track:
+				var = ('track_zg_10', 'track_rg_10')
+			else:
+				var = ('zg_10', 'rg_10')
+
+			for b in range(len(parsed_linear[a][var])):
 		
 				lower, upper = lower_boundaries[b], upper_boundaries[b]
 		
@@ -152,7 +165,7 @@ def two_dim_plots():
 				# print len(parsed_linear),
 				# print len(parsed_linear[a][('zg_10', 'rg_10')])
 
-				hist = parsed_linear[a][('zg_10', 'rg_10')][b].hist()
+				hist = parsed_linear[a][var][b].hist()
 				
 				
 				b += 1
@@ -185,6 +198,7 @@ def two_dim_plots():
 				plt.pcolor(xedges,yedges, Hmasked, cmap=color, vmin=0, vmax=20)
 
 				cbar = plt.colorbar(ticks=[4 * i for i in range(6)])
+				cbar.ax.tick_params(labelsize=70) 
 				# cbar.ax.set_ylabel('$\\frac{1}{\sigma} \\frac{\mathrm{d}^2 \sigma}{\mathrm{d} z_g \mathrm{d} \\theta_g}$', labelpad=150, fontsize=105, rotation=0)
 				# cbar.ax.set_ylim(0, 24)
 
@@ -192,10 +206,10 @@ def two_dim_plots():
 
 				label = []
 				if upper != 100000.:
-						# $p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$
-						label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+					# $p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$
+					label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$\n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 				else:
-					label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} >" + str(lower) + "~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+					label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$\n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} >" + str(lower) + "~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 
 				extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 			
@@ -210,8 +224,13 @@ def two_dim_plots():
 				plt.gca().add_artist(additional_legend)
 
 
-				plt.xlabel('$z_g$', fontsize=90, labelpad=40)
-				plt.ylabel('$\\theta_g$', rotation=0, fontsize=90, labelpad=40)
+				if track:
+					plt.xlabel('Track $z_g$', fontsize=90, labelpad=40)
+					plt.ylabel('Track $\\theta_g$', rotation=90, fontsize=90, labelpad=40)
+				else:
+					plt.xlabel('$z_g$', fontsize=90, labelpad=40)
+					plt.ylabel('$\\theta_g$', rotation=0, fontsize=90, labelpad=40)
+
 
 				# plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
 				# plt.gca().yaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
@@ -251,12 +270,15 @@ def two_dim_plots():
 
 
 
-def two_dim_log_plots():
+def two_dim_log_plots(track=False):
 	
 	colors = ['Greys', 'Blues', 'Greens', 'purple'] 
 	hatch_colors = ['gray', 'blue', 'green', 'purple']
 	sources = ['data', 'pythia', 'herwig', 'sherpa']
 	source_labels = ["CMS 2010 Open Data", "Pythia 8.219", "Herwig 7.0.3", "Sherpa 2.2.1" ]
+
+	if track:
+		sources = [sources[0]]
 
 	startcolor = 'white'  # a dark olive 
 	endcolor = 'purple'    # medium dark red
@@ -265,15 +287,26 @@ def two_dim_log_plots():
 	lower_boundaries = [85, 115, 150, 200, 85, 150, 250]
 	upper_boundaries = [115, 150, 200, 250, 100000., 100000., 100000.]
 
-	lambda_value = 3.
+	lambda_value = 2.
 	z_cut = 0.1
 
 	a = 0
 	for a in range(len(sources)):
 		color, source, source_label, hatch_color = colors[a], sources[a], source_labels[a], hatch_colors[a]
 
-		with PdfPages("plots/Version 5/zg_against_theta_g/big5_zg_vs_rg_" + source + "_log.pdf") as pdf:
-			for b in range(len(parsed_log[a][('zg_10', 'rg_10')])):
+		if track:
+			filename = "big5_zg_vs_rg_" + source + "_track_log.pdf"
+		else:
+			filename = "big5_zg_vs_rg_" + source + "_log.pdf"
+		
+		with PdfPages("plots/Version 5/zg_against_theta_g/" + filename) as pdf:
+
+			if track:
+				var = ('track_zg_10', 'track_rg_10')
+			else:
+				var = ('zg_10', 'rg_10')
+
+			for b in range(len(parsed_log[a][var])):
 		
 				lower, upper = lower_boundaries[b], upper_boundaries[b]
 				np_correction_boundary = lambda_value / (lower * z_cut)
@@ -281,7 +314,7 @@ def two_dim_log_plots():
 				# print len(parsed_log),
 				# print len(parsed_log[a][('zg_10', 'rg_10')])
 
-				hist = parsed_log[a][('zg_10', 'rg_10')][b].hist()
+				hist = parsed_log[a][var][b].hist()
 				
 				
 				b += 1
@@ -350,15 +383,17 @@ def two_dim_log_plots():
 
 				label = []
 				if upper != 100000.:
-						# $p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$
-						label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+					# $p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$
+					label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$\n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 				else:
-					label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} >" + str(lower) + "~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+					label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$\n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} >" + str(lower) + "~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 
 				extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 			
-				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[0.98, 0.98], loc="upper right")	
+				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[1.32, 0.00], loc="lower right")	
 				plt.gca().add_artist(additional_legend)
+				for t in additional_legend.get_texts():
+					t.set_ha('right') # ha is alias for horizontalalignment
 
 				# Data Source Label.
 				label = []
@@ -366,8 +401,12 @@ def two_dim_log_plots():
 				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=60, bbox_to_anchor=[1.02, 1.12], loc="upper right")	
 				plt.gca().add_artist(additional_legend)
 
-				plt.xlabel('$z_g$', fontsize=90, labelpad=40)
-				plt.ylabel('$\\theta_g$', rotation=0, fontsize=90, labelpad=40)
+				if track:
+					plt.xlabel('Track $z_g$', fontsize=90, labelpad=40)
+					plt.ylabel('Track $\\theta_g$', rotation=90, fontsize=90, labelpad=40)
+				else:
+					plt.xlabel('$z_g$', fontsize=90, labelpad=40)
+					plt.ylabel('$\\theta_g$', rotation=0, fontsize=90, labelpad=40)
 
 
 				plt.tick_params(which='major', width=5, length=25, labelsize=70)
@@ -412,8 +451,11 @@ def two_dim_log_plots():
 start = time.time()
 
 
-# two_dim_plots()
-two_dim_log_plots()
+# two_dim_plots(track=False)
+two_dim_plots(track=True)
+
+# two_dim_log_plots(track=False)
+two_dim_log_plots(track=True)
 
 end = time.time()
 

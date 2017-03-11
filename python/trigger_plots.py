@@ -342,7 +342,7 @@ def trigger_prescales():
 	
 
 	plt.autoscale()
-	plt.gca().set_ylim(1e1, 1e5)
+	plt.gca().set_ylim(1e1, 1e6)
 	plt.gca().set_xlim(0.5, 1e4)
 
 	average_prescales = [1.00, 1.93, 5.36, 100.31, 851.39][::-1]

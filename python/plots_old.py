@@ -8981,26 +8981,34 @@ def plot_2d_theta_g_zg(pT_lower_cut=150, zg_cut='0.10', zg_filename='zg_10', log
 			plt.gca().yaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
 
 
+			if log:
+				logo_position = [0.105, 1.0]
+			else:
+				logo_position = [0.086, 1.0]	
 
 			logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
 			text_box = TextArea("v1.2", textprops=dict(color='#444444', fontsize=50, weight='bold'))
 			logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
-			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.085, 1.0], bbox_transform = plt.gcf().transFigure)
+			anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=logo_position, bbox_transform = plt.gcf().transFigure)
 			plt.gca().add_artist(anchored_box)
 
 
 			label = []
 			
 			if upper != 100000.:
-				label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5", "$\left| \eta \\right| < 2.4$; $p_{T}^{\mathrm{jet}} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$", "SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+				label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$", "AK5; $\left| \eta \\right| < 2.4$", "$p_{T}^{\mathrm{jet}} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$", "SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 			else:
-				label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5", "$\left| \eta \\right| < 2.4$; $p_{T}^{\mathrm{jet}} >" + str(lower) + "~\mathrm{GeV}$", "SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+				label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$", "AK5; $\left| \eta \\right| < 2.4$", "$p_{T}^{\mathrm{jet}} >" + str(lower) + "~\mathrm{GeV}$", "SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
 
 
 
 			extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 			
-			legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[0.98, 0.98], loc="upper right")	
+			if log:			
+				legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[0.98, 0.00], loc="lower right")	
+			else:
+				legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[0.98, 0.98], loc="upper right")	
+
 			plt.gca().add_artist(legend)
 
 
