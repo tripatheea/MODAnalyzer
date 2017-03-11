@@ -84,7 +84,7 @@ def multi_page_log_plot_hist_templates():
 	
 
 	hardest_pT_hist = Hist(np.logspace(math.log(float(5), math.e), math.log(1505, math.e), 150, base=np.e))
-	pT_D_hist = Hist(np.logspace(math.log(float(0.001), math.e), math.log(1, math.e), 75, base=np.e))
+	pT_D_hist = Hist(np.logspace(math.log(float(0.1), math.e), math.log(1, math.e), 75, base=np.e))
 	
 		
 	frac_pT_loss_hist = Hist(np.logspace(math.log(float(0.001), math.e), math.log(1.0, math.e), 50, base=np.e))
