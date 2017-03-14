@@ -5,12 +5,11 @@ import time
 import sys
 import hists
 
-
+import subprocess
 from MODPlot import *
 
 
 from rootpy.io import File as TFile
-
 
 
 import matplotlib.pyplot as plt
@@ -22,8 +21,8 @@ import rootpy.plotting.root2matplotlib as rplt
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/"
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/"
 # output_directory = "/home/aashish/Feb22/"
+# output_directory = "/media/aashish/opendata_mod/Feb5/histogrammed/pristine/"
 output_directory = "/media/aashish/opendata_mod/Feb5/histogrammed/pristine/"
-# output_directory = "/home/aashish/Feb5/histogrammed/"
 
 
 
@@ -37,9 +36,9 @@ data_file   = "/media/aashish/opendata_mod/Feb5/analyzed/pristine.dat"
 # data_file   = "/home/aashish/root/macros/MODAnalyzer/abcde.dat"
 # data_file   = "/media/aashish/opendata_mod/Feb5/analyzed/pt.dat"
 # data_file   = "/home/aashish/root/macros/MODAnalyzer/test.dat"
-pythia_file = "/media/aashish/opendata_mod/Feb5/analyzed/pristine/pythia/pythia.dat"
-herwig_file = "/media/aashish/opendata_mod/Feb5/analyzed/pristine/herwig/herwig.dat"
-sherpa_file = "/media/aashish/opendata_mod/Feb5/analyzed/pristine/sherpa/sherpa.dat"
+pythia_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/pythia/pythia.dat"
+herwig_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/herwig/herwig.dat"
+sherpa_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/sherpa/part1.dat"
 
 
 pfc_data_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pfc.dat"
@@ -61,9 +60,9 @@ average_prescales[(85, 115)] =  851.3943491
 my_prescales = defaultdict(float)
 my_numbers = defaultdict(int)
 
-def parse_file(input_file, all_hists, log_hists):
 
-	f = open("./pt_output.dat", 'w')
+
+def parse_file(input_file, output_filename, all_hists, log_hists):
 
 	print "Parsing {}".format(input_file)
 	
@@ -83,15 +82,17 @@ def parse_file(input_file, all_hists, log_hists):
 
 		for line in infile:
 
+			start = time.time()
 
-			# if line_number > 10000:	# Ideal length.
-			if line_number > 100000:	# Big enough.
-			# if line_number > 100:		# Small tests.
+			# if line_number > 10000:		# Ideal length.
+			# if line_number > 100000:		# Big enough.
+			# if line_number > 1000:		# Small tests.
 			# if line_number > 30000:		# Small tests.
 			# if line_number > 1000000:		# Small tests.
 			# if line_number > 150000:		# Small tests.
 			# if line_number > 100000:		# Small tests.
-			# if False:
+			# if line_number > 2:				# Trivial test.
+			if False:
 				break
 
 			if len(line.strip()) == 0:
@@ -99,222 +100,245 @@ def parse_file(input_file, all_hists, log_hists):
 
 			line_number += 1
 
-			if line_number % 1000 == 0:
+			if line_number % 10000 == 0:
 				print "At line number {}".format(line_number)
+				write_to_root_files(all_hists, log_hists, output_filename)
 
-			try:
+			# try:
+			if True:
 				numbers = line.split()
 
-				# print numbers
-
-				# print numbers[2]
-
 				if numbers[0] == "#" and (not keywords_set):
-					keywords = numbers[2:]
+					keywords = numbers[1:]
 					keywords_set = True
 
-				elif numbers[0] == "Entry":
+					# Build a dictionary of keyword indices.
+					keywords_index_dictionary = {}
+					for keyword_index, keyword in enumerate(keywords):
+						keywords_index_dictionary[keyword] = keyword_index
+
+
+
+					# print keywords_index_dictionary['hardest_pT']
 
 					prescale_index = keywords.index("prescale") + 1
 
-					# print numbers
+				elif numbers[0] == "Entry":
 
-					for i in range(len(keywords)):
+					# Find what prescale to use.
+					pT_of_this_event = float(numbers[keywords_index_dictionary['hardest_pT']]) # + 1 because we ignore the first keyword "Entry".
 
-						keyword = keywords[i]
+					# Find out what prescale to use.
+					if input_file == data_file:	# For data file only.
+						#  Average prescale. 
+
+						# To find which prescale to use, we need to find which trigger fired. 
+						# To do that, we need to find the pT of the hardest jet.
 						
-						if keyword == "hardest_pT":
-							pT_of_this_event = float(numbers[i + 1]) # + 1 because we ignore the first keyword "Entry".
+						prescale_to_use = 0.0
 
-							all_pT_s.append(pT_of_this_event)
+						if pT_of_this_event > 250.:
+							prescale_to_use = 1.0
+						else:
 
-						if keyword in all_hists.keys():
-							
-							for mod_hist in all_hists[keyword]:
-							# for mod_hist in [all_hists['hardest_pT'][0]]:
+							for pT_boundaries, prescale in average_prescales.items():
+								
+								lower, upper = pT_boundaries
+
+								# print lower, upper, pT_of_this_event
+
+								if upper != None:
+									if pT_of_this_event > float(lower) and pT_of_this_event < float(upper):
+										prescale_to_use = prescale
+										break
+
+					else:	# MC so always use prescales.
+						prescale_to_use = float(numbers[prescale_index]) 
+					
+					
+
+
+
+					for some_hists in [all_hists, log_hists]:
+
+						# for i in xrange(len(keywords)):
+						for keyword in some_hists.keys():
+
+							for mod_hist in some_hists[keyword]:
+									
+								
 								hist = mod_hist.hist()
+
+								# Now, see whether or not the conditions are met.
+								condition_satisfied = True
 								conditions = mod_hist.conditions()
 
-								# print conditions
+								for condition_keyword, condition_boundaries in conditions:
+									keyword_index = keywords_index_dictionary[condition_keyword]
 
-								# print conditions
-
-								condition_satisfied = True
-
-								try:					
-									for condition_keyword, condition_boundaries in conditions:
-										keyword_index = keywords.index(condition_keyword) + 1
-
-										
-										
-										if condition_boundaries[0] != None and float(numbers[keyword_index]) < float(condition_boundaries[0]):
-											condition_satisfied = False
-											
-
-										if condition_boundaries[1] != None and float(numbers[keyword_index]) > float(condition_boundaries[1]):
-											condition_satisfied = False
-											
-
+									# print condition_keyword, keyword_index, numbers[keyword_index]
 
 									
-								except Exception as e:
-									print "ASF", e
-								
-								# if keyword == "jec":
-								# 	print condition_satisfied
+									if condition_boundaries[0] != None and float(numbers[keyword_index]) < float(condition_boundaries[0]):
+										condition_satisfied = False
+										
+									if condition_boundaries[1] != None and float(numbers[keyword_index]) > float(condition_boundaries[1]):
+										condition_satisfied = False
+									
+									# print condition_boundaries, float(numbers[keyword_index]), condition_satisfied	
 
 
+								if condition_satisfied:			
 
-								if condition_satisfied:
-
-									x = float(numbers[i + 1]) # + 1 because we ignore the first keyword "Entry".
-
-
-									'''			
-									if i == len(keywords) - 1:
 									
 
+									# if keyword == 'hardest_eta':
+									# print conditions					
+									
+									# print "i am here"
+									# print keyword, keywords_index_dictionary[keyword]
+									x = float(numbers[keywords_index_dictionary[keyword]]) 
 
-										# if pT_of_this_event > 130.4 and pT_of_this_event < 140.2:
-										if pT_of_this_event > 148.6 and pT_of_this_event < 150.:
-											# print numbers[2], numbers[4], numbers[8]
-											# print "Test"
-											f.write("{}\t{}\t{}\n".format(numbers[2], numbers[4], numbers[8]))
-										# hardest_pt => 2; jec => 3
+									if not mod_hist.use_prescale():
+										hist.fill_array( [x] )
+									else:
+										# if keyword == 'hardest_eta':
+										# print 'yo', x, prescale_to_use
+										hist.fill_array( [x], [prescale_to_use] )	 
 
-
-									continue
-									'''
-
-									if input_file == data_file:	# For data file only.
-
-										if not mod_hist.use_prescale():
-											hist.fill_array( [x] )
-										else:
-											
-											#  Average prescale. 
-
-											# To find which prescale to use, we need to find which trigger fired. 
-											# To do that, we need to find the pT of the hardest jet.
-											
-											prescale_to_use = 0.0
-
-											if pT_of_this_event > 250.:
-												prescale_to_use = 1.0
-											else:
-												for pT_boundaries, prescale in average_prescales.items():
 													
-													lower, upper = pT_boundaries
-
-													if upper != None:
-														if pT_of_this_event > float(lower) and pT_of_this_event < float(upper):
-															prescale_to_use = prescale
-															break
-
-											# print "Using the prescale", prescale_to_use
-											hist.fill_array( [x], [prescale_to_use] )	 
-
-									
-									else:	# MC so always use prescales.
-										# if type()
-										hist.fill_array( [x], [float(numbers[prescale_index])] )
-
-									# if keyword == "hardest_area":
-										# print "Tada"
-										# print [type(x)], [float(numbers[prescale_index])]
-
-
-						if keyword in log_hists.keys():
-							
-							for mod_hist in log_hists[keyword]:
-								hist = mod_hist.hist()
-								conditions = mod_hist.conditions()
-
-								condition_satisfied = True
-
-								try:					
-									for condition_keyword, condition_boundaries in conditions:
-										keyword_index = keywords.index(condition_keyword) + 1
-
 										
-										
-										if condition_boundaries[0] != None and float(numbers[keyword_index]) < float(condition_boundaries[0]):
-											condition_satisfied = False
-											
-
-										if condition_boundaries[1] != None and float(numbers[keyword_index]) > float(condition_boundaries[1]):
-											condition_satisfied = False
-											
-
-
 									
-								except Exception as e:
-									print "ASF", e
-								
-								# if keyword == "jec":
-								# 	print condition_satisfied
+			# except Exception as e:
+			# 	print "Some exception occured!",
+			# 	print e
 
+			end = time.time()
 
-
-								if condition_satisfied:
-
-									x = float(numbers[i + 1]) # + 1 because we ignore the first keyword "Entry".
-
-									if input_file == data_file:	# For data file only.
-
-										if not mod_hist.use_prescale():
-											hist.fill_array( [x] )
-										else:
-											
-											#  Average prescale. 
-
-											# To find which prescale to use, we need to find which trigger fired. 
-											# To do that, we need to find the pT of the hardest jet.
-											
-											prescale_to_use = 0.0
-
-											if pT_of_this_event > 250.:
-												prescale_to_use = 1.0
-											else:
-												for pT_boundaries, prescale in average_prescales.items():
-													
-													lower, upper = pT_boundaries
-
-													if upper != None:
-														if pT_of_this_event > float(lower) and pT_of_this_event < float(upper):
-															prescale_to_use = prescale
-															break
-											
-											hist.fill_array( [x], [prescale_to_use] )	 
-									
-									else:	# MC so always use prescales.
-										# if type()
-										hist.fill_array( [x], [float(numbers[prescale_index])] )
-
-									# if keyword == "hardest_area":
-										# print "Tada"
-										# print [type(x)], [float(numbers[prescale_index])]
-
-			except Exception as e:
-				print "Some exception occured!",
-				print e
+			# print "Took {} seconds for current line.".format(end - start)
 
 	# print "Largest pT was", max(all_pT_s)
-
-
 
 
 	return all_hists, log_hists
 
 
 
-def parse_to_root_file(input_filename, output_filename, hist_templates):
+def parse_from_conditional_files(output_directory, source, all_hists, log_hists):
+	# print output_directory, source, all_hists
 
-	print "Parsing {} to {}".format(input_filename, output_filename)
-	
-	
-	parsed_hists, parsed_log_hists = parse_file( input_filename, copy.deepcopy( hist_templates[0] ), copy.deepcopy(hist_templates[1]) )
 
+	for keyword, mod_hists in all_hists.items():
+		for mod_hist in all_hists[keyword]:
+			
+			conditional_filename = get_conditional_filename(mod_hist.conditions())
+			file_to_read = output_directory + "/" + source + "/conditions/" + conditional_filename + ".dat"
+
+			# Now, read the file.
+
+	
+	pass
+
+
+
+def get_conditional_filename(conditions):
+	conditional_filename = ""
+	for condition in conditions:
+			condition_keyword = condition[0]
+			condition_boundaries = ""
+			for x in condition[1]:
+				condition_boundaries += str(x) + "-"
+
+			
+			conditional_filename += condition_keyword + "-" + condition_boundaries[:-1] + "_"
+
+	conditional_filename = conditional_filename[:-1]
+
+	return conditional_filename    
+
+def filter_events(input_filename, output_directory, source, all_mod_hists, all_mod_log_hists):
+
+	# Get a list of unique conditions.
+
+	all_conditions = set()
+
+	for mod_hist_dicts in all_mod_hists:
+		for keyword, mod_hists in mod_hist_dicts.items():
+			for mod_hist in mod_hist_dicts[keyword]:
+				
+				conditions = mod_hist.conditions()
+
+				all_conditions.add(tuple(conditions))
+
+
+	# Build a keyword dictionary.
+	
+	keywords_index_dictionary = {}
+
+	with open(input_filename) as infile:
+		
+		for line in infile:
+			if len(line.strip()) == 0:
+				continue
+
+			numbers = line.split()
+
+			
+			if numbers[0] == "#":
+
+				keyword_line = numbers[0]
+
+				# Build a dictionary of keyword indices.
+				keywords_index_dictionary = {}
+				for keyword_index, keyword in enumerate(numbers):
+					keywords_index_dictionary[keyword] = keyword_index + 1  # + 1 to offset for 0-counting.
+
+				break
+
+	# Create a new directory in the output_directory.
+	subprocess.call(["mkdir", "-p", "{}/{}/conditions/".format(output_directory, source) ])
+			
+	for conditions in all_conditions:
+
+		if_conditional = "if ( "
+
+		for condition in conditions:
+			
+			# Build corresponding awk from condition.
+			condition_keyword = condition[0]
+			condition_boundaries = condition[1]
+
+			keyword_index = keywords_index_dictionary[condition[0]]
+
+			if condition_boundaries[0] != None and condition_boundaries[1] != None:
+				if_conditional += "${} > {} && ${} < {}".format(keyword_index, float(condition_boundaries[0]), keyword_index, float(condition_boundaries[1])) 
+			elif condition_boundaries[0] != None and condition_boundaries[1] == None:
+				if_conditional += "${} > {}".format(keyword_index, float(condition_boundaries[0]))
+			elif condition_boundaries[0] == None and condition_boundaries[1] != None:
+				if_conditional += "${} < {}".format(keyword_index, float(condition_boundaries[0]))
+
+			if_conditional += " && "
+
+		if_conditional = if_conditional[:-3] + ")"
+
+		# Now, build a filename.
+
+		conditional_filename = get_conditional_filename(conditions)
+		
+		if_conditional = if_conditional + "{ print $0; }"
+		
+		proc = subprocess.Popen("echo '" + keyword_line + "' > " + "{}/{}/conditions/{}.dat".format(output_directory, source, conditional_filename), stdout=subprocess.PIPE, shell=True)
+
+		command = "awk '{" + if_conditional + "}' " + input_filename + " >> " + "{}/{}/conditions/{}.dat".format(output_directory, source, conditional_filename)
+		proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+		output = proc.stdout.read()
+		
+		print command
+		print output
+		
+
+def write_to_root_files(parsed_hists, parsed_log_hists, output_filename):
+	start = time.time()
 
 	f = TFile(output_filename[0], "RECREATE")
 
@@ -350,6 +374,28 @@ def parse_to_root_file(input_filename, output_filename, hist_templates):
 			index += 1
 
 	f.Close()
+
+	end = time.time()
+
+	# print "\n" * 3
+	# print "Took {} seconds to write down to files.".format(end - start)
+
+
+def parse_to_root_file(input_filename, output_filename, hist_templates):
+
+	# print "Parsing {} to {}".format(input_filename, output_filename)
+	
+	
+	start = time.time()
+	parsed_hists, parsed_log_hists = parse_file( input_filename, output_filename, copy.deepcopy( hist_templates[0] ), copy.deepcopy(hist_templates[1]) )
+	# parsed_hists, parsed_log_hists = parse_from_conditional_files( output_directory, source, copy.deepcopy( hist_templates[0] ), copy.deepcopy(hist_templates[1]) )
+	end = time.time()
+
+	
+	# print "Took {} seconds to parse everything- this is where I deepcopy.".format(end - start)
+	write_to_root_files(parsed_hists, parsed_log_hists, output_filename)
+
+	
 
 
 def root_file_to_hist(input_filename, hist_templates, is_this_data):
@@ -396,10 +442,10 @@ def parse_to_root_files():
 	hist_templates = hists.multi_page_plot_hist_templates()
 	log_hist_templates = hists.multi_page_log_plot_hist_templates()
 
-	# parse_to_root_file(input_filename=data_file, output_filename=(output_directory + "data.root", output_directory + "data_log.root"), hist_templates=(hist_templates, log_hist_templates))
-	parse_to_root_file(input_filename=pythia_file, output_filename=(output_directory + "pythia.root", output_directory + "pythia_log.root"), hist_templates=(hist_templates, log_hist_templates))
-	parse_to_root_file(input_filename=herwig_file, output_filename=(output_directory + "herwig.root", output_directory + "herwig_log.root"), hist_templates=(hist_templates, log_hist_templates))
-	parse_to_root_file(input_filename=sherpa_file, output_filename=(output_directory + "sherpa.root", output_directory + "sherpa_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	parse_to_root_file(input_filename=data_file, output_filename=(output_directory + "data.root", output_directory + "data_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	# parse_to_root_file(input_filename=pythia_file, output_filename=(output_directory + "pythia.root", output_directory + "pythia_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	# parse_to_root_file(input_filename=herwig_file, output_filename=(output_directory + "herwig.root", output_directory + "herwig_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	# parse_to_root_file(input_filename=sherpa_file, output_filename=(output_directory + "sherpa.root", output_directory + "sherpa_log.root"), hist_templates=(hist_templates, log_hist_templates))
 
 
 def load_root_files_to_hist(log=False):
@@ -424,8 +470,11 @@ def load_root_files_to_hist(log=False):
 
 if __name__ == "__main__":
 
+	# filter_events(input_filename=pythia_file, output_directory=output_directory, source="pythia", all_mod_hists=(hists.multi_page_plot_hist_templates(), hists.multi_page_log_plot_hist_templates()))
+	
 	# parse_to_root_files()
 
 	# load_root_files_to_hist()
+
 
 	pass

@@ -998,12 +998,12 @@ class MODPlot:
             unit_x_minor_tick_length = abs(ax0.get_xaxis().get_majorticklocs()[1] - ax0.get_xaxis().get_majorticklocs()[0]) /  10
             unit_y_minor_tick_length = abs(ax0.get_yaxis().get_majorticklocs()[1] - ax0.get_yaxis().get_majorticklocs()[0]) /  5
 
-            print ax0.get_yaxis().get_majorticklocs()[1], ax0.get_yaxis().get_majorticklocs()[0]
+            # print ax0.get_yaxis().get_majorticklocs()[1], ax0.get_yaxis().get_majorticklocs()[0]
 
             if marker[2] != None:
                 # Arrows.
                 if marker[2] == "right":
-                    ax0.arrow(marker[0], marker[3], marker[4], 0., transform=self._plt.gcf().transFigure, head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
+                    ax0.arrow(marker[0], marker[3], marker[4], 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
                 elif marker[2] == "left":
                     ax0.arrow(marker[0], marker[3], marker[4], 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
             
