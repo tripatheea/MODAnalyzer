@@ -38,7 +38,7 @@ data_file   = "/media/aashish/opendata_mod/Feb5/analyzed/pristine.dat"
 # data_file   = "/home/aashish/root/macros/MODAnalyzer/test.dat"
 pythia_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/pythia/pythia.dat"
 herwig_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/herwig/herwig.dat"
-sherpa_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/sherpa/part1.dat"
+# sherpa_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/sherpa/part1.dat"
 
 
 pfc_data_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pfc.dat"
@@ -121,7 +121,9 @@ def parse_file(input_file, output_filename, all_hists, log_hists):
 
 					# print keywords_index_dictionary['hardest_pT']
 
-					prescale_index = keywords.index("prescale") + 1
+					prescale_index = keywords.index("prescale") 
+
+					
 
 				elif numbers[0] == "Entry":
 
@@ -130,6 +132,8 @@ def parse_file(input_file, output_filename, all_hists, log_hists):
 
 					# Find out what prescale to use.
 					if input_file == data_file:	# For data file only.
+
+						# print " i am data lol"
 						#  Average prescale. 
 
 						# To find which prescale to use, we need to find which trigger fired. 
@@ -153,8 +157,9 @@ def parse_file(input_file, output_filename, all_hists, log_hists):
 										break
 
 					else:	# MC so always use prescales.
+						# print "and i am a mc",
 						prescale_to_use = float(numbers[prescale_index]) 
-					
+						# print prescale_to_use
 					
 
 
@@ -198,13 +203,8 @@ def parse_file(input_file, output_filename, all_hists, log_hists):
 									# print "i am here"
 									# print keyword, keywords_index_dictionary[keyword]
 									x = float(numbers[keywords_index_dictionary[keyword]]) 
-
-									if not mod_hist.use_prescale():
-										hist.fill_array( [x] )
-									else:
-										# if keyword == 'hardest_eta':
-										# print 'yo', x, prescale_to_use
-										hist.fill_array( [x], [prescale_to_use] )	 
+									
+									hist.fill_array( [x], [prescale_to_use] )	 
 
 													
 										
@@ -442,8 +442,8 @@ def parse_to_root_files():
 	hist_templates = hists.multi_page_plot_hist_templates()
 	log_hist_templates = hists.multi_page_log_plot_hist_templates()
 
-	parse_to_root_file(input_filename=data_file, output_filename=(output_directory + "data.root", output_directory + "data_log.root"), hist_templates=(hist_templates, log_hist_templates))
-	# parse_to_root_file(input_filename=pythia_file, output_filename=(output_directory + "pythia.root", output_directory + "pythia_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	# parse_to_root_file(input_filename=data_file, output_filename=(output_directory + "data.root", output_directory + "data_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	parse_to_root_file(input_filename=pythia_file, output_filename=(output_directory + "pythia.root", output_directory + "pythia_log.root"), hist_templates=(hist_templates, log_hist_templates))
 	# parse_to_root_file(input_filename=herwig_file, output_filename=(output_directory + "herwig.root", output_directory + "herwig_log.root"), hist_templates=(hist_templates, log_hist_templates))
 	# parse_to_root_file(input_filename=sherpa_file, output_filename=(output_directory + "sherpa.root", output_directory + "sherpa_log.root"), hist_templates=(hist_templates, log_hist_templates))
 
@@ -472,7 +472,7 @@ if __name__ == "__main__":
 
 	# filter_events(input_filename=pythia_file, output_directory=output_directory, source="pythia", all_mod_hists=(hists.multi_page_plot_hist_templates(), hists.multi_page_log_plot_hist_templates()))
 	
-	# parse_to_root_files()
+	parse_to_root_files()
 
 	# load_root_files_to_hist()
 

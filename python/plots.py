@@ -212,7 +212,7 @@ start = time.time()
 # create_multi_page_plot(filename=default_dir + "pfc_pT.pdf", hists=compile_hists('pfc_pT', parsed_pfc_hists))
 
 create_multi_page_plot(filename=default_dir + "hardest_jet_pT_all_linear.pdf", hists=compile_hists('hardest_pT', parsed_hists))
-create_data_only_plot(filename=default_dir + "hardest_jet_pT_jec_all_linear.pdf", hists=[ [ parsed_linear[0]['hardest_pT'][i], parsed_linear[0]['uncor_hardest_pT'][i] ] for i in range(len(parsed_linear[0]['uncor_hardest_pT'])) ], labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio to\nCorrected", ratio_to_index=0)
+# create_data_only_plot(filename=default_dir + "hardest_jet_pT_jec_all_linear.pdf", hists=[ [ parsed_linear[0]['hardest_pT'][i], parsed_linear[0]['uncor_hardest_pT'][i] ] for i in range(len(parsed_linear[0]['uncor_hardest_pT'])) ], labels=["Jet Energy Corrected", "Jet Energy Uncorrected"], types=["error", "error"], colors=["black", "orange"], line_styles=[1, 1], ratio_to_label="Ratio to\nCorrected", ratio_to_index=0)
 
 
 # create_multi_page_plot(filename=default_dir + "hardest_jet_phi_all_linear.pdf", hists=compile_hists('hardest_phi', parsed_hists))
@@ -376,7 +376,7 @@ create_data_only_plot(filename=default_dir + "hardest_jet_pT_jec_all_linear.pdf"
 
 
 
-# create_multi_page_plot(filename=default_dir + "basic_sub_mass_all_linear.pdf", hists=compile_hists('mass_pre_SD', parsed_hists))
+create_multi_page_plot(filename=default_dir + "basic_sub_mass_all_linear.pdf", hists=compile_hists('mass_pre_SD', parsed_hists))
 # create_multi_page_plot(filename=default_dir + "basic_sub_mass_track_linear.pdf", hists=compile_hists('track_mass_pre_SD', parsed_hists))
 
 # create_data_only_plot(filename=default_dir + "basic_sub_mass_softdrop_all_linear.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['mass_pre_SD', 'mass_post_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[[], [], [7, 7], [7, 7]], ratio_to_label="Ratio to\nPythia", ratio_to_index={0: 2, 1: 3, 2: 2, 3: 3})
@@ -385,7 +385,7 @@ create_data_only_plot(filename=default_dir + "hardest_jet_pT_jec_all_linear.pdf"
 
 
 
-# create_multi_page_plot(filename=default_dir + "basic_sub_mul_all_linear.pdf", hists=compile_hists('mul_pre_SD', parsed_hists))
+create_multi_page_plot(filename=default_dir + "basic_sub_mul_all_linear.pdf", hists=compile_hists('mul_pre_SD', parsed_hists))
 # create_multi_page_plot(filename=default_dir + "basic_sub_mul_track_linear.pdf", hists=compile_hists('track_mul_pre_SD', parsed_hists))
 
 # create_data_only_plot(filename=default_dir + "basic_sub_mul_softdrop_all_linear.pdf", hists=compile_data_and_pythia([ parsed_hists[0], parsed_hists[2] ], variables=['mul_pre_SD', 'mul_post_SD']), labels=["Before SoftDrop", "After SoftDrop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[[], [], [7, 7], [7, 7]], ratio_to_label="Ratio to\nPythia", ratio_to_index={0: 2, 1: 3, 2: 2, 3: 3})
