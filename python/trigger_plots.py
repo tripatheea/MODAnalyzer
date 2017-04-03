@@ -399,9 +399,9 @@ def trigger_prescales():
 start = time.time()
 
 
-# trigger_turn_on_curves()
+trigger_turn_on_curves()
 
-# trigger_efficiency_plot()
+trigger_efficiency_plot()
 
 trigger_prescales()
 

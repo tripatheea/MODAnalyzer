@@ -59,13 +59,13 @@ def parse_file(input_file, all_hists):
 		for line in infile:
 
 
-			if line_number > 100000:	# Ideal length.
+			# if line_number > 100000:	# Ideal length.
 			# if line_number > 100000000:	# Very Huge.
 			# if line_number > 10000000:	# Huge.
 			# if line_number > 1000000:	# Big enough.
 			# if line_number > 1000:		# Small tests.
 			# if line_number > 30000:		# Small tests.
-			# if False:
+			if False:
 				break
 
 			line_number += 1

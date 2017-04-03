@@ -105,44 +105,44 @@ def multi_page_log_plot_hist_templates():
 	all_hists = {}
 	
 
-	hardest_pT_hist = Hist(np.logspace(math.log(float(5), math.e), math.log(1505, math.e), 150, base=np.e))
-	pT_D_hist = Hist(np.logspace(math.log(float(0.1), math.e), math.log(1, math.e), 75, base=np.e))
+	hardest_pT_hist = Hist(np.logspace(math.log(float(5), math.e), math.log(1505, math.e), 150 + 1, base=np.e))
+	pT_D_hist = Hist(np.logspace(math.log(float(0.1), math.e), math.log(1, math.e), 75 + 1, base=np.e))
 	
 		
-	frac_pT_loss_hist = Hist(np.logspace(math.log(float(0.001), math.e), math.log(1.0, math.e), 50, base=np.e))
-	softkill_pT_loss_hist = Hist(np.logspace(math.log(float(0.0001), math.e), math.log(0.1, math.e), 50, base=np.e))
+	frac_pT_loss_hist = Hist(np.logspace(math.log(float(0.001), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
+	softkill_pT_loss_hist = Hist(np.logspace(math.log(float(0.0001), math.e), math.log(0.1, math.e), 50 + 1, base=np.e))
 
 
-	lha_hist =  Hist(np.logspace(math.log(float(0.1), math.e), math.log(1.0, math.e), 50, base=np.e))
-	width_hist =  Hist(np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 50, base=np.e))
-	thrust_hist =  Hist(np.logspace(math.log(float(0.001), math.e), math.log(1.0, math.e), 50, base=np.e))
+	lha_hist =  Hist(np.logspace(math.log(float(0.1), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
+	width_hist =  Hist(np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
+	thrust_hist =  Hist(np.logspace(math.log(float(0.001), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
 
 
-	zg_10_hist = Hist(np.logspace(math.log(float((0.1**2) / 0.5), math.e), math.log((0.5**2) / 0.1, math.e), (50 * 3 + 1), base=np.e))
-	rg_10_hist = Hist(np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 50, base=np.e))
-	e1_10_hist = Hist(np.logspace(math.log(float(0.001), math.e), math.log(1.0, math.e), 50, base=np.e))
-	e05_10_hist = Hist(np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 50, base=np.e))
-	e2_10_hist = Hist(np.logspace(math.log(float(0.0001), math.e), math.log(1.0, math.e), 50, base=np.e))
-
-
-
-
-
-	zg_05_hist = Hist(np.logspace(math.log(float(0.05), math.e), math.log(0.5, math.e), 50, base=np.e))
-	rg_05_hist = Hist(np.logspace(math.log(float(0.005), math.e), math.log(1.0, math.e), 50, base=np.e))
-	e1_05_hist = Hist(np.logspace(math.log(float(0.0005), math.e), math.log(1.0, math.e), 50, base=np.e))
-	e05_05_hist = Hist(np.logspace(math.log(float(0.005), math.e), math.log(1.0, math.e), 50, base=np.e))
-	e2_05_hist = Hist(np.logspace(math.log(float(0.00005), math.e), math.log(1.0, math.e), 50, base=np.e))
+	zg_10_hist = Hist(np.logspace(math.log(float((0.1**2) / 0.5), math.e), math.log((0.5**2) / 0.1, math.e), (50 * 3 + 1) + 1, base=np.e))
+	rg_10_hist = Hist(np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
+	e1_10_hist = Hist(np.logspace(math.log(float(0.001), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
+	e05_10_hist = Hist(np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
+	e2_10_hist = Hist(np.logspace(math.log(float(0.0001), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
 
 
 
 
 
-	zg_20_hist = Hist(np.logspace(math.log(float(0.2), math.e), math.log(0.5, math.e), 50, base=np.e))
-	rg_20_hist = Hist(np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 50, base=np.e))
-	e1_20_hist = Hist(np.logspace(math.log(float(0.001), math.e), math.log(1.0, math.e), 50, base=np.e))
-	e05_20_hist = Hist(np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 50, base=np.e))
-	e2_20_hist = Hist(np.logspace(math.log(float(0.0001), math.e), math.log(1.0, math.e), 50, base=np.e))
+	zg_05_hist = Hist(np.logspace(math.log(float(0.05), math.e), math.log(0.5, math.e), 50 + 1, base=np.e))
+	rg_05_hist = Hist(np.logspace(math.log(float(0.005), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
+	e1_05_hist = Hist(np.logspace(math.log(float(0.0005), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
+	e05_05_hist = Hist(np.logspace(math.log(float(0.005), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
+	e2_05_hist = Hist(np.logspace(math.log(float(0.00005), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
+
+
+
+
+
+	zg_20_hist = Hist(np.logspace(math.log(float(0.2), math.e), math.log(0.5, math.e), 50 + 1, base=np.e))
+	rg_20_hist = Hist(np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
+	e1_20_hist = Hist(np.logspace(math.log(float(0.001), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
+	e05_20_hist = Hist(np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
+	e2_20_hist = Hist(np.logspace(math.log(float(0.0001), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
 
 
 	pT_boundaries = [85, 115, 150, 200, 250]
@@ -1509,7 +1509,7 @@ def multi_page_plot_hist_templates():
 	all_hists['mul_post_SD'].append( MODHist(copy.deepcopy(constituent_mul_hist), conditions=default_85_conditions, use_prescale=True, x_label="Constituent Multiplicity", y_label="Probability Density", additional_text=additional_text ) ) 
 
 	additional_text = [ ( big_5_mid_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; \left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
-	all_hists['mul_post_SD'].append( MODHist(copy.deepcopy(constituent_mul_hist), conditions=default_150_conditions, use_prescale=True, x_label="Constituent Multiplicity", y_range=(0., 0.065), y_label="Probability Density", additional_text=additional_text ) ) 
+	all_hists['mul_post_SD'].append( MODHist(copy.deepcopy(constituent_mul_hist), conditions=default_150_conditions, use_prescale=True, x_label="Constituent Multiplicity", x_range=(0, 60), y_range=(0., 0.065), y_label="Probability Density", additional_text=additional_text ) ) 
 
 	additional_text = [ ( big_5_mid_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 250~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['mul_post_SD'].append( MODHist(copy.deepcopy(constituent_mul_hist), conditions=default_250_conditions, use_prescale=True, x_label="Constituent Multiplicity", y_label="Probability Density", additional_text=additional_text ) ) 
@@ -1522,7 +1522,7 @@ def multi_page_plot_hist_templates():
 	all_hists['track_mul_post_SD'].append( MODHist(copy.deepcopy(track_constituent_mul_hist), conditions=default_85_conditions, use_prescale=True, x_label="Track Multiplicity", y_label="Probability Density", additional_text=additional_text ) ) 
 
 	additional_text = [ ( big_5_mid_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; \left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
-	all_hists['track_mul_post_SD'].append( MODHist(copy.deepcopy(track_constituent_mul_hist), conditions=default_150_conditions, use_prescale=True, y_range=(0., 0.085), x_label="Track Multiplicity", y_label="Probability Density", additional_text=additional_text ) ) 
+	all_hists['track_mul_post_SD'].append( MODHist(copy.deepcopy(track_constituent_mul_hist), conditions=default_150_conditions, use_prescale=True, x_range=(0, 40), y_range=(0., 0.085), x_label="Track Multiplicity", y_label="Probability Density", additional_text=additional_text ) ) 
 
 	additional_text = [ ( big_5_mid_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 250~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['track_mul_post_SD'].append( MODHist(copy.deepcopy(track_constituent_mul_hist), conditions=default_250_conditions, use_prescale=True, x_label="Track Multiplicity", y_label="Probability Density", additional_text=additional_text ) ) 
