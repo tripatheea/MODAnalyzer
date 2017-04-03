@@ -129,9 +129,6 @@ def trigger_turn_on_curves():
 
 	mod_hists = parsed_linear[0]
 
-	for a in range(mod_hists['Jet70U'].hist().nbins()):
-		print mod_hists['Jet70U'].hist().GetBinContent(a)
-
 	colors = ['green', 'magenta', 'blue', 'red', 'orange', '#cecece']
 	labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15\_HNF" ]
 	hist_labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U", "Jet15U_HcalNoiseFiltered" ]
@@ -140,10 +137,6 @@ def trigger_turn_on_curves():
 
 	for i in range(len(hist_labels)):
 		
-		
-
-		print hist_labels[i]
-
 		# hist = normalize_hist( mod_hists[hist_labels[i]].hist() )
 		hist = mod_hists[hist_labels[i]].hist()
 
@@ -153,11 +146,9 @@ def trigger_turn_on_curves():
 		for j in range(n_bins):
 			current_bin_x = hist.GetBinCenter(j)
 			current_bin_y = hist.GetBinContent(j),
-			# print 
+			
 			if current_bin_x < lower_pTs[i]:
-				# print "here"
-				pass
-				# hist.SetBinContent(j, 0.)
+				hist.SetBinContent(j, 0.)
 
 
 		hist.SetColor(colors[i])
@@ -184,13 +175,10 @@ def trigger_turn_on_curves():
 
 	handles, labels = plt.gca().get_legend_handles_labels()
 
-	print "works upto here"
 
-	# legend = plt.legend(handles[::-1], labels[::-1], frameon=0, fontsize=60, bbox_to_anchor=[0.97, 0.99])
+	legend = plt.legend(handles[::-1], labels[::-1], frameon=0, fontsize=60, bbox_to_anchor=[0.97, 0.99])
 
-	print "fine"
-
-	# ax = plt.gca().add_artist(legend)
+	ax = plt.gca().add_artist(legend)
 
 
 	plt.autoscale()
@@ -233,38 +221,31 @@ def trigger_efficiency_plot():
 		ratio_hist.SetColor(colors[i])
 		ratio_hist.SetTitle(labels[i])
 
-		rplt.errorbar(ratio_hist, emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
-		# plots.append( rplt.errorbar(ratio_hist, emptybins=False, alpha=1.) )
-		# plots.append( rplt.errorbar(ratio_hist, emptybins=True, alpha=0.) )
+		# rplt.errorbar(ratio_hist, emptybins=False, xerr=1, yerr=1, ls='None', marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5, alpha=1.0)
+		plots.append( rplt.errorbar(ratio_hist, emptybins=True, alpha=0.) )
 
 
-	# for i in range(len(plots)):
-	#     data_plot = plots[i]
+	for i in range(len(plots)):
+	    data_plot = plots[i]
 
+	    data_x_errors, data_y_errors = [], []
+	    for x_segment in data_plot[2][0].get_segments():
+	      data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
+	    for y_segment in data_plot[2][1].get_segments():
+	      data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
 
-	#     print data_plot
-	#     print data_plot[0], data_plot[1], data_plot[2]
+	    data_points_x = data_plot[0].get_xdata()
+	    data_points_y = data_plot[0].get_ydata()
 
+	    filtered_x, filtered_y, filtered_x_err, filtered_y_err = [], [], [], []
+	    for x, y, xerr, yerr in zip(data_points_x, data_points_y, data_x_errors, data_y_errors):
+	      if x > lower_pTs[i]:
+	        filtered_x.append(x)
+	        filtered_y.append(y)
+	        filtered_x_err.append(xerr)
+	        filtered_y_err.append(yerr)
 
-
-	#     data_x_errors, data_y_errors = [], []
-	#     for x_segment in data_plot[2][0].get_segments():
-	#       data_x_errors.append((x_segment[1][0] - x_segment[0][0]) / 2.)
-	#     for y_segment in data_plot[2][1].get_segments():
-	#       data_y_errors.append((y_segment[1][1] - y_segment[0][1]) / 2.)
-
-	#     data_points_x = data_plot[0].get_xdata()
-	#     data_points_y = data_plot[0].get_ydata()
-
-	#     filtered_x, filtered_y, filtered_x_err, filtered_y_err = [], [], [], []
-	#     for x, y, xerr, yerr in zip(data_points_x, data_points_y, data_x_errors, data_y_errors):
-	#       if x > lower_pTs[i]:
-	#         filtered_x.append(x)
-	#         filtered_y.append(y)
-	#         filtered_x_err.append(xerr)
-	#         filtered_y_err.append(yerr)
-
-	#     plt.errorbar(filtered_x, filtered_y, zorder=range(len(plots))[len(plots) - i - 1], color=colors[i], markeredgecolor=colors[i], label=labels[i], xerr=filtered_x_err, yerr=filtered_y_err, ls='None', alpha=1.0, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
+	    plt.errorbar(filtered_x, filtered_y, zorder=range(len(plots))[len(plots) - i - 1], color=colors[i], markeredgecolor=colors[i], label=labels[i], xerr=filtered_x_err, yerr=filtered_y_err, ls='None', alpha=1.0, marker='o', markersize=10, pickradius=8, capthick=5, capsize=8, elinewidth=5)
 
 
 	extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
@@ -334,7 +315,8 @@ def trigger_prescales():
 
 	prescale_hists = {}
 	for key, value in mod_hists.items():
-		prescale_hists[key.split("_prescale")[0]] = value
+		if "prescale" in key:
+			prescale_hists[key.split("_prescale")[0]] = value
 
 
 
@@ -343,8 +325,6 @@ def trigger_prescales():
 	legend_labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U"][::-1]
 	hist_labels = ["Jet140U", "Jet100U", "Jet70U", "Jet50U", "Jet30U" ][::-1]
 	
-	# rplt.hist(mod_hists[0].hist())
-
 
 	plots = []
 	for i in range(len(hist_labels) ):
@@ -419,11 +399,11 @@ def trigger_prescales():
 start = time.time()
 
 
-trigger_turn_on_curves()
+# trigger_turn_on_curves()
 
 # trigger_efficiency_plot()
 
-# trigger_prescales()
+trigger_prescales()
 
 end = time.time()
 
