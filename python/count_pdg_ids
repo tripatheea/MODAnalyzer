@@ -1,0 +1,1 @@
+awk '{ if($1 != "#") { if($4 > 85.0 && $5 > -2.4 && $5 < 2.4) { s[$7]++; if ($6 > 1.0) { t[$7]++; } } } } END {for (word in s) print word, "=>", s[word], t[word] }'

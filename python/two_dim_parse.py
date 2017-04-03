@@ -23,9 +23,9 @@ import rootpy.plotting.root2matplotlib as rplt
 output_directory = "/media/aashish/opendata_mod/Feb5/histogrammed/2d/"
 
 data_file   = "/media/aashish/opendata_mod/Feb5/analyzed/pristine.dat"
-# pythia_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pythia.dat"
-# herwig_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/herwig.dat"
-# sherpa_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/sherpa.dat"
+pythia_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/pythia/pythia.dat"
+herwig_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/herwig/herwig.dat"
+sherpa_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/sherpa/sherpa.dat"
 
 
 average_prescales = {}
@@ -419,10 +419,10 @@ def parse_to_root_files():
 	hist_templates = hists.two_dim_hists()
 	log_hist_templates = hists.two_dim_log_hists()
 
-	parse_to_root_file(input_filename=data_file, output_filename=(output_directory + "2d_data.root", output_directory + "2d_data_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	# parse_to_root_file(input_filename=data_file, output_filename=(output_directory + "2d_data.root", output_directory + "2d_data_log.root"), hist_templates=(hist_templates, log_hist_templates))
 	# parse_to_root_file(input_filename=pythia_file, output_filename=(output_directory + "2d_pythia.root", output_directory + "2d_pythia_log.root"), hist_templates=(hist_templates, log_hist_templates))
 	# parse_to_root_file(input_filename=herwig_file, output_filename=(output_directory + "2d_herwig.root", output_directory + "2d_herwig_log.root"), hist_templates=(hist_templates, log_hist_templates))
-	# parse_to_root_file(input_filename=sherpa_file, output_filename=(output_directory + "2d_sherpa.root", output_directory + "2d_sherpa_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	parse_to_root_file(input_filename=sherpa_file, output_filename=(output_directory + "2d_sherpa.root", output_directory + "2d_sherpa_log.root"), hist_templates=(hist_templates, log_hist_templates))
 
 	# parse_to_root_file(input_filename=data_file, output_filename=output_directory + "2d_data_log.root", hist_templates=log_hist_templates)
 	# parse_to_root_file(input_filename=pythia_file, output_filename=output_directory + "2d_pythia_log.root", hist_templates=log_hist_templates)

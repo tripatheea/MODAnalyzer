@@ -67,7 +67,7 @@ import rootpy.plotting.views
 
 
 logo_location = "/home/aashish/root/macros/MODAnalyzer/mod_logo.png"
-logo_text = "v1.2"
+logo_text = "v1.3"
 
 
 
@@ -145,8 +145,10 @@ class MODPlot:
 
         logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
 
-        anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.159, 1.0], bbox_transform = plt.gcf().transFigure)
-        # anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.104, 1.0], bbox_transform = plt.gcf().transFigure)
+        if "Area" in self._x_label or "JEC" in self._x_label:
+            anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.104, 1.0], bbox_transform = plt.gcf().transFigure)
+        else:
+            anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.159, 1.0], bbox_transform = plt.gcf().transFigure)
 
         return anchored_box
         
@@ -280,7 +282,7 @@ class MODPlot:
         z_cut = float(self._hists[0].additional_text()[0][2].split("=")[-1].split("$")[0])
 
         # print " cut at ", max(1.0, z_cut ** (1 - 0.5)) * (lambda_value / (lower_pT * R))**0.5, "... ",
-        print var
+        # print var
 
         if "e_g^{(0.5)}" in var:
             # print "correct"
@@ -469,6 +471,7 @@ class MODPlot:
 
         if self._y_scale == 'log':
             ax0.set_yscale('log')
+            pass
 
 
         # Ratio plot.
@@ -785,7 +788,15 @@ class MODPlot:
         #to shift by this amount after we align to the right
         shift = max([t.get_window_extent(plt.gcf().canvas.get_renderer()).width for t in legend.get_texts()])
 
-        for position, anchor_location, text in self._hists[0].additional_text():
+
+
+        
+        if "Soft Drop" in self._plot_labels[0]:
+            additional_text =  self._hists[1].additional_text()
+        else:
+            additional_text = self._hists[0].additional_text()
+
+        for position, anchor_location, text in additional_text:
             texts = text.split("\n")
             additional_info = ax0.legend( [extra] * len(texts), texts, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=position, loc=anchor_location)
 
@@ -988,12 +999,23 @@ class MODPlot:
         if self._ratio_plot:
             ax1.yaxis.set_minor_locator(MultipleLocator(0.1))
 
+
+        def convert_to_axes_coordinates(x, y):
+            x_bounds, y_bounds = ax0.get_xlim(), ax0.get_ylim()
+            return (x - x_bounds[0]) / (x_bounds[1] - x_bounds[0]), (y - y_bounds[0]) / (y_bounds[1] - y_bounds[0])
+
+
+
+
         # Any possible markers.
         for marker in self._mark_regions:
 
             # print marker
 
-            ax0.plot([marker[0], marker[0]], [ax0.get_ylim()[0], marker[1] ], zorder=9999, color='red', linewidth=8, linestyle="dashed")
+            if "Area" in self._x_label:
+                ax0.plot([marker[0], marker[0]], [2, marker[1] ], zorder=9999, color='red', linewidth=8, linestyle="dashed")
+            else:
+                ax0.plot([marker[0], marker[0]], [ax0.get_ylim()[0], marker[1] ], zorder=9999, color='red', linewidth=8, linestyle="dashed")
 
             unit_x_minor_tick_length = abs(ax0.get_xaxis().get_majorticklocs()[1] - ax0.get_xaxis().get_majorticklocs()[0]) /  10
             unit_y_minor_tick_length = abs(ax0.get_yaxis().get_majorticklocs()[1] - ax0.get_yaxis().get_majorticklocs()[0]) /  5
@@ -1003,13 +1025,33 @@ class MODPlot:
             if marker[2] != None:
                 # Arrows.
                 if marker[2] == "right":
-                    ax0.arrow(marker[0], marker[3], marker[4], 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
+                    
+                    if self._y_scale == 'log':
+                        # ax0.arrow(marker[0], fy(marker[3]), marker[4], 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red', transform=ax0.transAxes)
+                        # ax0.arrow(marker[0], fy(marker[3]), marker[4], 0., fc='red', ec='red', transform=ax0.transAxes)
+                        # ax0.arrow(marker[0], marker[3], marker[4], 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
+                        
+                        x_o, y_o = convert_to_axes_coordinates(marker[0], marker[3])
+                        delta_x, delta_y = convert_to_axes_coordinates(marker[4], 0)
+
+                        ax0.arrow(x_o, y_o, delta_x, delta_y, fc='red', ec='red', head_length=0.02, head_width=0.03, transform=ax0.transAxes)
+                    
+                    else:
+                        ax0.arrow(marker[0], marker[3], marker[4], 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
+
                 elif marker[2] == "left":
-                    ax0.arrow(marker[0], marker[3], marker[4], 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
+                    
+                    if self._y_scale == 'log':
+                        x_o, y_o = convert_to_axes_coordinates(marker[0], marker[3])
+                        delta_x, delta_y = convert_to_axes_coordinates(marker[4], 0)
+                        
+                        ax0.arrow(marker[0], marker[3], marker[4], 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red', transform=ax0.transAxes)
+                    else:
+                        ax0.arrow(marker[0], marker[3], marker[4], 0., head_width=unit_y_minor_tick_length, head_length=unit_x_minor_tick_length, fc='red', ec='red')
             
 
             if "Area" in self._x_label:
-                ax0.text(marker[0], marker[1], "$\pi \mathrm{R}^2$", color='red', fontsize=75, horizontalalignment='center')
+                ax0.text(marker[0], 1., "$\pi \mathrm{R}^2$", color='red', fontsize=75, horizontalalignment='center')
           
 
         self._plt.gcf().set_snap(True)

@@ -17,7 +17,7 @@
 using namespace std;
 using namespace fastjet;
 
-void convert_to_one_jet(MOD::Event & event_being_read, ofstream & output_file);
+bool convert_to_one_jet(MOD::Event & event_being_read, ofstream & output_file);
 
 int main(int argc, char * argv[]) {
    
@@ -67,12 +67,16 @@ int main(int argc, char * argv[]) {
 
       
       if (event_being_read.assigned_trigger_fired()) {
-         convert_to_one_jet(event_being_read, output_file);
+         bool result = convert_to_one_jet(event_being_read, output_file);
+
+         if (result) {
+            event_serial_number++;
+         }
       }   
    
 
       event_being_read = MOD::Event();
-      event_serial_number++;
+      
    }
 
    auto finish = std::chrono::steady_clock::now();
@@ -90,15 +94,16 @@ int main(int argc, char * argv[]) {
 }
 
 
-void convert_to_one_jet(MOD::Event & event_being_read, ofstream & output_file) {
+bool convert_to_one_jet(MOD::Event & event_being_read, ofstream & output_file) {
 
    PseudoJet trigger_jet = event_being_read.trigger_jet();
 
-   event_being_read.convert_to_one_jet();
-
-
    if (event_being_read.is_trigger_jet_matched() && (trigger_jet.user_info<MOD::InfoCalibratedJet>().jet_quality() >= 1)) {   // Jet quality level: FAILED = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3      
+      event_being_read.convert_to_one_jet();
       output_file << event_being_read;
+      return true;
    }
+
+   return false;
    
 }

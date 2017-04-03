@@ -244,7 +244,7 @@ def plot_integrated_recorded_lumi(cumulative=False):
     logo = [0.053, 0.985]
 
   logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-  text_box = TextArea("v1.2", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+  text_box = TextArea("v1.3", textprops=dict(color='#444444', fontsize=50, weight='bold'))
   logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
   anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=logo, bbox_transform = plt.gcf().transFigure)
 

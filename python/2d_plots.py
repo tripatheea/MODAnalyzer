@@ -94,7 +94,7 @@ default_dir = "plots/Version 6/"
 
 
 logo_location = "/home/aashish/root/macros/MODAnalyzer/mod_logo.png"
-logo_text = "v1.2"
+logo_text = "v1.3"
 
 
 
@@ -204,23 +204,30 @@ def two_dim_plots(track=False):
 
 				
 
-				label = []
+		
 				if upper != 100000.:
-					# $p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$
-					label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$\n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+					# $p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$
+					label = "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$\n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" 
 				else:
-					label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$\n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} >" + str(lower) + "~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+					label = "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$\n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} >" + str(lower) + "~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$"
 
 				extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-			
-				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[0.98, 0.98], loc="upper right")
+				
+				labels = label.split("\n")
+				additional_legend = plt.gca().legend( [extra] * len(labels), labels, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[0.95, 0.98], loc="upper right")
 				plt.gca().add_artist(additional_legend)
+
+				shift = max([t.get_window_extent(plt.gcf().canvas.get_renderer()).width for t in additional_legend.get_texts()])
+				
+				for t in additional_legend.get_texts():
+					t.set_ha('right') # ha is alias for horizontalalignment
+					t.set_position((shift,0))
 
 
 				# Data Source Label.
 				label = []
 				label.extend( [source_label] ) 
-				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=60, bbox_to_anchor=[1.02, 1.12], loc="upper right")	
+				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=60, bbox_to_anchor=[1.02, 1.08], loc="upper right")	
 				plt.gca().add_artist(additional_legend)
 
 
@@ -250,7 +257,12 @@ def two_dim_plots(track=False):
 				logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
 				text_box = TextArea(logo_text, textprops=dict(color='#444444', fontsize=50, weight='bold'))
 				logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
-				anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.086, 1.0], bbox_transform = plt.gcf().transFigure)
+				
+				if track:
+					anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.109, 0.985], bbox_transform = plt.gcf().transFigure)
+				else:
+					anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.086, 0.985], bbox_transform = plt.gcf().transFigure)
+
 				plt.gca().add_artist(anchored_box)
 
 				plt.gcf().set_size_inches(30, 25, forward=1)
@@ -383,22 +395,25 @@ def two_dim_log_plots(track=False):
 
 				label = []
 				if upper != 100000.:
-					# $p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$
-					label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$\n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+					# $p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} \in [" + str(pT_boundaries[i]) + ", " + str(pT_boundaries[i + 1]) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$
+					label = "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} \in [" + str(lower) + ", " + str(upper) + "]~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$"
 				else:
-					label.extend( ["$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$\n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} >" + str(lower) + "~\mathrm{GeV}$ \n SD: $\\beta = 0; z_{\mathrm{cut}} = 0.1$"] ) 
+					label = "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} >" + str(lower) + "~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$"
 
 				extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
 			
-				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[1.32, 0.00], loc="lower right")	
+				labels = label.split("\n")
+				additional_legend = plt.gca().legend( [extra] * len(labels), labels, frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=[1.32, 0.00], loc="lower right")	
+				
 				plt.gca().add_artist(additional_legend)
+				
 				for t in additional_legend.get_texts():
 					t.set_ha('right') # ha is alias for horizontalalignment
 
 				# Data Source Label.
 				label = []
 				label.extend( [source_label] ) 
-				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=60, bbox_to_anchor=[1.02, 1.12], loc="upper right")	
+				additional_legend = plt.gca().legend( [extra] * len(label), label, frameon=0, borderpad=0, fontsize=60, bbox_to_anchor=[1.02, 1.08], loc="upper right")	
 				plt.gca().add_artist(additional_legend)
 
 				if track:
@@ -429,7 +444,12 @@ def two_dim_log_plots(track=False):
 				logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
 				text_box = TextArea(logo_text, textprops=dict(color='#444444', fontsize=50, weight='bold'))
 				logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
-				anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.100, 1.0], bbox_transform = plt.gcf().transFigure)
+				
+				if track:
+					anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.127, 0.985], bbox_transform = plt.gcf().transFigure)
+				else:
+					anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=[0.104, 0.985], bbox_transform = plt.gcf().transFigure)
+
 				plt.gca().add_artist(anchored_box)
 
 				plt.gcf().set_size_inches(30, 25, forward=1)
@@ -452,9 +472,9 @@ start = time.time()
 
 
 # two_dim_plots(track=False)
-two_dim_plots(track=True)
+# two_dim_plots(track=True)
 
-# two_dim_log_plots(track=False)
+two_dim_log_plots(track=False)
 two_dim_log_plots(track=True)
 
 end = time.time()

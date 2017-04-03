@@ -6,6 +6,8 @@ import sys
 import hists
 
 import subprocess
+import os.path
+
 from MODPlot import *
 
 
@@ -22,7 +24,8 @@ import rootpy.plotting.root2matplotlib as rplt
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/"
 # output_directory = "/home/aashish/Feb22/"
 # output_directory = "/media/aashish/opendata_mod/Feb5/histogrammed/pristine/"
-output_directory = "/media/aashish/opendata_mod/Feb5/histogrammed/pristine/"
+output_directory = "/media/aashish/opendata_mod/Feb5/histogrammed/"
+# output_directory = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/sherpa/"
 
 
 
@@ -38,7 +41,8 @@ data_file   = "/media/aashish/opendata_mod/Feb5/analyzed/pristine.dat"
 # data_file   = "/home/aashish/root/macros/MODAnalyzer/test.dat"
 pythia_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/pythia/pythia.dat"
 herwig_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/herwig/herwig.dat"
-# sherpa_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/sherpa/part1.dat"
+# sherpa_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/sherpa/sherpa.dat"
+sherpa_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/sherpa/sherpa_2_3_4_5_6_7.dat"
 
 
 pfc_data_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/analyzed/pfc.dat"
@@ -104,8 +108,8 @@ def parse_file(input_file, output_filename, all_hists, log_hists):
 				print "At line number {}".format(line_number)
 				write_to_root_files(all_hists, log_hists, output_filename)
 
-			# try:
-			if True:
+			try:
+			# if True:
 				numbers = line.split()
 
 				if numbers[0] == "#" and (not keywords_set):
@@ -209,9 +213,9 @@ def parse_file(input_file, output_filename, all_hists, log_hists):
 													
 										
 									
-			# except Exception as e:
-			# 	print "Some exception occured!",
-			# 	print e
+			except Exception as e:
+				print "Some exception occured!",
+				print e
 
 			end = time.time()
 
@@ -385,10 +389,31 @@ def parse_to_root_file(input_filename, output_filename, hist_templates):
 
 	# print "Parsing {} to {}".format(input_filename, output_filename)
 	
+	# First, get the already histogrammed hists.
 	
+
+	if os.path.exists(output_filename[0]) and os.path.exists(output_filename[1]):
+
+
+		if "pythia" in input_filename or "herwig" in input_filename or "sherpa" in input_filename:
+			is_this_data = False
+		else:
+			is_this_data = True
+
+		hists = root_file_to_hist(output_filename[0], hist_templates[0], is_this_data)
+		log_hists = root_file_to_hist(output_filename[1], hist_templates[1], is_this_data)
+	else:
+		hists, log_hists = copy.deepcopy(hist_templates[0]), copy.deepcopy(hist_templates[1])
+
 	start = time.time()
-	parsed_hists, parsed_log_hists = parse_file( input_filename, output_filename, copy.deepcopy( hist_templates[0] ), copy.deepcopy(hist_templates[1]) )
+	
+	print "Is this data?", is_this_data
+
+	parsed_hists, parsed_log_hists = parse_file( input_filename, output_filename, hists, log_hists )
+	
 	# parsed_hists, parsed_log_hists = parse_from_conditional_files( output_directory, source, copy.deepcopy( hist_templates[0] ), copy.deepcopy(hist_templates[1]) )
+	
+
 	end = time.time()
 
 	
@@ -443,9 +468,9 @@ def parse_to_root_files():
 	log_hist_templates = hists.multi_page_log_plot_hist_templates()
 
 	# parse_to_root_file(input_filename=data_file, output_filename=(output_directory + "data.root", output_directory + "data_log.root"), hist_templates=(hist_templates, log_hist_templates))
-	parse_to_root_file(input_filename=pythia_file, output_filename=(output_directory + "pythia.root", output_directory + "pythia_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	# parse_to_root_file(input_filename=pythia_file, output_filename=(output_directory + "pythia.root", output_directory + "pythia_log.root"), hist_templates=(hist_templates, log_hist_templates))
 	# parse_to_root_file(input_filename=herwig_file, output_filename=(output_directory + "herwig.root", output_directory + "herwig_log.root"), hist_templates=(hist_templates, log_hist_templates))
-	# parse_to_root_file(input_filename=sherpa_file, output_filename=(output_directory + "sherpa.root", output_directory + "sherpa_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	parse_to_root_file(input_filename=sherpa_file, output_filename=(output_directory + "sherpa.root", output_directory + "sherpa_log.root"), hist_templates=(hist_templates, log_hist_templates))
 
 
 def load_root_files_to_hist(log=False):
@@ -453,12 +478,14 @@ def load_root_files_to_hist(log=False):
 	if not log:
 		hist_templates = hists.multi_page_plot_hist_templates()
 		filenames = ["data.root", "pythia.root", "herwig.root", "sherpa.root"]
+		# filenames = ["data.root", "pythia.root", "sherpa.root", "sherpa.root"]
 		# filenames = ["data.root", "pythia.root", "herwig.root", "pythia.root"]
 		# filenames = ["data.root", "data.root", "data.root", "data.root"]
 		# filenames = ["pt.root", "pt.root", "pt.root", "pt.root"]
 	else:
 		hist_templates = hists.multi_page_log_plot_hist_templates()
 		filenames = ["data_log.root", "pythia_log.root", "herwig_log.root", "sherpa_log.root"]
+		# filenames = ["data_log.root", "pythia_log.root", "sherpa_log.root", "sherpa_log.root"]
 		# filenames = ["data_log.root", "pythia_log.root", "pythia_log.root", "pythia_log.root"]
 		# filenames = ["data_log.root", "data_log.root", "data_log.root", "data_log.root"]
 		# filenames = ["pt.root", "pt.root", "pt.root", "pt.root"]

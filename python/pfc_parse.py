@@ -22,8 +22,8 @@ output_directory = "/media/aashish/opendata_mod/Feb5/histogrammed/"
 
 pfc_data_file = "/media/aashish/opendata_mod/Feb5/analyzed/pfc.dat"
 pfc_pythia_file = "/media/aashish/opendata_mod/Feb5/analyzed/pythia_pfc.dat"
-pfc_herwig_file = "/media/aashish/opendata_mod/Feb5/analyzed/herwig_pfc.dat"
-pfc_sherpa_file = "/media/aashish/opendata_mod/Feb5/analyzed/sherpa_pfc.dat"
+pfc_herwig_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/herwig/pfc/1.dat"
+pfc_sherpa_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/sherpa/pfc/1.dat"
 
 average_prescales = {}
 
@@ -253,17 +253,17 @@ def parse_pfc_to_root_files():
 	hist_templates = hists.get_pfc_hists()
 
 	# parse_to_root_file(input_filename=pfc_data_file, output_filename=output_directory + "data_pfc.root", hist_templates=hist_templates)
-	parse_to_root_file(input_filename=pfc_pythia_file, output_filename=output_directory + "pythia_pfc.root", hist_templates=hist_templates)
+	# parse_to_root_file(input_filename=pfc_pythia_file, output_filename=output_directory + "pythia_pfc.root", hist_templates=hist_templates)
 	# parse_to_root_file(input_filename=pfc_herwig_file, output_filename=output_directory + "herwig_pfc.root", hist_templates=hist_templates)
-	# parse_to_root_file(input_filename=pfc_sherpa_file, output_filename=output_directory + "sherpa_pfc.root", hist_templates=hist_templates)
+	parse_to_root_file(input_filename=pfc_sherpa_file, output_filename=output_directory + "sherpa_pfc.root", hist_templates=hist_templates)
 
 
 def load_pfc_root_files_to_hist():
 	hist_templates = hists.get_pfc_hists()
 	
-	# filenames = ['data_pfc.root', 'pythia_pfc.root', 'herwig_pfc.root', 'sherpa_pfc.root']
+	filenames = ['data_pfc.root', 'pythia_pfc.root', 'herwig_pfc.root', 'sherpa_pfc.root']
 	# filenames = ['data_pfc.root', 'data_pfc.root', 'data_pfc.root', 'data_pfc.root']
-	filenames = ['data_pfc.root', 'pythia_pfc.root', 'pythia_pfc.root', 'pythia_pfc.root']
+	# filenames = ['data_pfc.root', 'pythia_pfc.root', 'pythia_pfc.root', 'pythia_pfc.root']
 
 	return  [ root_file_to_hist(output_directory + filename, hist_templates) for filename in filenames ] 
 
@@ -276,6 +276,6 @@ if __name__ == "__main__":
 
 	# load_root_files_to_hist()
 
-	parse_pfc_to_root_files()
+	# parse_pfc_to_root_files()
 
 	pass
