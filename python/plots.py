@@ -401,11 +401,13 @@ start = time.time()
 
 
 
-create_multi_page_plot(filename=default_dir + "basic_sub_lha_all_log.pdf", hists=compile_hists('LHA_pre_SD', parsed_log_hists), x_scale='log')
+
+
+# create_multi_page_plot(filename=default_dir + "basic_sub_lha_all_log.pdf", hists=compile_hists('LHA_pre_SD', parsed_log_hists), x_scale='log')
 # create_multi_page_plot(filename=default_dir + "basic_sub_lha_track_log.pdf", hists=compile_hists('track_LHA_pre_SD', parsed_log_hists), x_scale='log')
 
-# create_data_only_plot(filename=default_dir + "basic_sub_lha_softdrop_all_log.pdf", hists=compile_data_and_pythia([ parsed_log_hists[0], parsed_log_hists[2] ], variables=['LHA_pre_SD', 'LHA_post_SD']), labels=["Before Soft Drop", "After Soft Drop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[[], [], [7, 7], [7, 7]], ratio_to_label="Ratio to\nPythia", ratio_to_index={0: 2, 1: 3, 2: 2, 3: 3})
-# create_data_only_plot(filename=default_dir + "basic_sub_lha_softdrop_track_log.pdf", hists=compile_data_and_pythia([ parsed_log_hists[0], parsed_log_hists[2] ], variables=['track_LHA_pre_SD', 'track_LHA_post_SD']), labels=["Before Soft Drop", "After Soft Drop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[[], [], [7, 7], [7, 7]], ratio_to_label="Ratio to\nPythia", ratio_to_index={0: 2, 1: 3, 2: 2, 3: 3})
+create_data_only_plot(filename=default_dir + "basic_sub_lha_softdrop_all_log.pdf", hists=compile_data_and_pythia([ parsed_log_hists[0], parsed_log_hists[2] ], variables=['LHA_pre_SD', 'LHA_post_SD']), labels=["Before Soft Drop", "After Soft Drop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[[], [], [7, 7], [7, 7]], ratio_to_label="Ratio to\nPythia", ratio_to_index={0: 2, 1: 3, 2: 2, 3: 3})
+create_data_only_plot(filename=default_dir + "basic_sub_lha_softdrop_track_log.pdf", hists=compile_data_and_pythia([ parsed_log_hists[0], parsed_log_hists[2] ], variables=['track_LHA_pre_SD', 'track_LHA_post_SD']), labels=["Before Soft Drop", "After Soft Drop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[[], [], [7, 7], [7, 7]], ratio_to_label="Ratio to\nPythia", ratio_to_index={0: 2, 1: 3, 2: 2, 3: 3})
 
 
 
@@ -413,8 +415,8 @@ create_multi_page_plot(filename=default_dir + "basic_sub_lha_all_log.pdf", hists
 # create_multi_page_plot(filename=default_dir + "basic_sub_width_all_log.pdf", hists=compile_hists('width_pre_SD', parsed_log_hists), x_scale='log')
 # create_multi_page_plot(filename=default_dir + "basic_sub_width_track_log.pdf", hists=compile_hists('track_width_pre_SD', parsed_log_hists), x_scale='log')
 
-# create_data_only_plot(filename=default_dir + "basic_sub_width_softdrop_all_log.pdf", hists=compile_data_and_pythia([ parsed_log_hists[0], parsed_log_hists[2] ], variables=['width_pre_SD', 'width_post_SD']), labels=["Before Soft Drop", "After Soft Drop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[[], [], [7, 7], [7, 7]], ratio_to_label="Ratio to\nPythia", ratio_to_index={0: 2, 1: 3, 2: 2, 3: 3})
-# create_data_only_plot(filename=default_dir + "basic_sub_width_softdrop_track_log.pdf", hists=compile_data_and_pythia([ parsed_log_hists[0], parsed_log_hists[2] ], variables=['track_width_pre_SD', 'track_width_post_SD']), labels=["Before Soft Drop", "After Soft Drop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[[], [], [7, 7], [7, 7]], ratio_to_label="Ratio to\nPythia", ratio_to_index={0: 2, 1: 3, 2: 2, 3: 3})
+create_data_only_plot(filename=default_dir + "basic_sub_width_softdrop_all_log.pdf", hists=compile_data_and_pythia([ parsed_log_hists[0], parsed_log_hists[2] ], variables=['width_pre_SD', 'width_post_SD']), labels=["Before Soft Drop", "After Soft Drop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[[], [], [7, 7], [7, 7]], ratio_to_label="Ratio to\nPythia", ratio_to_index={0: 2, 1: 3, 2: 2, 3: 3})
+create_data_only_plot(filename=default_dir + "basic_sub_width_softdrop_track_log.pdf", hists=compile_data_and_pythia([ parsed_log_hists[0], parsed_log_hists[2] ], variables=['track_width_pre_SD', 'track_width_post_SD']), labels=["Before Soft Drop", "After Soft Drop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[[], [], [7, 7], [7, 7]], ratio_to_label="Ratio to\nPythia", ratio_to_index={0: 2, 1: 3, 2: 2, 3: 3})
 
 
 
@@ -422,8 +424,8 @@ create_multi_page_plot(filename=default_dir + "basic_sub_lha_all_log.pdf", hists
 # create_multi_page_plot(filename=default_dir + "basic_sub_thrust_all_log.pdf", hists=compile_hists('thrust_pre_SD', parsed_log_hists), x_scale='log')
 # create_multi_page_plot(filename=default_dir + "basic_sub_thrust_track_log.pdf", hists=compile_hists('track_thrust_pre_SD', parsed_log_hists), x_scale='log')
 
-# create_data_only_plot(filename=default_dir + "basic_sub_thrust_softdrop_all_log.pdf", hists=compile_data_and_pythia([ parsed_log_hists[0], parsed_log_hists[2] ], variables=['thrust_pre_SD', 'thrust_post_SD']), labels=["Before Soft Drop", "After Soft Drop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[[], [], [7, 7], [7, 7]], ratio_to_label="Ratio to\nPythia", ratio_to_index={0: 2, 1: 3, 2: 2, 3: 3})
-# create_data_only_plot(filename=default_dir + "basic_sub_thrust_softdrop_track_log.pdf", hists=compile_data_and_pythia([ parsed_log_hists[0], parsed_log_hists[2] ], variables=['track_thrust_pre_SD', 'track_thrust_post_SD']), labels=["Before Soft Drop", "After Soft Drop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[[], [], [7, 7], [7, 7]], ratio_to_label="Ratio to\nPythia", ratio_to_index={0: 2, 1: 3, 2: 2, 3: 3})
+create_data_only_plot(filename=default_dir + "basic_sub_thrust_softdrop_all_log.pdf", hists=compile_data_and_pythia([ parsed_log_hists[0], parsed_log_hists[2] ], variables=['thrust_pre_SD', 'thrust_post_SD']), labels=["Before Soft Drop", "After Soft Drop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[[], [], [7, 7], [7, 7]], ratio_to_label="Ratio to\nPythia", ratio_to_index={0: 2, 1: 3, 2: 2, 3: 3})
+create_data_only_plot(filename=default_dir + "basic_sub_thrust_softdrop_track_log.pdf", hists=compile_data_and_pythia([ parsed_log_hists[0], parsed_log_hists[2] ], variables=['track_thrust_pre_SD', 'track_thrust_post_SD']), labels=["Before Soft Drop", "After Soft Drop", "Pythia 8.215 (Before)", "Pythia 8.215 (After)"], types=["error", "error", "hist", "hist"], colors=["black", "red", "black", "red"], line_styles=[[], [], [7, 7], [7, 7]], ratio_to_label="Ratio to\nPythia", ratio_to_index={0: 2, 1: 3, 2: 2, 3: 3})
 
 
 

@@ -118,7 +118,7 @@ def multi_page_log_plot_hist_templates():
 	thrust_hist =  Hist(np.logspace(math.log(float(0.001), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
 
 
-	zg_10_hist = Hist(np.logspace(math.log(float((0.1**2) / 0.5), math.e), math.log((0.5**2) / 0.1, math.e), (50 * 3 + 1) + 1, base=np.e))
+	zg_10_hist = Hist(np.logspace(math.log(float((0.1**2) / 0.5), math.e), math.log((0.5**2) / 0.1, math.e), (50 * 3 + 1), base=np.e))
 	rg_10_hist = Hist(np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
 	e1_10_hist = Hist(np.logspace(math.log(float(0.001), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
 	e05_10_hist = Hist(np.logspace(math.log(float(0.01), math.e), math.log(1.0, math.e), 50 + 1, base=np.e))
@@ -461,27 +461,27 @@ def multi_page_log_plot_hist_templates():
 
 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} >85~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['85'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} >85~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['pT_D_post_SD'].append( MODHist(copy.deepcopy(pT_D_hist), conditions=default_85_conditions, x_scale='log', use_prescale=True, x_label="$p_T^D$", y_label="Probability Density", legend_location=('upper left', (0., 1.)), additional_text=additional_text ) ) 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} >150~\mathrm{GeV}$" ) ]
-	all_hists['pT_D_post_SD'].append( MODHist(copy.deepcopy(pT_D_hist), conditions=default_150_conditions, x_scale='log', use_prescale=True, y_range=(0., 2.3), x_label="$p_T^D$", y_label="Probability Density", legend_location=('upper left', (0., 1.)), additional_text=additional_text ) ) 
+	additional_text = [ ( big_5_upper_right['150'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} >150~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
+	all_hists['pT_D_post_SD'].append( MODHist(copy.deepcopy(pT_D_hist), conditions=default_150_conditions, x_scale='log', use_prescale=True, y_range=(0., 2.4), x_label="$p_T^D$", y_label="Probability Density", legend_location=('upper left', (0., 1.)), additional_text=additional_text ) ) 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} >250~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['250'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} >250~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['pT_D_post_SD'].append( MODHist(copy.deepcopy(pT_D_hist), conditions=default_250_conditions, x_scale='log', use_prescale=True, x_label="$p_T^D$", y_label="Probability Density", legend_location=('upper left', (0., 1.)), additional_text=additional_text ) ) 
 
 
 
 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} >85~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['85'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} >85~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['track_pT_D_post_SD'].append( MODHist(copy.deepcopy(pT_D_hist), conditions=default_85_conditions, x_scale='log', use_prescale=True, x_label="Track $p_T^D$", y_label="Probability Density", legend_location=('upper left', (0., 1.)), additional_text=additional_text ) ) 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} >150~\mathrm{GeV}$" ) ]
-	all_hists['track_pT_D_post_SD'].append( MODHist(copy.deepcopy(pT_D_hist), conditions=default_150_conditions, x_scale='log', use_prescale=True, y_range=(0., 2.0), x_label="Track $p_T^D$", y_label="Probability Density", legend_location=('upper left', (0., 1.)), additional_text=additional_text ) ) 
+	additional_text = [ ( big_5_upper_right['150'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} >150~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
+	all_hists['track_pT_D_post_SD'].append( MODHist(copy.deepcopy(pT_D_hist), conditions=default_150_conditions, x_scale='log', use_prescale=True, y_range=(0., 2.2), x_label="Track $p_T^D$", y_label="Probability Density", legend_location=('upper left', (0., 1.)), additional_text=additional_text ) ) 
 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} >250~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['250'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} >250~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['track_pT_D_post_SD'].append( MODHist(copy.deepcopy(pT_D_hist), conditions=default_250_conditions, x_scale='log', use_prescale=True, x_label="Track $p_T^D$", y_label="Probability Density", legend_location=('upper left', (0., 1.)), additional_text=additional_text ) ) 
 
 
@@ -535,13 +535,13 @@ def multi_page_log_plot_hist_templates():
 
 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 85~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['85'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 85~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['LHA_post_SD'].append( MODHist(copy.deepcopy(lha_hist), conditions=default_85_conditions, x_scale='log', use_prescale=True, y_range=(0.0, 1.6), x_label="LHA", y_label="Probability Density", additional_text=additional_text ) ) 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['150'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['LHA_post_SD'].append( MODHist(copy.deepcopy(lha_hist), conditions=default_150_conditions, x_scale='log', use_prescale=True, y_range=(0.0, 1.8), x_label="LHA", y_label="Probability Density", legend_location=('upper left', (0., 1.0)), additional_text=additional_text ) ) 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 250~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['250'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 250~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['LHA_post_SD'].append( MODHist(copy.deepcopy(lha_hist), conditions=default_250_conditions, x_scale='log', use_prescale=True, y_range=(0.0, 1.6), x_label="LHA", y_label="Probability Density", additional_text=additional_text ) ) 
 
 
@@ -549,14 +549,14 @@ def multi_page_log_plot_hist_templates():
 
 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 85~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['85'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 85~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['track_LHA_post_SD'].append( MODHist(copy.deepcopy(lha_hist), conditions=default_85_conditions, x_scale='log', use_prescale=True, x_label="Track LHA", y_label="Probability Density", additional_text=additional_text ) ) 
 
-	# additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$" ) ]
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$" ) ]
+	# additional_text = [ ( big_5_upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
+	additional_text = [ ( big_5_upper_right['150'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['track_LHA_post_SD'].append( MODHist(copy.deepcopy(lha_hist), conditions=default_150_conditions, x_scale='log', use_prescale=True, y_range=(0.0, 1.8), x_label="Track LHA", y_label="Probability Density", legend_location=('upper left', (0., 1.0)), additional_text=additional_text ) ) 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 250~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['250'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 250~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['track_LHA_post_SD'].append( MODHist(copy.deepcopy(lha_hist), conditions=default_250_conditions, x_scale='log', use_prescale=True, x_label="Track LHA", y_label="Probability Density", additional_text=additional_text ) ) 
 
 
@@ -592,13 +592,13 @@ def multi_page_log_plot_hist_templates():
 
 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 85~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['85'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 85~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['width_post_SD'].append( MODHist(copy.deepcopy(width_hist), conditions=default_85_conditions, x_scale='log', use_prescale=True, x_label="Width", y_label="Probability Density", legend_location=('upper left', (0., 1.0)), additional_text=additional_text ) ) 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['150'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['width_post_SD'].append( MODHist(copy.deepcopy(width_hist), conditions=default_150_conditions, x_scale='log', use_prescale=True, y_range=(0.0, 1.0), x_label="Width", y_label="Probability Density", legend_location=('upper left', (0., 1.0)), additional_text=additional_text ) ) 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 250~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['250'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 250~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['width_post_SD'].append( MODHist(copy.deepcopy(width_hist), conditions=default_250_conditions, x_scale='log', use_prescale=True, x_label="Width", y_label="Probability Density", legend_location=('upper left', (0., 1.0)), additional_text=additional_text ) ) 
 
 
@@ -606,13 +606,13 @@ def multi_page_log_plot_hist_templates():
 
 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 85~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['85'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 85~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['track_width_post_SD'].append( MODHist(copy.deepcopy(width_hist), conditions=default_85_conditions, x_scale='log', use_prescale=True, x_label="Track Width", y_label="Probability Density", legend_location=('upper left', (0., 1.0)), additional_text=additional_text ) ) 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['150'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['track_width_post_SD'].append( MODHist(copy.deepcopy(width_hist), conditions=default_150_conditions, x_scale='log', use_prescale=True, y_range=(0.0, 0.9), x_label="Track Width", y_label="Probability Density", legend_location=('upper left', (0., 1.0)), additional_text=additional_text ) ) 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 250~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['150'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 250~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['track_width_post_SD'].append( MODHist(copy.deepcopy(width_hist), conditions=default_250_conditions, x_scale='log', use_prescale=True, x_label="Track Width", y_label="Probability Density", legend_location=('upper left', (0., 1.0)), additional_text=additional_text ) ) 
 
 
@@ -648,26 +648,26 @@ def multi_page_log_plot_hist_templates():
 
 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 85~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['85'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 85~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['thrust_post_SD'].append( MODHist(copy.deepcopy(thrust_hist), conditions=default_85_conditions, x_scale='log', use_prescale=True, y_range=(0.0, 0.75), x_label="Thrust", y_label="Probability Density", legend_location=('upper left', (0., 1.0)), additional_text=additional_text ) ) 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['150'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['thrust_post_SD'].append( MODHist(copy.deepcopy(thrust_hist), conditions=default_150_conditions, x_scale='log', use_prescale=True, y_range=(0.0, 0.7), x_label="Thrust", y_label="Probability Density", legend_location=('upper left', (0., 1.0)), additional_text=additional_text ) ) 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 250~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['250'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 250~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['thrust_post_SD'].append( MODHist(copy.deepcopy(thrust_hist), conditions=default_250_conditions, x_scale='log', use_prescale=True, y_range=(0.0, 0.75), x_label="Thrust", y_label="Probability Density", legend_location=('upper left', (0., 1.0)), additional_text=additional_text ) ) 
 
 
 
 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 85~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['85'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 85~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['track_thrust_post_SD'].append( MODHist(copy.deepcopy(thrust_hist), conditions=default_85_conditions, x_scale='log', use_prescale=True, x_label="Track Thrust", y_label="Probability Density", legend_location=('upper left', (0., 1.0)), additional_text=additional_text ) ) 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['150'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$ \n AK5; $\left| \eta \\right| < 2.4$ \n $p_T^{\mathrm{jet}} > 150~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['track_thrust_post_SD'].append( MODHist(copy.deepcopy(thrust_hist), conditions=default_150_conditions, x_scale='log', use_prescale=True, y_range=(0.0, 0.7), x_label="Track Thrust", y_label="Probability Density", legend_location=('upper left', (0., 1.0)), additional_text=additional_text ) ) 
 
-	additional_text = [ ( upper_right, 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 250~\mathrm{GeV}$" ) ]
+	additional_text = [ ( big_5_upper_right['250'], 'upper right', "$p_T^{\mathrm{PFC}} > 1.0~\mathrm{GeV}$; AK5 \n $\left| \eta \\right| < 2.4$; $p_T^{\mathrm{jet}} > 250~\mathrm{GeV}$ \n SD: $\\beta = 0, z_{\mathrm{cut}} = 0.1$" ) ]
 	all_hists['track_thrust_post_SD'].append( MODHist(copy.deepcopy(thrust_hist), conditions=default_250_conditions, x_scale='log', use_prescale=True, x_label="Track Thrust", y_label="Probability Density", legend_location=('upper left', (0., 1.0)), additional_text=additional_text ) ) 
 
 

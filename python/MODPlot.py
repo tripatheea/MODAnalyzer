@@ -249,7 +249,8 @@ class MODPlot:
         y_zero_removed = []
         for i in range(0, len(a)):
             # if a[i] >= x_range[0] and a[i] <= x_range[1] and y[i] != 0.0:
-            if a[i] >= x_range[0] and a[i] <= x_range[1]:
+            # if a[i] >= x_range[0] and a[i] <= x_range[1]:
+            if True:
                 a_zero_removed.append(a[i])
                 y_zero_removed.append(y[i])
 
@@ -588,13 +589,48 @@ class MODPlot:
 
                     else:
                         ratio_hist = copy.deepcopy( self._hists[i].hist() )
-                        ratio_hist.Divide(denominator_hist)
+                        
+                        if "z_g" not in self._x_label and ( (type(self._ratio_to_index) == int and self._ratio_to_index == i) or (type(self._ratio_to_index) == dict and self._ratio_to_index[i] == i)) :
+                            
+                            # print ratio_hist.lowerbound(), ratio_hist.upperbound(), ratio_hist.nbins()
+                            if self._x_scale == "log":
+                                bin_width = (np.log(self._hists[i].hist().upperbound()) - np.log(self._hists[i].hist().lowerbound())) / self._hists[i].hist().nbins()
+                            else:
+                                bin_width = (self._hists[i].hist().upperbound() - self._hists[i].hist().lowerbound()) / self._hists[i].hist().nbins()
+                            
 
+                            if self._x_scale == "log":
+                                # x_s = np.logspace(math.log(ratio_hist.lowerbound(), math.e), math.log(ratio_hist.upperbound() + bin_width, math.e), (ratio_hist.nbins()), base=math.e)
+                                x_s = np.logspace(math.log(ratio_hist.lowerbound(), math.e), math.log(ratio_hist.upperbound() + 5 * bin_width, math.e), 2, base=math.e)
+
+                                # print "the x's are", x_s
+                            else:
+                                x_s = np.linspace(ratio_hist.lowerbound() - bin_width, ratio_hist.upperbound() + bin_width, (ratio_hist.nbins() + 1 + 2))
+
+                            y_s = [1.0] * len(x_s)
+
+                            # print "the y's are", y_s
+
+                            # empty_ratio_hist = ratio_hist.empty_clone()
+                            empty_ratio_hist = Hist(x_s)
+                            empty_ratio_hist.SetLineStyle(ratio_hist.GetLineStyle())
+                            empty_ratio_hist.SetLineColor(ratio_hist.GetLineColor())
+                            empty_ratio_hist.SetLineWidth(ratio_hist.GetLineWidth())
+
+                            empty_ratio_hist.fill_array(x_s, y_s)
+                            ratio_hist = empty_ratio_hist
+                        else:
+                            ratio_hist.Divide(denominator_hist)
                     
 
                     if plot_type == 'hist':
-                        plot = rplt.hist(ratio_hist, axes=ax1, zorder=z_indices[i], emptybins=False)
+                        plot = rplt.hist(ratio_hist, axes=ax1, zorder=z_indices[i], emptybins=True)
                         plot[1].set_dashes(self._line_styles[i])
+
+                        # print plot[0].get_xdata(), plot[0].get_ydata()
+                        # print plot[1].get_xdata(), plot[1].get_ydata()
+                        
+                        # print "\n"
                         
                         line_plot = self.convert_hist_to_line_plot(ratio_hist, ratio_hist.bounds())
 

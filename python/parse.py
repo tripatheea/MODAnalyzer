@@ -39,8 +39,8 @@ data_file   = "/media/aashish/opendata_mod/Feb5/analyzed/pristine.dat"
 # data_file   = "/home/aashish/root/macros/MODAnalyzer/abcde.dat"
 # data_file   = "/media/aashish/opendata_mod/Feb5/analyzed/pt.dat"
 # data_file   = "/home/aashish/root/macros/MODAnalyzer/test.dat"
-pythia_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/pythia/pythia.dat"
-herwig_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/herwig/herwig.dat"
+pythia_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/pythia/part_1_2_3_4.dat"
+herwig_file = "/media/aashish/69B4875A78793A41/MC/herwig/herwig.dat"
 # sherpa_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/sherpa/sherpa.dat"
 sherpa_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/sherpa/sherpa_2_3_4_5_6_7.dat"
 
@@ -81,7 +81,7 @@ def parse_file(input_file, output_filename, all_hists, log_hists):
 		line_number = 0
 
 
-		all_pT_s = []
+		largest_pT = 0.0
 
 
 		for line in infile:
@@ -106,6 +106,7 @@ def parse_file(input_file, output_filename, all_hists, log_hists):
 
 			if line_number % 10000 == 0:
 				print "At line number {}".format(line_number)
+				print "Largest pT so far is", largest_pT
 				write_to_root_files(all_hists, log_hists, output_filename)
 
 			try:
@@ -133,6 +134,7 @@ def parse_file(input_file, output_filename, all_hists, log_hists):
 
 					# Find what prescale to use.
 					pT_of_this_event = float(numbers[keywords_index_dictionary['hardest_pT']]) # + 1 because we ignore the first keyword "Entry".
+
 
 					# Find out what prescale to use.
 					if input_file == data_file:	# For data file only.
@@ -199,7 +201,8 @@ def parse_file(input_file, output_filename, all_hists, log_hists):
 
 								if condition_satisfied:			
 
-									
+									if pT_of_this_event > largest_pT:
+										largest_pT = pT_of_this_event
 
 									# if keyword == 'hardest_eta':
 									# print conditions					
@@ -221,7 +224,7 @@ def parse_file(input_file, output_filename, all_hists, log_hists):
 
 			# print "Took {} seconds for current line.".format(end - start)
 
-	# print "Largest pT was", max(all_pT_s)
+	print "Largest pT was", largest_pT
 
 
 	return all_hists, log_hists
@@ -467,9 +470,9 @@ def parse_to_root_files():
 	hist_templates = hists.multi_page_plot_hist_templates()
 	log_hist_templates = hists.multi_page_log_plot_hist_templates()
 
-	parse_to_root_file(input_filename=data_file, output_filename=(output_directory + "data.root", output_directory + "data_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	# parse_to_root_file(input_filename=data_file, output_filename=(output_directory + "data.root", output_directory + "data_log.root"), hist_templates=(hist_templates, log_hist_templates))
 	# parse_to_root_file(input_filename=pythia_file, output_filename=(output_directory + "pythia.root", output_directory + "pythia_log.root"), hist_templates=(hist_templates, log_hist_templates))
-	# parse_to_root_file(input_filename=herwig_file, output_filename=(output_directory + "herwig.root", output_directory + "herwig_log.root"), hist_templates=(hist_templates, log_hist_templates))
+	parse_to_root_file(input_filename=herwig_file, output_filename=(output_directory + "herwig.root", output_directory + "herwig_log.root"), hist_templates=(hist_templates, log_hist_templates))
 	# parse_to_root_file(input_filename=sherpa_file, output_filename=(output_directory + "sherpa.root", output_directory + "sherpa_log.root"), hist_templates=(hist_templates, log_hist_templates))
 
 
