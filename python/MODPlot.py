@@ -590,7 +590,7 @@ class MODPlot:
                     else:
                         ratio_hist = copy.deepcopy( self._hists[i].hist() )
                         
-                        if "z_g" not in self._x_label and ( (type(self._ratio_to_index) == int and self._ratio_to_index == i) or (type(self._ratio_to_index) == dict and self._ratio_to_index[i] == i)) :
+                        if "z_g" not in self._x_label and self._plot_types[i] != "error" and ( (type(self._ratio_to_index) == int and self._ratio_to_index == i) or (type(self._ratio_to_index) == dict and self._ratio_to_index[i] == i)) :
                             
                             # print ratio_hist.lowerbound(), ratio_hist.upperbound(), ratio_hist.nbins()
                             if self._x_scale == "log":
