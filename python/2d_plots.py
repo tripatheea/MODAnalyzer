@@ -94,7 +94,7 @@ default_dir = "plots/Version 6/"
 
 
 logo_location = "/home/aashish/root/macros/MODAnalyzer/mod_logo.png"
-logo_text = "v1.3"
+logo_text = ""
 
 
 
@@ -471,8 +471,8 @@ def two_dim_log_plots(track=False):
 start = time.time()
 
 
-# two_dim_plots(track=False)
-# two_dim_plots(track=True)
+two_dim_plots(track=False)
+two_dim_plots(track=True)
 
 two_dim_log_plots(track=False)
 two_dim_log_plots(track=True)

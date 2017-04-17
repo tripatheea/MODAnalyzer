@@ -67,7 +67,8 @@ import rootpy.plotting.views
 
 
 logo_location = "/home/aashish/root/macros/MODAnalyzer/mod_logo.png"
-logo_text = "v1.3"
+# logo_text = "v1.3"
+logo_text = ""
 
 
 

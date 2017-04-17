@@ -436,12 +436,12 @@ def load_root_files_to_hist(log=False):
 
 	if not log:
 		hist_templates = hists.two_dim_hists()
-		# filenames = ["2d_data.root", "2d_pythia.root", "2d_herwig.root", "2d_sherpa.root"]
-		filenames = ["2d_data.root", "2d_data.root", "2d_data.root", "2d_data.root"]
+		filenames = ["2d_data.root", "2d_pythia.root", "2d_herwig.root", "2d_sherpa.root"]
+		# filenames = ["2d_data.root", "2d_data.root", "2d_data.root", "2d_data.root"]
 	else:
 		hist_templates = hists.two_dim_log_hists()
-		# filenames = ["2d_data_log.root", "2d_pythia_log.root", "2d_herwig_log.root", "2d_sherpa_log.root"]
-		filenames = ["2d_data_log.root", "2d_data_log.root", "2d_data_log.root", "2d_data_log.root"]
+		filenames = ["2d_data_log.root", "2d_pythia_log.root", "2d_herwig_log.root", "2d_sherpa_log.root"]
+		# filenames = ["2d_data_log.root", "2d_data_log.root", "2d_data_log.root", "2d_data_log.root"]
 
 	return  [ root_file_to_hist(output_directory + filename, hist_templates) for filename in filenames ] 
 
