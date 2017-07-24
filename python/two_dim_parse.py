@@ -23,9 +23,9 @@ import rootpy.plotting.root2matplotlib as rplt
 output_directory = "/media/aashish/opendata_mod/Feb5/histogrammed/2d/"
 
 data_file   = "/media/aashish/opendata_mod/Feb5/analyzed/pristine.dat"
-pythia_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/pythia/pythia.dat"
-herwig_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/herwig/herwig.dat"
-sherpa_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/sherpa/sherpa.dat"
+pythia_file = "/media/aashish/My Files/Dropbox (MIT)/Research/data/MC/pythia/part_1_2_3_4.dat"
+herwig_file = "/media/aashish/69B4875A78793A41/MC/herwig/herwig.dat"
+sherpa_file = "/media/aashish/7CA48778A48733A4/Mar-13-analysis/MC/sherpa/sherpa_2_3_4_5_6_7.dat"
 
 
 average_prescales = {}

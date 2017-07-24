@@ -20,7 +20,7 @@ import rootpy.plotting.root2matplotlib as rplt
 
 # output_directory = "/media/aashish/opendata_mod/Feb5/histogrammed/Apr2/"
 # output_directory = "/media/aashish/opendata_mod/Feb5/histogrammed/backup/wed_morning/"
-output_directory = "/media/aashish/opendata_mod/Feb5/histogrammed/"
+output_directory = "/media/aashish/My Files/Dropbox (MIT)/histogrammed/"
 # output_directory = "/home/aashish/Dropbox (MIT)/Research/data/June Generation (MC)/"
 # output_directory = "/media/aashish/My Files/Dropbox (MIT)/Research/data/June Generation (MC)/"
 # output_directory = "/home/aashish/"

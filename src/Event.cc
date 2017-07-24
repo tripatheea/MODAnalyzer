@@ -296,10 +296,10 @@ string MOD::Event::make_string() const {
 const PseudoJet & MOD::Event::hardest_jet() const {
    
    // EXPERIMENT = 0, MC_TRUTH = 1, MC_RECO = 2, PRISTINE = 3 
-   
+
    if (_data_source == EXPERIMENT)
       return _closest_fastjet_jet_to_trigger_jet;
-   
+
    return _hardest_jet;
 }
 
@@ -350,6 +350,8 @@ void MOD::Event::establish_properties() {
 
    cs->delete_self_when_unused();
 
+   // cout << data_source() << endl;
+
    if (data_source() == EXPERIMENT) {  // Experiment 
 
       // cout << "Setting trigger jet!" << endl;
@@ -373,6 +375,8 @@ void MOD::Event::establish_properties() {
    }
 
 
+
+  
    set_hardest_jet();
 
    // cout << _hardest_jet.pt() << endl;
@@ -794,8 +798,6 @@ bool MOD::Event::is_trigger_jet_matched() {
 
 void MOD::Event::set_hardest_jet() {
    _hardest_jet = sorted_by_pt(_jets)[0];
-
-   // cout << _jets.size() << endl;
 }
 
 

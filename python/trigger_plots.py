@@ -94,7 +94,7 @@ default_dir = "plots/Version 6/"
 
 
 logo_location = "/home/aashish/root/macros/MODAnalyzer/mod_logo.png"
-logo_text = "v1.3"
+logo_text = ""
 
 
 
@@ -179,6 +179,11 @@ def trigger_turn_on_curves():
 	legend = plt.legend(handles[::-1], labels[::-1], frameon=0, fontsize=60, bbox_to_anchor=[0.97, 0.99])
 
 	ax = plt.gca().add_artist(legend)
+
+	outside_text = plt.gca().legend( [extra], ["CMS 2010 Open Data"], frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=(1.0, 1.005), loc='lower right')
+	plt.gca().add_artist(outside_text)
+
+
 
 
 	plt.autoscale()
@@ -294,6 +299,8 @@ def trigger_efficiency_plot():
 	ax = plt.gca().add_artist(legend)
 
 
+	outside_text = plt.gca().legend( [extra], ["CMS 2010 Open Data"], frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=(1.0, 1.005), loc='lower right')
+	plt.gca().add_artist(outside_text)
 	
 
 	plt.tick_params(which='major', width=5, length=25, labelsize=70)
@@ -369,7 +376,7 @@ def trigger_prescales():
 	plt.gca().set_xlabel("Trigger Prescale", fontsize=70, labelpad=10)
 	plt.gca().set_ylabel("Events", fontsize=70, labelpad=50)
 
-	plt.gca().add_artist(logo_box(0.103, 1.005))
+	plt.gca().add_artist(logo_box(0.103, 1.00))
 
 
 	plt.gca().set_xscale('log')
@@ -382,8 +389,11 @@ def trigger_prescales():
 
 	# plt.gca().xaxis.set_major_formatter(mpl.ticker.ScalarFormatter(useMathText=False))
 	
+	outside_text = plt.gca().legend( [extra], ["CMS 2010 Open Data"], frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=(1.0, 1.005), loc='lower right')
+	plt.gca().add_artist(outside_text)
 
-	plt.tick_params(which='major', width=5, length=25, labelsize=70)
+
+	plt.tick_params(which='major', width=5, length=25, labelsize=70, pad=10)
 	plt.tick_params(which='minor', width=3, length=15)
 
 	# plt.tight_layout()

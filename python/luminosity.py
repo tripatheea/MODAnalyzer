@@ -195,7 +195,8 @@ def plot_integrated_recorded_lumi(cumulative=False):
   print max(intg_rec_lumi),
   
   handles, labels = plt.gca().get_legend_handles_labels()
-  plt.gca().legend(handles[::-1], labels[::-1], bbox_to_anchor=[0.007, 0.99], frameon=False, loc='upper left', fontsize=70)
+  legend = plt.gca().legend(handles[::-1], labels[::-1], bbox_to_anchor=[0.007, 0.99], frameon=False, loc='upper left', fontsize=70)
+  plt.gca().add_artist(legend)
 
   plt.gcf().set_size_inches(30, 21.4285714, forward=1)
 
@@ -236,15 +237,20 @@ def plot_integrated_recorded_lumi(cumulative=False):
   else:
     plt.gca().yaxis.set_minor_locator(MultipleLocator(2))
 
+
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  outside_text = plt.gca().legend( [extra], ["CMS 2010 Open Data"], frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=(1.0, 1.005), loc='lower right')
+  plt.gca().add_artist(outside_text)
+
   # plt.xlim()
 
   if cumulative:
-    logo = [0.063, 0.99]
+    logo = [0.062, 0.985]
   else:
-    logo = [0.053, 0.985]
+    logo = [0.051, 0.978]
 
   logo_offset_image = OffsetImage(read_png(get_sample_data("/home/aashish/root/macros/MODAnalyzer/mod_logo.png", asfileobj=False)), zoom=0.25, resample=1, dpi_cor=1)
-  text_box = TextArea("v1.3", textprops=dict(color='#444444', fontsize=50, weight='bold'))
+  text_box = TextArea("", textprops=dict(color='#444444', fontsize=50, weight='bold'))
   logo_and_text_box = HPacker(children=[logo_offset_image, text_box], align="center", pad=0, sep=25)
   anchored_box = AnchoredOffsetbox(loc=2, child=logo_and_text_box, pad=0.8, frameon=False, borderpad=0., bbox_to_anchor=logo, bbox_transform = plt.gcf().transFigure)
 
@@ -314,6 +320,9 @@ def plot_inst_lumi():
 
   # plt.gca().xaxis.set_minor_locator(MultipleLocator(0.02))
 
+  extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+  outside_text = plt.gca().legend( [extra], ["CMS 2010 Open Data"], frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=(1.0, 1.005), loc='lower right')
+  plt.gca().add_artist(outside_text)
   
   plt.tick_params(which='major', width=5, length=15, labelsize=60)
 

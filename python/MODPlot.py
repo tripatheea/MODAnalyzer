@@ -88,7 +88,7 @@ plt.rc('font', family='serif', size=43)
 
 class MODPlot:
 
-    def __init__(self, hists, plot_types, plot_colors, plot_labels, line_styles, x_scale='linear', y_scale='linear', mark_regions=[], ratio_plot=False, ratio_to_index=-1, ratio_label="", x_label="", y_label="", x_lims=(0, -1), y_lims=(0, -1), legend_location=('upper right', (1., 1.))):
+    def __init__(self, hists, plot_types, plot_colors, plot_labels, line_styles, x_scale='linear', y_scale='linear', mark_regions=[], ratio_plot=False, ratio_to_index=-1, ratio_label="", x_label="", y_label="", x_lims=(0, -1), y_lims=(0, -1), legend_location=('upper right', (1., 1.)), text_outside_the_frame=False):
         
         self._hists = hists
         self._plot_types = plot_types
@@ -118,6 +118,9 @@ class MODPlot:
 
         self._plot_points_x_s = []
         self._plot_points_y_s = []
+
+
+        self._text_outside_the_frame = text_outside_the_frame
     
     def extrap1d(self, interpolator):
         xs = interpolator.x
@@ -826,6 +829,13 @@ class MODPlot:
         shift = max([t.get_window_extent(plt.gcf().canvas.get_renderer()).width for t in legend.get_texts()])
 
 
+        if self._text_outside_the_frame:
+            outside_text = ax0.legend( [extra], ["CMS 2010 Open Data"], frameon=0, borderpad=0, fontsize=50, bbox_to_anchor=(1.0, 1.005), loc='lower right')
+            ax0.add_artist(outside_text)
+
+
+
+
 
         
         if "Soft Drop" in self._plot_labels[0]:
@@ -846,10 +856,6 @@ class MODPlot:
         # if len()
 
         
-
-
-
-
 
         # Axes labels.
 
@@ -1122,7 +1128,7 @@ global_colors = [ plot_colors['data'], plot_colors['pythia'], plot_colors['herwi
 global_labels = [ plot_labels['data'], plot_labels['pythia'], plot_labels['herwig'], plot_labels['sherpa'] ]
 global_line_styles = [ [], [], [21, 7], [7, 7] ]
 
-def create_multi_page_plot(filename, hists, theory=False, x_scale='linear'):
+def create_multi_page_plot(filename, hists, theory=False, x_scale='linear', text_outside_the_frame=False):
     # mod_hists is a list of MODHist objects.
 
     labels = copy.deepcopy(global_labels)
@@ -1159,7 +1165,7 @@ def create_multi_page_plot(filename, hists, theory=False, x_scale='linear'):
                 # ratio_to_index = 0
                 ratio_to_label = "Ratio to\nPythia" 
 
-                plot = MODPlot(mod_hists, plot_types=types, plot_colors=colors, plot_labels=labels, line_styles=line_styles, x_scale=mod_hists[-1].x_scale(), y_scale=mod_hists[-1].y_scale(), ratio_plot=True, ratio_to_index=ratio_to_index, ratio_label=ratio_to_label, mark_regions=mod_hists[-1].mark_regions(), x_label=mod_hists[-1].x_label(), legend_location=mod_hists[-1].legend_location(), y_label=mod_hists[-1].y_label(), x_lims=mod_hists[-1].x_range(), y_lims=mod_hists[-1].y_range())
+                plot = MODPlot(mod_hists, plot_types=types, plot_colors=colors, plot_labels=labels, line_styles=line_styles, x_scale=mod_hists[-1].x_scale(), y_scale=mod_hists[-1].y_scale(), ratio_plot=True, ratio_to_index=ratio_to_index, ratio_label=ratio_to_label, mark_regions=mod_hists[-1].mark_regions(), x_label=mod_hists[-1].x_label(), legend_location=mod_hists[-1].legend_location(), y_label=mod_hists[-1].y_label(), x_lims=mod_hists[-1].x_range(), y_lims=mod_hists[-1].y_range(), text_outside_the_frame=text_outside_the_frame)
                 plot.plot()
             
                 pdf.savefig()
@@ -1167,14 +1173,14 @@ def create_multi_page_plot(filename, hists, theory=False, x_scale='linear'):
 
 
 
-def create_data_only_plot(filename, hists, labels, types, colors, line_styles, ratio_plot=True, ratio_to_label="", ratio_to_index=1, x_scale='linear'):
+def create_data_only_plot(filename, hists, labels, types, colors, line_styles, ratio_plot=True, ratio_to_label="", ratio_to_index=1, x_scale='linear', text_outside_the_frame=False):
     # mod_hists is a list of MODHist objects.
 
     with PdfPages(filename) as pdf:
 
         for mod_hists in hists: # mod_hists contains a list [ data_mod_hist, pythia_mod_hist, ... ]
 
-            plot = MODPlot(mod_hists, plot_types=types, plot_colors=colors, plot_labels=labels, line_styles=line_styles, ratio_plot=ratio_plot, ratio_to_index=ratio_to_index, ratio_label=ratio_to_label, x_scale=mod_hists[-1].x_scale(), y_scale=mod_hists[-1].y_scale(), x_label=mod_hists[-1].x_label(), y_label=mod_hists[-1].y_label(), x_lims=mod_hists[-1].x_range(), y_lims=mod_hists[-1].y_range(), legend_location=mod_hists[-1].legend_location(), mark_regions=mod_hists[-1].mark_regions())
+            plot = MODPlot(mod_hists, plot_types=types, plot_colors=colors, plot_labels=labels, line_styles=line_styles, ratio_plot=ratio_plot, ratio_to_index=ratio_to_index, ratio_label=ratio_to_label, x_scale=mod_hists[-1].x_scale(), y_scale=mod_hists[-1].y_scale(), x_label=mod_hists[-1].x_label(), y_label=mod_hists[-1].y_label(), x_lims=mod_hists[-1].x_range(), y_lims=mod_hists[-1].y_range(), legend_location=mod_hists[-1].legend_location(), mark_regions=mod_hists[-1].mark_regions(), text_outside_the_frame=text_outside_the_frame)
             plot.plot()
         
             pdf.savefig()
